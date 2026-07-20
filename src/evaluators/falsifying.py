@@ -19,7 +19,7 @@ from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.resampling import logo_cross_valid, logo_cross_valid_frozen
 from src.evaluators.metrics import consensus_metrics, frontier_metrics
-from src.evaluators.metrics import FRONTIER_METRICS, CONSENSUS_METRICS
+from src.evaluators.config import FRONTIER_METRICS, CONSENSUS_METRICS
 
 ## ----------------------------------------------------------------------------
 ## transfer falsifiability test
