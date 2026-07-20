@@ -3,7 +3,7 @@ import pandas as pd
 from pandas.io.formats.style import Styler
 
 ## modules
-from src.evaluators.metrics import FRONTIER_METRICS
+from src.evaluators.config import FRONTIER_METRICS
 
 ## ----------------------------------------------------------------------------
 ## domain transfer result helper
