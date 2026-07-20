@@ -4,12 +4,13 @@ import pandas as pd
 from tqdm import tqdm
 from joblib import parallel
 from contextlib import contextmanager
+from itertools import combinations
 from joblib.parallel import BatchCompletionCallBack
 from typing import Sequence, Dict, Any, Iterator
 from scipy.stats import rankdata, wilcoxon
 
 ## modules
-from src.evaluators.metrics import (
+from src.evaluators.config import (
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
@@ -721,6 +722,101 @@ def compile_decomposed_separation(
             )
 
     return frontier_df, prediction_df
+
+
+## --------------------------------------------------------------------------
+## pairwise consensus compilation
+## --------------------------------------------------------------------------
+def compile_decomposed_consensus(
+    predictions: pd.DataFrame,
+    specifications: Sequence[str] | None = None,
+    min_obs: int = 2,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Compile decomposed prediction rows into pairwise model consensus
+        metrics for paradigm-level heatmaps.
+    Args:
+        predictions: Per-dataset prediction table returned by
+            compile_decomposed_separation.
+        specifications: Optional decomposition specifications to retain, in
+            reporting order.
+        min_obs: Minimum number of overlapping finite predictions required for
+            each model pair.
+    Returns:
+        DataFrame with consensus metrics per specification and model pair.
+    Raises:
+        ValueError: If required columns are missing or min_obs is less than two.
+    """
+
+    from src.evaluators.metrics import consensus_metrics
+
+    if min_obs < 2:
+        raise ValueError("min_obs must be >= 2")
+
+    required_columns = {"model", "specification", "dataset", "group", "y_pred"}
+    missing = sorted(required_columns - set(predictions.columns))
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+    data = predictions[["model", "specification", "dataset", "group", "y_pred"]].copy()
+    data["y_pred"] = pd.to_numeric(data["y_pred"], errors = "coerce")
+    model_names = data["model"].dropna().drop_duplicates().tolist()
+
+    if specifications is None:
+        specification_values = data["specification"].dropna().drop_duplicates().tolist()
+    else:
+        specification_values = list(specifications)
+        data = data.loc[data["specification"].isin(specification_values)].copy()
+
+    rows = list()
+    for specification in specification_values:
+        specification_data = data.loc[data["specification"] == specification]
+        if specification_data.empty:
+            continue
+
+        prediction_table = specification_data.pivot_table(
+            index = ["group", "dataset"],
+            columns = "model",
+            values = "y_pred",
+            aggfunc = "mean",
+            observed = True,
+        )
+
+        for model_i, model_j in combinations(model_names, 2):
+            if model_i not in prediction_table.columns or model_j not in prediction_table.columns:
+                continue
+
+            pair_values = prediction_table[[model_i, model_j]].dropna()
+            if len(pair_values) < min_obs:
+                continue
+
+            metrics = consensus_metrics(
+                y_true = pair_values[model_i].to_numpy(dtype = float),
+                y_pred = pair_values[model_j].to_numpy(dtype = float),
+            )
+            rows.append({
+                "specification": specification,
+                "group": "all",
+                "model_i": model_i,
+                "model_j": model_j,
+                "n_obs": int(len(pair_values)),
+                **metrics,
+            })
+
+    columns = [
+        "specification",
+        "group",
+        "model_i",
+        "model_j",
+        "n_obs",
+        *CONSENSUS_METRICS,
+    ]
+    if not rows:
+        return pd.DataFrame(columns = columns)
+
+    return pd.DataFrame(rows).reindex(columns = columns)
 
 
 ## --------------------------------------------------------------------------
