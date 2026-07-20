@@ -6,7 +6,7 @@ from collections.abc import Mapping
 ## modules
 from src.evaluators.metrics import consensus_metrics
 from src.vectorizers.scalers import _log_transformer
-from src.evaluators.metrics import CONSENSUS_METRICS
+from src.evaluators.config import CONSENSUS_METRICS
 
 ## ----------------------------------------------------------------------------
 ## structural agreement compilation
