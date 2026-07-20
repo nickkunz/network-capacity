@@ -9,10 +9,6 @@ import pandas as pd
 from typing import Literal, Sequence
 from scipy.stats import ConstantInputWarning, spearmanr
 
-## constants
-FRONTIER_METRICS = ["vr", "mv", "ms", "ei"]
-CONSENSUS_METRICS = ["rho", "rbo", "dcr", "ci"]
-
 ## violation rate
 def _violation_rate(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
