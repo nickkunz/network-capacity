@@ -39,7 +39,7 @@ from src.data.helpers import (
 )
 
 ## constants
-from src.evaluators.metrics import (
+from src.evaluators.config import (
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
