@@ -176,8 +176,10 @@ def _rank_biased_overlap(y_true: np.ndarray, y_pred: np.ndarray, p: float) -> fl
     if not 0.0 <= p < 1.0:
         raise ValueError("p must satisfy 0 <= p < 1.")
     
-    s = np.argsort(y_true)[::-1]
-    t = np.argsort(y_pred)[::-1]
+    ## stable descending sort
+    ## ties retain ascending index order so the statistic is deterministic
+    s = np.argsort(-np.asarray(y_true, dtype = float), kind = "stable")
+    t = np.argsort(-np.asarray(y_pred, dtype = float), kind = "stable")
     n = len(s)
     if n == 0:
         return 0.0
