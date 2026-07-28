@@ -44,9 +44,9 @@ from src.data.loaders.rain import RainProcessor
 from src.data.loaders.chickenpox import ChickenpoxProcessor
 from src.evaluators.perturbing import (
     network_perturb,
-    analytical_perturb,
+    feature_perturb,
     process_perturb,
-    invariant_perturb
+    analytical_perturb
 )
 from src.data.helpers import (
     _save_to_json, 
@@ -54,11 +54,7 @@ from src.data.helpers import (
 )
 
 ## logging
-logging.basicConfig(
-    level = logging.INFO,
-    format = '%(asctime)s - %(levelname)s - %(message)s',
-    stream = sys.stdout
-)
+logger = logging.getLogger(__name__)
 
 ## configs
 config = configparser.ConfigParser()
@@ -119,7 +115,7 @@ URL_SEISMIC_EVENTS = config['urls']['URL_SEISMIC_EVENTS'].strip('"')
 NETWORK_METHODS = {
     "rewire":      tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
     "densify":     tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
-    "sample": tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2))
+    "sample":      tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2))
 }
 INVARIANT_METHODS = {
     'noise':  tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
@@ -257,7 +253,7 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
         for method, params in INVARIANT_METHODS.items():
             for param in params:
                 try:
-                    perturbed_df = invariant_perturb(
+                    perturbed_df = feature_perturb(
                         base_df.copy(),
                         method = method,
                         noise = float(param) if method != 'subset' else 0.05,
@@ -308,7 +304,7 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
         for method, params in SIGNATURE_METHODS.items():
             for param in params:
                 try:
-                    perturbed_df = invariant_perturb(
+                    perturbed_df = feature_perturb(
                         base_sig_df.copy(),
                         method = method,
                         noise = float(param) if method != 'subset' else 0.05,
@@ -890,4 +886,4 @@ def json_perturber(force: bool = False):
 
 ## primary execution
 if __name__ == '__main__':
-    json_perturber(force = False)
+    json_perturber(force = True)

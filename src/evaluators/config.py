@@ -32,4 +32,6 @@ FEAT_Z = [
     "count_skewness",
 ]
 TARGET = "target"
+FRONTIER_METRICS = ["vr", "mv", "ms", "ei"]
+CONSENSUS_METRICS = ["rho", "rbo", "dcr", "ci"]
 

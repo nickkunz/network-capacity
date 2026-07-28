@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator
 from joblib import parallel, Parallel, delayed
 from joblib.parallel import BatchCompletionCallBack
 from typing import Sequence, Optional, Tuple, Dict, Literal, Any
-from scipy.stats import rankdata, wilcoxon
+from scipy.stats import wilcoxon
 from contextlib import contextmanager
 from tqdm import tqdm
 
@@ -37,7 +37,12 @@ from src.data.helpers import (
     _force_finite_dict,
     _clip_unit_interval
 )
-from src.evaluators.metrics import FRONTIER_METRICS
+
+## constants
+from src.evaluators.config import (
+    FRONTIER_METRICS,
+    CONSENSUS_METRICS
+)
 
 ## joblib progress bar bridge
 @contextmanager
@@ -423,9 +428,9 @@ def network_perturb(
     return GraphInvariants(G).all()
 
 ## ----------------------------------------------------------------------------
-## invariant perturbation
+## feature vector perturbation
 ## ----------------------------------------------------------------------------
-def invariant_perturb(
+def feature_perturb(
     X: pd.DataFrame,
     method: str = "noise",
     noise: float = 0.05,
@@ -435,13 +440,13 @@ def invariant_perturb(
     
     """
     Desc:
-        Directly modifies invariant encoding.
+        Directly modifies invariant and signature feature vectors.
 
     Args:
-        X: DataFrame of graph invariants.
+        X: DataFrame of feature vectors.
         method: Perturbation method ('noise', 'jitter', 'subset').
         noise: Standard deviation of noise (relative to feature std).
-        subset: Fraction of features to keep (for subset).
+        subset: Fraction of features to keep (for subset ablation).
 
     Returns:
         Perturbed feature matrix.
@@ -474,17 +479,17 @@ def invariant_perturb(
             if (X[col] >= 0).all():
                 X_new[col] = np.clip(X_new[col], a_min = 0, a_max = None)
 
-    ## random feature ablation (permute values to destroy structure)
+    ## random feature ablation by masking dropped columns
     elif method == "subset":
         n_features = X_new.shape[1]
         n_keep = int(n_features * subset)
+        n_keep = int(np.clip(n_keep, a_min = 0, a_max = n_features))
         drop_indices = rng.choice(
             X_new.columns,
             size = n_features - n_keep,
             replace = False
         )
-        for col in drop_indices:
-            X_new[col] = rng.permutation(X_new[col].values)
+        X_new.loc[:, drop_indices] = 0.0
 
     else:
         raise ValueError(f"unknown invariant perturbation method: {method}")
@@ -555,59 +560,59 @@ def process_perturb(
     signatures = ProcessSignatures(data_temp, sort_by = ["idx"], target = "counts")
     return signatures.all()
 
-## ----------------------------------------------------------------------------
-## signature perturbation
-## ----------------------------------------------------------------------------
-def signature_perturb(
-    X: pd.DataFrame,
-    Z: pd.DataFrame,
-    y: pd.Series,
-    method: str = "bootstrap",
-    fraction: float = 1.0,
-    random_state: int = 42,
-    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
-    """
-    Desc:
-        Modifies raw observations of the (X, Z, y) tuples.
+# ## ----------------------------------------------------------------------------
+# ## signature perturbation
+# ## ----------------------------------------------------------------------------
+# def signature_perturb(
+#     X: pd.DataFrame,
+#     Z: pd.DataFrame,
+#     y: pd.Series,
+#     method: str = "bootstrap",
+#     fraction: float = 1.0,
+#     random_state: int = 42,
+#     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
+#     """
+#     Desc:
+#         Modifies raw observations of the (X, Z, y) tuples.
 
-    Args:
-        X: DataFrame of graph invariants.
-        Z: DataFrame of process signatures.
-        y: Series of target values.
-        method: Perturbation method ('bootstrap', 'subsample', 'additive_noise').
-        fraction: Fraction of samples (for subsample), or noise level (for additive_noise).
+#     Args:
+#         X: DataFrame of graph invariants.
+#         Z: DataFrame of process signatures.
+#         y: Series of target values.
+#         method: Perturbation method ('bootstrap', 'subsample', 'additive_noise').
+#         fraction: Fraction of samples (for subsample), or noise level (for additive_noise).
 
-    Returns:
-        Tuple of (X_new, Z_new, y_new).
-    """
+#     Returns:
+#         Tuple of (X_new, Z_new, y_new).
+#     """
 
-    n_samples = len(y)
-    indices = np.arange(n_samples)
-    rng = np.random.default_rng(random_state)
+#     n_samples = len(y)
+#     indices = np.arange(n_samples)
+#     rng = np.random.default_rng(random_state)
 
-    if method == "bootstrap":
-        ## bootstrap keeps original sample size
-        new_indices = resample(indices, n_samples = n_samples, replace = True, random_state = random_state)
+#     if method == "bootstrap":
+#         ## bootstrap keeps original sample size
+#         new_indices = resample(indices, n_samples = n_samples, replace = True, random_state = random_state)
 
-    elif method == "subsample":
-        ## subsample uses fraction
-        new_n = int(max(1, np.floor(n_samples * fraction)))
-        new_indices = resample(indices, n_samples = new_n, replace = False, random_state = random_state)
+#     elif method == "subsample":
+#         ## subsample uses fraction
+#         new_n = int(max(1, np.floor(n_samples * fraction)))
+#         new_indices = resample(indices, n_samples = new_n, replace = False, random_state = random_state)
 
-    elif method == "additive_noise":
-        ## additive gaussian noise scaled by y standard deviation
-        y_new = y.copy().astype(float)
-        std = float(y_new.std())
-        if std > 0:
-            noise = rng.normal(0, std * fraction, size = n_samples)
-            y_new = y_new + noise
-            y_new = np.maximum(y_new, 0.0)  # counts are non-negative
-        return X.copy(), Z.copy(), pd.Series(y_new, name = y.name)
+#     elif method == "additive_noise":
+#         ## additive gaussian noise scaled by y standard deviation
+#         y_new = y.copy().astype(float)
+#         std = float(y_new.std())
+#         if std > 0:
+#             noise = rng.normal(0, std * fraction, size = n_samples)
+#             y_new = y_new + noise
+#             y_new = np.maximum(y_new, 0.0)  # counts are non-negative
+#         return X.copy(), Z.copy(), pd.Series(y_new, name = y.name)
 
-    else:
-        new_indices = indices
+#     else:
+#         new_indices = indices
 
-    return X.iloc[new_indices], Z.iloc[new_indices], y.iloc[new_indices]
+#     return X.iloc[new_indices], Z.iloc[new_indices], y.iloc[new_indices]
 
 ## ----------------------------------------------------------------------------
 ## temporal perturbation
@@ -873,9 +878,9 @@ def _aggregate_frontier(results_dict: dict, track: str) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 ## ----------------------------------------------------------------------------
-## main evaluation pipeline
+## transfer perturbation training
 ## ----------------------------------------------------------------------------
-def eval_perturbed_frontier(
+def train_perturbed_transfer(
     data: pd.DataFrame,
     models: Dict[str, Any],
     data_pert: dict,
@@ -885,13 +890,13 @@ def eval_perturbed_frontier(
     target: str = "target",
     random_state: int = 42,
     n_jobs: int = -1
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    ) -> dict[str, dict]:
 
     """
-    Desc: run the full perturbation evaluation pipeline. computes baseline
-          logo-cv for each model, then evaluates every perturbation setting
-          under frozen + retrain tracks. returns aggregated metrics with
-          directed deltas and recovery ratios.
+        Desc: run transfer training for the perturbation evaluation. computes
+            baseline LOGO-CV for each model, then evaluates every perturbation
+            setting under frozen and retrain tracks. Post-processing is handled
+            separately by compile_perturbed_transfer.
     Args:
         data: clean baseline dataframe with features, target, and group columns.
         models: mapping of model name to estimator with .estimator_c and
@@ -905,11 +910,7 @@ def eval_perturbed_frontier(
         random_state: base random state for seed reproducibility (default 42).
         n_jobs: number of parallel workers (-1 for all cores).
     Returns:
-        tuple of (results_data, recovery_data).
-        results_data: full aggregated metrics for both tracks including baselines,
-            with directed delta columns (Δ *) for non-baseline rows (NaN for baseline).
-        recovery_data: recovery ratios (ρ *) measuring fraction of frozen-track
-            degradation eliminated by retraining.
+        Dictionary with raw transfer dataframes for frozen and retrain tracks.
     """
 
     ## resolve feature column mapping
@@ -966,19 +967,57 @@ def eval_perturbed_frontier(
         outputs = list()
 
     ## collect results
-    n_ok = 0
     for result in outputs:
         if result is None:
             continue
         key = result["key"]
         results_frozen[key] = result["frozen"]
         results_retrain[key] = result["retrain"]
-        n_ok += 1
+
+    return {
+        "frozen": results_frozen,
+        "retrain": results_retrain,
+    }
+
+
+## ----------------------------------------------------------------------------
+## transfer perturbation compilation
+## ----------------------------------------------------------------------------
+def compile_perturbed_transfer(
+    results: dict[str, dict],
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+
+    """
+    Desc: compile raw perturbation transfer outputs into analysis tables.
+          Aggregates frontier metrics across groups for frozen and retrain
+          tracks, computes directed deltas from the baseline, and estimates
+          retraining recovery ratios.
+    Args:
+        results: Dictionary returned by train_perturbed_transfer with frozen
+            and retrain track mappings.
+    Returns:
+        tuple of (results_data, recovery_data).
+        results_data: full aggregated metrics for both tracks including
+            baselines, with directed delta columns (Δ *) for non-baseline rows.
+        recovery_data: recovery ratios (ρ *) measuring fraction of frozen-track
+            degradation eliminated by retraining.
+
+    Raises:
+        ValueError: If frozen or retrain track outputs are missing.
+    """
+
+    required_tracks = {"frozen", "retrain"}
+    missing_tracks = sorted(required_tracks - set(results))
+    if missing_tracks:
+        raise ValueError(f"Missing perturbation transfer tracks: {missing_tracks}")
 
     ## aggregate frontier metrics across groups for both tracks
-    agg_frozen = _aggregate_frontier(results_dict = results_frozen, track = "frozen")
-    agg_retrain = _aggregate_frontier(results_dict = results_retrain, track = "retrain")
+    agg_frozen = _aggregate_frontier(results_dict = results["frozen"], track = "frozen")
+    agg_retrain = _aggregate_frontier(results_dict = results["retrain"], track = "retrain")
     results_data = pd.concat([agg_frozen, agg_retrain], ignore_index = True)
+
+    if results_data.empty:
+        return results_data, pd.DataFrame()
 
     ## baseline lookup keyed on (model, group) to match per-group aggregation
     baseline_lookup = (
@@ -1021,288 +1060,52 @@ def eval_perturbed_frontier(
 
     return results_data, recovery_data
 
-## ----------------------------------------------------------------------------
-## statistical testing with summary tables
-## ----------------------------------------------------------------------------
-def stat_perturbed_test(
-    results: pd.DataFrame,
-    feat_value: Sequence[str],
-    feat_pairs: Sequence[str] | None = None,
-    feat_group: Sequence[str] = ["track", "method"],
-    pert_type: str | None = None,
-    track: str | Sequence[str] | None = None,
-    label_pert: str = "perturbation",
-    label_base: str = "baseline",
-    decimals: int = 4,
-    index: bool = True,
-    ) -> pd.DataFrame:
+
+## transfer perturbation evaluation wrapper
+def eval_perturbed_transfer(
+    data: pd.DataFrame,
+    models: Dict[str, Any],
+    data_pert: dict,
+    feat_x: Sequence[str],
+    feat_z: Sequence[str],
+    group: str = "domain",
+    target: str = "target",
+    random_state: int = 42,
+    n_jobs: int = -1
+    ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     """
-    Desc:
-        Paired Wilcoxon signed-rank summary comparing original baseline vs
-        perturbed metrics under each perturbation grouping.
-
+        Desc: convenience wrapper that runs perturbed transfer training and then
+          compiles the raw frozen/retrain outputs into analysis tables. Use
+            train_perturbed_transfer plus compile_perturbed_transfer directly
+          when a notebook needs an explicit post-processing step.
     Args:
-        results: Full aggregated output from eval_perturb, including
-            baseline rows.
-        feat_value: Metric columns to test (for example ["ei"]).
-        feat_pairs: Columns that align a baseline row with each perturbed
-            row. Defaults to ["model", "group"] to match the falsification
-            pipeline's (model × domain) pairing convention.
-        feat_group: Columns whose unique combinations define independent
-            tests (default ["track", "method"]).
-        pert_type: Perturbation type to restrict to (e.g. "network",
-            "invariants", "process", "signatures").
-            None -> use all perturbation types.
-        label_pert: Column that flags baseline vs perturbed rows.
-        label_base: Value in label_pert for baseline rows.
-        track: Evaluation track to restrict to (e.g. "frozen", "retrain").
-            None -> use all tracks.
-        decimals: Number of decimal places for display (default 4).
-        index: If True, set group columns as DataFrame index.
-
+        data: clean baseline dataframe with features, target, and group columns.
+        models: mapping of model name to estimator with .estimator_c and
+            .estimator_r attributes.
+        data_pert: nested perturbation dict from load_perturbed_data().
+        feat_x: graph invariant feature column names.
+        feat_z: process signatures feature column names.
+        group: group column name.
+        target: target column name.
+        random_state: base random state for seed reproducibility.
+        n_jobs: number of parallel workers.
     Returns:
-        Display-ready table with columns:
-        [*feat_group, Metric?, Median <M> (Original), Median <M> (Perturbed),
-        Median Δ <M>, Positive Δ , Wilcoxon W+, Rank-biserial r, One-sided p,
-        Holm-adj. p, Sig.].
+        tuple of (results_data, recovery_data) from compile_perturbed_transfer.
     """
 
-    ## filter to a single perturbation type when specified
-    if pert_type is not None:
-        results = results.loc[
-            results[label_pert].isin([label_base, pert_type])
-        ].copy()
-
-    ## filter to specified track(s)
-    if track is not None and "track" in results.columns:
-        track_vals = [track] if isinstance(track, str) else list(track)
-        results = results.loc[results["track"].isin(track_vals)].copy()
-
-    feat_value = list(feat_value)
-    feat_group = list(feat_group or [])
-    group_display = [("Frontier" if c == "track" else c.replace("_", " ").title()) for c in feat_group]
-    p_label = "One-sided p"
-    tail_cols = ["Wilcoxon W+", "Rank-biserial r", p_label, "Holm-adj. p", "Sig"]
-    pair_cols = list(feat_pairs) if feat_pairs is not None else ["model", "group"]
-
-    data = results.copy()
-
-    baseline = data.loc[data[label_pert] == label_base].copy()
-    perturbed = data.loc[data[label_pert] != label_base].copy()
-    merge_keys = ["track", *pair_cols] if "track" in data.columns else list(pair_cols)
-
-    merged = perturbed.loc[:, feat_group + pair_cols + feat_value].merge(
-        baseline.loc[:, merge_keys + feat_value],
-        on = merge_keys,
-        suffixes = ("_pert", "_orig"),
+    results = train_perturbed_transfer(
+        data = data,
+        models = models,
+        data_pert = data_pert,
+        feat_x = feat_x,
+        feat_z = feat_z,
+        group = group,
+        target = target,
+        random_state = random_state,
+        n_jobs = n_jobs,
     )
-
-    ## count n per group for header
-    if feat_group:
-        n_pairs_by_group = merged.groupby(feat_group, sort = False).size()
-        unique_n = np.array(pd.unique(n_pairs_by_group), dtype = float)
-    else:
-        unique_n = np.array([merged.shape[0]], dtype = float)
-    if len(unique_n) == 0:
-        n_display = 0
-    elif len(unique_n) == 1:
-        n_display = int(unique_n[0])
-    else:
-        n_display = f"{int(np.min(unique_n))}-{int(np.max(unique_n))}"
-
-    metric_label = feat_value[0].upper() if len(feat_value) == 1 else ", ".join(v.upper() for v in feat_value)
-    print(f"=== Perturbation: Original vs Perturbed Median {metric_label} (n = {n_display}) ===")
-    print(f"H₁: Perturbation lowers median {metric_label}")
-    print("*** p < 0.001, ** p < 0.01, * p < 0.05")
-
-    groups = merged.groupby(feat_group, sort = False) if feat_group else [((), merged)]
-
-    ## compute paired stats per group x metric
-    rows = list()
-    for group_key, grp in groups:
-        group_key = group_key if isinstance(group_key, tuple) else (group_key,)
-        for metric in feat_value:
-            x = grp[f"{metric}_orig"].to_numpy(dtype = float)
-            y = grp[f"{metric}_pert"].to_numpy(dtype = float)
-            valid = np.isfinite(x) & np.isfinite(y)
-            x, y = x[valid], y[valid]
-            n = len(x)
-            d = x - y
-            n_pos = int(np.sum(d > 0))
-            if n:
-                med_o = float(np.median(x))
-                med_p = float(np.median(y))
-                med_d = med_o - med_p
-            else:
-                med_o, med_p, med_d = np.nan, np.nan, np.nan
-
-            n_eff = int(np.sum(d != 0))
-            if n < 2 or n_eff < 2:
-                w_stat, r_eff, p_val = np.nan, np.nan, np.nan
-            else:
-                ## one-sided paired test: significance indicates frontier collapse
-                w_stat, p_val = wilcoxon(x, y, alternative = "greater")
-
-                ## rank-biserial r (kerby 2014)
-                d_nz = d[d != 0]
-                ranks = rankdata(np.abs(d_nz), method = "average")
-                pos_rank_sum = float(np.sum(ranks[d_nz > 0]))
-                neg_rank_sum = float(np.sum(ranks[d_nz < 0]))
-                r_eff = (pos_rank_sum - neg_rank_sum) / float(np.sum(ranks))
-
-            positive_delta = float(n_pos) / float(n) if n > 0 else np.nan
-            rows.append((*group_key, metric, med_o, med_p, med_d, positive_delta, w_stat, r_eff, float(p_val)))
-
-    summary = pd.DataFrame(rows, columns = feat_group + [
-        "metric",
-        "Median Original",
-        "Median Perturbed",
-        "Median Δ ",
-        "Positive Δ ",
-        "Wilcoxon W+",
-        "Rank-biserial r",
-        p_label,
-    ])
-
-    ## holm-bonferroni correction with monotonic adjustment
-    summary[p_label] = pd.to_numeric(summary[p_label], errors = "coerce")
-    p_value = summary[p_label].to_numpy(dtype = float, copy = True)
-    p_valid = np.isfinite(p_value)
-    holm = np.full(shape = len(p_value), fill_value = np.nan, dtype = float)
-    if np.any(p_valid):
-        p_valid = p_value[p_valid]
-        m = len(p_valid)
-        order = np.argsort(p_valid)
-        holm_sorted = np.maximum.accumulate(p_valid[order] * (m - np.arange(m)))
-        holm_valid = np.empty(m, dtype = float)
-        holm_valid[order] = np.minimum(holm_sorted, 1.0)
-        holm[p_valid] = holm_valid
-    summary["Holm-adj. p"] = holm
-    summary["Sig"] = summary["Holm-adj. p"].map(
-        lambda p: np.nan if not np.isfinite(p) else "***" if p < 0.001 else "**" if p < 0.01 else "*" if p < 0.05 else ""
-    )
-
-    ## convert group/metric labels to display names
-    summary = summary.rename(columns = {c: ("Frontier" if c == "track" else c.replace("_", " ").title()) for c in feat_group})
-    if len(feat_value) == 1:
-        tag = feat_value[0].upper()
-        summary = summary.rename(columns = {
-            "Median Original": f"Median {tag} (Original)",
-            "Median Perturbed": f"Median {tag} (Perturbed)",
-            "Median Δ ": f"Median Δ  {tag}",
-        }).drop(columns = ["metric"])
-    else:
-        summary = summary.rename(columns = {"metric": "Metric"})
-
-    ## apply native display ordering, then format numeric output
-    if "Frontier" in summary.columns:
-        summary["Frontier"] = pd.Categorical(
-            summary["Frontier"],
-            categories = ["frozen", "retrain"],
-            ordered = True,
-        )
-    if "Perturbation" in summary.columns:
-        pert_order = list(pd.unique(perturbed[label_pert]))
-        summary["Perturbation"] = pd.Categorical(
-            summary["Perturbation"],
-            categories = pert_order,
-            ordered = True,
-        )
-    if "Method" in summary.columns:
-        method_order = list(pd.unique(perturbed["method"]))
-        summary["Method"] = pd.Categorical(
-            summary["Method"],
-            categories = method_order,
-            ordered = True,
-        )
-    if group_display:
-        summary = summary.sort_values(group_display).reset_index(drop = True)
-
-    if "Wilcoxon W+" in summary.columns:
-        summary["Wilcoxon W+"] = summary["Wilcoxon W+"].round(0).astype("Int64")
-    round_cols = [c for c in summary.select_dtypes(include = [np.number]).columns if c != "Wilcoxon W+"]
-    if round_cols:
-        summary[round_cols] = summary[round_cols].round(decimals)
-
-    ## keep a stable display column order
-    if "Metric" in summary.columns:
-        value_cols_order = ["Metric", "Median Original", "Median Perturbed", "Median Δ ", "Positive Δ ", *tail_cols]
-    else:
-        med_o = next((c for c in summary.columns if c.startswith("Median ") and c.endswith("(Original)")), "Median Original")
-        med_p = next((c for c in summary.columns if c.startswith("Median ") and c.endswith("(Perturbed)")), "Median Perturbed")
-        med_d = next((c for c in summary.columns if c.startswith("Median Δ ")), "Median Δ ")
-        value_cols_order = [med_o, med_p, med_d, "Positive Δ ", *tail_cols]
-
-    summary = summary.reindex(columns = group_display + [c for c in value_cols_order if c in summary.columns])
-    summary = summary.set_index(group_display) if (index and group_display) else summary
-    summary = summary.astype(object).where(pd.notna(summary), '-')
-    return summary
-
-## specify delta from baseline variability across learners
-def spec_marginal_delta(
-    results: pd.DataFrame,
-    feat_value: Sequence[str],
-    track: str | Sequence[str] | None = None,
-    label_pert: str = "perturbation",
-    label_base: str = "baseline",
-    method: Literal["mad", "iqr", "max"] = "iqr",
-    scale: float = 0.5,
-    decimals: int = 2,
-    ) -> float:
-
-    """
-    Desc:
-        Compute a data-driven equivalence margin (delta) from the natural
-        variability of baseline metric values across learners. Delta is
-        anchored entirely to original data performance. It is pre-specifed
-        and independent of any perturbation effect.
-
-    Args:
-        results: Full aggregated output from eval_perturb, including
-            baseline rows.
-        feat_value: Metric columns (e.g. ["ei"]).
-        feat_pairs: Unused (kept for API compatibility).
-        track: Evaluation track to restrict to.
-        label_pert: Perturbation label column.
-        label_base: Baseline label.
-        method: Dispersion estimator ("mad" for median absolute deviation,
-            "iqr" for interquartile range, "max" for range).
-        scale: Multiplier applied to the dispersion estimate
-            (default 0.5).
-        decimals: Number of decimal places to round the result
-            (default 2).
-
-    Returns:
-        Scalar equivalence margin delta.
-    """
-
-    data = results.copy()
-
-    if track is not None and "track" in data.columns:
-        track_vals = [track] if isinstance(track, str) else list(track)
-        data = data.loc[data["track"].isin(track_vals)]
-
-    baseline = data.loc[data[label_pert] == label_base]
-
-    vals = np.concatenate([
-        baseline[m].to_numpy(dtype=float) for m in feat_value
-    ])
-    vals = vals[np.isfinite(vals)]
-
-    if len(vals) < 2:
-        return 0.05  # fallback
-
-    if method == "mad":
-        dispersion = float(np.median(np.abs(vals - np.median(vals))))
-    elif method == "iqr":
-        dispersion = float(np.percentile(vals, 75) - np.percentile(vals, 25))
-    elif method == "max":
-        dispersion = float(np.max(vals) - np.min(vals))
-    else:
-        raise ValueError(f"unknown method: {method}")
-
-    return round(max(float(scale * dispersion), 1e-6), decimals)
+    return compile_perturbed_transfer(results = results)
 
 
 ## ----------------------------------------------------------------------------
@@ -1424,7 +1227,7 @@ def stat_perturbed_tost(
             valid = np.isfinite(x) & np.isfinite(y)
             x, y = x[valid], y[valid]
             n = len(x)
-            d = x - y
+            d = y - x
             med_d = float(np.median(d)) if n else np.nan
 
             if n < 2:
@@ -1457,6 +1260,21 @@ def stat_perturbed_tost(
             rows.append(row)
 
     summary = pd.DataFrame(rows)
+
+    ## stable ordering by feat_group using first-appearance order in original results
+    if feat_group and not summary.empty:
+        order_src = (
+            results.loc[results[label_pert] != label_base, feat_group]
+            .drop_duplicates()
+        )
+        order_map = {
+            tuple(row): i for i, row in enumerate(order_src.itertuples(index = False, name = None))
+        }
+        summary["__order__"] = summary[feat_group].apply(
+            lambda r: order_map.get(tuple(r), len(order_map)),
+            axis = 1,
+        )
+        summary = summary.sort_values("__order__", kind = "stable").drop(columns = "__order__").reset_index(drop = True)
 
     ## holm-bonferroni step-down adjustment
     p_value = summary["TOST p"].to_numpy(dtype = float, copy = True)
@@ -1501,8 +1319,10 @@ def stat_perturbed_tost(
     print(f"Paired TOST (Wilcoxon Signed-Rank): n = {n_display}, δ = {delta}")
     print(f"H₀: |Δ {metric_label}| ≥ δ")
     print(f"H₁: |Δ {metric_label}| < δ")
-    print(f"Median Δ {metric_label}: Median of paired differences, not the difference of marginal medians")
-    print(f"Rank-biserial r: Paired effect size, equivalence determined by TOST")
+    print(
+        f"Median Δ {metric_label}: Median of paired differences (perturbed - original), not the difference of marginal medians"
+    )
+    print(f"Rank-biserial r: Paired effect size, positive values favor perturbed > original; equivalence is determined by TOST")
     print(f"TOST p: max(Upper p, Lower p)")
     print(f"Holm-adj. p: Holm-Bonferroni adjusted TOST p-value")
     print("Significance codes reflect Holm-adj. p")
@@ -1642,9 +1462,9 @@ def find_perturbed_max(
 
 
 ## ----------------------------------------------------------------------------
-## worker for perturbation alignment
+## worker for perturbation recovery
 ## ----------------------------------------------------------------------------
-def _run_perturbation_alignment(
+def _run_perturbation_recovery(
     model_name: str,
     model: BaseEstimator,
     pert_type: str,
@@ -1682,7 +1502,7 @@ def _run_perturbation_alignment(
         random_state: base random state for repeat reproducibility.
         n_repeats: number of repeated cv seeds to average predictions.
     Returns:
-        dict with "frozen" list of per-group rows, or None if skipped.
+        dict with "frozen" prediction payloads, or None if skipped.
     """
 
     lookup = pert_df.set_index("dataset")
@@ -1719,35 +1539,23 @@ def _run_perturbation_alignment(
     y_true = _log_transformer(data_mod[target]).astype(float).values
     groups_eval = data_mod[group].values
 
-    rows = list()
-    for group_name in pd.unique(groups_eval):
-        mask = (
-            (groups_eval == group_name)
-            & np.isfinite(y_true)
-            & np.isfinite(y_pred_mean)
-        )
-        if int(np.sum(mask)) < 2:
-            continue
-        mvals = consensus_metrics(
-            y_true = y_true[mask],
-            y_pred = y_pred_mean[mask],
-        )
-        rows.append({
+    return {
+        "frozen": [{
             "track": "frozen",
             "model": model_name,
             "perturbation": pert_type,
             "method": method,
             "intensity": intensity,
-            "group": group_name,
-            **mvals,
-        })
-
-    return {"frozen": rows}
+            "y_true": y_true,
+            "y_pred": y_pred_mean,
+            "groups": groups_eval,
+        }]
+    }
 
 ## ----------------------------------------------------------------------------
-## target-alignment perturbation pipeline
+## structural agreement perturbation pipeline
 ## ----------------------------------------------------------------------------
-def eval_perturbed_alignment(
+def train_perturbed_recovery(
     data: pd.DataFrame,
     models: Dict[str, Any],
     data_pert: dict,
@@ -1758,16 +1566,12 @@ def eval_perturbed_alignment(
     n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1,
-    ) -> pd.DataFrame:
+    ) -> dict[str, Any]:
 
     """
     Desc:
-        Test whether perturbed data preserves predictive alignment with the
-        observed target relative to the unperturbed baseline under the frozen
-        protocol. Predictions are generated via LOGO-CV (domain) with
-        seed-averaged repeats, and consensus metrics are computed per domain
-        so downstream paired tests align on (model, group), consistent with
-        the frontier pipeline.
+        Run raw structural agreement perturbation jobs under the frozen protocol.
+        Post-processing is handled separately by compile_perturbed_recovery.
 
     Args:
         data: clean baseline dataframe with features, target, and group columns.
@@ -1784,10 +1588,7 @@ def eval_perturbed_alignment(
         n_jobs: number of parallel workers (default -1, all cores).
 
     Returns:
-        DataFrame with consensus metrics (rho, rbo, dcr, ci) per
-        (track, model, perturbation, method, intensity, group). Baseline
-        rows are emitted with perturbation == "baseline" and
-        method/intensity == None for the frozen track.
+        dictionary with baseline and perturbed prediction payloads.
     """
 
     feat_x = list(feat_x)
@@ -1822,29 +1623,19 @@ def eval_perturbed_alignment(
     y_true_proc = _log_transformer(data[target]).astype(float).values
     groups_proc = data[group].values
 
-    rows = list()
-    for model_name, y_pred in baseline_preds.items():
-        for group_name in pd.unique(groups_proc):
-            mask = (
-                (groups_proc == group_name)
-                & np.isfinite(y_true_proc)
-                & np.isfinite(y_pred)
-            )
-            if int(np.sum(mask)) < 2:
-                continue
-            mvals = consensus_metrics(
-                y_true = y_true_proc[mask],
-                y_pred = y_pred[mask],
-            )
-            rows.append({
-                "track": "frozen",
-                "model": model_name,
-                "perturbation": "baseline",
-                "method": None,
-                "intensity": None,
-                "group": group_name,
-                **mvals,
-            })
+    baseline = {
+        model_name: {
+            "track": "frozen",
+            "model": model_name,
+            "perturbation": "baseline",
+            "method": None,
+            "intensity": None,
+            "y_true": y_true_proc,
+            "y_pred": y_pred,
+            "groups": groups_proc,
+        }
+        for model_name, y_pred in baseline_preds.items()
+    }
 
     jobs = list()
     for json_key, methods in data_pert.items():
@@ -1868,19 +1659,130 @@ def eval_perturbed_alignment(
                 message = ".*A worker stopped while some jobs were given to the executor.*",
                 category = UserWarning,
             )
-            with _tqdm_joblib(total = len(jobs), desc = "Perturbation alignment"):
+            with _tqdm_joblib(total = len(jobs), desc = "Perturbation recovery"):
                 outputs = Parallel(n_jobs = n_jobs, verbose = 0)(
-                    delayed(_run_perturbation_alignment)(*args) for args in jobs
+                    delayed(_run_perturbation_recovery)(*args) for args in jobs
                 )
     else:
         outputs = list()
 
+    perturbed = list()
     for result in outputs:
         if result is None:
             continue
-        rows.extend(result["frozen"])
+        perturbed.extend(result["frozen"])
+
+    return {
+        "baseline": baseline,
+        "perturbed": perturbed,
+    }
+
+
+## compile structural agreement perturbation results
+def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
+
+    """
+    Desc:
+        Compile raw structural agreement perturbation predictions into consensus
+        metrics per model, perturbation setting, and group.
+    Args:
+        results: dictionary returned by train_perturbed_recovery.
+    Returns:
+        DataFrame with consensus metrics (rho, rbo, dcr, ci) per
+        (track, model, perturbation, method, intensity, group).
+    """
+
+    records = list(results["baseline"].values()) + list(results["perturbed"])
+    rows = list()
+
+    for record in records:
+        y_true = np.asarray(record["y_true"], dtype = float)
+        y_pred = np.asarray(record["y_pred"], dtype = float)
+        groups_eval = np.asarray(record["groups"])
+        for group_name in pd.unique(groups_eval):
+            mask = (
+                (groups_eval == group_name)
+                & np.isfinite(y_true)
+                & np.isfinite(y_pred)
+            )
+            if int(np.sum(mask)) < 2:
+                continue
+            mvals = consensus_metrics(
+                y_true = y_true[mask],
+                y_pred = y_pred[mask],
+            )
+            rows.append({
+                "track": record["track"],
+                "model": record["model"],
+                "perturbation": record["perturbation"],
+                "method": record["method"],
+                "intensity": record["intensity"],
+                "group": group_name,
+                **mvals,
+            })
+
+    if not rows:
+        return pd.DataFrame(columns = [
+            "track",
+            "model",
+            "perturbation",
+            "method",
+            "intensity",
+            "group",
+            *CONSENSUS_METRICS,
+        ])
 
     return pd.DataFrame(rows)
+
+
+## structural agreement perturbation evaluation wrapper
+def eval_perturbed_recovery(
+    data: pd.DataFrame,
+    models: Dict[str, Any],
+    data_pert: dict,
+    feat_x: Sequence[str],
+    feat_z: Sequence[str],
+    group: str = "domain",
+    target: str = "target",
+    n_repeats: int = 30,
+    random_state: int = 42,
+    n_jobs: int = -1,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Convenience wrapper that runs structural agreement perturbation training
+        and then compiles raw predictions into an analysis-ready dataframe.
+    Args:
+        data: clean baseline dataframe with features, target, and group columns.
+        models: mapping of model name to estimator with .estimator_c and
+                .estimator_r attributes.
+        data_pert: nested perturbation dict from load_perturbed_data().
+        feat_x: graph invariant feature column names.
+        feat_z: process signatures feature column names.
+        group: group column name.
+        target: target column name.
+        n_repeats: number of repeated cv seeds to average predictions.
+        random_state: base random state for seed reproducibility.
+        n_jobs: number of parallel workers.
+    Returns:
+        DataFrame with consensus metrics per
+        (track, model, perturbation, method, intensity, group).
+    """
+
+    results = train_perturbed_recovery(
+        data = data,
+        models = models,
+        data_pert = data_pert,
+        feat_x = feat_x,
+        feat_z = feat_z,
+        group = group,
+        target = target,
+        n_repeats = n_repeats,
+        random_state = random_state,
+        n_jobs = n_jobs,
+    )
+    return compile_perturbed_recovery(results = results)
 
 ## ----------------------------------------------------------------------------
 ## worker for perturbation pairwise consensus (full-data fit, frozen scoring)
@@ -1949,7 +1851,7 @@ def _run_perturbation_consensus(
 ## ----------------------------------------------------------------------------
 ## pairwise consensus perturbation pipeline
 ## ----------------------------------------------------------------------------
-def eval_perturbed_consensus(
+def train_perturbed_consensus(
     data: pd.DataFrame,
     models: Dict[str, Any],
     data_pert: dict,
@@ -1959,18 +1861,12 @@ def eval_perturbed_consensus(
     n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1,
-    ) -> pd.DataFrame:
+    ) -> dict[str, Any]:
 
     """
     Desc:
-        Test whether perturbed data preserves inter-model frontier consensus
-        relative to the unperturbed baseline under the frozen protocol.
-        Models are fit on clean data once, then scored on each perturbed
-        dataframe. Pairwise consensus metrics are computed across model
-        pairs on the prediction vectors so downstream paired tests align on
-        (model_i, model_j, group), mirroring the falsification consensus
-        pipeline. Consensus is global (group == "all") because pairwise
-        agreement is most informative across the full prediction surface.
+        Run raw pairwise consensus perturbation jobs under the frozen protocol.
+        Post-processing is handled separately by compile_perturbed_consensus.
 
     Args:
         data: clean baseline dataframe with features and target columns.
@@ -1987,10 +1883,8 @@ def eval_perturbed_consensus(
         n_jobs: number of parallel workers (default -1, all cores).
 
     Returns:
-        DataFrame with pairwise consensus metrics (rho, rbo, dcr, ci) per
-        (track, perturbation, method, intensity, model_i, model_j, group).
-        Baseline rows are emitted with perturbation == "baseline" and
-        method/intensity == None for the frozen track.
+        dictionary with clean-data prediction vectors and perturbed prediction
+        payloads.
     """
 
     feat_x = list(feat_x)
@@ -2017,29 +1911,6 @@ def eval_perturbed_consensus(
         for name, r in zip(model_names, real_results)
     }
     fit_real = dict(zip(model_names, real_results))
-
-    ## baseline pairwise consensus rows
-    rows = list()
-    for model_i, model_j in combinations(model_names, 2):
-        y_i = pred_real[model_i]
-        y_j = pred_real[model_j]
-        valid = np.isfinite(y_i) & np.isfinite(y_j)
-        if int(np.sum(valid)) < 2:
-            continue
-        mvals = consensus_metrics(
-            y_true = y_i[valid],
-            y_pred = y_j[valid],
-        )
-        rows.append({
-            "track": "frozen",
-            "perturbation": "baseline",
-            "method": None,
-            "intensity": None,
-            "model_i": model_i,
-            "model_j": model_j,
-            "group": "all",
-            **mvals,
-        })
 
     ## perturbation jobs: per (model, perturbation, method, intensity)
     jobs = list()
@@ -2070,18 +1941,69 @@ def eval_perturbed_consensus(
     else:
         outputs = list()
 
+    perturbed = list()
+    for result in outputs:
+        if result is None:
+            continue
+        perturbed.append(result)
+
+    return {
+        "model_names": model_names,
+        "baseline": pred_real,
+        "perturbed": perturbed,
+    }
+
+
+## compile pairwise consensus perturbation results
+def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
+
+    """
+    Desc:
+        Compile raw pairwise consensus perturbation predictions into consensus
+        metrics per perturbation setting and model pair.
+    Args:
+        results: dictionary returned by train_perturbed_consensus.
+    Returns:
+        DataFrame with pairwise consensus metrics (rho, rbo, dcr, ci) per
+        (track, perturbation, method, intensity, model_i, model_j, group).
+    """
+
+    model_names = results["model_names"]
+    pred_real = results["baseline"]
+    rows = list()
+
+    ## baseline pairwise consensus rows
+    for model_i, model_j in combinations(model_names, 2):
+        y_i = pred_real[model_i]
+        y_j = pred_real[model_j]
+        valid = np.isfinite(y_i) & np.isfinite(y_j)
+        if int(np.sum(valid)) < 2:
+            continue
+        mvals = consensus_metrics(
+            y_true = y_i[valid],
+            y_pred = y_j[valid],
+        )
+        rows.append({
+            "track": "frozen",
+            "perturbation": "baseline",
+            "method": None,
+            "intensity": None,
+            "model_i": model_i,
+            "model_j": model_j,
+            "group": "all",
+            **mvals,
+        })
+
     ## index perturbed predictions by (pert_type, method, intensity, model)
     pred_pert = dict()
-    for r in outputs:
-        if r is None:
-            continue
+    for r in results["perturbed"]:
         key = (r["pert_type"], r["method"], r["intensity"], r["model"])
         pred_pert[key] = r["y_pred"]
 
     ## aggregate pairwise consensus per perturbation setting
-    setting_keys = set(
+    setting_keys = list(dict.fromkeys(
         (p, m, i) for (p, m, i, _) in pred_pert.keys()
-    )
+    ))
     for (pert_type, method, intensity) in setting_keys:
         for model_i, model_j in combinations(model_names, 2):
             key_i = (pert_type, method, intensity, model_i)
@@ -2110,4 +2032,63 @@ def eval_perturbed_consensus(
                 **mvals,
             })
 
+    if not rows:
+        return pd.DataFrame(columns = [
+            "track",
+            "perturbation",
+            "method",
+            "intensity",
+            "model_i",
+            "model_j",
+            "group",
+            *CONSENSUS_METRICS,
+        ])
+
     return pd.DataFrame(rows)
+
+
+## pairwise consensus perturbation evaluation wrapper
+def eval_perturbed_consensus(
+    data: pd.DataFrame,
+    models: Dict[str, Any],
+    data_pert: dict,
+    feat_x: Sequence[str],
+    feat_z: Sequence[str],
+    target: str = "target",
+    n_repeats: int = 30,
+    random_state: int = 42,
+    n_jobs: int = -1,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Convenience wrapper that runs pairwise consensus perturbation training
+        and then compiles raw predictions into an analysis-ready dataframe.
+    Args:
+        data: clean baseline dataframe with features and target columns.
+        models: mapping of model name to estimator with .estimator_c and
+                .estimator_r attributes.
+        data_pert: nested perturbation dict from load_perturbed_data().
+        feat_x: graph invariant feature column names.
+        feat_z: process signatures feature column names.
+        target: target column name.
+        n_repeats: number of repeated full-data fits to average per model.
+        random_state: base random state for fit reproducibility.
+        n_jobs: number of parallel workers.
+    Returns:
+        DataFrame with pairwise consensus metrics per
+        (track, perturbation, method, intensity, model_i, model_j, group).
+    """
+
+    results = train_perturbed_consensus(
+        data = data,
+        models = models,
+        data_pert = data_pert,
+        feat_x = feat_x,
+        feat_z = feat_z,
+        target = target,
+        n_repeats = n_repeats,
+        random_state = random_state,
+        n_jobs = n_jobs,
+    )
+    return compile_perturbed_consensus(results = results)
