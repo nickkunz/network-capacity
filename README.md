@@ -1,2 +1,2 @@
-# graph-capacity
-A Universal Capacity Frontier of Observation Rates in Complex Networks
+# network-capacity
+A General Capacity Frontier of Complex Networks
