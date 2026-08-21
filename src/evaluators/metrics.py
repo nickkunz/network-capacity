@@ -224,23 +224,26 @@ def consensus_index(
     rho: float,
     rbo: float,
     dcr: float,
-    eps: float = 1e-12,
     ) -> float:
 
-    """ CI geometric mean over comparable agreement-scale metrics. """
+    """ CI geometric mean over comparable agreement-scale metrics.
+    Components are clipped to their theoretical [0, 1] bounds to correct
+    floating-point error; exact zeros are retained so CI = 0 when any
+    factor is zero. """
 
     rho_agree = (rho + 1.0) / 2.0
-    ci_vals = np.array([rho_agree, rbo, dcr], dtype = float)
-    ci_vals = np.clip(ci_vals, a_min = eps, a_max = 1.0)
-    log_ci = float(np.mean(np.log(ci_vals)))
-    return float(np.exp(log_ci))
+    ci_vals = np.clip(
+        np.array([rho_agree, rbo, dcr], dtype = float),
+        a_min = 0.0,
+        a_max = 1.0,
+    )
+    return float(np.prod(ci_vals) ** (1.0 / 3.0))
 
 
 def _consensus_index(
     rho: float,
     rbo: float,
     dcr: float,
-    eps: float = 1e-12,
     ) -> float:
 
     """ CI geometric mean over comparable agreement-scale metrics. """
@@ -249,7 +252,6 @@ def _consensus_index(
         rho = rho,
         rbo = rbo,
         dcr = dcr,
-        eps = eps,
     )
 
 
