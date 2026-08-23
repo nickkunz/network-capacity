@@ -44,6 +44,7 @@ def _create_igraph_object(nodes: list[str], edges: list[tuple]) -> ig.Graph:
     g = ig.Graph(directed = False)
     g.add_vertices(nodes)
     g.add_edges(edges)
+    g.simplify(multiple = True, loops = True, combine_edges = None)
     return g
 
 ## finite value guarantee
