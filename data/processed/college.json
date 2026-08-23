@@ -19,7 +19,7 @@
     "normalized_laplacian_second_moment": 1.0009551098376313,
     "normalized_laplacian_third_moment": 1.002865329512894,
     "random_walk_triangle_weight": 0.0,
-    "random_walk_fourth_moment": 0.00939937646845671,
+    "random_walk_fourth_moment": 0.0009551098376313276,
     "adjacency_fourth_moment_per_node": 130970193.91117479
   },
   "signatures": {
