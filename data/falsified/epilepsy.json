@@ -24,13 +24,13 @@
       "adjacency_fourth_moment_per_node": 23.68421052631579
     },
     "signatures": {
-      "lag1_autocorr": 0.09225239269959709,
-      "coef_variation": 0.9857823026296467,
-      "fano_factor": 4.577532840101701,
-      "norm_succ_diff": 0.912275403895322,
-      "hurst_exponent": 0.5430193508798139,
-      "trend_coeff": -0.13224392422162598,
-      "count_skewness": 2.7041336992737857
+      "lag1_autocorr": 0.1949938266523994,
+      "coef_variation": 1.1246620313576277,
+      "fano_factor": 5.0088641517200285,
+      "norm_succ_diff": 0.8245722531434735,
+      "hurst_exponent": 0.5793787122002418,
+      "trend_coeff": 0.23701649917385112,
+      "count_skewness": 3.246733760407316
     },
     "events": [
       {
@@ -2136,11 +2136,11 @@
       "maximum_degree": 1501091.4852006708,
       "degree_variance": 3541078730.372225,
       "global_clustering": 0.1952429877980445,
-      "degree_assortativity": 0.21154337471672152,
+      "degree_assortativity": 0.13394309641926652,
       "degree_entropy": 1.323726114357273,
-      "joint_degree_entropy": 0.23488101543747109,
-      "degree_skewness": 18.63060843543087,
-      "degree_kurtosis": 163.74806797524292,
+      "joint_degree_entropy": 0.23487890816822404,
+      "degree_skewness": 30.815258855505345,
+      "degree_kurtosis": 503.49275502036835,
       "normalized_laplacian_second_moment": 1.4311326283631305,
       "normalized_laplacian_third_moment": 2.4470341757892458,
       "random_walk_triangle_weight": 0.1715370731663341,
@@ -2148,354 +2148,450 @@
       "adjacency_fourth_moment_per_node": 618743898724.0093
     },
     "signatures": {
-      "lag1_autocorr": 0.8752053393870891,
-      "coef_variation": 1.6902611355040231,
+      "lag1_autocorr": 0.878089014040592,
+      "coef_variation": 1.5626129925940677,
       "fano_factor": 29212.697962008326,
-      "norm_succ_diff": 1.4975576466481817,
+      "norm_succ_diff": 1.4327751658527468,
       "hurst_exponent": 0.8352622898006783,
       "trend_coeff": -0.16247682771180857,
-      "count_skewness": 2.239289027655332
+      "count_skewness": 1.994278608474831
     },
     "events": [
       {
-        "date": "2010-02-19",
-        "target": 6
+        "day": 0,
+        "target": 2
       },
       {
-        "date": "2010-02-20",
-        "target": 1
-      },
-      {
-        "date": "2010-03-08",
+        "day": 1,
         "target": 5
       },
       {
-        "date": "2010-03-11",
-        "target": 4
-      },
-      {
-        "date": "2010-03-12",
+        "day": 3,
         "target": 3
       },
       {
-        "date": "2010-03-15",
+        "day": 4,
+        "target": 4
+      },
+      {
+        "day": 8,
+        "target": 3
+      },
+      {
+        "day": 10,
         "target": 2
       },
       {
-        "date": "2010-03-16",
+        "day": 14,
         "target": 2
       },
       {
-        "date": "2010-03-20",
+        "day": 15,
+        "target": 1
+      },
+      {
+        "day": 16,
+        "target": 4
+      },
+      {
+        "day": 17,
+        "target": 3
+      },
+      {
+        "day": 18,
+        "target": 2
+      },
+      {
+        "day": 19,
+        "target": 3
+      },
+      {
+        "day": 20,
+        "target": 1
+      },
+      {
+        "day": 21,
+        "target": 1
+      },
+      {
+        "day": 24,
+        "target": 2
+      },
+      {
+        "day": 25,
+        "target": 1
+      },
+      {
+        "day": 26,
+        "target": 4
+      },
+      {
+        "day": 27,
+        "target": 1
+      },
+      {
+        "day": 29,
+        "target": 3
+      },
+      {
+        "day": 31,
+        "target": 1
+      },
+      {
+        "day": 33,
+        "target": 1
+      },
+      {
+        "day": 34,
+        "target": 2
+      },
+      {
+        "day": 35,
+        "target": 4
+      },
+      {
+        "day": 38,
+        "target": 1
+      },
+      {
+        "day": 39,
+        "target": 2
+      },
+      {
+        "day": 40,
+        "target": 2
+      },
+      {
+        "day": 41,
+        "target": 27
+      },
+      {
+        "day": 42,
+        "target": 11
+      },
+      {
+        "day": 44,
+        "target": 2
+      },
+      {
+        "day": 45,
+        "target": 4
+      },
+      {
+        "day": 46,
+        "target": 6
+      },
+      {
+        "day": 47,
+        "target": 4
+      },
+      {
+        "day": 48,
+        "target": 4
+      },
+      {
+        "day": 49,
+        "target": 1
+      },
+      {
+        "day": 50,
+        "target": 6
+      },
+      {
+        "day": 51,
+        "target": 9
+      },
+      {
+        "day": 52,
+        "target": 4
+      },
+      {
+        "day": 54,
         "target": 10
       },
       {
-        "date": "2010-04-01",
-        "target": 3
-      },
-      {
-        "date": "2010-04-05",
-        "target": 5
-      },
-      {
-        "date": "2010-05-04",
+        "day": 55,
         "target": 2
       },
       {
-        "date": "2010-05-05",
+        "day": 56,
         "target": 1
       },
       {
-        "date": "2010-05-10",
-        "target": 14
-      },
-      {
-        "date": "2010-05-11",
-        "target": 26
-      },
-      {
-        "date": "2010-06-01",
-        "target": 2
-      },
-      {
-        "date": "2010-06-02",
-        "target": 2
-      },
-      {
-        "date": "2010-06-03",
-        "target": 8
-      },
-      {
-        "date": "2010-06-10",
-        "target": 7
-      },
-      {
-        "date": "2010-06-11",
-        "target": 1
-      },
-      {
-        "date": "2010-07-01",
-        "target": 6
-      },
-      {
-        "date": "2010-07-02",
-        "target": 6
-      },
-      {
-        "date": "2010-07-03",
-        "target": 5
-      },
-      {
-        "date": "2010-07-04",
-        "target": 3
-      },
-      {
-        "date": "2010-07-15",
-        "target": 10
-      },
-      {
-        "date": "2010-08-01",
-        "target": 2
-      },
-      {
-        "date": "2010-08-03",
-        "target": 1
-      },
-      {
-        "date": "2010-08-16",
-        "target": 6
-      },
-      {
-        "date": "2010-09-02",
-        "target": 3
-      },
-      {
-        "date": "2010-09-15",
-        "target": 7
-      },
-      {
-        "date": "2010-09-17",
-        "target": 1
-      },
-      {
-        "date": "2010-10-01",
+        "day": 59,
         "target": 4
       },
       {
-        "date": "2010-10-15",
-        "target": 1
-      },
-      {
-        "date": "2010-10-16",
+        "day": 60,
         "target": 2
       },
       {
-        "date": "2010-11-01",
+        "day": 65,
+        "target": 3
+      },
+      {
+        "day": 67,
         "target": 7
       },
       {
-        "date": "2010-12-16",
+        "day": 69,
+        "target": 1
+      },
+      {
+        "day": 71,
         "target": 4
       },
       {
-        "date": "2011-02-25",
+        "day": 73,
         "target": 2
       },
       {
-        "date": "2011-02-26",
-        "target": 4
+        "day": 74,
+        "target": 1
       },
       {
-        "date": "2011-02-28",
-        "target": 1
+        "day": 75,
+        "target": 7
+      },
+      {
+        "day": 76,
+        "target": 16
       }
     ]
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 285928.8079777143,
-      "n_edges": 1234558085.8424983,
-      "n_articulation_points": 4377.1666277847635,
-      "n_bridges": -55572.85370474061,
-      "diameter": -15.549775918805466,
-      "radius": 34.012378298279486,
-      "degeneracy": -975.1064218515822,
-      "k_core_size": 545678.4758983612,
-      "maximum_degree": -1038369.417922553,
-      "degree_variance": 2212002686.279624,
-      "global_clustering": -0.5468692676548635,
-      "degree_assortativity": -1.2175901934249802,
-      "degree_entropy": 2.9825208172358186,
-      "joint_degree_entropy": 3.4457811939219636,
-      "degree_skewness": -6.56743350895473,
-      "degree_kurtosis": -219.5548182163685,
-      "normalized_laplacian_second_moment": 1.3315799855913653,
-      "normalized_laplacian_third_moment": 1.0729040737785864,
-      "random_walk_triangle_weight": 0.02003323954329825,
-      "random_walk_fourth_moment": 0.007955399953367175,
-      "adjacency_fourth_moment_per_node": 11383395689343.543
+      "n_nodes": 285899.72378652624,
+      "n_edges": 1234558364.6712863,
+      "n_articulation_points": 4377.130578002569,
+      "n_bridges": -55543.72397556442,
+      "diameter": -15.553355751321106,
+      "radius": 34.01759907571741,
+      "degeneracy": -964.4183324658152,
+      "k_core_size": 545677.9199690003,
+      "maximum_degree": -1038310.0590064712,
+      "degree_variance": 2212002659.08001,
+      "global_clustering": -0.5468692676473674,
+      "degree_assortativity": -1.2097662840584948,
+      "degree_entropy": 2.929155964331307,
+      "joint_degree_entropy": 3.4344899648820593,
+      "degree_skewness": -11.690835910270815,
+      "degree_kurtosis": -499.39198935564605,
+      "normalized_laplacian_second_moment": 1.3607292638255877,
+      "normalized_laplacian_third_moment": 1.074169785139213,
+      "random_walk_triangle_weight": 0.019914206854024417,
+      "random_walk_fourth_moment": 0.007412925671424476,
+      "adjacency_fourth_moment_per_node": 11383401444146.475
     },
     "signatures": {
-      "lag1_autocorr": 1.2347559476091052,
-      "coef_variation": -0.07935660478006779,
-      "fano_factor": 39620.13133348574,
-      "norm_succ_diff": 0.6070633139029658,
-      "hurst_exponent": 0.4535050695128607,
-      "trend_coeff": 0.13794075457341376,
-      "count_skewness": -1.179410949888944
+      "lag1_autocorr": 1.226826718842772,
+      "coef_variation": 0.13360416444654832,
+      "fano_factor": 39616.09274669051,
+      "norm_succ_diff": 0.6093221130552258,
+      "hurst_exponent": 0.4707736128668344,
+      "trend_coeff": 0.1375701753732354,
+      "count_skewness": -0.9467589423579794
     },
     "events": [
       {
-        "date": "2010-02-19",
-        "target": 6
+        "day": 0,
+        "target": 2
       },
       {
-        "date": "2010-02-20",
-        "target": 1
-      },
-      {
-        "date": "2010-03-08",
+        "day": 1,
         "target": 5
       },
       {
-        "date": "2010-03-11",
-        "target": 4
-      },
-      {
-        "date": "2010-03-12",
+        "day": 3,
         "target": 3
       },
       {
-        "date": "2010-03-15",
+        "day": 4,
+        "target": 4
+      },
+      {
+        "day": 8,
+        "target": 3
+      },
+      {
+        "day": 10,
         "target": 2
       },
       {
-        "date": "2010-03-16",
+        "day": 14,
         "target": 2
       },
       {
-        "date": "2010-03-20",
+        "day": 15,
+        "target": 1
+      },
+      {
+        "day": 16,
+        "target": 4
+      },
+      {
+        "day": 17,
+        "target": 3
+      },
+      {
+        "day": 18,
+        "target": 2
+      },
+      {
+        "day": 19,
+        "target": 3
+      },
+      {
+        "day": 20,
+        "target": 1
+      },
+      {
+        "day": 21,
+        "target": 1
+      },
+      {
+        "day": 24,
+        "target": 2
+      },
+      {
+        "day": 25,
+        "target": 1
+      },
+      {
+        "day": 26,
+        "target": 4
+      },
+      {
+        "day": 27,
+        "target": 1
+      },
+      {
+        "day": 29,
+        "target": 3
+      },
+      {
+        "day": 31,
+        "target": 1
+      },
+      {
+        "day": 33,
+        "target": 1
+      },
+      {
+        "day": 34,
+        "target": 2
+      },
+      {
+        "day": 35,
+        "target": 4
+      },
+      {
+        "day": 38,
+        "target": 1
+      },
+      {
+        "day": 39,
+        "target": 2
+      },
+      {
+        "day": 40,
+        "target": 2
+      },
+      {
+        "day": 41,
+        "target": 27
+      },
+      {
+        "day": 42,
+        "target": 11
+      },
+      {
+        "day": 44,
+        "target": 2
+      },
+      {
+        "day": 45,
+        "target": 4
+      },
+      {
+        "day": 46,
+        "target": 6
+      },
+      {
+        "day": 47,
+        "target": 4
+      },
+      {
+        "day": 48,
+        "target": 4
+      },
+      {
+        "day": 49,
+        "target": 1
+      },
+      {
+        "day": 50,
+        "target": 6
+      },
+      {
+        "day": 51,
+        "target": 9
+      },
+      {
+        "day": 52,
+        "target": 4
+      },
+      {
+        "day": 54,
         "target": 10
       },
       {
-        "date": "2010-04-01",
-        "target": 3
-      },
-      {
-        "date": "2010-04-05",
-        "target": 5
-      },
-      {
-        "date": "2010-05-04",
+        "day": 55,
         "target": 2
       },
       {
-        "date": "2010-05-05",
+        "day": 56,
         "target": 1
       },
       {
-        "date": "2010-05-10",
-        "target": 14
-      },
-      {
-        "date": "2010-05-11",
-        "target": 26
-      },
-      {
-        "date": "2010-06-01",
-        "target": 2
-      },
-      {
-        "date": "2010-06-02",
-        "target": 2
-      },
-      {
-        "date": "2010-06-03",
-        "target": 8
-      },
-      {
-        "date": "2010-06-10",
-        "target": 7
-      },
-      {
-        "date": "2010-06-11",
-        "target": 1
-      },
-      {
-        "date": "2010-07-01",
-        "target": 6
-      },
-      {
-        "date": "2010-07-02",
-        "target": 6
-      },
-      {
-        "date": "2010-07-03",
-        "target": 5
-      },
-      {
-        "date": "2010-07-04",
-        "target": 3
-      },
-      {
-        "date": "2010-07-15",
-        "target": 10
-      },
-      {
-        "date": "2010-08-01",
-        "target": 2
-      },
-      {
-        "date": "2010-08-03",
-        "target": 1
-      },
-      {
-        "date": "2010-08-16",
-        "target": 6
-      },
-      {
-        "date": "2010-09-02",
-        "target": 3
-      },
-      {
-        "date": "2010-09-15",
-        "target": 7
-      },
-      {
-        "date": "2010-09-17",
-        "target": 1
-      },
-      {
-        "date": "2010-10-01",
+        "day": 59,
         "target": 4
       },
       {
-        "date": "2010-10-15",
-        "target": 1
-      },
-      {
-        "date": "2010-10-16",
+        "day": 60,
         "target": 2
       },
       {
-        "date": "2010-11-01",
+        "day": 65,
+        "target": 3
+      },
+      {
+        "day": 67,
         "target": 7
       },
       {
-        "date": "2010-12-16",
+        "day": 69,
+        "target": 1
+      },
+      {
+        "day": 71,
         "target": 4
       },
       {
-        "date": "2011-02-25",
+        "day": 73,
         "target": 2
       },
       {
-        "date": "2011-02-26",
-        "target": 4
+        "day": 74,
+        "target": 1
       },
       {
-        "date": "2011-02-28",
-        "target": 1
+        "day": 75,
+        "target": 7
+      },
+      {
+        "day": 76,
+        "target": 16
       }
     ]
   }

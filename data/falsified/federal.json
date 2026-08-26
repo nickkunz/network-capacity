@@ -1,757 +1,757 @@
 {
   "target_remap": {
     "invariants": {
-      "n_nodes": 54,
-      "n_edges": 52,
+      "n_nodes": 82,
+      "n_edges": 78,
       "n_articulation_points": 6,
-      "n_bridges": 52,
+      "n_bridges": 78,
       "diameter": 6.0,
       "radius": 3.0,
       "degeneracy": 1,
-      "k_core_size": 54,
-      "maximum_degree": 41,
-      "degree_variance": 29.290809327846357,
+      "k_core_size": 82,
+      "maximum_degree": 60,
+      "degree_variance": 42.47828673408688,
       "global_clustering": 0.0,
-      "degree_assortativity": -0.6961241019812886,
-      "degree_entropy": 0.486882465275698,
-      "joint_degree_entropy": 0.9636369214826723,
-      "degree_skewness": 7.169779316641512,
-      "degree_kurtosis": 52.13065560530422,
-      "normalized_laplacian_second_moment": 1.1342818428184283,
-      "normalized_laplacian_third_moment": 1.402845528455285,
+      "degree_assortativity": -0.6707089185255123,
+      "degree_entropy": 0.3590567767276557,
+      "joint_degree_entropy": 0.9525931161677129,
+      "degree_skewness": 8.808214324481265,
+      "degree_kurtosis": 78.8048362079573,
+      "normalized_laplacian_second_moment": 1.1413617886178862,
+      "normalized_laplacian_third_moment": 1.4240853658536587,
       "random_walk_triangle_weight": 0.0,
-      "random_walk_fourth_moment": 0.12343892524291099,
-      "adjacency_fourth_moment_per_node": 64.07407407407408
+      "random_walk_fourth_moment": 0.1369414803523035,
+      "adjacency_fourth_moment_per_node": 90.29268292682927
     },
     "signatures": {
-      "lag1_autocorr": 0.10466895889574626,
-      "coef_variation": 0.749571940177883,
-      "fano_factor": 0.8025578303097275,
-      "norm_succ_diff": 0.478250322265984,
-      "hurst_exponent": 0.5673587160841956,
-      "trend_coeff": 0.1026765137799323,
-      "count_skewness": 6.4215330843788285
+      "lag1_autocorr": 0.1089162925441081,
+      "coef_variation": 0.7331121786792157,
+      "fano_factor": 0.7503632980222007,
+      "norm_succ_diff": 0.455242012374821,
+      "hurst_exponent": 0.6183611166474506,
+      "trend_coeff": 0.13301624109206975,
+      "count_skewness": 6.646366292995938
     },
     "events": [
       {
-        "date": "2001-05-01",
-        "target": 9421
+        "date": "2017-01-01",
+        "target": 6
       },
       {
-        "date": "2001-05-02",
-        "target": 14047
+        "date": "2017-01-02",
+        "target": 62
       },
       {
-        "date": "2001-05-03",
-        "target": 31191
+        "date": "2017-01-03",
+        "target": 267
       },
       {
-        "date": "2001-05-04",
-        "target": 35838
+        "date": "2017-01-04",
+        "target": 236
       },
       {
-        "date": "2001-05-05",
-        "target": 27814
+        "date": "2017-01-05",
+        "target": 221
       },
       {
-        "date": "2001-05-06",
-        "target": 26850
+        "date": "2017-01-06",
+        "target": 141
       },
       {
-        "date": "2001-05-07",
-        "target": 33980
+        "date": "2017-01-07",
+        "target": 34
       },
       {
-        "date": "2001-05-08",
-        "target": 32121
+        "date": "2017-01-08",
+        "target": 33
       },
       {
-        "date": "2001-05-09",
-        "target": 29683
+        "date": "2017-01-09",
+        "target": 212
       },
       {
-        "date": "2001-05-10",
-        "target": 30302
+        "date": "2017-01-10",
+        "target": 570
       },
       {
-        "date": "2001-05-11",
-        "target": 29474
+        "date": "2017-01-11",
+        "target": 419
       },
       {
-        "date": "2001-05-12",
-        "target": 29683
+        "date": "2017-01-12",
+        "target": 511
       },
       {
-        "date": "2001-05-13",
-        "target": 27416
+        "date": "2017-01-13",
+        "target": 289
       },
       {
-        "date": "2001-05-14",
-        "target": 23110
+        "date": "2017-01-14",
+        "target": 37
       },
       {
-        "date": "2001-05-15",
-        "target": 18624
+        "date": "2017-01-15",
+        "target": 2
       },
       {
-        "date": "2001-05-16",
-        "target": 28444
+        "date": "2017-01-16",
+        "target": 24
       },
       {
-        "date": "2001-05-17",
-        "target": 27156
+        "date": "2017-01-17",
+        "target": 452
       },
       {
-        "date": "2001-05-18",
-        "target": 27370
+        "date": "2017-01-18",
+        "target": 589
       },
       {
-        "date": "2001-05-19",
-        "target": 29056
+        "date": "2017-01-19",
+        "target": 402
       },
       {
-        "date": "2001-05-20",
-        "target": 34560
+        "date": "2017-01-20",
+        "target": 336
       },
       {
-        "date": "2001-05-21",
-        "target": 23027
+        "date": "2017-01-21",
+        "target": 20
       },
       {
-        "date": "2001-05-22",
-        "target": 31938
+        "date": "2017-01-22",
+        "target": 26
       },
       {
-        "date": "2001-05-23",
-        "target": 31617
+        "date": "2017-01-23",
+        "target": 400
       },
       {
-        "date": "2001-05-24",
-        "target": 27506
+        "date": "2017-01-24",
+        "target": 566
       },
       {
-        "date": "2001-05-25",
-        "target": 26999
+        "date": "2017-01-25",
+        "target": 378
       },
       {
-        "date": "2001-05-26",
-        "target": 26397
+        "date": "2017-01-26",
+        "target": 425
       },
       {
-        "date": "2001-05-27",
-        "target": 28408
+        "date": "2017-01-27",
+        "target": 347
       },
       {
-        "date": "2001-05-28",
-        "target": 19021
+        "date": "2017-01-28",
+        "target": 64
       },
       {
-        "date": "2001-05-29",
-        "target": 18745
+        "date": "2017-01-29",
+        "target": 7
       },
       {
-        "date": "2001-05-30",
-        "target": 28430
+        "date": "2017-01-30",
+        "target": 285
       },
       {
-        "date": "2001-05-31",
-        "target": 27254
+        "date": "2017-01-31",
+        "target": 458
       },
       {
-        "date": "2001-06-01",
-        "target": 28287
+        "date": "2017-02-01",
+        "target": 412
       },
       {
-        "date": "2001-06-02",
-        "target": 29866
+        "date": "2017-02-02",
+        "target": 453
       },
       {
-        "date": "2001-06-03",
-        "target": 29537
+        "date": "2017-02-03",
+        "target": 292
       },
       {
-        "date": "2001-06-04",
-        "target": 20953
+        "date": "2017-02-04",
+        "target": 30
       },
       {
-        "date": "2001-06-05",
-        "target": 22598
+        "date": "2017-02-05",
+        "target": 4
       },
       {
-        "date": "2001-06-06",
-        "target": 30574
+        "date": "2017-02-06",
+        "target": 305
       },
       {
-        "date": "2001-06-07",
-        "target": 29865
+        "date": "2017-02-07",
+        "target": 435
       },
       {
-        "date": "2001-06-08",
-        "target": 28154
+        "date": "2017-02-08",
+        "target": 255
       },
       {
-        "date": "2001-06-09",
-        "target": 28503
+        "date": "2017-02-09",
+        "target": 423
       },
       {
-        "date": "2001-06-10",
-        "target": 28172
+        "date": "2017-02-10",
+        "target": 157
       },
       {
-        "date": "2001-06-11",
-        "target": 21840
+        "date": "2017-02-11",
+        "target": 42
       },
       {
-        "date": "2001-06-12",
-        "target": 18103
+        "date": "2017-02-12",
+        "target": 15
       },
       {
-        "date": "2001-06-13",
-        "target": 26684
+        "date": "2017-02-13",
+        "target": 245
       },
       {
-        "date": "2001-06-14",
-        "target": 25788
+        "date": "2017-02-14",
+        "target": 474
       },
       {
-        "date": "2001-06-15",
-        "target": 27050
+        "date": "2017-02-15",
+        "target": 313
       },
       {
-        "date": "2001-06-16",
-        "target": 28215
+        "date": "2017-02-16",
+        "target": 181
       },
       {
-        "date": "2001-06-17",
-        "target": 31668
+        "date": "2017-02-17",
+        "target": 415
       },
       {
-        "date": "2001-06-18",
-        "target": 22327
+        "date": "2017-02-18",
+        "target": 21
       },
       {
-        "date": "2001-06-19",
-        "target": 19617
+        "date": "2017-02-19",
+        "target": 4
       },
       {
-        "date": "2001-06-20",
-        "target": 30447
+        "date": "2017-02-20",
+        "target": 140
       },
       {
-        "date": "2001-06-21",
-        "target": 31462
+        "date": "2017-02-21",
+        "target": 163
       },
       {
-        "date": "2001-06-22",
-        "target": 32973
+        "date": "2017-02-22",
+        "target": 210
       },
       {
-        "date": "2001-06-23",
-        "target": 29810
+        "date": "2017-02-23",
+        "target": 164
       },
       {
-        "date": "2001-06-24",
-        "target": 28796
+        "date": "2017-02-24",
+        "target": 94
       },
       {
-        "date": "2001-06-25",
-        "target": 23024
+        "date": "2017-02-25",
+        "target": 39
       },
       {
-        "date": "2001-06-26",
-        "target": 21984
+        "date": "2017-02-26",
+        "target": 33
       },
       {
-        "date": "2001-06-27",
-        "target": 25824
+        "date": "2017-02-27",
+        "target": 245
       },
       {
-        "date": "2001-06-28",
-        "target": 28190
+        "date": "2017-02-28",
+        "target": 440
       },
       {
-        "date": "2001-06-29",
-        "target": 31211
+        "date": "2017-03-01",
+        "target": 634
       },
       {
-        "date": "2001-06-30",
-        "target": 28227
+        "date": "2017-03-02",
+        "target": 571
       },
       {
-        "date": "2001-07-01",
-        "target": 26039
+        "date": "2017-03-03",
+        "target": 191
       },
       {
-        "date": "2001-07-02",
-        "target": 26657
+        "date": "2017-03-04",
+        "target": 22
       },
       {
-        "date": "2001-07-03",
-        "target": 23218
+        "date": "2017-03-05",
+        "target": 29
       },
       {
-        "date": "2001-07-04",
-        "target": 27086
+        "date": "2017-03-06",
+        "target": 268
       },
       {
-        "date": "2001-07-05",
-        "target": 24618
+        "date": "2017-03-07",
+        "target": 280
       },
       {
-        "date": "2001-07-06",
-        "target": 25392
+        "date": "2017-03-08",
+        "target": 452
       },
       {
-        "date": "2001-07-07",
-        "target": 26271
+        "date": "2017-03-09",
+        "target": 365
       },
       {
-        "date": "2001-07-08",
-        "target": 26407
+        "date": "2017-03-10",
+        "target": 176
       },
       {
-        "date": "2001-07-09",
-        "target": 22071
+        "date": "2017-03-11",
+        "target": 42
       },
       {
-        "date": "2001-07-10",
-        "target": 19731
+        "date": "2017-03-12",
+        "target": 28
       },
       {
-        "date": "2001-07-11",
-        "target": 26423
+        "date": "2017-03-13",
+        "target": 147
       },
       {
-        "date": "2001-07-12",
-        "target": 26375
+        "date": "2017-03-14",
+        "target": 258
       },
       {
-        "date": "2001-07-13",
-        "target": 27386
+        "date": "2017-03-15",
+        "target": 241
       },
       {
-        "date": "2001-07-14",
-        "target": 26326
+        "date": "2017-03-16",
+        "target": 253
       },
       {
-        "date": "2001-07-15",
-        "target": 26706
+        "date": "2017-03-17",
+        "target": 141
       },
       {
-        "date": "2001-07-16",
-        "target": 21431
+        "date": "2017-03-18",
+        "target": 34
       },
       {
-        "date": "2001-07-17",
-        "target": 18450
+        "date": "2017-03-19",
+        "target": 5
       },
       {
-        "date": "2001-07-18",
-        "target": 31612
+        "date": "2017-03-20",
+        "target": 341
       },
       {
-        "date": "2001-07-19",
-        "target": 27419
+        "date": "2017-03-21",
+        "target": 388
       },
       {
-        "date": "2001-07-20",
-        "target": 28705
+        "date": "2017-03-22",
+        "target": 327
       },
       {
-        "date": "2001-07-21",
-        "target": 26434
+        "date": "2017-03-23",
+        "target": 265
       },
       {
-        "date": "2001-07-22",
-        "target": 32179
+        "date": "2017-03-24",
+        "target": 181
       },
       {
-        "date": "2001-07-23",
-        "target": 21733
+        "date": "2017-03-25",
+        "target": 30
       },
       {
-        "date": "2001-07-24",
-        "target": 22784
+        "date": "2017-03-26",
+        "target": 16
       },
       {
-        "date": "2001-07-25",
-        "target": 27980
+        "date": "2017-03-27",
+        "target": 145
       },
       {
-        "date": "2001-07-26",
-        "target": 27882
+        "date": "2017-03-28",
+        "target": 257
       },
       {
-        "date": "2001-07-27",
-        "target": 27674
+        "date": "2017-03-29",
+        "target": 302
       },
       {
-        "date": "2001-07-28",
-        "target": 27803
+        "date": "2017-03-30",
+        "target": 270
       },
       {
-        "date": "2001-07-29",
-        "target": 27744
+        "date": "2017-03-31",
+        "target": 137
       },
       {
-        "date": "2001-07-30",
-        "target": 28376
+        "date": "2017-04-01",
+        "target": 42
       },
       {
-        "date": "2001-07-31",
-        "target": 22147
+        "date": "2017-04-02",
+        "target": 21
       },
       {
-        "date": "2001-08-01",
-        "target": 30933
+        "date": "2017-04-03",
+        "target": 159
       },
       {
-        "date": "2001-08-02",
-        "target": 27759
+        "date": "2017-04-04",
+        "target": 194
       },
       {
-        "date": "2001-08-03",
-        "target": 27584
+        "date": "2017-04-05",
+        "target": 125
       },
       {
-        "date": "2001-08-04",
-        "target": 34249
+        "date": "2017-04-06",
+        "target": 267
       },
       {
-        "date": "2001-08-05",
-        "target": 30866
+        "date": "2017-04-07",
+        "target": 75
       },
       {
-        "date": "2001-08-06",
-        "target": 25361
+        "date": "2017-04-08",
+        "target": 22
       },
       {
-        "date": "2001-08-07",
-        "target": 20037
+        "date": "2017-04-09",
+        "target": 17
       },
       {
-        "date": "2001-08-08",
-        "target": 27795
+        "date": "2017-04-10",
+        "target": 105
       },
       {
-        "date": "2001-08-09",
-        "target": 28624
+        "date": "2017-04-11",
+        "target": 97
       },
       {
-        "date": "2001-08-10",
-        "target": 29308
+        "date": "2017-04-12",
+        "target": 202
       },
       {
-        "date": "2001-08-11",
-        "target": 28598
+        "date": "2017-04-13",
+        "target": 93
       },
       {
-        "date": "2001-08-12",
-        "target": 26923
+        "date": "2017-04-14",
+        "target": 45
       },
       {
-        "date": "2001-08-13",
-        "target": 19183
+        "date": "2017-04-15",
+        "target": 14
       },
       {
-        "date": "2001-08-14",
-        "target": 20827
+        "date": "2017-04-16",
+        "target": 32
       },
       {
-        "date": "2001-08-15",
-        "target": 28022
+        "date": "2017-04-17",
+        "target": 229
       },
       {
-        "date": "2001-08-16",
-        "target": 28723
+        "date": "2017-04-18",
+        "target": 288
       },
       {
-        "date": "2001-08-17",
-        "target": 29329
+        "date": "2017-04-19",
+        "target": 362
       },
       {
-        "date": "2001-08-18",
-        "target": 27261
+        "date": "2017-04-20",
+        "target": 265
       },
       {
-        "date": "2001-08-19",
-        "target": 28454
+        "date": "2017-04-21",
+        "target": 119
       },
       {
-        "date": "2001-08-20",
-        "target": 20388
+        "date": "2017-04-22",
+        "target": 27
       },
       {
-        "date": "2001-08-21",
-        "target": 21005
+        "date": "2017-04-23",
+        "target": 24
       },
       {
-        "date": "2001-08-22",
-        "target": 27465
+        "date": "2017-04-24",
+        "target": 198
       },
       {
-        "date": "2001-08-23",
-        "target": 27418
+        "date": "2017-04-25",
+        "target": 332
       },
       {
-        "date": "2001-08-24",
-        "target": 27480
+        "date": "2017-04-26",
+        "target": 275
       },
       {
-        "date": "2001-08-25",
-        "target": 28239
+        "date": "2017-04-27",
+        "target": 474
       },
       {
-        "date": "2001-08-26",
-        "target": 28417
+        "date": "2017-04-28",
+        "target": 201
       },
       {
-        "date": "2001-08-27",
-        "target": 21651
+        "date": "2017-04-29",
+        "target": 21
       },
       {
-        "date": "2001-08-28",
-        "target": 20805
+        "date": "2017-04-30",
+        "target": 19
       },
       {
-        "date": "2001-08-29",
-        "target": 28083
+        "date": "2017-05-01",
+        "target": 395
       },
       {
-        "date": "2001-08-30",
-        "target": 26944
+        "date": "2017-05-02",
+        "target": 500
       },
       {
-        "date": "2001-08-31",
-        "target": 27122
+        "date": "2017-05-03",
+        "target": 509
       },
       {
-        "date": "2001-09-01",
-        "target": 26830
+        "date": "2017-05-04",
+        "target": 531
       },
       {
-        "date": "2001-09-02",
-        "target": 31660
+        "date": "2017-05-05",
+        "target": 325
       },
       {
-        "date": "2001-09-03",
-        "target": 23325
+        "date": "2017-05-06",
+        "target": 27
       },
       {
-        "date": "2001-09-04",
-        "target": 20918
+        "date": "2017-05-07",
+        "target": 14
       },
       {
-        "date": "2001-09-05",
-        "target": 29040
+        "date": "2017-05-08",
+        "target": 272
       },
       {
-        "date": "2001-09-06",
-        "target": 28678
+        "date": "2017-05-09",
+        "target": 567
       },
       {
-        "date": "2001-09-07",
-        "target": 28752
+        "date": "2017-05-10",
+        "target": 492
       },
       {
-        "date": "2001-09-08",
-        "target": 28264
+        "date": "2017-05-11",
+        "target": 308
       },
       {
-        "date": "2001-09-09",
-        "target": 28388
+        "date": "2017-05-12",
+        "target": 216
       },
       {
-        "date": "2001-09-10",
-        "target": 23131
+        "date": "2017-05-13",
+        "target": 30
       },
       {
-        "date": "2001-09-11",
-        "target": 19849
+        "date": "2017-05-14",
+        "target": 29
       },
       {
-        "date": "2001-09-12",
-        "target": 29574
+        "date": "2017-05-15",
+        "target": 298
       },
       {
-        "date": "2001-09-13",
-        "target": 28406
+        "date": "2017-05-16",
+        "target": 334
       },
       {
-        "date": "2001-09-14",
-        "target": 28465
+        "date": "2017-05-17",
+        "target": 349
       },
       {
-        "date": "2001-09-15",
-        "target": 27391
+        "date": "2017-05-18",
+        "target": 418
       },
       {
-        "date": "2001-09-16",
-        "target": 27385
+        "date": "2017-05-19",
+        "target": 198
       },
       {
-        "date": "2001-09-17",
-        "target": 23736
+        "date": "2017-05-20",
+        "target": 27
       },
       {
-        "date": "2001-09-18",
-        "target": 23595
+        "date": "2017-05-21",
+        "target": 23
       },
       {
-        "date": "2001-09-19",
-        "target": 27997
+        "date": "2017-05-22",
+        "target": 361
       },
       {
-        "date": "2001-09-20",
-        "target": 27540
+        "date": "2017-05-23",
+        "target": 444
       },
       {
-        "date": "2001-09-21",
-        "target": 28467
+        "date": "2017-05-24",
+        "target": 345
       },
       {
-        "date": "2001-09-22",
-        "target": 27444
+        "date": "2017-05-25",
+        "target": 559
       },
       {
-        "date": "2001-09-23",
-        "target": 28605
+        "date": "2017-05-26",
+        "target": 123
       },
       {
-        "date": "2001-09-24",
-        "target": 20189
+        "date": "2017-05-27",
+        "target": 25
       },
       {
-        "date": "2001-09-25",
-        "target": 19469
+        "date": "2017-05-28",
+        "target": 25
       },
       {
-        "date": "2001-09-26",
-        "target": 15504
+        "date": "2017-05-29",
+        "target": 4
       },
       {
-        "date": "2001-09-27",
-        "target": 28402
+        "date": "2017-05-30",
+        "target": 269
       },
       {
-        "date": "2001-09-28",
-        "target": 29442
+        "date": "2017-05-31",
+        "target": 377
       },
       {
-        "date": "2001-09-29",
-        "target": 29034
+        "date": "2017-06-01",
+        "target": 359
       },
       {
-        "date": "2001-09-30",
-        "target": 29554
+        "date": "2017-06-02",
+        "target": 161
       },
       {
-        "date": "2001-10-01",
-        "target": 24163
+        "date": "2017-06-03",
+        "target": 38
       },
       {
-        "date": "2001-10-02",
-        "target": 21321
+        "date": "2017-06-04",
+        "target": 29
       },
       {
-        "date": "2001-10-03",
-        "target": 28762
+        "date": "2017-06-05",
+        "target": 368
       },
       {
-        "date": "2001-10-04",
-        "target": 28553
+        "date": "2017-06-06",
+        "target": 388
       },
       {
-        "date": "2001-10-05",
-        "target": 28034
+        "date": "2017-06-07",
+        "target": 460
       },
       {
-        "date": "2001-10-06",
-        "target": 29222
+        "date": "2017-06-08",
+        "target": 173
       },
       {
-        "date": "2001-10-07",
-        "target": 29805
+        "date": "2017-06-09",
+        "target": 177
       },
       {
-        "date": "2001-10-08",
-        "target": 23763
+        "date": "2017-06-10",
+        "target": 29
       },
       {
-        "date": "2001-10-09",
-        "target": 21798
+        "date": "2017-06-11",
+        "target": 16
       },
       {
-        "date": "2001-10-10",
-        "target": 30043
+        "date": "2017-06-12",
+        "target": 257
       },
       {
-        "date": "2001-10-11",
-        "target": 29980
+        "date": "2017-06-13",
+        "target": 418
       },
       {
-        "date": "2001-10-12",
-        "target": 30940
+        "date": "2017-06-14",
+        "target": 541
       },
       {
-        "date": "2001-10-13",
-        "target": 29527
+        "date": "2017-06-15",
+        "target": 439
       },
       {
-        "date": "2001-10-14",
-        "target": 30516
+        "date": "2017-06-16",
+        "target": 165
       },
       {
-        "date": "2001-10-15",
-        "target": 22980
+        "date": "2017-06-17",
+        "target": 41
       },
       {
-        "date": "2001-10-16",
-        "target": 21199
+        "date": "2017-06-18",
+        "target": 39
       },
       {
-        "date": "2001-10-17",
-        "target": 28199
+        "date": "2017-06-19",
+        "target": 294
       },
       {
-        "date": "2001-10-18",
-        "target": 28795
+        "date": "2017-06-20",
+        "target": 460
       },
       {
-        "date": "2001-10-19",
-        "target": 28944
+        "date": "2017-06-21",
+        "target": 472
       },
       {
-        "date": "2001-10-20",
-        "target": 29613
+        "date": "2017-06-22",
+        "target": 432
       },
       {
-        "date": "2001-10-21",
-        "target": 30024
+        "date": "2017-06-23",
+        "target": 261
       },
       {
-        "date": "2001-10-22",
-        "target": 24389
+        "date": "2017-06-24",
+        "target": 26
       },
       {
-        "date": "2001-10-23",
-        "target": 23086
+        "date": "2017-06-25",
+        "target": 26
       },
       {
-        "date": "2001-10-24",
-        "target": 30930
+        "date": "2017-06-26",
+        "target": 202
       },
       {
-        "date": "2001-10-25",
-        "target": 29643
+        "date": "2017-06-27",
+        "target": 329
       },
       {
-        "date": "2001-10-26",
-        "target": 29870
+        "date": "2017-06-28",
+        "target": 395
       },
       {
-        "date": "2001-10-27",
-        "target": 30649
+        "date": "2017-06-29",
+        "target": 318
       }
     ]
   },
@@ -768,11 +768,11 @@
       "maximum_degree": 745575.1745064928,
       "degree_variance": 4247943004.7986264,
       "global_clustering": 0.03050024993904943,
-      "degree_assortativity": -0.9373675435632137,
+      "degree_assortativity": -0.941379200224771,
       "degree_entropy": 3.878223035785789,
-      "joint_degree_entropy": 3.4792753906879423,
-      "degree_skewness": 1.1451993896361465,
-      "degree_kurtosis": 486.6570964768216,
+      "joint_degree_entropy": 3.47924417586192,
+      "degree_skewness": 3.5437344447817622,
+      "degree_kurtosis": 1488.4564997808097,
       "normalized_laplacian_second_moment": 1.1717293199326688,
       "normalized_laplacian_third_moment": 0.5536278531440759,
       "random_walk_triangle_weight": 0.11679196421606255,
@@ -780,17 +780,241 @@
       "adjacency_fourth_moment_per_node": 2068871255795.6584
     },
     "signatures": {
-      "lag1_autocorr": 0.4760081704103636,
-      "coef_variation": 2.09760949261673,
+      "lag1_autocorr": 0.4948613187178644,
+      "coef_variation": 1.9364380210976908,
       "fano_factor": 19263.493365693466,
-      "norm_succ_diff": 1.1479935139323334,
+      "norm_succ_diff": 1.099179667186747,
       "hurst_exponent": 0.8933417408712924,
       "trend_coeff": 0.15762855453794591,
-      "count_skewness": 1.7178024708475867
+      "count_skewness": 1.524144436580424
     },
     "events": [
       {
+        "date": "2011-01-19",
+        "target": 1
+      },
+      {
+        "date": "2011-01-25",
+        "target": 1
+      },
+      {
+        "date": "2011-02-01",
+        "target": 1
+      },
+      {
+        "date": "2011-02-03",
+        "target": 1
+      },
+      {
+        "date": "2011-02-08",
+        "target": 1
+      },
+      {
+        "date": "2011-02-17",
+        "target": 1
+      },
+      {
+        "date": "2011-03-04",
+        "target": 1
+      },
+      {
+        "date": "2011-03-07",
+        "target": 2
+      },
+      {
+        "date": "2011-03-16",
+        "target": 1
+      },
+      {
+        "date": "2011-03-18",
+        "target": 1
+      },
+      {
+        "date": "2011-03-21",
+        "target": 1
+      },
+      {
+        "date": "2011-03-24",
+        "target": 1
+      },
+      {
+        "date": "2011-04-01",
+        "target": 1
+      },
+      {
+        "date": "2011-04-04",
+        "target": 4
+      },
+      {
+        "date": "2011-04-05",
+        "target": 1
+      },
+      {
+        "date": "2011-04-06",
+        "target": 2
+      },
+      {
+        "date": "2011-04-08",
+        "target": 1
+      },
+      {
+        "date": "2011-04-12",
+        "target": 1
+      },
+      {
+        "date": "2011-04-21",
+        "target": 1
+      },
+      {
+        "date": "2011-04-22",
+        "target": 1
+      },
+      {
+        "date": "2011-04-30",
+        "target": 1
+      },
+      {
+        "date": "2011-05-01",
+        "target": 2
+      },
+      {
+        "date": "2011-05-04",
+        "target": 1
+      },
+      {
+        "date": "2011-06-01",
+        "target": 1
+      },
+      {
+        "date": "2011-06-28",
+        "target": 2
+      },
+      {
+        "date": "2011-07-26",
+        "target": 2
+      },
+      {
+        "date": "2011-07-27",
+        "target": 1
+      },
+      {
+        "date": "2011-07-28",
+        "target": 1
+      },
+      {
+        "date": "2011-08-01",
+        "target": 2
+      },
+      {
+        "date": "2011-08-03",
+        "target": 1
+      },
+      {
+        "date": "2011-08-04",
+        "target": 1
+      },
+      {
+        "date": "2011-08-05",
+        "target": 1
+      },
+      {
+        "date": "2011-08-10",
+        "target": 1
+      },
+      {
+        "date": "2011-08-17",
+        "target": 1
+      },
+      {
+        "date": "2011-08-30",
+        "target": 1
+      },
+      {
+        "date": "2011-08-31",
+        "target": 1
+      },
+      {
+        "date": "2011-09-02",
+        "target": 1
+      },
+      {
+        "date": "2011-09-06",
+        "target": 1
+      },
+      {
+        "date": "2011-09-07",
+        "target": 1
+      },
+      {
+        "date": "2011-09-13",
+        "target": 1
+      },
+      {
+        "date": "2011-09-15",
+        "target": 1
+      },
+      {
+        "date": "2011-09-20",
+        "target": 1
+      },
+      {
+        "date": "2011-09-21",
+        "target": 1
+      },
+      {
         "date": "2011-09-23",
+        "target": 1
+      },
+      {
+        "date": "2011-09-27",
+        "target": 1
+      },
+      {
+        "date": "2011-09-28",
+        "target": 1
+      },
+      {
+        "date": "2011-10-05",
+        "target": 1
+      },
+      {
+        "date": "2011-10-06",
+        "target": 1
+      },
+      {
+        "date": "2011-10-11",
+        "target": 1
+      },
+      {
+        "date": "2011-10-25",
+        "target": 1
+      },
+      {
+        "date": "2011-11-08",
+        "target": 1
+      },
+      {
+        "date": "2011-11-11",
+        "target": 1
+      },
+      {
+        "date": "2011-12-14",
+        "target": 1
+      },
+      {
+        "date": "2011-12-19",
+        "target": 1
+      },
+      {
+        "date": "2011-12-20",
+        "target": 1
+      },
+      {
+        "date": "2011-12-27",
+        "target": 1
+      },
+      {
+        "date": "2012-01-01",
         "target": 1
       },
       {
@@ -798,7 +1022,175 @@
         "target": 1
       },
       {
+        "date": "2012-01-12",
+        "target": 1
+      },
+      {
+        "date": "2012-02-23",
+        "target": 1
+      },
+      {
+        "date": "2012-03-07",
+        "target": 2
+      },
+      {
+        "date": "2012-03-08",
+        "target": 1
+      },
+      {
+        "date": "2012-04-10",
+        "target": 1
+      },
+      {
+        "date": "2012-04-13",
+        "target": 1
+      },
+      {
+        "date": "2012-04-19",
+        "target": 1
+      },
+      {
+        "date": "2012-04-25",
+        "target": 1
+      },
+      {
+        "date": "2012-05-01",
+        "target": 2
+      },
+      {
+        "date": "2012-05-08",
+        "target": 1
+      },
+      {
+        "date": "2012-05-10",
+        "target": 1
+      },
+      {
+        "date": "2012-05-14",
+        "target": 1
+      },
+      {
+        "date": "2012-05-31",
+        "target": 1
+      },
+      {
+        "date": "2012-07-24",
+        "target": 1
+      },
+      {
+        "date": "2012-08-13",
+        "target": 2
+      },
+      {
+        "date": "2012-08-14",
+        "target": 1
+      },
+      {
+        "date": "2012-08-21",
+        "target": 1
+      },
+      {
+        "date": "2012-08-24",
+        "target": 1
+      },
+      {
+        "date": "2012-09-04",
+        "target": 1
+      },
+      {
+        "date": "2012-09-10",
+        "target": 1
+      },
+      {
+        "date": "2012-09-14",
+        "target": 1
+      },
+      {
+        "date": "2012-09-20",
+        "target": 1
+      },
+      {
+        "date": "2012-09-24",
+        "target": 1
+      },
+      {
         "date": "2012-10-22",
+        "target": 1
+      },
+      {
+        "date": "2012-10-25",
+        "target": 1
+      },
+      {
+        "date": "2012-11-05",
+        "target": 1
+      },
+      {
+        "date": "2012-11-13",
+        "target": 1
+      },
+      {
+        "date": "2012-11-15",
+        "target": 1
+      },
+      {
+        "date": "2012-11-16",
+        "target": 1
+      },
+      {
+        "date": "2012-11-22",
+        "target": 1
+      },
+      {
+        "date": "2012-11-23",
+        "target": 1
+      },
+      {
+        "date": "2012-12-07",
+        "target": 1
+      },
+      {
+        "date": "2012-12-14",
+        "target": 1
+      },
+      {
+        "date": "2012-12-21",
+        "target": 1
+      },
+      {
+        "date": "2012-12-24",
+        "target": 1
+      },
+      {
+        "date": "2012-12-31",
+        "target": 1
+      },
+      {
+        "date": "2013-01-01",
+        "target": 1
+      },
+      {
+        "date": "2013-01-02",
+        "target": 1
+      },
+      {
+        "date": "2013-01-07",
+        "target": 1
+      },
+      {
+        "date": "2013-01-08",
+        "target": 2
+      },
+      {
+        "date": "2013-01-29",
+        "target": 1
+      },
+      {
+        "date": "2013-02-28",
+        "target": 1
+      },
+      {
+        "date": "2013-04-08",
         "target": 1
       },
       {
@@ -806,7 +1198,19 @@
         "target": 1
       },
       {
+        "date": "2013-05-28",
+        "target": 1
+      },
+      {
         "date": "2013-05-29",
+        "target": 1
+      },
+      {
+        "date": "2013-05-30",
+        "target": 1
+      },
+      {
+        "date": "2013-06-14",
         "target": 1
       },
       {
@@ -814,7 +1218,15 @@
         "target": 1
       },
       {
+        "date": "2013-08-22",
+        "target": 1
+      },
+      {
         "date": "2013-09-10",
+        "target": 2
+      },
+      {
+        "date": "2013-09-23",
         "target": 1
       },
       {
@@ -4117,40 +4529,264 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 1384114.7925212078,
-      "n_edges": 2483629580.133153,
-      "n_articulation_points": 6339.458905857892,
-      "n_bridges": 55715.81120118975,
-      "diameter": -50.77330204078426,
-      "radius": 4.590377581144473,
-      "degeneracy": 1098.6485224057005,
-      "k_core_size": 650022.51388656,
-      "maximum_degree": -137290.69003215965,
-      "degree_variance": 1011183262.2142388,
-      "global_clustering": -0.16777516793730599,
-      "degree_assortativity": 0.6856567634144858,
-      "degree_entropy": 1.579956710369388,
-      "joint_degree_entropy": -0.16593499436880213,
-      "degree_skewness": 0.2390036900140999,
-      "degree_kurtosis": 112.82733836037097,
-      "normalized_laplacian_second_moment": 0.6136475334507157,
-      "normalized_laplacian_third_moment": 1.5045652974411763,
-      "random_walk_triangle_weight": 0.09905962250518043,
-      "random_walk_fourth_moment": -0.02324601304537434,
-      "adjacency_fourth_moment_per_node": -7123166431918.083
+      "n_nodes": 1384007.5948818964,
+      "n_edges": 2483630141.06866,
+      "n_articulation_points": 6339.406682957755,
+      "n_bridges": 55688.53725894479,
+      "diameter": -50.77819349707185,
+      "radius": 4.586479334562547,
+      "degeneracy": 1088.7740588861739,
+      "k_core_size": 650022.8516472589,
+      "maximum_degree": -137288.83971229522,
+      "degree_variance": 1011183252.3090365,
+      "global_clustering": -0.16777516793500624,
+      "degree_assortativity": 0.6609264312977994,
+      "degree_entropy": 1.6513407607514559,
+      "joint_degree_entropy": -0.16512135860171176,
+      "degree_skewness": 0.21703325006417384,
+      "degree_kurtosis": 246.464157597546,
+      "normalized_laplacian_second_moment": 0.3840783307978909,
+      "normalized_laplacian_third_moment": 0.6458359822752104,
+      "random_walk_triangle_weight": 0.09847103406246961,
+      "random_walk_fourth_moment": -0.0133259502511556,
+      "adjacency_fourth_moment_per_node": -7123170034854.83
     },
     "signatures": {
-      "lag1_autocorr": 0.5231519462615436,
-      "coef_variation": 1.0455883158692942,
-      "fano_factor": 7040.982234183002,
-      "norm_succ_diff": -0.1879457422767174,
-      "hurst_exponent": 0.6636368243353906,
-      "trend_coeff": -0.6274740363960722,
-      "count_skewness": -2.930882174708927
+      "lag1_autocorr": 0.5185145076816482,
+      "coef_variation": 2.1901359725531298,
+      "fano_factor": 7041.60507892348,
+      "norm_succ_diff": 0.27085342678307717,
+      "hurst_exponent": 0.6698457478838767,
+      "trend_coeff": -0.6275212701622962,
+      "count_skewness": -2.5290567495513225
     },
     "events": [
       {
+        "date": "2011-01-19",
+        "target": 1
+      },
+      {
+        "date": "2011-01-25",
+        "target": 1
+      },
+      {
+        "date": "2011-02-01",
+        "target": 1
+      },
+      {
+        "date": "2011-02-03",
+        "target": 1
+      },
+      {
+        "date": "2011-02-08",
+        "target": 1
+      },
+      {
+        "date": "2011-02-17",
+        "target": 1
+      },
+      {
+        "date": "2011-03-04",
+        "target": 1
+      },
+      {
+        "date": "2011-03-07",
+        "target": 2
+      },
+      {
+        "date": "2011-03-16",
+        "target": 1
+      },
+      {
+        "date": "2011-03-18",
+        "target": 1
+      },
+      {
+        "date": "2011-03-21",
+        "target": 1
+      },
+      {
+        "date": "2011-03-24",
+        "target": 1
+      },
+      {
+        "date": "2011-04-01",
+        "target": 1
+      },
+      {
+        "date": "2011-04-04",
+        "target": 4
+      },
+      {
+        "date": "2011-04-05",
+        "target": 1
+      },
+      {
+        "date": "2011-04-06",
+        "target": 2
+      },
+      {
+        "date": "2011-04-08",
+        "target": 1
+      },
+      {
+        "date": "2011-04-12",
+        "target": 1
+      },
+      {
+        "date": "2011-04-21",
+        "target": 1
+      },
+      {
+        "date": "2011-04-22",
+        "target": 1
+      },
+      {
+        "date": "2011-04-30",
+        "target": 1
+      },
+      {
+        "date": "2011-05-01",
+        "target": 2
+      },
+      {
+        "date": "2011-05-04",
+        "target": 1
+      },
+      {
+        "date": "2011-06-01",
+        "target": 1
+      },
+      {
+        "date": "2011-06-28",
+        "target": 2
+      },
+      {
+        "date": "2011-07-26",
+        "target": 2
+      },
+      {
+        "date": "2011-07-27",
+        "target": 1
+      },
+      {
+        "date": "2011-07-28",
+        "target": 1
+      },
+      {
+        "date": "2011-08-01",
+        "target": 2
+      },
+      {
+        "date": "2011-08-03",
+        "target": 1
+      },
+      {
+        "date": "2011-08-04",
+        "target": 1
+      },
+      {
+        "date": "2011-08-05",
+        "target": 1
+      },
+      {
+        "date": "2011-08-10",
+        "target": 1
+      },
+      {
+        "date": "2011-08-17",
+        "target": 1
+      },
+      {
+        "date": "2011-08-30",
+        "target": 1
+      },
+      {
+        "date": "2011-08-31",
+        "target": 1
+      },
+      {
+        "date": "2011-09-02",
+        "target": 1
+      },
+      {
+        "date": "2011-09-06",
+        "target": 1
+      },
+      {
+        "date": "2011-09-07",
+        "target": 1
+      },
+      {
+        "date": "2011-09-13",
+        "target": 1
+      },
+      {
+        "date": "2011-09-15",
+        "target": 1
+      },
+      {
+        "date": "2011-09-20",
+        "target": 1
+      },
+      {
+        "date": "2011-09-21",
+        "target": 1
+      },
+      {
         "date": "2011-09-23",
+        "target": 1
+      },
+      {
+        "date": "2011-09-27",
+        "target": 1
+      },
+      {
+        "date": "2011-09-28",
+        "target": 1
+      },
+      {
+        "date": "2011-10-05",
+        "target": 1
+      },
+      {
+        "date": "2011-10-06",
+        "target": 1
+      },
+      {
+        "date": "2011-10-11",
+        "target": 1
+      },
+      {
+        "date": "2011-10-25",
+        "target": 1
+      },
+      {
+        "date": "2011-11-08",
+        "target": 1
+      },
+      {
+        "date": "2011-11-11",
+        "target": 1
+      },
+      {
+        "date": "2011-12-14",
+        "target": 1
+      },
+      {
+        "date": "2011-12-19",
+        "target": 1
+      },
+      {
+        "date": "2011-12-20",
+        "target": 1
+      },
+      {
+        "date": "2011-12-27",
+        "target": 1
+      },
+      {
+        "date": "2012-01-01",
         "target": 1
       },
       {
@@ -4158,7 +4794,175 @@
         "target": 1
       },
       {
+        "date": "2012-01-12",
+        "target": 1
+      },
+      {
+        "date": "2012-02-23",
+        "target": 1
+      },
+      {
+        "date": "2012-03-07",
+        "target": 2
+      },
+      {
+        "date": "2012-03-08",
+        "target": 1
+      },
+      {
+        "date": "2012-04-10",
+        "target": 1
+      },
+      {
+        "date": "2012-04-13",
+        "target": 1
+      },
+      {
+        "date": "2012-04-19",
+        "target": 1
+      },
+      {
+        "date": "2012-04-25",
+        "target": 1
+      },
+      {
+        "date": "2012-05-01",
+        "target": 2
+      },
+      {
+        "date": "2012-05-08",
+        "target": 1
+      },
+      {
+        "date": "2012-05-10",
+        "target": 1
+      },
+      {
+        "date": "2012-05-14",
+        "target": 1
+      },
+      {
+        "date": "2012-05-31",
+        "target": 1
+      },
+      {
+        "date": "2012-07-24",
+        "target": 1
+      },
+      {
+        "date": "2012-08-13",
+        "target": 2
+      },
+      {
+        "date": "2012-08-14",
+        "target": 1
+      },
+      {
+        "date": "2012-08-21",
+        "target": 1
+      },
+      {
+        "date": "2012-08-24",
+        "target": 1
+      },
+      {
+        "date": "2012-09-04",
+        "target": 1
+      },
+      {
+        "date": "2012-09-10",
+        "target": 1
+      },
+      {
+        "date": "2012-09-14",
+        "target": 1
+      },
+      {
+        "date": "2012-09-20",
+        "target": 1
+      },
+      {
+        "date": "2012-09-24",
+        "target": 1
+      },
+      {
         "date": "2012-10-22",
+        "target": 1
+      },
+      {
+        "date": "2012-10-25",
+        "target": 1
+      },
+      {
+        "date": "2012-11-05",
+        "target": 1
+      },
+      {
+        "date": "2012-11-13",
+        "target": 1
+      },
+      {
+        "date": "2012-11-15",
+        "target": 1
+      },
+      {
+        "date": "2012-11-16",
+        "target": 1
+      },
+      {
+        "date": "2012-11-22",
+        "target": 1
+      },
+      {
+        "date": "2012-11-23",
+        "target": 1
+      },
+      {
+        "date": "2012-12-07",
+        "target": 1
+      },
+      {
+        "date": "2012-12-14",
+        "target": 1
+      },
+      {
+        "date": "2012-12-21",
+        "target": 1
+      },
+      {
+        "date": "2012-12-24",
+        "target": 1
+      },
+      {
+        "date": "2012-12-31",
+        "target": 1
+      },
+      {
+        "date": "2013-01-01",
+        "target": 1
+      },
+      {
+        "date": "2013-01-02",
+        "target": 1
+      },
+      {
+        "date": "2013-01-07",
+        "target": 1
+      },
+      {
+        "date": "2013-01-08",
+        "target": 2
+      },
+      {
+        "date": "2013-01-29",
+        "target": 1
+      },
+      {
+        "date": "2013-02-28",
+        "target": 1
+      },
+      {
+        "date": "2013-04-08",
         "target": 1
       },
       {
@@ -4166,7 +4970,19 @@
         "target": 1
       },
       {
+        "date": "2013-05-28",
+        "target": 1
+      },
+      {
         "date": "2013-05-29",
+        "target": 1
+      },
+      {
+        "date": "2013-05-30",
+        "target": 1
+      },
+      {
+        "date": "2013-06-14",
         "target": 1
       },
       {
@@ -4174,7 +4990,15 @@
         "target": 1
       },
       {
+        "date": "2013-08-22",
+        "target": 1
+      },
+      {
         "date": "2013-09-10",
+        "target": 2
+      },
+      {
+        "date": "2013-09-23",
         "target": 1
       },
       {

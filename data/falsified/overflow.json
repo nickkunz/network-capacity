@@ -20,7 +20,7 @@
       "normalized_laplacian_second_moment": 1.000000767827417,
       "normalized_laplacian_third_moment": 1.000002303482251,
       "random_walk_triangle_weight": 0.0,
-      "random_walk_fourth_moment": 0.0007199537121891942,
+      "random_walk_fourth_moment": 7.678274169671431e-07,
       "adjacency_fourth_moment_per_node": 40031005334378.19
     },
     "signatures": {
@@ -34,156 +34,204 @@
     },
     "events": [
       {
-        "date": "2010-02-19",
-        "target": 6
+        "day": 0,
+        "target": 2
       },
       {
-        "date": "2010-02-20",
-        "target": 1
-      },
-      {
-        "date": "2010-03-08",
+        "day": 1,
         "target": 5
       },
       {
-        "date": "2010-03-11",
-        "target": 4
-      },
-      {
-        "date": "2010-03-12",
+        "day": 3,
         "target": 3
       },
       {
-        "date": "2010-03-15",
+        "day": 4,
+        "target": 4
+      },
+      {
+        "day": 8,
+        "target": 3
+      },
+      {
+        "day": 10,
         "target": 2
       },
       {
-        "date": "2010-03-16",
+        "day": 14,
         "target": 2
       },
       {
-        "date": "2010-03-20",
+        "day": 15,
+        "target": 1
+      },
+      {
+        "day": 16,
+        "target": 4
+      },
+      {
+        "day": 17,
+        "target": 3
+      },
+      {
+        "day": 18,
+        "target": 2
+      },
+      {
+        "day": 19,
+        "target": 3
+      },
+      {
+        "day": 20,
+        "target": 1
+      },
+      {
+        "day": 21,
+        "target": 1
+      },
+      {
+        "day": 24,
+        "target": 2
+      },
+      {
+        "day": 25,
+        "target": 1
+      },
+      {
+        "day": 26,
+        "target": 4
+      },
+      {
+        "day": 27,
+        "target": 1
+      },
+      {
+        "day": 29,
+        "target": 3
+      },
+      {
+        "day": 31,
+        "target": 1
+      },
+      {
+        "day": 33,
+        "target": 1
+      },
+      {
+        "day": 34,
+        "target": 2
+      },
+      {
+        "day": 35,
+        "target": 4
+      },
+      {
+        "day": 38,
+        "target": 1
+      },
+      {
+        "day": 39,
+        "target": 2
+      },
+      {
+        "day": 40,
+        "target": 2
+      },
+      {
+        "day": 41,
+        "target": 27
+      },
+      {
+        "day": 42,
+        "target": 11
+      },
+      {
+        "day": 44,
+        "target": 2
+      },
+      {
+        "day": 45,
+        "target": 4
+      },
+      {
+        "day": 46,
+        "target": 6
+      },
+      {
+        "day": 47,
+        "target": 4
+      },
+      {
+        "day": 48,
+        "target": 4
+      },
+      {
+        "day": 49,
+        "target": 1
+      },
+      {
+        "day": 50,
+        "target": 6
+      },
+      {
+        "day": 51,
+        "target": 9
+      },
+      {
+        "day": 52,
+        "target": 4
+      },
+      {
+        "day": 54,
         "target": 10
       },
       {
-        "date": "2010-04-01",
-        "target": 3
-      },
-      {
-        "date": "2010-04-05",
-        "target": 5
-      },
-      {
-        "date": "2010-05-04",
+        "day": 55,
         "target": 2
       },
       {
-        "date": "2010-05-05",
+        "day": 56,
         "target": 1
       },
       {
-        "date": "2010-05-10",
-        "target": 14
-      },
-      {
-        "date": "2010-05-11",
-        "target": 26
-      },
-      {
-        "date": "2010-06-01",
-        "target": 2
-      },
-      {
-        "date": "2010-06-02",
-        "target": 2
-      },
-      {
-        "date": "2010-06-03",
-        "target": 8
-      },
-      {
-        "date": "2010-06-10",
-        "target": 7
-      },
-      {
-        "date": "2010-06-11",
-        "target": 1
-      },
-      {
-        "date": "2010-07-01",
-        "target": 6
-      },
-      {
-        "date": "2010-07-02",
-        "target": 6
-      },
-      {
-        "date": "2010-07-03",
-        "target": 5
-      },
-      {
-        "date": "2010-07-04",
-        "target": 3
-      },
-      {
-        "date": "2010-07-15",
-        "target": 10
-      },
-      {
-        "date": "2010-08-01",
-        "target": 2
-      },
-      {
-        "date": "2010-08-03",
-        "target": 1
-      },
-      {
-        "date": "2010-08-16",
-        "target": 6
-      },
-      {
-        "date": "2010-09-02",
-        "target": 3
-      },
-      {
-        "date": "2010-09-15",
-        "target": 7
-      },
-      {
-        "date": "2010-09-17",
-        "target": 1
-      },
-      {
-        "date": "2010-10-01",
+        "day": 59,
         "target": 4
       },
       {
-        "date": "2010-10-15",
-        "target": 1
-      },
-      {
-        "date": "2010-10-16",
+        "day": 60,
         "target": 2
       },
       {
-        "date": "2010-11-01",
+        "day": 65,
+        "target": 3
+      },
+      {
+        "day": 67,
         "target": 7
       },
       {
-        "date": "2010-12-16",
+        "day": 69,
+        "target": 1
+      },
+      {
+        "day": 71,
         "target": 4
       },
       {
-        "date": "2011-02-25",
+        "day": 73,
         "target": 2
       },
       {
-        "date": "2011-02-26",
-        "target": 4
+        "day": 74,
+        "target": 1
       },
       {
-        "date": "2011-02-28",
-        "target": 1
+        "day": 75,
+        "target": 7
+      },
+      {
+        "day": 76,
+        "target": 16
       }
     ]
   },
@@ -200,11 +248,11 @@
       "maximum_degree": 1520373.2317661087,
       "degree_variance": 6479100149.502021,
       "global_clustering": 0.04544638034145787,
-      "degree_assortativity": -0.5288281621730309,
+      "degree_assortativity": -0.5590070781774581,
       "degree_entropy": 4.480798928784187,
-      "joint_degree_entropy": 8.599537351598547,
-      "degree_skewness": 12.22835732553675,
-      "degree_kurtosis": 578.2432077999973,
+      "joint_degree_entropy": 8.599460199596432,
+      "degree_skewness": 20.829839185323188,
+      "degree_kurtosis": 1767.8200084306795,
       "normalized_laplacian_second_moment": 0.4221018001886802,
       "normalized_laplacian_third_moment": 0.4825716705957355,
       "random_walk_triangle_weight": 0.08694345092624665,
@@ -212,13 +260,13 @@
       "adjacency_fourth_moment_per_node": 23364340926947.01
     },
     "signatures": {
-      "lag1_autocorr": 0.01983620241388182,
-      "coef_variation": 3.6688835360756755,
+      "lag1_autocorr": 0.05693804282329696,
+      "coef_variation": 3.378401769881203,
       "fano_factor": 29803.67966741193,
-      "norm_succ_diff": 1.106890288863745,
+      "norm_succ_diff": 1.059954101460064,
       "hurst_exponent": 0.6854271783812625,
       "trend_coeff": -0.140720014115779,
-      "count_skewness": 5.836896959363521
+      "count_skewness": 5.237619023859551
     },
     "events": [
       {
@@ -11325,36 +11373,36 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 3706869.6537568336,
-      "n_edges": 951185344.5242668,
-      "n_articulation_points": 1678.3929183288858,
-      "n_bridges": -7450.803063487067,
-      "diameter": 809.4075624145412,
-      "radius": 77.3793652095252,
-      "degeneracy": 3530.6198232150487,
-      "k_core_size": 64710.27196752017,
-      "maximum_degree": -73897.10140570415,
-      "degree_variance": -956731872.5619866,
-      "global_clustering": 1.0882559118758637,
-      "degree_assortativity": 0.5064791134160855,
-      "degree_entropy": -0.705510056051448,
-      "joint_degree_entropy": 2.6674026701012092,
-      "degree_skewness": -7.187744731394943,
-      "degree_kurtosis": 55.487864016881986,
-      "normalized_laplacian_second_moment": 1.3250459357374567,
-      "normalized_laplacian_third_moment": 0.5091299713059529,
-      "random_walk_triangle_weight": -0.06067000710722612,
-      "random_walk_fourth_moment": 0.47952274127632566,
-      "adjacency_fourth_moment_per_node": -7242239357531.792
+      "n_nodes": 3706757.5407769387,
+      "n_edges": 951185559.3503401,
+      "n_articulation_points": 1678.3790921416564,
+      "n_bridges": -7447.136663379528,
+      "diameter": 809.4200042358508,
+      "radius": 77.39247776212798,
+      "degeneracy": 3522.362917798876,
+      "k_core_size": 64710.206058690455,
+      "maximum_degree": -73892.7684996946,
+      "degree_variance": -956731863.1854954,
+      "global_clustering": 1.088255911874654,
+      "degree_assortativity": 0.4882676002177595,
+      "degree_entropy": -0.663370349180713,
+      "joint_degree_entropy": 2.65992809594911,
+      "degree_skewness": -13.712007594079086,
+      "degree_kurtosis": -368.70066854486953,
+      "normalized_laplacian_second_moment": 1.3923814692466763,
+      "normalized_laplacian_third_moment": -0.5124739141154998,
+      "random_walk_triangle_weight": -0.06030952052248643,
+      "random_walk_fourth_moment": 0.4814118349076518,
+      "adjacency_fourth_moment_per_node": -7242243020669.69
     },
     "signatures": {
-      "lag1_autocorr": -0.08487629936625118,
-      "coef_variation": 3.94390910940026,
-      "fano_factor": 31039.333623796185,
-      "norm_succ_diff": -0.3813945312887168,
-      "hurst_exponent": 0.4278461730918277,
-      "trend_coeff": 0.30620318887268827,
-      "count_skewness": -1.5388323158168946
+      "lag1_autocorr": -0.07370342079388564,
+      "coef_variation": 3.815501274233904,
+      "fano_factor": 31038.98176655305,
+      "norm_succ_diff": 0.33797952257328057,
+      "hurst_exponent": 0.5608973465801296,
+      "trend_coeff": 0.3063283264095876,
+      "count_skewness": -1.4299122614880286
     },
     "events": [
       {

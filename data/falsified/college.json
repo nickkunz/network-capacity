@@ -20,7 +20,7 @@
       "normalized_laplacian_second_moment": 1.0009551098376313,
       "normalized_laplacian_third_moment": 1.002865329512894,
       "random_walk_triangle_weight": 0.0,
-      "random_walk_fourth_moment": 0.00939937646845671,
+      "random_walk_fourth_moment": 0.0009551098376313276,
       "adjacency_fourth_moment_per_node": 130970193.91117479
     },
     "signatures": {
@@ -11148,11 +11148,11 @@
       "maximum_degree": 133948.42378369105,
       "degree_variance": 2003398213.2722673,
       "global_clustering": 0.9082658859666537,
-      "degree_assortativity": -0.5982576348785078,
+      "degree_assortativity": -0.6239895401390974,
       "degree_entropy": 0.6831196787184187,
-      "joint_degree_entropy": 4.727887812592013,
-      "degree_skewness": 30.104410607290507,
-      "degree_kurtosis": 224.51079024133654,
+      "joint_degree_entropy": 4.727845395657752,
+      "degree_skewness": 48.71064095346881,
+      "degree_kurtosis": 688.836220772233,
       "normalized_laplacian_second_moment": 1.0228149634437282,
       "normalized_laplacian_third_moment": 1.9537198827997537,
       "random_walk_triangle_weight": 0.04455703949857494,
@@ -11160,13 +11160,13 @@
       "adjacency_fourth_moment_per_node": 14722728547782.266
     },
     "signatures": {
-      "lag1_autocorr": 0.5775273002523409,
-      "coef_variation": 2.4341157687937,
+      "lag1_autocorr": 0.5923192798057046,
+      "coef_variation": 2.2452510212902967,
       "fano_factor": 16191.464176745176,
-      "norm_succ_diff": 0.2123024788092259,
+      "norm_succ_diff": 0.2062324559437367,
       "hurst_exponent": 0.8268905172318091,
       "trend_coeff": -0.12448406304801635,
-      "count_skewness": 0.5728213701744643
+      "count_skewness": 0.49191314591235713
     },
     "events": [
       {
@@ -11945,36 +11945,36 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 30833.998190873335,
-      "n_edges": -1617182397.3031473,
-      "n_articulation_points": 4418.082260043817,
-      "n_bridges": 73432.47693754346,
-      "diameter": -199.11302094446387,
-      "radius": -32.42001634575283,
-      "degeneracy": -661.8957709025946,
-      "k_core_size": 254342.2557269933,
-      "maximum_degree": 118863.99719002162,
-      "degree_variance": 248221372.60183787,
-      "global_clustering": 0.28469867802597687,
-      "degree_assortativity": -0.12417311807455045,
-      "degree_entropy": -1.1625172541464093,
-      "joint_degree_entropy": -1.359298920802659,
-      "degree_skewness": 3.0022580132868937,
-      "degree_kurtosis": -489.64320993656844,
-      "normalized_laplacian_second_moment": 1.1125496397879304,
-      "normalized_laplacian_third_moment": 2.0329612628892297,
-      "random_walk_triangle_weight": 0.13646349848165565,
-      "random_walk_fourth_moment": 0.09011935392677947,
-      "adjacency_fourth_moment_per_node": -6004985280666.093
+      "n_nodes": 30830.970243044576,
+      "n_edges": -1617182762.5499458,
+      "n_articulation_points": 4418.0458649709735,
+      "n_bridges": 73397.02672485013,
+      "diameter": -199.1305206921917,
+      "radius": -32.42582989593465,
+      "degeneracy": -654.6411642629539,
+      "k_core_size": 254341.9984214386,
+      "maximum_degree": 118857.22824836236,
+      "degree_variance": 248221370.16977528,
+      "global_clustering": 0.2846986780296285,
+      "degree_assortativity": -0.11978432724130313,
+      "degree_entropy": -1.1241704208130539,
+      "joint_degree_entropy": -1.3526338154441455,
+      "degree_skewness": 4.258360411619371,
+      "degree_kurtosis": -1112.9797175386354,
+      "normalized_laplacian_second_moment": 1.042140852241699,
+      "normalized_laplacian_third_moment": 2.111042775615462,
+      "random_walk_triangle_weight": 0.13615929942533228,
+      "random_walk_fourth_moment": 0.08962763606689197,
+      "adjacency_fourth_moment_per_node": -6004988321000.974
     },
     "signatures": {
-      "lag1_autocorr": 0.3102849567122059,
-      "coef_variation": 0.3646383447024767,
-      "fano_factor": -2381.297562125753,
-      "norm_succ_diff": -0.15924922297325192,
-      "hurst_exponent": 0.641636696488126,
-      "trend_coeff": -0.270433110511065,
-      "count_skewness": 1.7698187919015131
+      "lag1_autocorr": 0.30679415689181433,
+      "coef_variation": 0.39008115958773815,
+      "fano_factor": -2863.1045082567916,
+      "norm_succ_diff": -0.1476986445037848,
+      "hurst_exponent": 0.6480594396225895,
+      "trend_coeff": 0.09866471153786757,
+      "count_skewness": 1.708801481372396
     },
     "events": [
       {
