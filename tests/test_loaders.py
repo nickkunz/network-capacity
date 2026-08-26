@@ -2,6 +2,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import igraph as ig
 import numpy as np
 import pandas as pd
 
@@ -11,6 +12,7 @@ from src.data.loaders.faers import _iter_reports_faers, _process_events_faers
 from src.data.loaders.federal import FederalProcessor
 from src.data.loaders.metrla import _process_events_metrla
 from src.data.loaders.pemsbay import _process_events_pemsbay
+from src.data.perturbers import _execute_perturbations
 
 
 class TrafficEventTests(unittest.TestCase):
@@ -129,6 +131,40 @@ class FederalEventTests(unittest.TestCase):
         self.assertEqual(
             processor.data_processed["Start Date"].dt.strftime("%Y-%m-%d").tolist(),
             ["2011-09-23"],
+        )
+
+
+class PerturbationDispatchTests(unittest.TestCase):
+
+    @patch("src.data.perturbers.GraphInvariants")
+    @patch("src.data.perturbers.analytical_perturb")
+    def test_forced_analytical_mode_reuses_processor_invariants(
+        self,
+        analytical_perturb_mock,
+        graph_invariants_mock,
+    ) -> None:
+        baseline = {"n_nodes": 4, "n_edges": 4}
+        analytical_perturb_mock.return_value = baseline
+        processor = SimpleNamespace(
+            graph = ig.Graph.Ring(4),
+            invariants = baseline,
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"rewire": (0.1,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            result = _execute_perturbations(proc = processor, name = "test", force = True)
+
+        graph_invariants_mock.assert_not_called()
+        analytical_perturb_mock.assert_called_once()
+        self.assertEqual(
+            result["network_perturbed"]["rewire"][0]["invariants"],
+            baseline,
         )
 
 
