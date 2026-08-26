@@ -462,8 +462,9 @@ def json_perturber(force: bool = False):
             logging.info("Perturbing Federal data...")
         proc = FederalProcessor(
             url = URL_FEDERAL,
-            start_date = "2014-01-01",
-            end_date = "2024-12-31"
+            start_date = "2011-01-01",
+            end_date = "2024-12-31",
+            keyword = "waterfowl"
         )
         proc.run()
         data = _execute_perturbations(proc = proc, name = NAME_FEDERAL)
