@@ -109,8 +109,9 @@ def json_processor(force: bool = False):
         logging.info("Processing Federal data...")
         data_federal = FederalProcessor(
             url = URL_FEDERAL,
-            start_date = "2014-01-01",
-            end_date = "2024-12-31"
+            start_date = "2011-01-01",
+            end_date = "2024-12-31",
+            keyword = "waterfowl"
         ).run()
         _save_to_json(data = data_federal, path = federal_path)
         logging.info(f"Federal data saved to {federal_path}")
@@ -234,7 +235,7 @@ def json_processor(force: bool = False):
 
     ## --- metr-la --- ##
     metrla_path = os.path.join(PATH_PROC, f"{NAME_METRLA}.json")
-    if not os.path.exists(metrla_path):
+    if force or not os.path.exists(metrla_path):
         logging.info("Processing METR-LA data...")
         data_metrla = MetrLaProcessor(raw_data_dir = os.path.join(PATH_ROOT, NAME_METRLA)).run()
         _save_to_json(data = data_metrla, path = metrla_path)
@@ -244,7 +245,7 @@ def json_processor(force: bool = False):
 
     ## --- pems-bay --- ##
     pemsbay_path = os.path.join(PATH_PROC, f"{NAME_PEMSBAY}.json")
-    if not os.path.exists(pemsbay_path):
+    if force or not os.path.exists(pemsbay_path):
         logging.info("Processing PEMS-BAY data...")
         data_pemsbay = PemsBayProcessor(raw_data_dir = os.path.join(PATH_ROOT, NAME_PEMSBAY)).run()
         _save_to_json(data = data_pemsbay, path = pemsbay_path)
