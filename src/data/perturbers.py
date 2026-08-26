@@ -4,10 +4,12 @@ import os
 import sys
 import logging
 import configparser
+import json
 import numpy as np
 import pandas as pd
-from typing import Any
+from typing import Any, Sequence
 from pathlib import Path
+from scipy.special import ndtr
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -62,6 +64,7 @@ config.read(os.path.join(root, 'conf', 'settings.ini'))
 
 ## constants
 PATH_ROOT = config['paths']['PATH_ROOT'].strip('"')
+PATH_PROC = config['paths']['PATH_PROC'].strip('"')
 PATH_PERT = config['paths']['PATH_PERT'].strip('"')
 
 NAME_AMAZON = config['names']['NAME_AMAZON']
@@ -140,7 +143,9 @@ TEMPORAL_METHODS = {
 
 ## helper functions
 def _is_fully_connected_bipartite(graph: Any) -> bool:
+
     """Check if a graph is a fully connected bipartite graph."""
+
     if graph.vcount() == 0 or graph.ecount() == 0:
         return False
     is_bip, types = graph.is_bipartite(return_types=True)
@@ -150,10 +155,85 @@ def _is_fully_connected_bipartite(graph: Any) -> bool:
     n2 = len(types) - n1
     return graph.ecount() == n1 * n2
 
-def _execute_perturbations(proc: Any, name: str, force: bool = False, random_state: int = 42) -> dict[str, Any]:
+def _load_corpus_feature_scales(path_proc: str = PATH_PROC) -> tuple[pd.Series, pd.Series]:
+
+    """Load corpus-wide standard deviations for invariant and signature noise."""
+
+    invariants = list()
+    signatures = list()
+    for path in sorted((Path(root) / path_proc).glob("*.json")):
+        with open(path, "r") as file:
+            payload = json.load(file)
+        invariants.append(payload.get("invariants", dict()))
+        signatures.append(payload.get("signatures", dict()))
+
+    if len(invariants) < 2 or len(signatures) < 2:
+        raise ValueError("at least two processed datasets are required for corpus feature scales")
+
+    invariant_scale = pd.DataFrame(invariants).apply(pd.to_numeric, errors = "coerce").std(axis = 0)
+    signature_scale = pd.DataFrame(signatures).apply(pd.to_numeric, errors = "coerce").std(axis = 0)
+    return invariant_scale.fillna(0.0), signature_scale.fillna(0.0)
+
+def _jitter_count_series(
+    positions: np.ndarray,
+    counts: np.ndarray,
+    sigma: float,
+    lower: int,
+    upper: int,
+    rng: np.random.Generator,
+    chunk_size: int = 100_000,
+    multinomial_threshold: int = 1_000_000,
+    ) -> np.ndarray:
+
+    """Jitter count-weighted positions without expanding to individual events."""
+
+    shifted_counts = np.zeros(upper - lower + 1, dtype = np.int64)
+    if sigma <= 0:
+        for position, count in zip(positions, counts):
+            shifted_counts[int(np.clip(position, lower, upper)) - lower] += max(0, int(count))
+        return shifted_counts
+
+    if int(np.sum(np.maximum(counts, 0))) > multinomial_threshold:
+        boundaries = np.arange(lower, upper, dtype = float) + 0.5
+        for position, count in zip(positions, counts):
+            count = max(0, int(count))
+            if count == 0:
+                continue
+            cumulative = ndtr((boundaries - float(position)) / sigma)
+            probabilities = np.diff(np.concatenate(([0.0], cumulative, [1.0])))
+            probabilities = np.clip(probabilities, 0.0, 1.0)
+            probabilities /= probabilities.sum()
+            shifted_counts += rng.multinomial(count, probabilities)
+        return shifted_counts
+
+    for position, count in zip(positions, counts):
+        remaining = max(0, int(count))
+        while remaining > 0:
+            draw_size = min(remaining, chunk_size)
+            shifted = np.rint(
+                float(position) + rng.normal(0, sigma, size = draw_size)
+            ).astype(np.int64)
+            np.clip(shifted, lower, upper, out = shifted)
+            shifted_counts += np.bincount(
+                shifted - lower,
+                minlength = len(shifted_counts),
+            )
+            remaining -= draw_size
+    return shifted_counts
+
+def _execute_perturbations(
+    proc: Any,
+    name: str,
+    random_state: int = 42,
+    n_realizations: int = 30,
+    ) -> dict[str, Any]:
+
     """Run network, process, and temporal perturbations for a given processor."""
+
+    ## validate inputs
+    if n_realizations < 1:
+        raise ValueError("n_realizations must be >= 1")
     results = dict()
-    rng = np.random.default_rng(random_state)
 
     ## --- network perturbation --- ##
     graph = getattr(proc, 'graph', None)
@@ -164,49 +244,52 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
         ## ensure simple undirected graph (remove multi-edges and self-loops)
         graph.simplify()
 
-        ## check for fully connected bipartite structure to determine if analytical perturbation can be used
+        ## use analytical perturbation only when the graph structure is exact
         network_results: dict[str, list[dict[str, Any]]] = dict()
         analytical = _is_fully_connected_bipartite(graph)
+
         if analytical:
             degrees = np.array(graph.degree(), dtype=float)
             n_nodes = graph.vcount()
             n_edges = graph.ecount()
-            logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")  
-        invariants = GraphInvariants(graph).all(analytical = analytical)
-
-        ## force analytical perturbation when specified
-        if not analytical and force:
-            degrees = np.array(graph.degree(), dtype=float)
-            n_nodes = graph.vcount()
-            n_edges = graph.ecount()
-            analytical = True
-            logging.info(f"  Forcing analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")
+            invariants = dict(pre_inv) if pre_inv is not None else GraphInvariants(graph).all(analytical = True)
+            logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")
+        else:
+            invariants = GraphInvariants(graph).all(analytical = False)
 
         for method, intensities in NETWORK_METHODS.items():
             for intensity in intensities:
-                if analytical:
-                    try:
-                        features = analytical_perturb(
-                            invariants = invariants,
-                            degrees = degrees,
-                            n_nodes = n_nodes,
-                            n_edges = n_edges,
-                            method = {"rewire": "degree_preserving_rewire", "densify": "bernoulli_edge_densification", "sample": "uniform_node_sampling"}[method],
-                            intensity = float(intensity),
-                        )
-                    except Exception as exc:
-                        logging.warning(f"Analytical {method} @ {intensity:.2f} failed for {name}: {exc}")
-                        continue
-                else:
-                    try:
-                        features = network_perturb(graph, method = method, intensity = float(intensity), random_state = random_state)
-                    except Exception as exc:
-                        logging.warning(f"Network {method} @ {intensity:.2f} failed for {name}: {exc}")
-                        continue
-                network_results.setdefault(method, []).append({
-                    'intensity': float(intensity),
-                    'invariants': features
-                })
+                realizations = range(1) if analytical else range(n_realizations)
+                for realization in realizations:
+                    if analytical:
+                        try:
+                            features = analytical_perturb(
+                                invariants = invariants,
+                                degrees = degrees,
+                                n_nodes = n_nodes,
+                                n_edges = n_edges,
+                                method = {"rewire": "degree_preserving_rewire", "densify": "bernoulli_edge_densification", "sample": "uniform_node_sampling"}[method],
+                                intensity = float(intensity),
+                            )
+                        except Exception as exc:
+                            logging.warning(f"Analytical {method} @ {intensity:.2f} failed for {name}: {exc}")
+                            continue
+                    else:
+                        try:
+                            features = network_perturb(
+                                graph,
+                                method = method,
+                                intensity = float(intensity),
+                                random_state = random_state + realization,
+                            )
+                        except Exception as exc:
+                            logging.warning(f"Network {method} @ {intensity:.2f} realization {realization} failed for {name}: {exc}")
+                            continue
+                    network_results.setdefault(method, []).append({
+                        'intensity': float(intensity),
+                        'realization': realization,
+                        'invariants': features
+                    })
         results['network_perturbed'] = network_results
         total = sum(len(v) for v in network_results.values())
         logging.info(f"  Network perturbation: {total} records")
@@ -237,6 +320,7 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
                     continue
                 network_results.setdefault(method, []).append({
                     'intensity': float(intensity),
+                    'realization': 0,
                     'invariants': features
                 })
         results['network_perturbed'] = network_results
@@ -247,27 +331,31 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
 
     ## --- invariant perturbation --- ##
     if graph is not None or pre_inv is not None:
+        invariant_scale, signature_scale = _load_corpus_feature_scales()
         base_inv = invariants if graph is not None else pre_inv
         base_df = pd.DataFrame([base_inv])
         invariant_results: dict[str, list[dict[str, Any]]] = dict()
         for method, params in INVARIANT_METHODS.items():
             for param in params:
-                try:
-                    perturbed_df = feature_perturb(
-                        base_df.copy(),
-                        method = method,
-                        noise = float(param) if method != 'subset' else 0.05,
-                        subset = float(param) if method == 'subset' else 0.8,
-                        random_state = random_state,
-                    )
-                    row = perturbed_df.iloc[0].to_dict()
-                except Exception as exc:
-                    logging.warning(f"Invariant {method} @ {param:.3f} failed for {name}: {exc}")
-                    continue
-                invariant_results.setdefault(method, []).append({
-                    'intensity': float(param),
-                    'invariants': row
-                })
+                for realization in range(n_realizations):
+                    try:
+                        perturbed_df = feature_perturb(
+                            base_df.copy(),
+                            method = method,
+                            noise = float(param) if method != 'subset' else 0.05,
+                            subset = float(param) if method == 'subset' else 0.8,
+                            random_state = random_state + realization,
+                            scale = invariant_scale,
+                        )
+                        row = perturbed_df.iloc[0].to_dict()
+                    except Exception as exc:
+                        logging.warning(f"Invariant {method} @ {param:.3f} realization {realization} failed for {name}: {exc}")
+                        continue
+                    invariant_results.setdefault(method, []).append({
+                        'intensity': float(param),
+                        'realization': realization,
+                        'invariants': row
+                    })
         results['invariants_perturbed'] = invariant_results
         total = sum(len(v) for v in invariant_results.values())
         logging.info(f"  Invariant perturbation: {total} records")
@@ -280,15 +368,23 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
         process_results: dict[str, list[dict[str, Any]]] = dict()
         for method, params in PROCESS_METHODS.items():
             for param in params:
-                try:
-                    sigs = process_perturb(counts, method = method, param = float(param), random_state = random_state)
-                except Exception as exc:
-                    logging.warning(f"Process {method} @ {param} failed for {name}: {exc}")
-                    continue
-                process_results.setdefault(method, []).append({
-                    'intensity': float(param),
-                    'signatures': sigs
-                })
+                realizations = range(n_realizations) if method == 'bootstrapping' else range(1)
+                for realization in realizations:
+                    try:
+                        sigs = process_perturb(
+                            counts,
+                            method = method,
+                            param = float(param),
+                            random_state = random_state + realization,
+                        )
+                    except Exception as exc:
+                        logging.warning(f"Process {method} @ {param} realization {realization} failed for {name}: {exc}")
+                        continue
+                    process_results.setdefault(method, []).append({
+                        'intensity': float(param),
+                        'realization': realization,
+                        'signatures': sigs
+                    })
         results['process_perturbed'] = process_results
         total = sum(len(v) for v in process_results.values())
         logging.info(f"  Process perturbation: {total} records")
@@ -297,28 +393,33 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
 
     ## --- signature perturbation (z -> z') --- ##
     if counts is not None and len(counts) > 0:
+        if "signature_scale" not in locals():
+            _, signature_scale = _load_corpus_feature_scales()
         data_temp = pd.DataFrame({"counts": counts, "idx": range(len(counts))})
         base_sigs = ProcessSignatures(data_temp, sort_by = ["idx"], target = "counts").all()
         base_sig_df = pd.DataFrame([base_sigs])
         sig_pert_results: dict[str, list[dict[str, Any]]] = dict()
         for method, params in SIGNATURE_METHODS.items():
             for param in params:
-                try:
-                    perturbed_df = feature_perturb(
-                        base_sig_df.copy(),
-                        method = method,
-                        noise = float(param) if method != 'subset' else 0.05,
-                        subset = float(param) if method == 'subset' else 0.8,
-                        random_state = random_state,
-                    )
-                    row = perturbed_df.iloc[0].to_dict()
-                except Exception as exc:
-                    logging.warning(f"Signature {method} @ {param:.3f} failed for {name}: {exc}")
-                    continue
-                sig_pert_results.setdefault(method, []).append({
-                    'intensity': float(param),
-                    'signatures': row
-                })
+                for realization in range(n_realizations):
+                    try:
+                        perturbed_df = feature_perturb(
+                            base_sig_df.copy(),
+                            method = method,
+                            noise = float(param) if method != 'subset' else 0.05,
+                            subset = float(param) if method == 'subset' else 0.8,
+                            random_state = random_state + realization,
+                            scale = signature_scale,
+                        )
+                        row = perturbed_df.iloc[0].to_dict()
+                    except Exception as exc:
+                        logging.warning(f"Signature {method} @ {param:.3f} realization {realization} failed for {name}: {exc}")
+                        continue
+                    sig_pert_results.setdefault(method, []).append({
+                        'intensity': float(param),
+                        'realization': realization,
+                        'signatures': row
+                    })
         results['signatures_perturbed'] = sig_pert_results
         total = sum(len(v) for v in sig_pert_results.values())
         logging.info(f"  Signature perturbation: {total} records")
@@ -343,99 +444,101 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
 
             for method, params in TEMPORAL_METHODS.items():
                 for param in params:
-                    try:
-                        if method == 'aggregation':
-                            scale = param
-                            if is_ordinal:
-                                scale_days = int(re.match(r'(\d+)', scale).group(1))
-                                bin_edges = list(range(day_min, day_max + scale_days, scale_days))
-                                if len(bin_edges) < 2:
-                                    bin_edges = [day_min, day_min + scale_days]
-                                labels = bin_edges[:-1]
-                                data_temp['_bin'] = pd.cut(
-                                    data_temp[date_col], bins = bin_edges,
-                                    right = False, labels = labels, include_lowest = True
-                                )
-                                agg = data_temp.groupby('_bin', observed = False)[target_col].sum()
-                                records = [
-                                    {'day': int(b), 'target': int(v)}
-                                    for b, v in agg.items()
-                                ]
-                                data_temp.drop(columns = '_bin', inplace = True, errors = 'ignore')
-                            else:
-                                resampled = data_temp[target_col].resample(scale).sum()
-                                records = [
-                                    {'date': str(dt.date()), 'target': int(val)}
-                                    for dt, val in resampled.items()
-                                ]
-                            temporal_results.setdefault(method, []).append({'intensity': scale, 'events': records})
+                    realizations = range(1) if method == 'aggregation' else range(n_realizations)
+                    for realization in realizations:
+                        try:
+                            rng = np.random.default_rng(random_state + realization)
+                            if method == 'aggregation':
+                                scale = param
+                                if is_ordinal:
+                                    scale_days = int(re.match(r'(\d+)', scale).group(1))
+                                    bin_edges = list(range(day_min, day_max + scale_days, scale_days))
+                                    if len(bin_edges) < 2:
+                                        bin_edges = [day_min, day_min + scale_days]
+                                    labels = bin_edges[:-1]
+                                    data_temp['_bin'] = pd.cut(
+                                        data_temp[date_col], bins = bin_edges,
+                                        right = False, labels = labels, include_lowest = True
+                                    )
+                                    agg = data_temp.groupby('_bin', observed = False)[target_col].sum()
+                                    records = [
+                                        {'day': int(b), 'target': int(v)}
+                                        for b, v in agg.items()
+                                    ]
+                                    data_temp.drop(columns = '_bin', inplace = True, errors = 'ignore')
+                                else:
+                                    resampled = data_temp[target_col].resample(scale).sum()
+                                    records = [
+                                        {'date': str(dt.date()), 'target': int(val)}
+                                        for dt, val in resampled.items()
+                                    ]
+                                temporal_results.setdefault(method, []).append({'intensity': scale, 'realization': realization, 'events': records})
 
-                        elif method == 'jitter':
-                            intensity = float(param)
-                            if is_ordinal:
-                                days_arr = np.repeat(
-                                    data_temp[date_col].values,
-                                    data_temp[target_col].values.clip(0).astype(int)
-                                )
-                                if len(days_arr) == 0:
-                                    continue
-                                sigma = intensity * max(day_max - day_min, 1)
-                                jittered = np.round(
-                                    days_arr + rng.normal(0, sigma, size = len(days_arr))
-                                ).astype(int).clip(day_min, day_max)
-                                day_keys, day_vals = np.unique(jittered, return_counts = True)
-                                new_counts = dict(zip(day_keys.tolist(), day_vals.tolist()))
-                                records = [
-                                    {'day': int(d), 'target': int(c)}
-                                    for d, c in sorted(new_counts.items())
-                                ]
-                            else:
-                                daily = data_temp[target_col].resample('1D').sum()
-                                n_days = len(daily)
-                                if n_days == 0:
-                                    continue
-                                event_days = np.repeat(
-                                    np.arange(n_days),
-                                    daily.values.clip(0).astype(int)
-                                )
-                                if len(event_days) == 0:
-                                    continue
-                                sigma = intensity * max(n_days, 1)
-                                jittered = np.round(
-                                    event_days + rng.normal(0, sigma, size = len(event_days))
-                                ).astype(int).clip(0, n_days - 1)
-                                new_daily = np.zeros(n_days, dtype = int)
-                                idx_keys, idx_vals = np.unique(jittered, return_counts = True)
-                                new_daily[idx_keys] = idx_vals
-                                records = [
-                                    {'date': str(daily.index[i].date()), 'target': int(new_daily[i])}
-                                    for i in range(n_days)
-                                ]
-                            temporal_results.setdefault(method, []).append({'intensity': intensity, 'events': records})
+                            elif method == 'jitter':
+                                intensity = float(param)
+                                if is_ordinal:
+                                    counts_arr = data_temp[target_col].values.clip(0).astype(int)
+                                    if int(counts_arr.sum()) == 0:
+                                        continue
+                                    sigma = intensity * max(day_max - day_min, 1)
+                                    new_counts = _jitter_count_series(
+                                        positions = data_temp[date_col].values.astype(int),
+                                        counts = counts_arr,
+                                        sigma = sigma,
+                                        lower = day_min,
+                                        upper = day_max,
+                                        rng = rng,
+                                    )
+                                    records = [
+                                        {'day': int(day_min + offset), 'target': int(new_counts[offset])}
+                                        for offset in np.flatnonzero(new_counts)
+                                    ]
+                                else:
+                                    daily = data_temp[target_col].resample('1D').sum()
+                                    n_days = len(daily)
+                                    if n_days == 0:
+                                        continue
+                                    counts_arr = daily.values.clip(0).astype(int)
+                                    if int(counts_arr.sum()) == 0:
+                                        continue
+                                    sigma = intensity * max(n_days, 1)
+                                    new_daily = _jitter_count_series(
+                                        positions = np.arange(n_days),
+                                        counts = counts_arr,
+                                        sigma = sigma,
+                                        lower = 0,
+                                        upper = n_days - 1,
+                                        rng = rng,
+                                    )
+                                    records = [
+                                        {'date': str(daily.index[i].date()), 'target': int(new_daily[i])}
+                                        for i in range(n_days)
+                                    ]
+                                temporal_results.setdefault(method, []).append({'intensity': intensity, 'realization': realization, 'events': records})
 
-                        elif method == 'dropout':
-                            intensity = float(param)
-                            if is_ordinal:
-                                counts_arr = data_temp[target_col].values.clip(0).astype(int)
-                                survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
-                                records = [
-                                    {'day': int(data_temp[date_col].iloc[i]), 'target': int(survived[i])}
-                                    for i in range(len(data_temp))
-                                ]
-                            else:
-                                counts_arr = data_temp[target_col].values.clip(0).astype(int)
-                                survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
-                                dropped = pd.Series(survived.astype(float), index = data_temp.index)
-                                resampled = dropped.resample('1D').sum()
-                                records = [
-                                    {'date': str(dt.date()), 'target': int(val)}
-                                    for dt, val in resampled.items()
-                                ]
-                            temporal_results.setdefault(method, []).append({'intensity': intensity, 'events': records})
+                            elif method == 'dropout':
+                                intensity = float(param)
+                                if is_ordinal:
+                                    counts_arr = data_temp[target_col].values.clip(0).astype(int)
+                                    survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
+                                    records = [
+                                        {'day': int(data_temp[date_col].iloc[i]), 'target': int(survived[i])}
+                                        for i in range(len(data_temp))
+                                    ]
+                                else:
+                                    counts_arr = data_temp[target_col].values.clip(0).astype(int)
+                                    survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
+                                    dropped = pd.Series(survived.astype(float), index = data_temp.index)
+                                    resampled = dropped.resample('1D').sum()
+                                    records = [
+                                        {'date': str(dt.date()), 'target': int(val)}
+                                        for dt, val in resampled.items()
+                                    ]
+                                temporal_results.setdefault(method, []).append({'intensity': intensity, 'realization': realization, 'events': records})
 
-                    except Exception as exc:
-                        logging.warning(f"Temporal {method} @ {param} failed for {name}: {exc}")
-                        continue
+                        except Exception as exc:
+                            logging.warning(f"Temporal {method} @ {param} realization {realization} failed for {name}: {exc}")
+                            continue
 
             results['temporal_perturbed'] = temporal_results
             total = sum(len(v) for v in temporal_results.values())
@@ -448,14 +551,25 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
     return results
 
 ## perturbation pipeline
-def json_perturber(force: bool = False):
+def json_perturber(
+    force: bool = False,
+    include: Sequence[str] | None = None,
+    exclude: Sequence[str] = (),
+    ):
 
     ## ensure perturbation directory exists
     os.makedirs(name = PATH_PERT, exist_ok = True)
+    included = None if include is None else set(include)
+    excluded = set(exclude)
+
+    def should_regenerate(path: str) -> bool:
+        name = Path(path).stem
+        selected = included is None or name in included
+        return selected and name not in excluded and (force or not os.path.exists(path))
 
     ## --- federal contracts --- ##
     federal_path = os.path.join(PATH_PERT, f"{NAME_FEDERAL}.json")
-    if force or not os.path.exists(federal_path):
+    if should_regenerate(federal_path):
         if force and os.path.exists(federal_path):
             logging.info(f"Overwriting existing federal perturbations at {federal_path}")
         else:
@@ -475,7 +589,7 @@ def json_perturber(force: bool = False):
 
     ## --- mooc students --- ##
     mooc_path = os.path.join(PATH_PERT, f"{NAME_MOOC}.json")
-    if force or not os.path.exists(mooc_path):
+    if should_regenerate(mooc_path):
         if force and os.path.exists(mooc_path):
             logging.info(f"Overwriting existing MOOC perturbations at {mooc_path}")
         else:
@@ -490,14 +604,14 @@ def json_perturber(force: bool = False):
 
     ## --- bitcoin trust --- ##
     bitcoin_path = os.path.join(PATH_PERT, f"{NAME_BITCOIN}.json")
-    if force or not os.path.exists(bitcoin_path):
+    if should_regenerate(bitcoin_path):
         if force and os.path.exists(bitcoin_path):
             logging.info(f"Overwriting existing Bitcoin perturbations at {bitcoin_path}")
         else:
             logging.info("Perturbing Bitcoin data...")
         proc = BitcoinProcessor(root_path = PATH_ROOT, name = NAME_BITCOIN)
         proc.run()
-        data = _execute_perturbations(proc = proc, name = NAME_BITCOIN, force = True)
+        data = _execute_perturbations(proc = proc, name = NAME_BITCOIN)
         _save_to_json(data = data, path = bitcoin_path)
         logging.info(f"Bitcoin perturbations saved to {bitcoin_path}")
     else:
@@ -505,7 +619,7 @@ def json_perturber(force: bool = False):
 
     ## --- world bank --- ##
     world_path = os.path.join(PATH_PERT, f"{NAME_WORLD}.json")
-    if force or not os.path.exists(world_path):
+    if should_regenerate(world_path):
         if force and os.path.exists(world_path):
             logging.info(f"Overwriting existing World Bank perturbations at {world_path}")
         else:
@@ -525,7 +639,7 @@ def json_perturber(force: bool = False):
 
     ## --- math wiki --- ##
     wiki_path = os.path.join(PATH_PERT, f"{NAME_WIKI}.json")
-    if force or not os.path.exists(wiki_path):
+    if should_regenerate(wiki_path):
         if force and os.path.exists(wiki_path):
             logging.info(f"Overwriting existing Wiki perturbations at {wiki_path}")
         else:
@@ -540,7 +654,7 @@ def json_perturber(force: bool = False):
 
     ## --- jodie wiki --- ##
     jodie_path = os.path.join(PATH_PERT, f"{NAME_JODIE}.json")
-    if force or not os.path.exists(jodie_path):
+    if should_regenerate(jodie_path):
         if force and os.path.exists(jodie_path):
             logging.info(f"Overwriting existing JODIE perturbations at {jodie_path}")
         else:
@@ -555,7 +669,7 @@ def json_perturber(force: bool = False):
 
     ## --- mathoverflow --- ##
     overflow_path = os.path.join(PATH_PERT, f"{NAME_OVERFLOW}.json")
-    if force or not os.path.exists(overflow_path):
+    if should_regenerate(overflow_path):
         if force and os.path.exists(overflow_path):
             logging.info(f"Overwriting existing MathOverflow perturbations at {overflow_path}")
         else:
@@ -570,7 +684,7 @@ def json_perturber(force: bool = False):
 
     ## --- eu-core email --- ##
     email_path = os.path.join(PATH_PERT, f"{NAME_EMAIL}.json")
-    if force or not os.path.exists(email_path):
+    if should_regenerate(email_path):
         if force and os.path.exists(email_path):
             logging.info(f"Overwriting existing EU-Core Email perturbations at {email_path}")
         else:
@@ -585,7 +699,7 @@ def json_perturber(force: bool = False):
 
     ## --- college --- ##
     college_path = os.path.join(PATH_PERT, f"{NAME_COLLEGE}.json")
-    if force or not os.path.exists(college_path):
+    if should_regenerate(college_path):
         if force and os.path.exists(college_path):
             logging.info(f"Overwriting existing UC Irvine College Message perturbations at {college_path}")
         else:
@@ -600,7 +714,7 @@ def json_perturber(force: bool = False):
 
     ## --- idling --- ##
     idling_path = os.path.join(PATH_PERT, f"{NAME_IDLING}.json")
-    if force or not os.path.exists(idling_path):
+    if should_regenerate(idling_path):
         if force and os.path.exists(idling_path):
             logging.info(f"Overwriting existing Halifax idling perturbations at {idling_path}")
         else:
@@ -615,7 +729,7 @@ def json_perturber(force: bool = False):
 
     ## --- windmill --- ##
     windmill_path = os.path.join(PATH_PERT, f"{NAME_WINDMILL}.json")
-    if force or not os.path.exists(windmill_path):
+    if should_regenerate(windmill_path):
         if force and os.path.exists(windmill_path):
             logging.info(f"Overwriting existing Windmill perturbations at {windmill_path}")
         else:
@@ -630,7 +744,7 @@ def json_perturber(force: bool = False):
 
     ## --- metr-la --- ##
     metrla_path = os.path.join(PATH_PERT, f"{NAME_METRLA}.json")
-    if force or not os.path.exists(metrla_path):
+    if should_regenerate(metrla_path):
         if force and os.path.exists(metrla_path):
             logging.info(f"Overwriting existing METR-LA perturbations at {metrla_path}")
         else:
@@ -645,7 +759,7 @@ def json_perturber(force: bool = False):
 
     ## --- pems-bay --- ##
     pemsbay_path = os.path.join(PATH_PERT, f"{NAME_PEMSBAY}.json")
-    if force or not os.path.exists(pemsbay_path):
+    if should_regenerate(pemsbay_path):
         if force and os.path.exists(pemsbay_path):
             logging.info(f"Overwriting existing PEMS-BAY perturbations at {pemsbay_path}")
         else:
@@ -660,7 +774,7 @@ def json_perturber(force: bool = False):
 
     ## --- montevideo --- ##
     montevideo_path = os.path.join(PATH_PERT, f"{NAME_MONTEVIDEO}.json")
-    if force or not os.path.exists(montevideo_path):
+    if should_regenerate(montevideo_path):
         if force and os.path.exists(montevideo_path):
             logging.info(f"Overwriting existing Montevideo perturbations at {montevideo_path}")
         else:
@@ -675,7 +789,7 @@ def json_perturber(force: bool = False):
 
     ## --- crop pollinator --- ##
     crop_path = os.path.join(PATH_PERT, f"{NAME_CROP}.json")
-    if force or not os.path.exists(crop_path):
+    if should_regenerate(crop_path):
         if force and os.path.exists(crop_path):
             logging.info(f"Overwriting existing CropPol perturbations at {crop_path}")
         else:
@@ -690,7 +804,7 @@ def json_perturber(force: bool = False):
 
     ## --- faers --- ##
     faers_path = os.path.join(PATH_PERT, f"{NAME_FAERS}.json")
-    if force or not os.path.exists(faers_path):
+    if should_regenerate(faers_path):
         if force and os.path.exists(faers_path):
             logging.info(f"Overwriting existing FAERS perturbations at {faers_path}")
         else:
@@ -705,7 +819,7 @@ def json_perturber(force: bool = False):
 
     ## --- c. elegans --- ##
     celegans_path = os.path.join(PATH_PERT, f"{NAME_CELEGANS}.json")
-    if force or not os.path.exists(celegans_path):
+    if should_regenerate(celegans_path):
         if force and os.path.exists(celegans_path):
             logging.info(f"Overwriting existing C. Elegans perturbations at {celegans_path}")
         else:
@@ -720,7 +834,7 @@ def json_perturber(force: bool = False):
 
     ## --- epilepsy --- ##
     epilepsy_path = os.path.join(PATH_PERT, f"{NAME_EPILEPSY}.json")
-    if force or not os.path.exists(epilepsy_path):
+    if should_regenerate(epilepsy_path):
         if force and os.path.exists(epilepsy_path):
             logging.info(f"Overwriting existing Epilepsy perturbations at {epilepsy_path}")
         else:
@@ -736,7 +850,7 @@ def json_perturber(force: bool = False):
 
     ## --- chickenpox --- ##
     chickenpox_path = os.path.join(PATH_PERT, f"{NAME_CHICKENPOX}.json")
-    if force or not os.path.exists(chickenpox_path):
+    if should_regenerate(chickenpox_path):
         if force and os.path.exists(chickenpox_path):
             logging.info(f"Overwriting existing Chickenpox perturbations at {chickenpox_path}")
         else:
@@ -754,7 +868,7 @@ def json_perturber(force: bool = False):
 
     ## --- gwosc --- ##
     gwosc_path = os.path.join(PATH_PERT, f"{NAME_GWOSC}.json")
-    if force or not os.path.exists(gwosc_path):
+    if should_regenerate(gwosc_path):
         if force and os.path.exists(gwosc_path):
             logging.info(f"Overwriting existing GWOSC perturbations at {gwosc_path}")
         else:
@@ -769,7 +883,7 @@ def json_perturber(force: bool = False):
 
     ## --- nwis --- ##
     river_path = os.path.join(PATH_PERT, f"{NAME_RIVER}.json")
-    if force or not os.path.exists(river_path):
+    if should_regenerate(river_path):
         if force and os.path.exists(river_path):
             logging.info(f"Overwriting existing NWIS river perturbations at {river_path}")
         else:
@@ -797,7 +911,7 @@ def json_perturber(force: bool = False):
 
     ## --- auger --- ##
     auger_path = os.path.join(PATH_PERT, f"{NAME_AUGER}.json")
-    if force or not os.path.exists(auger_path):
+    if should_regenerate(auger_path):
         if force and os.path.exists(auger_path):
             logging.info(f"Overwriting existing Auger perturbations at {auger_path}")
         else:
@@ -815,7 +929,7 @@ def json_perturber(force: bool = False):
 
     ## --- seismic --- ##
     seismic_path = os.path.join(PATH_PERT, f"{NAME_SEISMIC}.json")
-    if force or not os.path.exists(seismic_path):
+    if should_regenerate(seismic_path):
         if force and os.path.exists(seismic_path):
             logging.info(f"Overwriting existing Seismic perturbations at {seismic_path}")
         else:
@@ -853,7 +967,7 @@ def json_perturber(force: bool = False):
 
     ## --- rain --- ##
     rain_path = os.path.join(PATH_PERT, f"{NAME_RAIN}.json")
-    if force or not os.path.exists(rain_path):
+    if should_regenerate(rain_path):
         if force and os.path.exists(rain_path):
             logging.info(f"Overwriting existing Rain perturbations at {rain_path}")
         else:
@@ -872,14 +986,14 @@ def json_perturber(force: bool = False):
 
     ## --- amazon reviews --- ##
     amazon_path = os.path.join(PATH_PERT, f"{NAME_AMAZON}.json")
-    if force or not os.path.exists(amazon_path):
+    if should_regenerate(amazon_path):
         if force and os.path.exists(amazon_path):
             logging.info(f"Overwriting existing Amazon perturbations at {amazon_path}")
         else:
             logging.info("Perturbing Amazon data...")
         proc = AmazonProcessor(root_path = PATH_ROOT, url = URL_AMAZON, name = NAME_AMAZON)
         proc.run()
-        data = _execute_perturbations(proc = proc, name = NAME_AMAZON, force = True)
+        data = _execute_perturbations(proc = proc, name = NAME_AMAZON)
         _save_to_json(data = data, path = amazon_path)
         logging.info(f"Amazon perturbations saved to {amazon_path}")
     else:
