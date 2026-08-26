@@ -171,7 +171,7 @@ def _execute_perturbations(proc: Any, name: str, force: bool = False, random_sta
             degrees = np.array(graph.degree(), dtype=float)
             n_nodes = graph.vcount()
             n_edges = graph.ecount()
-            logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")
+            logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")  
         invariants = GraphInvariants(graph).all(analytical = analytical)
 
         ## force analytical perturbation when specified
