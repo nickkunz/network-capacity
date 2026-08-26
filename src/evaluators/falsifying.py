@@ -81,6 +81,7 @@ def train_falsified_transfer(
                 target = target,
                 group = group,
                 random_state = None if random_state is None else int(random_state) + repeat_idx,
+                n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                 n_jobs = 1,
             )
             for name in model_names
@@ -138,6 +139,7 @@ def train_falsified_transfer(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,  ## avoid over-subscription of parallel jobs
                     )
                     for model_name, _, data in false_jobs
@@ -160,6 +162,7 @@ def train_falsified_transfer(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,  ## avoid over-subscription of parallel jobs
                     )
                     for model_name, _, data_test in false_jobs
@@ -373,6 +376,7 @@ def train_falsified_agreement(
                 target = target,
                 group = group,
                 random_state = None if random_state is None else int(random_state) + repeat_idx,
+                n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                 n_jobs = 1,
             )
             for name in model_names
@@ -415,6 +419,7 @@ def train_falsified_agreement(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,
                     )
                     for model_name, _, data_false in false_jobs
@@ -437,6 +442,7 @@ def train_falsified_agreement(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,
                     )
                     for model_name, _, data_false in false_jobs
