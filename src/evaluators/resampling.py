@@ -454,7 +454,7 @@ def logo_cross_valid_frozen(
     estimator_r: BaseEstimator,
     target: str = "target",
     group: str = "domain",
-    n_repeats: int = 10,
+    n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1,
     ) -> tuple[pd.DataFrame, np.ndarray, dict]:
