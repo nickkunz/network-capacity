@@ -549,6 +549,7 @@ def _index_perturbs(path_pert: str) -> dict:
                 else:
                     intensity = rec.get("intensity", rec.get("param"))
 
+                realization = int(rec.get("realization", 0))
                 idx_key = (pert_type, method, intensity)
                 if idx_key not in index:
                     index[idx_key] = dict()
@@ -573,7 +574,8 @@ def _index_perturbs(path_pert: str) -> dict:
                     feat_val = rec.get(feat_key, dict()) if feat_key is not None else dict()
                     if isinstance(feat_val, dict):
                         obs.update(feat_val)
-                index[idx_key][data_name] = obs
+                obs["realization"] = realization
+                index[idx_key].setdefault(realization, dict())[data_name] = obs
     return index
 
 ## ----------------------------------------------------------------------------
@@ -617,8 +619,13 @@ def load_perturbed_data(path_pert: str | Path = PATH_PERT) -> dict:
     index = _index_perturbs(path_pert)
     for key in sorted(index.keys(), key = _sort_key):
         pert_type, method, intensity = key
-        data = pd.DataFrame(list(index[key].values()))
-        data = data.sort_values("dataset").reset_index(drop = True)
+        realization_frames = list()
+        for realization, observations in sorted(index[key].items()):
+            frame = pd.DataFrame(list(observations.values()))
+            frame["realization"] = realization
+            realization_frames.append(frame)
+        data = pd.concat(realization_frames, ignore_index = True)
+        data = data.sort_values(["realization", "dataset"]).reset_index(drop = True)
         data.insert(1, "method", method)
         data.insert(2, "intensity", intensity)
         data_dict[key] = data
