@@ -184,6 +184,15 @@ class GraphInvariants:
         n_edges = graph.ecount()
         edges = graph.get_edgelist()
         has_isolated = np.any(degrees == 0)
+
+        if n_edges == 0:
+            return {
+                'normalized_laplacian_second_moment': 0.0,
+                'normalized_laplacian_third_moment': 0.0,
+                'random_walk_triangle_weight': 0.0,
+                'random_walk_fourth_moment': 0.0,
+                'adjacency_fourth_moment_per_node': 0.0,
+            }
         
         ## adjacency as sparse matrix
         A = csc_matrix(graph.get_adjacency_sparse(), dtype = float)
