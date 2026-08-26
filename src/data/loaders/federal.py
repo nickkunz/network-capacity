@@ -195,6 +195,11 @@ class FederalProcessor:
         if self.data_raw is None:
             self.load_data()
         self.data_processed = process_network_federal(data = self.data_raw)
+        start_date = pd.Timestamp(self.start_date)
+        end_date = pd.Timestamp(self.end_date)
+        self.data_processed = self.data_processed.loc[
+            self.data_processed["Start Date"].between(start_date, end_date)
+        ].copy()
         return self
 
     def process_network(self):
