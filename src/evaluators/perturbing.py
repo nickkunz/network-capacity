@@ -1254,9 +1254,9 @@ def stat_perturbed_tost(
 
             row = dict(zip(feat_group, group_key))
             tag = metric.upper()
-            row[f"Median Δ {tag}"] = round(med_d, decimals)
-            row["Rank-biserial r"] = round(r_rb, decimals) if np.isfinite(r_rb) else np.nan
-            row["TOST p"] = round(p_tost, decimals) if np.isfinite(p_tost) else np.nan
+            row[f"Median Δ {tag}"] = med_d
+            row["Rank-biserial r"] = r_rb
+            row["TOST p"] = p_tost
             rows.append(row)
 
     summary = pd.DataFrame(rows)
@@ -1333,6 +1333,15 @@ def stat_perturbed_tost(
 ## ----------------------------------------------------------------------------
 ## maximum-intensity selector for perturbation results
 ## ----------------------------------------------------------------------------
+def _perturbation_severity(method: pd.Series, intensity: pd.Series) -> pd.Series:
+    severity = intensity.copy()
+    subset = method.eq("subset")
+    scaling = method.eq("scaling")
+    severity.loc[subset] = 1.0 - intensity.loc[subset]
+    severity.loc[scaling] = np.abs(np.log(intensity.loc[scaling]))
+    return severity
+
+
 def find_perturbed_max(
     results: pd.DataFrame,
     intensity_col: str = "intensity",
@@ -1345,11 +1354,11 @@ def find_perturbed_max(
     """
     Desc:
         Keep baseline rows and the strongest shared perturbation
-        setting for each perturbation family and method. This is a
-        single-pass filter: it computes the maximum intensity per
-        group directly from the data, then retains only those rows.
-        group directly from the data, then retains only those rows. Perturbation
-        families are filtered according to `pert_order`.
+        setting for each perturbation family and method. Severity is
+        one minus retention for subset masking, absolute log-distance
+        from identity for power scaling, and the numeric intensity for
+        all other methods. Perturbation families are filtered according
+        to `pert_order`.
     
     Args:
         results: Full eval_perturbed output including baseline rows,
@@ -1384,17 +1393,21 @@ def find_perturbed_max(
         perturbed[intensity_col],
         errors = "coerce",
     )
+    perturbed["__severity__"] = _perturbation_severity(
+        method = perturbed["method"],
+        intensity = perturbed[intensity_col],
+    )
 
-    max_int = (
+    max_severity = (
         perturbed
-        .groupby(feat_group, as_index = False)[intensity_col]
+        .groupby(feat_group, as_index = False)["__severity__"]
         .max()
     )
     strongest = perturbed.merge(
-        max_int,
-        on = feat_group + [intensity_col],
+        max_severity,
+        on = feat_group + ["__severity__"],
         how = "inner",
-    )
+    ).drop(columns = "__severity__")
 
     return pd.concat(
         [baseline, strongest],
