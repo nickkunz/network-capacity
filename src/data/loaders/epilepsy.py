@@ -1,6 +1,7 @@
 ## libraries
 import sys
 import logging
+import re
 import numpy as np
 import pandas as pd
 import igraph as ig
@@ -76,17 +77,30 @@ def _load_events_epilepsy(url: str, ids: str) -> pd.DataFrame:
     seizures = list()
     lines = response.text.split('\n')
     current_file = None
-    file_start_time = None
+    file_start_seconds = None
+    previous_start_seconds = None
+    recording_day = 0
+    fallback_day = 0
+    fallback_start_seconds = 0
     for i in lines:
         i = i.strip()
         
         ## extract recording file name
         if i.startswith('File Name:'):
             current_file = i.split(':', 1)[1].strip()
+            file_start_seconds = None
+            file_token = Path(current_file).stem.rsplit('_', 1)[1]
+            file_number = int(re.match(r'\d+', file_token).group())
+            fallback_day, fallback_hour = divmod(file_number - 1, 24)
+            fallback_start_seconds = fallback_hour * 3600
             
         ## extract file start date/time (format: "14:43:04")
         if i.startswith('File Start Time:'):
             file_start_time = i.split(':', 1)[1].strip()
+            file_start_seconds = int(pd.to_timedelta(file_start_time).total_seconds())
+            if previous_start_seconds is not None and file_start_seconds < previous_start_seconds:
+                recording_day += 1
+            previous_start_seconds = file_start_seconds
             
         ## extract seizure onset (seconds from file start)
         if 'Seizure' in i and 'Start Time' in i:
@@ -94,11 +108,14 @@ def _load_events_epilepsy(url: str, ids: str) -> pd.DataFrame:
                 onset_str = i.split()[-2]  ## get seconds value
                 onset_seconds = int(onset_str)
                 
-                if current_file and file_start_time:
+                if current_file:
+                    if file_start_seconds is None:
+                        elapsed_seconds = fallback_day * 86400 + fallback_start_seconds + onset_seconds
+                    else:
+                        elapsed_seconds = recording_day * 86400 + file_start_seconds + onset_seconds
                     seizures.append({
                         'file': current_file,
-                        'file_start_time': file_start_time,
-                        'onset_seconds': onset_seconds
+                        'day': elapsed_seconds // 86400
                     })
             except (ValueError, IndexError):
                 continue
@@ -106,36 +123,10 @@ def _load_events_epilepsy(url: str, ids: str) -> pd.DataFrame:
     if not seizures:
         raise RuntimeError(f"No seizures found in {ids} summary")
     
-    ## convert to proper datetime format
-    data = pd.DataFrame(seizures)
-    
-    ## parse file start times and compute absolute seizure timestamps
-    ## CHB-MIT uses sequential recording dates starting from a base date
-    base_dates = {
-        'chb01': '2010-02-19', 'chb02': '2010-03-17', 'chb03': '2010-03-11',
-        'chb04': '2010-03-15', 'chb05': '2010-03-08', 'chb06': '2010-03-20',
-        'chb07': '2010-04-01', 'chb08': '2010-04-05', 'chb09': '2010-12-16',
-        'chb10': '2011-02-25', 'chb11': '2010-05-01', 'chb12': '2010-05-10',
-        'chb13': '2010-06-01', 'chb14': '2010-06-10', 'chb15': '2010-07-01',
-        'chb16': '2010-07-15', 'chb17': '2010-08-01', 'chb18': '2010-08-15',
-        'chb19': '2010-09-01', 'chb20': '2010-09-15', 'chb21': '2010-10-01',
-        'chb22': '2010-10-15', 'chb23': '2010-11-01', 'chb24': '2010-11-15'
-    }
-    base_date = base_dates.get(ids, '2010-01-01')
-    
-    ## extract file number to determine day offset
-    data['file_num'] = data['file'].str.extract(r'_(\d+)\.edf')[0].astype(int)
-    data['day_offset'] = (data['file_num'] - 1) // 24  ## approximate 1 hour per file
-    
-    ## combine base date + day offset + file start time + seizure onset
-    data['date'] = pd.to_datetime(base_date) + pd.to_timedelta(data['day_offset'], unit = 'D')
-    data['file_start_dt'] = data['date'] + pd.to_timedelta(data['file_start_time'])
-    data['datetime'] = data['file_start_dt'] + pd.to_timedelta(data['onset_seconds'], unit = 's')
-    return data[['datetime']].sort_values('datetime').reset_index(drop = True)
+    return pd.DataFrame(seizures)[['day']].sort_values('day').reset_index(drop = True)
 
 def _process_events_epilepsy(events: pd.DataFrame) -> pd.DataFrame:
-    events['date'] = events['datetime'].dt.date
-    return events.groupby('date').size().reset_index(name = 'target')
+    return events.groupby('day').size().reset_index(name = 'target')
 
 ## epilepsy seizure network
 class EpilepsyProcessor:
@@ -154,12 +145,15 @@ class EpilepsyProcessor:
         self.data_network = _load_network_epilepsy()
         
         all_events = []
+        day_offset = 0
         for i in self.ids:
             try:
                 events = _load_events_epilepsy(url = self.url, ids = i)
                 if not events.empty:
+                    events['day'] += day_offset
                     events['patient'] = i
                     all_events.append(events)
+                    day_offset = int(events['day'].max()) + 1
             except Exception as e:
                 logger.warning(f"Skipping {i}: {e}")
                 continue
@@ -192,7 +186,7 @@ class EpilepsyProcessor:
             self.process_events()
         self.signatures = ProcessSignatures(
             data = self.events.copy(),
-            sort_by = ["date"],
+            sort_by = ["day"],
             target = "target"
         ).all()
         return self
