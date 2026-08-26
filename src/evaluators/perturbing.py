@@ -335,7 +335,7 @@ def analytical_perturb(
         Dict of estimated invariants (finite floats).
 
     Raises:
-        ValueError: If perturbation model is unsupported.
+        ValueError: If the perturbation model is unsupported.
     """
 
     degree = np.asarray(degrees).reshape(-1).astype(float)
@@ -410,16 +410,31 @@ def network_perturb(
         n_add = int(n_edges * intensity)
         if n_add > 0:
             existing = set(tuple(sorted(e.tuple)) for e in G.es)
-            complement = [
-                (u, v) for u in range(n_nodes)
-                for v in range(u + 1, n_nodes)
-                if (u, v) not in existing
-            ]
-            if len(complement) > 0:
-                n_add = min(n_add, len(complement))
+            n_missing = n_nodes * (n_nodes - 1) // 2 - len(existing)
+            n_add = min(n_add, n_missing)
+            if n_add > 0 and (n_nodes <= 2_000 or n_missing <= 10 * n_add):
+                complement = [
+                    (u, v) for u in range(n_nodes)
+                    for v in range(u + 1, n_nodes)
+                    if (u, v) not in existing
+                ]
                 chosen = rng.choice(len(complement), size = n_add, replace = False)
-                for idx in chosen:
-                    G.add_edge(*complement[idx])
+                G.add_edges([complement[idx] for idx in chosen])
+            elif n_add > 0:
+                added = set()
+                while len(added) < n_add:
+                    batch_size = max(256, 2 * (n_add - len(added)))
+                    sources = rng.integers(0, n_nodes, size = batch_size)
+                    targets = rng.integers(0, n_nodes, size = batch_size)
+                    for source, target_node in zip(sources, targets):
+                        if source == target_node:
+                            continue
+                        edge = tuple(sorted((int(source), int(target_node))))
+                        if edge not in existing and edge not in added:
+                            added.add(edge)
+                            if len(added) == n_add:
+                                break
+                G.add_edges(list(added))
 
     else:
         raise ValueError(f"unknown network perturbation method: {method}")
@@ -436,6 +451,7 @@ def feature_perturb(
     noise: float = 0.05,
     subset: float = 0.8,
     random_state: int = 42,
+    scale: pd.Series | dict[str, float] | None = None,
     ) -> pd.DataFrame:
     
     """
@@ -447,6 +463,8 @@ def feature_perturb(
         method: Perturbation method ('noise', 'jitter', 'subset').
         noise: Standard deviation of noise (relative to feature std).
         subset: Fraction of features to keep (for subset ablation).
+        scale: Optional corpus-wide feature standard deviations. Required for
+            one-row noise perturbations.
 
     Returns:
         Perturbed feature matrix.
@@ -463,9 +481,12 @@ def feature_perturb(
     ## additive gaussian noise scaled by feature standard deviation
     if method == "noise":
         for col in X_new.columns:
-            std = X_new[col].std()
-            if not (std > 0):
-                std = float(np.mean(np.abs(X_new[col])))
+            if scale is not None:
+                std = float(scale.get(col, 0.0))
+            elif len(X_new) > 1:
+                std = float(X_new[col].std())
+            else:
+                raise ValueError("scale is required for one-row noise perturbations")
             if std > 0:
                 X_new[col] += rng.normal(0, std * noise, size = len(X_new))
 
@@ -750,6 +771,28 @@ KEY_TO_TYPE = {
     "temporal_perturbed":   "temporal",
 }
 
+def _iter_perturbation_realizations(data: pd.DataFrame):
+    """Yield one dataset table per stochastic perturbation realization."""
+    if "realization" not in data.columns:
+        yield 0, data
+        return
+    realizations = sorted(int(value) for value in data["realization"].unique())
+    dataset_counts = data.groupby("dataset")["realization"].nunique()
+    deterministic_datasets = dataset_counts[dataset_counts == 1].index
+    deterministic = data.loc[data["dataset"].isin(deterministic_datasets)]
+    stochastic = data.loc[~data["dataset"].isin(deterministic_datasets)]
+
+    if len(realizations) == 1:
+        yield realizations[0], data.drop(columns = "realization").reset_index(drop = True)
+        return
+
+    for realization in realizations:
+        frame = pd.concat([
+            stochastic.loc[stochastic["realization"] == realization],
+            deterministic,
+        ], ignore_index = True)
+        yield realization, frame.drop(columns = "realization").reset_index(drop = True)
+
 ## worker for a single perturbation setting
 def _run_perturbation(
     model_name: str,
@@ -757,6 +800,7 @@ def _run_perturbation(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -765,6 +809,7 @@ def _run_perturbation(
     group: str,
     target: str,
     random_state: int,
+    n_repeats: int,
     ) -> dict | None:
 
     """
@@ -806,7 +851,7 @@ def _run_perturbation(
     if len(data_mod) < 2:
         return None
 
-    key = (model_name, pert_type, method, intensity)
+    key = (model_name, pert_type, method, intensity, realization)
 
     ## frozen manifold: train on clean, evaluate on perturbed
     frontier_fr, _, _ = logo_cross_valid_frozen(
@@ -819,12 +864,14 @@ def _run_perturbation(
         target = target,
         group = group,
         random_state = random_state,
+        n_repeats = n_repeats,
         n_jobs = 1,
     )
     frontier_fr["model"] = model_name
     frontier_fr["perturbation"] = pert_type
     frontier_fr["method"] = method
     frontier_fr["intensity"] = intensity
+    frontier_fr["realization"] = realization
 
     ## retrain manifold: train on perturbed, evaluate on perturbed
     frontier_rt, _ = logo_cross_valid(
@@ -836,12 +883,14 @@ def _run_perturbation(
         target = target,
         group = group,
         random_state = random_state,
+        n_repeats = n_repeats,
         n_jobs = 1,
     )
     frontier_rt["model"] = model_name
     frontier_rt["perturbation"] = pert_type
     frontier_rt["method"] = method
     frontier_rt["intensity"] = intensity
+    frontier_rt["realization"] = realization
 
     return {"key": key, "frozen": frontier_fr, "retrain": frontier_rt}
 
@@ -862,7 +911,12 @@ def _aggregate_frontier(results_dict: dict, track: str) -> pd.DataFrame:
     """
 
     rows = []
-    for (model_name, pert_type, method, intensity), frontier in results_dict.items():
+    for key, frontier in results_dict.items():
+        if len(key) == 4:
+            model_name, pert_type, method, intensity = key
+            realization = 0
+        else:
+            model_name, pert_type, method, intensity, realization = key
         for _, frow in frontier.iterrows():
             row = {
                 "track": track,
@@ -870,6 +924,7 @@ def _aggregate_frontier(results_dict: dict, track: str) -> pd.DataFrame:
                 "perturbation": pert_type,
                 "method": method,
                 "intensity": intensity,
+                "realization": realization,
                 "group": frow["group"],
             }
             for col in FRONTIER_METRICS:
@@ -888,6 +943,7 @@ def train_perturbed_transfer(
     feat_z: Sequence[str],
     group: str = "domain",
     target: str = "target",
+    n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1
     ) -> dict[str, dict]:
@@ -929,11 +985,12 @@ def train_perturbed_transfer(
             target = target,
             group = group,
             random_state = random_state,
+            n_repeats = n_repeats,
             n_jobs = 1,
         )
         frontier_base["model"] = model_name
-        results_frozen[(model_name, "baseline", None, None)] = frontier_base
-        results_retrain[(model_name, "baseline", None, None)] = frontier_base
+        results_frozen[(model_name, "baseline", None, None, -1)] = frontier_base
+        results_retrain[(model_name, "baseline", None, None, -1)] = frontier_base
 
     ## build job list
     jobs = []
@@ -944,12 +1001,16 @@ def train_perturbed_transfer(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name, model in models.items():
-                    jobs.append((
-                        model_name, model, pert_type, method, intensity,
-                        pert_df, data, feat_cols, feat_x, feat_z, group, target,
-                        random_state,
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                cv_repeats = 1 if len(realization_frames) > 1 else n_repeats
+                for realization, realization_df in realization_frames:
+                    for model_name, model in models.items():
+                        jobs.append((
+                            model_name, model, pert_type, method, intensity,
+                            realization, realization_df, data, feat_cols, feat_x,
+                            feat_z, group, target, random_state + realization,
+                            cv_repeats,
+                        ))
 
     ## parallel execution
     if jobs:
@@ -1011,9 +1072,18 @@ def compile_perturbed_transfer(
     if missing_tracks:
         raise ValueError(f"Missing perturbation transfer tracks: {missing_tracks}")
 
-    ## aggregate frontier metrics across groups for both tracks
-    agg_frozen = _aggregate_frontier(results_dict = results["frozen"], track = "frozen")
-    agg_retrain = _aggregate_frontier(results_dict = results["retrain"], track = "retrain")
+    ## average draw-level metrics before model-domain pairing
+    agg_frozen_raw = _aggregate_frontier(results_dict = results["frozen"], track = "frozen")
+    agg_retrain_raw = _aggregate_frontier(results_dict = results["retrain"], track = "retrain")
+    group_cols = ["track", "model", "perturbation", "method", "intensity", "group"]
+
+    def _average_realizations(frame: pd.DataFrame) -> pd.DataFrame:
+        averaged = frame.groupby(group_cols, dropna = False, as_index = False)[FRONTIER_METRICS].mean()
+        counts = frame.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
+        return averaged.merge(counts, on = group_cols, how = "left")
+
+    agg_frozen = _average_realizations(agg_frozen_raw)
+    agg_retrain = _average_realizations(agg_retrain_raw)
     results_data = pd.concat([agg_frozen, agg_retrain], ignore_index = True)
 
     if results_data.empty:
@@ -1337,8 +1407,10 @@ def _perturbation_severity(method: pd.Series, intensity: pd.Series) -> pd.Series
     severity = intensity.copy()
     subset = method.eq("subset")
     scaling = method.eq("scaling")
+    bootstrapping = method.eq("bootstrapping")
     severity.loc[subset] = 1.0 - intensity.loc[subset]
     severity.loc[scaling] = np.abs(np.log(intensity.loc[scaling]))
+    severity.loc[bootstrapping] = 1.0 - intensity.loc[bootstrapping]
     return severity
 
 
@@ -1483,6 +1555,7 @@ def _run_perturbation_recovery(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -1559,6 +1632,7 @@ def _run_perturbation_recovery(
             "perturbation": pert_type,
             "method": method,
             "intensity": intensity,
+            "realization": realization,
             "y_true": y_true,
             "y_pred": y_pred_mean,
             "groups": groups_eval,
@@ -1643,6 +1717,7 @@ def train_perturbed_recovery(
             "perturbation": "baseline",
             "method": None,
             "intensity": None,
+            "realization": -1,
             "y_true": y_true_proc,
             "y_pred": y_pred,
             "groups": groups_proc,
@@ -1658,12 +1733,16 @@ def train_perturbed_recovery(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name, model in models.items():
-                    jobs.append((
-                        model_name, model, pert_type, method, intensity,
-                        pert_df, data, feat_cols, feat_x, feat_z, group, target,
-                        random_state, n_repeats,
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                cv_repeats = 1 if len(realization_frames) > 1 else n_repeats
+                for realization, realization_df in realization_frames:
+                    for model_name, model in models.items():
+                        jobs.append((
+                            model_name, model, pert_type, method, intensity,
+                            realization, realization_df, data, feat_cols, feat_x,
+                            feat_z, group, target, random_state + realization,
+                            cv_repeats,
+                        ))
 
     if jobs:
         with warnings.catch_warnings():
@@ -1730,6 +1809,7 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
                 "perturbation": record["perturbation"],
                 "method": record["method"],
                 "intensity": record["intensity"],
+                "realization": record.get("realization", 0),
                 "group": group_name,
                 **mvals,
             })
@@ -1742,10 +1822,15 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
             "method",
             "intensity",
             "group",
+            "n_realizations",
             *CONSENSUS_METRICS,
         ])
 
-    return pd.DataFrame(rows)
+    data_rows = pd.DataFrame(rows)
+    group_cols = ["track", "model", "perturbation", "method", "intensity", "group"]
+    averaged = data_rows.groupby(group_cols, dropna = False, as_index = False)[CONSENSUS_METRICS].mean()
+    counts = data_rows.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
+    return averaged.merge(counts, on = group_cols, how = "left")
 
 
 ## structural agreement perturbation evaluation wrapper
@@ -1805,6 +1890,7 @@ def _run_perturbation_consensus(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -1857,6 +1943,7 @@ def _run_perturbation_consensus(
         "pert_type": pert_type,
         "method": method,
         "intensity": intensity,
+        "realization": realization,
         "y_pred": np.asarray(fit_pert["y_pred"], dtype = float),
         "n_rows": len(data_mod),
     }
@@ -1925,6 +2012,15 @@ def train_perturbed_consensus(
     }
     fit_real = dict(zip(model_names, real_results))
 
+    def _select_fit_realization(fit_result: dict[str, Any], realization: int) -> dict[str, Any]:
+        bundle = dict(fit_result["fit_result"])
+        n_fits = len(bundle["models_c"])
+        fit_index = realization % n_fits
+        bundle["models_c"] = [bundle["models_c"][fit_index]]
+        bundle["models_r"] = [bundle["models_r"][fit_index]]
+        bundle["r_train_means"] = [bundle["r_train_means"][fit_index]]
+        return {"fit_result": bundle}
+
     ## perturbation jobs: per (model, perturbation, method, intensity)
     jobs = list()
     for json_key, methods in data_pert.items():
@@ -1934,11 +2030,19 @@ def train_perturbed_consensus(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name in model_names:
-                    jobs.append((
-                        model_name, pert_type, method, intensity,
-                        pert_df, data, feat_cols, target, fit_real[model_name],
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                stochastic = len(realization_frames) > 1
+                for realization, realization_df in realization_frames:
+                    for model_name in model_names:
+                        fit_result = (
+                            _select_fit_realization(fit_real[model_name], realization)
+                            if stochastic
+                            else fit_real[model_name]
+                        )
+                        jobs.append((
+                            model_name, pert_type, method, intensity, realization,
+                            realization_df, data, feat_cols, target, fit_result,
+                        ))
 
     if jobs:
         with warnings.catch_warnings():
@@ -2007,20 +2111,23 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
             **mvals,
         })
 
-    ## index perturbed predictions by (pert_type, method, intensity, model)
+    ## index perturbed predictions by setting, realization, and model
     pred_pert = dict()
     for r in results["perturbed"]:
-        key = (r["pert_type"], r["method"], r["intensity"], r["model"])
+        key = (
+            r["pert_type"], r["method"], r["intensity"],
+            r.get("realization", 0), r["model"],
+        )
         pred_pert[key] = r["y_pred"]
 
-    ## aggregate pairwise consensus per perturbation setting
+    ## calculate pairwise consensus per perturbation realization
     setting_keys = list(dict.fromkeys(
-        (p, m, i) for (p, m, i, _) in pred_pert.keys()
+        (p, m, i, r) for (p, m, i, r, _) in pred_pert.keys()
     ))
-    for (pert_type, method, intensity) in setting_keys:
+    for (pert_type, method, intensity, realization) in setting_keys:
         for model_i, model_j in combinations(model_names, 2):
-            key_i = (pert_type, method, intensity, model_i)
-            key_j = (pert_type, method, intensity, model_j)
+            key_i = (pert_type, method, intensity, realization, model_i)
+            key_j = (pert_type, method, intensity, realization, model_j)
             if key_i not in pred_pert or key_j not in pred_pert:
                 continue
             y_i = pred_pert[key_i]
@@ -2039,6 +2146,7 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
                 "perturbation": pert_type,
                 "method": method,
                 "intensity": intensity,
+                "realization": realization,
                 "model_i": model_i,
                 "model_j": model_j,
                 "group": "all",
@@ -2054,10 +2162,18 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
             "model_i",
             "model_j",
             "group",
+            "n_realizations",
             *CONSENSUS_METRICS,
         ])
 
-    return pd.DataFrame(rows)
+    data_rows = pd.DataFrame(rows)
+    group_cols = [
+        "track", "perturbation", "method", "intensity",
+        "model_i", "model_j", "group",
+    ]
+    averaged = data_rows.groupby(group_cols, dropna = False, as_index = False)[CONSENSUS_METRICS].mean()
+    counts = data_rows.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
+    return averaged.merge(counts, on = group_cols, how = "left")
 
 
 ## pairwise consensus perturbation evaluation wrapper
