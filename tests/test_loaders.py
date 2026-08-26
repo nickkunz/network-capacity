@@ -1,4 +1,7 @@
+import json
+import tempfile
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -12,7 +15,8 @@ from src.data.loaders.faers import _iter_reports_faers, _process_events_faers
 from src.data.loaders.federal import FederalProcessor
 from src.data.loaders.metrla import _process_events_metrla
 from src.data.loaders.pemsbay import _process_events_pemsbay
-from src.data.perturbers import _execute_perturbations
+from src.data.builders import load_perturbed_data
+from src.data.perturbers import _execute_perturbations, _jitter_count_series
 
 
 class TrafficEventTests(unittest.TestCase):
@@ -136,17 +140,57 @@ class FederalEventTests(unittest.TestCase):
 
 class PerturbationDispatchTests(unittest.TestCase):
 
+    def test_chunked_temporal_jitter_matches_vectorized_draws(self) -> None:
+        positions = np.array([0, 2])
+        counts = np.array([3, 2])
+        seed = 42
+        expanded = np.repeat(positions, counts)
+        expected_positions = np.rint(
+            expanded + np.random.default_rng(seed).normal(0, 0.5, size = len(expanded))
+        ).astype(int).clip(0, 2)
+        expected = np.bincount(expected_positions, minlength = 3)
+
+        actual = _jitter_count_series(
+            positions = positions,
+            counts = counts,
+            sigma = 0.5,
+            lower = 0,
+            upper = 2,
+            rng = np.random.default_rng(seed),
+        )
+
+        np.testing.assert_array_equal(actual, expected)
+
+    def test_chunked_temporal_jitter_conserves_large_counts(self) -> None:
+        actual = _jitter_count_series(
+            positions = np.array([0, 1]),
+            counts = np.array([1_000_000, 2_000_000]),
+            sigma = 0.5,
+            lower = 0,
+            upper = 1,
+            rng = np.random.default_rng(42),
+            chunk_size = 10_000,
+        )
+
+        self.assertEqual(int(actual.sum()), 3_000_000)
+        self.assertEqual(len(actual), 2)
+        expected_lower = 1_000_000 * 0.841344746 + 2_000_000 * 0.158655254
+        self.assertLess(abs(float(actual[0]) - expected_lower), 5_000)
+
     @patch("src.data.perturbers.GraphInvariants")
+    @patch("src.data.perturbers.network_perturb")
     @patch("src.data.perturbers.analytical_perturb")
-    def test_forced_analytical_mode_reuses_processor_invariants(
+    def test_large_non_bipartite_graph_uses_explicit_network_perturbation(
         self,
         analytical_perturb_mock,
+        network_perturb_mock,
         graph_invariants_mock,
     ) -> None:
-        baseline = {"n_nodes": 4, "n_edges": 4}
-        analytical_perturb_mock.return_value = baseline
+        baseline = {"n_nodes": 1_001, "n_edges": 1_001}
+        graph_invariants_mock.return_value.all.return_value = baseline
+        network_perturb_mock.return_value = baseline
         processor = SimpleNamespace(
-            graph = ig.Graph.Ring(4),
+            graph = ig.Graph.Ring(1_001),
             invariants = baseline,
             dimensions = None,
             events = None,
@@ -158,14 +202,93 @@ class PerturbationDispatchTests(unittest.TestCase):
             patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
             patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
         ):
-            result = _execute_perturbations(proc = processor, name = "test", force = True)
+            result = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                n_realizations = 2,
+            )
 
-        graph_invariants_mock.assert_not_called()
+        analytical_perturb_mock.assert_not_called()
+        self.assertEqual(network_perturb_mock.call_count, 2)
+        self.assertEqual(len(result["network_perturbed"]["rewire"]), 2)
+
+    @patch("src.data.perturbers.network_perturb")
+    @patch("src.data.perturbers.GraphInvariants")
+    def test_explicit_network_perturbations_repeat_with_distinct_seeds(
+        self,
+        graph_invariants_mock,
+        network_perturb_mock,
+    ) -> None:
+        graph_invariants_mock.return_value.all.return_value = {"n_nodes": 5, "n_edges": 5}
+        network_perturb_mock.side_effect = lambda *args, random_state, **kwargs: {"seed": random_state}
+        processor = SimpleNamespace(
+            graph = ig.Graph.Ring(5),
+            invariants = None,
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"rewire": (0.1,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            result = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                n_realizations = 3,
+            )
+
+        records = result["network_perturbed"]["rewire"]
+        self.assertEqual([record["realization"] for record in records], [0, 1, 2])
+        self.assertEqual([record["invariants"]["seed"] for record in records], [42, 43, 44])
+
+    @patch("src.data.perturbers.analytical_perturb")
+    def test_complete_bipartite_graph_uses_analytical_network_perturbation(
+        self,
+        analytical_perturb_mock,
+    ) -> None:
+        baseline = {"n_nodes": 5, "n_edges": 6}
+        analytical_perturb_mock.return_value = baseline
+        processor = SimpleNamespace(
+            graph = ig.Graph.Full_Bipartite(2, 3),
+            invariants = baseline,
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"rewire": (0.1,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            result = _execute_perturbations(proc = processor, name = "test")
+
         analytical_perturb_mock.assert_called_once()
         self.assertEqual(
             result["network_perturbed"]["rewire"][0]["invariants"],
             baseline,
         )
+
+    def test_loader_preserves_repeated_realizations(self) -> None:
+        payload = {
+            "invariants_perturbed": {
+                "noise": [
+                    {"intensity": 0.1, "realization": 0, "invariants": {"feature": 1.0}},
+                    {"intensity": 0.1, "realization": 1, "invariants": {"feature": 2.0}},
+                ]
+            }
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "example.json"
+            path.write_text(json.dumps(payload), encoding = "utf-8")
+            loaded = load_perturbed_data(path_pert = temp_dir)
+
+        frame = loaded["invariants_perturbed"]["noise"][0.1]
+        self.assertEqual(frame["realization"].tolist(), [0, 1])
+        self.assertEqual(frame["feature"].tolist(), [1.0, 2.0])
 
 
 if __name__ == "__main__":

@@ -7,7 +7,15 @@ import pandas as pd
 from src.data.helpers import _create_igraph_object
 from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.metrics import spec_marginal_delta
-from src.evaluators.perturbing import find_perturbed_max, stat_perturbed_tost
+from src.evaluators.perturbing import (
+    _iter_perturbation_realizations,
+    compile_perturbed_consensus,
+    compile_perturbed_recovery,
+    compile_perturbed_transfer,
+    feature_perturb,
+    find_perturbed_max,
+    stat_perturbed_tost,
+)
 from src.vectorizers.invariants import BipartiteInvariants, GraphInvariants
 
 
@@ -39,6 +47,16 @@ class CreateIgraphObjectTests(unittest.TestCase):
         self.assertTrue(graph.is_simple())
         self.assertEqual(graph.ecount(), 1)
         self.assertEqual(graph.degree(), [1, 1])
+
+    def test_edgeless_graph_has_zero_spectral_moments(self) -> None:
+        invariants = GraphInvariants(graph = _create_igraph_object(
+            nodes = ["a", "b"],
+            edges = [],
+        )).all()
+
+        self.assertEqual(invariants["n_edges"], 0)
+        self.assertEqual(invariants["normalized_laplacian_second_moment"], 0.0)
+        self.assertEqual(invariants["adjacency_fourth_moment_per_node"], 0.0)
 
 
 class WindmillEventTests(unittest.TestCase):
@@ -85,6 +103,114 @@ class SpecMarginalDeltaTests(unittest.TestCase):
 
 class PerturbationStatisticsTests(unittest.TestCase):
 
+    def test_realization_iterator_broadcasts_deterministic_datasets(self) -> None:
+        data = pd.DataFrame({
+            "dataset": ["explicit", "explicit", "analytical"],
+            "realization": [0, 1, 0],
+            "feature": [1.0, 2.0, 3.0],
+        })
+
+        realizations = list(_iter_perturbation_realizations(data))
+
+        self.assertEqual([realization for realization, _ in realizations], [0, 1])
+        self.assertEqual(
+            [set(frame["dataset"]) for _, frame in realizations],
+            [{"explicit", "analytical"}, {"explicit", "analytical"}],
+        )
+        self.assertEqual(
+            [frame.set_index("dataset").loc["analytical", "feature"] for _, frame in realizations],
+            [3.0, 3.0],
+        )
+
+    @patch("src.evaluators.perturbing.consensus_metrics")
+    def test_recovery_compilation_averages_realizations(self, metrics_mock) -> None:
+        metrics_mock.side_effect = lambda y_true, y_pred: {
+            metric: float(np.mean(y_pred)) for metric in ("rho", "rbo", "dcr", "ci")
+        }
+        baseline = {
+            "track": "frozen", "model": "model", "perturbation": "baseline",
+            "method": None, "intensity": None, "realization": -1,
+            "y_true": np.array([0.0, 1.0]), "y_pred": np.array([0.0, 1.0]),
+            "groups": np.array(["g", "g"]),
+        }
+        perturbed = [
+            {
+                **baseline, "perturbation": "invariants", "method": "noise",
+                "intensity": 0.1, "realization": realization,
+                "y_pred": np.array([value, value]),
+            }
+            for realization, value in enumerate((0.2, 0.6))
+        ]
+
+        compiled = compile_perturbed_recovery({
+            "baseline": {"model": baseline},
+            "perturbed": perturbed,
+        })
+        row = compiled.query("perturbation == 'invariants'").iloc[0]
+
+        self.assertEqual(row["n_realizations"], 2)
+        self.assertAlmostEqual(row["ci"], 0.4)
+
+    @patch("src.evaluators.perturbing.consensus_metrics")
+    def test_consensus_compilation_averages_realizations(self, metrics_mock) -> None:
+        metrics_mock.side_effect = lambda y_true, y_pred: {
+            metric: float(np.mean(y_pred)) for metric in ("rho", "rbo", "dcr", "ci")
+        }
+        perturbed = list()
+        for realization, value in enumerate((0.2, 0.6)):
+            perturbed.extend([
+                {
+                    "model": "a", "pert_type": "invariants", "method": "noise",
+                    "intensity": 0.1, "realization": realization,
+                    "y_pred": np.array([0.0, 1.0]), "n_rows": 2,
+                },
+                {
+                    "model": "b", "pert_type": "invariants", "method": "noise",
+                    "intensity": 0.1, "realization": realization,
+                    "y_pred": np.array([value, value]), "n_rows": 2,
+                },
+            ])
+
+        compiled = compile_perturbed_consensus({
+            "model_names": ["a", "b"],
+            "baseline": {"a": np.array([0.0, 1.0]), "b": np.array([0.0, 1.0])},
+            "perturbed": perturbed,
+        })
+        row = compiled.query("perturbation == 'invariants'").iloc[0]
+
+        self.assertEqual(row["n_realizations"], 2)
+        self.assertAlmostEqual(row["ci"], 0.4)
+
+    def test_transfer_compilation_averages_realizations_before_pairing(self) -> None:
+        def frontier(ei: float) -> pd.DataFrame:
+            return pd.DataFrame({
+                "group": ["g"],
+                "vr": [0.1],
+                "mv": [0.2],
+                "ms": [0.3],
+                "ei": [ei],
+            })
+
+        results = {
+            "frozen": {
+                ("model", "baseline", None, None, -1): frontier(1.0),
+                ("model", "invariants", "noise", 0.1, 0): frontier(0.6),
+                ("model", "invariants", "noise", 0.1, 1): frontier(0.8),
+            },
+            "retrain": {
+                ("model", "baseline", None, None, -1): frontier(1.0),
+                ("model", "invariants", "noise", 0.1, 0): frontier(0.7),
+                ("model", "invariants", "noise", 0.1, 1): frontier(0.9),
+            },
+        }
+
+        compiled, _ = compile_perturbed_transfer(results = results)
+        perturbed = compiled.query("perturbation == 'invariants'").sort_values("track")
+
+        self.assertEqual(len(perturbed), 2)
+        self.assertEqual(perturbed["n_realizations"].tolist(), [2, 2])
+        self.assertEqual(perturbed["ei"].tolist(), [0.7, 0.8])
+
     @patch("src.evaluators.perturbing.wilcoxon")
     def test_tost_uses_full_precision_before_holm(self, wilcoxon_mock) -> None:
         wilcoxon_mock.side_effect = [
@@ -114,13 +240,38 @@ class PerturbationStatisticsTests(unittest.TestCase):
     def test_find_perturbed_max_uses_method_severity(self) -> None:
         results = pd.DataFrame(
             {
-                "perturbation": ["invariants"] * 6,
-                "method": ["subset", "subset", "scaling", "scaling", "noise", "noise"],
-                "intensity": [0.65, 0.95, 0.25, 1.75, 0.05, 0.35],
+                "perturbation": ["invariants"] * 8,
+                "method": ["subset", "subset", "scaling", "scaling", "noise", "noise", "bootstrapping", "bootstrapping"],
+                "intensity": [0.65, 0.95, 0.25, 1.75, 0.05, 0.35, 0.05, 0.35],
             }
         )
 
         strongest = find_perturbed_max(results = results)
         selected = strongest.set_index("method")["intensity"].to_dict()
 
-        self.assertEqual(selected, {"subset": 0.65, "scaling": 0.25, "noise": 0.35})
+        self.assertEqual(
+            selected,
+            {"subset": 0.65, "scaling": 0.25, "noise": 0.35, "bootstrapping": 0.05},
+        )
+
+    def test_one_row_noise_uses_supplied_corpus_scale(self) -> None:
+        features = pd.DataFrame({"feature": [10.0]})
+        scale = pd.Series({"feature": 2.0})
+
+        perturbed = feature_perturb(
+            X = features,
+            method = "noise",
+            noise = 0.5,
+            random_state = 42,
+            scale = scale,
+        )
+        expected = 10.0 + np.random.default_rng(42).normal(0, 1.0)
+
+        self.assertAlmostEqual(perturbed.loc[0, "feature"], expected)
+
+    def test_one_row_noise_rejects_missing_scale(self) -> None:
+        with self.assertRaisesRegex(ValueError, "scale is required"):
+            feature_perturb(
+                X = pd.DataFrame({"feature": [10.0]}),
+                method = "noise",
+            )
