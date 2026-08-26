@@ -497,7 +497,7 @@ def json_perturber(force: bool = False):
             logging.info("Perturbing Bitcoin data...")
         proc = BitcoinProcessor(root_path = PATH_ROOT, name = NAME_BITCOIN)
         proc.run()
-        data = _execute_perturbations(proc = proc, name = NAME_BITCOIN)
+        data = _execute_perturbations(proc = proc, name = NAME_BITCOIN, force = True)
         _save_to_json(data = data, path = bitcoin_path)
         logging.info(f"Bitcoin perturbations saved to {bitcoin_path}")
     else:
