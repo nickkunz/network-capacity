@@ -3,7 +3,7 @@ import logging
 import igraph as ig
 import numpy as np
 import scipy.stats as stats
-from scipy.sparse import csc_matrix, diags, eye
+from scipy.sparse import csc_matrix, diags
 
 ## modules
 from src.data.helpers import _force_finite
@@ -71,19 +71,14 @@ class GraphInvariants:
                 'k_core_size': 0.0
             }
 
-        ## diameter (longest shortest-path distance among all vertex pairs)
-        try:
-            diam = H.diameter(directed = False, unconn = False)
-            features['diameter'] = _force_finite(float(diam), 0.0)
-        except ig.InternalError:
-            features['diameter'] = 0.0
-        
-        ## radius (minimum eccentricity among vertices)
+        ## exact diameter and radius from one eccentricity pass
         try:
             ecc = np.array(H.eccentricity())
             finite_ecc = ecc[np.isfinite(ecc)]
+            features['diameter'] = _force_finite(float(finite_ecc.max()), 0.0) if finite_ecc.size > 0 else 0.0
             features['radius'] = _force_finite(float(finite_ecc.min()), 0.0) if finite_ecc.size > 0 else 0.0
         except ig.InternalError:
+            features['diameter'] = 0.0
             features['radius'] = 0.0
 
         ## degeneracy (largest core number)
@@ -164,8 +159,8 @@ class GraphInvariants:
 
         return features
 
-    ## compute spectral invariants (trace-polynomial, no eigendecomposition)
-    def spectral(self) -> dict:
+    ## compute spectral invariants (block-streamed trace identities, no eigendecomposition)
+    def spectral(self, block_size: int = 1024) -> dict:
         graph = self.graph
         features = {}
         n_nodes = graph.vcount()
@@ -194,11 +189,16 @@ class GraphInvariants:
                 'adjacency_fourth_moment_per_node': 0.0,
             }
         
-        ## adjacency as sparse matrix
-        A = csc_matrix(graph.get_adjacency_sparse(), dtype = float)
-        
-        ## 1. normalized laplacian second moment: O(E) - scales well
-        if n_edges > 0 and not has_isolated:
+        ## adjacency as csr for row-block products
+        A = csc_matrix(graph.get_adjacency_sparse(), dtype = float).tocsr()
+
+        if has_isolated:
+            features['normalized_laplacian_second_moment'] = 0.0
+            features['normalized_laplacian_third_moment'] = 0.0
+            features['random_walk_triangle_weight'] = 0.0
+            features['random_walk_fourth_moment'] = 0.0
+        else:
+            ## second moment from edge-wise degree products
             edge_array = np.array(edges, dtype = int)
             sum_inv = np.sum(
                 1.0 / (degrees[edge_array[:, 0]] * degrees[edge_array[:, 1]])
@@ -206,71 +206,40 @@ class GraphInvariants:
             features['normalized_laplacian_second_moment'] = _force_finite(
                 1.0 + (2.0 / n_nodes) * sum_inv, 0.0
             )
-        else:
-            features['normalized_laplacian_second_moment'] = 0.0
-        
-        ## precompute degree-normalized matrices if no isolated vertices
-        if n_edges > 0 and not has_isolated:
-            D_inv_sqrt = diags(1.0 / np.sqrt(degrees))
-            D_inv = diags(1.0 / degrees)
-            I = eye(n_nodes, format = 'csr')
-        
-        ## normalized laplacian third moment: O(E²)
-        if n_edges > 0 and not has_isolated:
-            L_norm = I - D_inv_sqrt @ A @ D_inv_sqrt
-            L2 = L_norm @ L_norm
-            
-            ## monitor densification
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"L_norm nnz: {L_norm.nnz}, L2 nnz: {L2.nnz}")
-            
-            L3 = L2 @ L_norm
-            trace_L3 = L3.diagonal().sum()
+
+            ## symmetric normalization: tr(p^k) = tr(a_hat^k) exactly
+            d_inv_sqrt = diags(1.0 / np.sqrt(degrees))
+            a_hat = (d_inv_sqrt @ A @ d_inv_sqrt).tocsr()
+
+            ## block traces for symmetric m: tr(m^3) = <m^2, m> and tr(m^4) = ||m^2||^2
+            trace_ah3 = 0.0
+            trace_ah4 = 0.0
+            for start in range(0, n_nodes, block_size):
+                stop = min(start + block_size, n_nodes)
+                block = a_hat[start:stop] @ a_hat
+                trace_ah3 += float(block.multiply(a_hat[start:stop]).sum())
+                trace_ah4 += float(block.multiply(block).sum())
+
             features['normalized_laplacian_third_moment'] = _force_finite(
-                trace_L3 / n_nodes, 0.0
+                1.0 + (6.0 * sum_inv - trace_ah3) / n_nodes, 0.0
             )
-        else:
-            features['normalized_laplacian_third_moment'] = 0.0
-        
-        ## random walk moments: O(E²)
-        if n_edges > 0 and not has_isolated:
-            P = D_inv @ A
-            P2 = P @ P
-            
-            ## monitor densification
-            if logger.isEnabledFor(logging.DEBUG):
-                logger.debug(f"P nnz: {P.nnz}, P2 nnz: {P2.nnz}")
-            
-            ## random walk triangle weight: tr(P³)/n
-            P3 = P2 @ P
-            trace_P3 = P3.diagonal().sum()
             features['random_walk_triangle_weight'] = _force_finite(
-                trace_P3 / n_nodes, 0.0
+                trace_ah3 / n_nodes, 0.0
             )
-            
-            ## random walk fourth moment: tr(P⁴)/n
-            P4 = P2 @ P2
-            trace_P4 = P4.diagonal().sum()
             features['random_walk_fourth_moment'] = _force_finite(
-                trace_P4 / n_nodes, 0.0
+                trace_ah4 / n_nodes, 0.0
             )
-        else:
-            features['random_walk_triangle_weight'] = 0.0
-            features['random_walk_fourth_moment'] = 0.0
-        
-        ## adjacency fourth moment
-        A2 = A @ A
-        
-        ## monitor densification
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(f"A nnz: {A.nnz}, A2 nnz: {A2.nnz}")
-        
-        A4 = A2 @ A2
-        trace_A4 = A4.diagonal().sum()
+
+        ## adjacency fourth moment via the same block identity
+        trace_a4 = 0.0
+        for start in range(0, n_nodes, block_size):
+            stop = min(start + block_size, n_nodes)
+            block = A[start:stop] @ A
+            trace_a4 += float(block.multiply(block).sum())
         features['adjacency_fourth_moment_per_node'] = _force_finite(
-            trace_A4 / n_nodes, 0.0
+            trace_a4 / n_nodes, 0.0
         )
-        
+
         return features
 
     ## compute all invariants and ensure all are finite
