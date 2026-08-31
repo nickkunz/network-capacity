@@ -3,7 +3,7 @@ import logging
 import igraph as ig
 import numpy as np
 import scipy.stats as stats
-from scipy.sparse import csc_matrix, diags
+from scipy.sparse import csr_matrix, diags
 
 ## modules
 from src.data.helpers import _force_finite
@@ -68,7 +68,7 @@ class GraphInvariants:
                 'diameter': 0.0,
                 'radius': 0.0,
                 'degeneracy': 0.0,
-                'k_core_size': 0.0
+                'k_core_size': graph.vcount()
             }
 
         ## exact diameter and radius from one eccentricity pass
@@ -178,7 +178,6 @@ class GraphInvariants:
         degrees = np.array(graph.degree(), dtype = float)
         n_edges = graph.ecount()
         edges = graph.get_edgelist()
-        has_isolated = np.any(degrees == 0)
 
         if n_edges == 0:
             return {
@@ -190,45 +189,42 @@ class GraphInvariants:
             }
         
         ## adjacency as csr for row-block products
-        A = csc_matrix(graph.get_adjacency_sparse(), dtype = float).tocsr()
+        A = csr_matrix(graph.get_adjacency_sparse(), dtype = float)
 
-        if has_isolated:
-            features['normalized_laplacian_second_moment'] = 0.0
-            features['normalized_laplacian_third_moment'] = 0.0
-            features['random_walk_triangle_weight'] = 0.0
-            features['random_walk_fourth_moment'] = 0.0
-        else:
-            ## second moment from edge-wise degree products
-            edge_array = np.array(edges, dtype = int)
-            sum_inv = np.sum(
-                1.0 / (degrees[edge_array[:, 0]] * degrees[edge_array[:, 1]])
-            )
-            features['normalized_laplacian_second_moment'] = _force_finite(
-                1.0 + (2.0 / n_nodes) * sum_inv, 0.0
-            )
+        ## second moment from edge-wise degree products
+        edge_array = np.array(edges, dtype = int)
+        sum_inv = np.sum(
+            1.0 / (degrees[edge_array[:, 0]] * degrees[edge_array[:, 1]])
+        )
+        n_active = int(np.count_nonzero(degrees))
+        features['normalized_laplacian_second_moment'] = _force_finite(
+            (n_active + 2.0 * sum_inv) / n_nodes, 0.0
+        )
 
-            ## symmetric normalization: tr(p^k) = tr(a_hat^k) exactly
-            d_inv_sqrt = diags(1.0 / np.sqrt(degrees))
-            a_hat = (d_inv_sqrt @ A @ d_inv_sqrt).tocsr()
+        ## symmetric normalization: tr(p^k) = tr(a_hat^k) exactly
+        d_inv_sqrt_values = np.zeros_like(degrees)
+        np.divide(1.0, np.sqrt(degrees), out = d_inv_sqrt_values, where = degrees > 0)
+        d_inv_sqrt = diags(d_inv_sqrt_values)
+        a_hat = (d_inv_sqrt @ A @ d_inv_sqrt).tocsr()
 
-            ## block traces for symmetric m: tr(m^3) = <m^2, m> and tr(m^4) = ||m^2||^2
-            trace_ah3 = 0.0
-            trace_ah4 = 0.0
-            for start in range(0, n_nodes, block_size):
-                stop = min(start + block_size, n_nodes)
-                block = a_hat[start:stop] @ a_hat
-                trace_ah3 += float(block.multiply(a_hat[start:stop]).sum())
-                trace_ah4 += float(block.multiply(block).sum())
+        ## block traces for symmetric m: tr(m^3) = <m^2, m> and tr(m^4) = ||m^2||^2
+        trace_ah3 = 0.0
+        trace_ah4 = 0.0
+        for start in range(0, n_nodes, block_size):
+            stop = min(start + block_size, n_nodes)
+            block = a_hat[start:stop] @ a_hat
+            trace_ah3 += float(block.multiply(a_hat[start:stop]).sum())
+            trace_ah4 += float(block.multiply(block).sum())
 
-            features['normalized_laplacian_third_moment'] = _force_finite(
-                1.0 + (6.0 * sum_inv - trace_ah3) / n_nodes, 0.0
-            )
-            features['random_walk_triangle_weight'] = _force_finite(
-                trace_ah3 / n_nodes, 0.0
-            )
-            features['random_walk_fourth_moment'] = _force_finite(
-                trace_ah4 / n_nodes, 0.0
-            )
+        features['normalized_laplacian_third_moment'] = _force_finite(
+            (n_active + 6.0 * sum_inv - trace_ah3) / n_nodes, 0.0
+        )
+        features['random_walk_triangle_weight'] = _force_finite(
+            trace_ah3 / n_nodes, 0.0
+        )
+        features['random_walk_fourth_moment'] = _force_finite(
+            trace_ah4 / n_nodes, 0.0
+        )
 
         ## adjacency fourth moment via the same block identity
         trace_a4 = 0.0
@@ -267,8 +263,11 @@ class GraphInvariants:
             features.update(self.simple())
             features.update(self.cohesion())
             features.update(self.extremal())
-            features.update(self.statistical())
+            statistical = self.statistical()
+            degree_kurtosis = statistical.pop('degree_kurtosis')
+            features.update(statistical)
             features.update(self.spectral())
+            features['degree_kurtosis'] = degree_kurtosis
             
         ## final results check - should never trigger with proper implementation
         for key, value in features.items():
@@ -310,7 +309,7 @@ class BipartiteInvariants:
     ## compute simple bipartite invariants
     def simple(self) -> dict:
         if self.is_trivial:
-            return {'n_nodes': 0, 'n_edges': 0, 'n_articulation_points': 0, 'n_bridges': 0}
+            return {'n_nodes': self.m + self.n, 'n_edges': 0, 'n_articulation_points': 0, 'n_bridges': 0}
         
         ## articulation points: 1 if it's a star graph (k_1,n with n>1), otherwise 0.
         n_articulation = 1 if self.is_star else 0
@@ -328,7 +327,7 @@ class BipartiteInvariants:
     ## compute cohesion bipartite invariants
     def cohesion(self) -> dict:
         if self.is_trivial:
-            return {'diameter': 0, 'radius': 0, 'degeneracy': 0, 'k_core_size': 0}
+            return {'diameter': 0, 'radius': 0, 'degeneracy': 0, 'k_core_size': self.m + self.n}
         
         ## diameter: 1 for a single edge (k_1,1), 2 for star graphs and other k_m,n.
         diameter = 1 if self.is_edge else 2
@@ -380,7 +379,7 @@ class BipartiteInvariants:
         ## degree entropy
         p_m = self.m / N  ## probability of having degree n
         p_n = self.n / N  ## probability of having degree m
-        degree_entropy = - (p_m * np.log(p_m) + p_n * np.log(p_n)) if self.m != self.n else -np.log(0.5) * 2
+        degree_entropy = - (p_m * np.log(p_m + 1e-16) + p_n * np.log(p_n + 1e-16)) if self.m != self.n else 0.0
         
         ## joint degree entropy: all edges connect a degree-m node to a degree-n node.
         ## there is only one type of edge, so probability is 1. log(1) = 0.
@@ -391,20 +390,17 @@ class BipartiteInvariants:
             skewness = 0.0
             kurtosis = 0.0
         else:
-            std_dev = np.sqrt(deg_var)
-            if std_dev < 1e-9:
-                skewness = 0.0
-                kurtosis = 0.0
-            else:
-                term_m = self.m * (self.n - mean_k)**3
-                term_n = self.n * (self.m - mean_k)**3
-                skewness = (term_m + term_n) / (N * std_dev**3)
-                
-                ## degree kurtosis (excess)
-                ## for a two-point distribution (Bernoulli-like), excess kurtosis is (1/(pq)) - 6
-                p = self.m / N
-                q = self.n / N
-                kurtosis = (1.0 / (p * q)) - 6.0
+            biased_skewness = abs(self.m - self.n) / np.sqrt(self.m * self.n)
+            skewness = (
+                np.sqrt(N * (N - 1)) / (N - 2) * biased_skewness
+                if N >= 3 else 0.0
+            )
+            biased_kurtosis = (N ** 2) / (self.m * self.n) - 6.0
+            kurtosis = (
+                (N - 1) / ((N - 2) * (N - 3))
+                * ((N + 1) * biased_kurtosis + 6.0)
+                if N >= 4 else 0.0
+            )
 
         return {
             'degree_variance': _force_finite(float(deg_var)),
@@ -460,14 +456,14 @@ class BipartiteInvariants:
     def all(self) -> dict:
         if self.is_trivial:
             return {
-                'n_nodes': 0,
+                'n_nodes': self.m + self.n,
                 'n_edges': 0,
                 'n_articulation_points': 0,
                 'n_bridges': 0,
                 'diameter': 0,
                 'radius': 0,
                 'degeneracy': 0,
-                'k_core_size': 0,
+                'k_core_size': self.m + self.n,
                 'maximum_degree': 0,
                 'degree_variance': 0.0,
                 'global_clustering': 0.0,
@@ -475,19 +471,22 @@ class BipartiteInvariants:
                 'degree_entropy': 0.0,
                 'joint_degree_entropy': 0.0,
                 'degree_skewness': 0.0,
-                'degree_kurtosis': 0.0,
                 'normalized_laplacian_second_moment': 0.0,
                 'normalized_laplacian_third_moment': 0.0,
                 'random_walk_triangle_weight': 0.0,
                 'random_walk_fourth_moment': 0.0,
                 'adjacency_fourth_moment_per_node': 0.0,
+                'degree_kurtosis': 0.0,
             }
         features = {}
         features.update(self.simple())
         features.update(self.cohesion())
         features.update(self.extremal())
-        features.update(self.statistical())
+        statistical = self.statistical()
+        degree_kurtosis = statistical.pop('degree_kurtosis')
+        features.update(statistical)
         features.update(self.spectral())
+        features['degree_kurtosis'] = degree_kurtosis
 
         for k, v in features.items():
             if not np.isfinite(v):
