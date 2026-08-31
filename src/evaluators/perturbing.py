@@ -26,20 +26,21 @@ from itertools import combinations
 from src.evaluators.training import fit_predict_frontier
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.metrics import consensus_metrics
-from src.vectorizers.invariants import GraphInvariants
+from src.vectorizers.invariants import GraphInvariants, BipartiteInvariants
 from src.vectorizers.signatures import ProcessSignatures
 from src.evaluators.resampling import (
     logo_cross_valid,
     logo_cross_valid_frozen
 )
 from src.data.helpers import (
-    _force_finite, 
+    _clip_unit_interval,
+    _force_finite,
     _force_finite_dict,
-    _clip_unit_interval
 )
 
 ## constants
 from src.evaluators.config import (
+    FEAT_X,
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
@@ -62,298 +63,294 @@ def _tqdm_joblib(total: int, desc: str):
         parallel.BatchCompletionCallBack = batch_callback
         pbar.close()
 
-## entropy of the degree distribution
-def _degree_entropy(degree: np.ndarray, n_nodes: int) -> float:
-    if n_nodes <= 0 or degree.size == 0:
-        return 0.0
-    counts = np.bincount(degree)
-    probs = counts[counts > 0].astype(float) / float(n_nodes)
-    eps = 1e-16
-    return -float(np.sum(probs * np.log(probs + eps)))
-
-## entropy of the degree distribution weighted by degree
-def _joint_degree_entropy(degree: np.ndarray, denom: float) -> float:
-    if denom <= 0.0 or degree.size == 0:
-        return 0.0
-
-    counts = np.bincount(degree)
-    nonzero = np.flatnonzero(counts)
-
-    ## stub-weighted degree probabilities pk ~ k * p(k) / <k>
-    pk = (nonzero.astype(float) * counts[nonzero].astype(float)) / float(denom)
-    pk = pk[pk > 0]
-
-    eps = 1e-16
-    marginal = -float(np.sum(pk * np.log(pk + eps)))
-    return 2.0 * marginal
-
-## skewness and kurtosis with guard for low-variance cases
-def _skew_kurtosis(degree: np.ndarray, discrete: bool = True) -> Tuple[float, float]:
-    x = degree.astype(int) if discrete else degree
-    skewness = 0.0
-    kurtosis = 0.0
-
-    ## guard: need variance > 0 (unique values for int, std for float)
-    has_spread = np.unique(x).size > 1 if discrete else float(np.std(x)) > 1e-9
-    if x.size >= 3 and has_spread:
-        skewness = _force_finite(stats.skew(x, bias = False), default = 0.0)
-    if x.size >= 4 and has_spread:
-        kurtosis = _force_finite(stats.kurtosis(x, fisher = True, bias = False), default = 0.0)
-
-    return float(skewness), float(kurtosis)
-
-## core invariants that can be estimated from the degree sequence alone
-def _degree_invariants(degree: np.ndarray, n_nodes: int, n_edges: float, keys: Sequence[str]) -> Dict[str, float]:
-    if n_nodes <= 0 or n_edges <= 0.0 or degree.size == 0: return {k: 0.0 for k in keys}
-    
-    S1, S2, degree_max = float(np.sum(degree)), float(np.sum(degree ** 2)), float(np.max(degree))
-    mean_excess = (S2 / max(S1, 1.0)) - 1.0
-    diam = max(2.0, float(np.log(max(n_nodes, 2))) / float(np.log(mean_excess))) if mean_excess > 1.0 else float(n_nodes)
-    
-    is_discrete = np.allclose(degree, np.round(degree))
-    degree_int = np.round(degree).astype(int)
-    inv_d = 1.0 / np.maximum(degree, 1.0)
-
-    feat = {
-        "n_nodes": float(n_nodes),
-        "n_edges": n_edges,
-        "diameter": diam,
-        "radius": 0.5 * diam,
-        "degeneracy": min(degree_max, float(np.sqrt(2.0 * n_edges))),
-        "maximum_degree": degree_max,
-        "degree_variance": float(np.var(degree)),
-        "degree_entropy": _degree_entropy(degree_int, n_nodes),
-        "joint_degree_entropy": _joint_degree_entropy(degree_int, float(np.sum(degree_int)) if not is_discrete else S1) if n_edges > 0 else 0.0,
-        "normalized_laplacian_second_moment": _force_finite(1.0 + (2.0 * n_edges * (n_nodes / max(S1, 1.0)) ** 2) / max(n_nodes, 1.0), 0.0),
-        "normalized_laplacian_third_moment": _force_finite(1.0 + (((S2 - S1) ** 3) / max(S1 ** 3 * n_nodes, 1.0)), 0.0),
-        "random_walk_triangle_weight": _force_finite(6.0 * (((S2 - S1) ** 2) / max(6.0 * S1, 1.0)) * float(inv_d.mean()) / max(S1, 1.0), 0.0),
-        "random_walk_fourth_moment": _force_finite((1.0 / max(n_nodes, 1.0)) * float(np.sum(degree * S2 / max(S1 ** 2, 1.0) + max(mean_excess, 0.0) * inv_d)), 0.0),
-        "adjacency_fourth_moment_per_node": _force_finite((S1 + (S2 - S1) + (S2 ** 2) / max(2.0 * S1, 1.0)) / max(n_nodes, 1.0), 0.0)
-    }
-    feat["k_core_size"] = float(np.sum(degree >= feat["degeneracy"]))
-    feat["degree_skewness"], feat["degree_kurtosis"] = _skew_kurtosis(degree, discrete=is_discrete)
-    
-    for k in keys: feat.setdefault(k, 0.0)
-    return feat
-
-## degree-preserving rewiring
-def _rewire_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-    ) -> Dict[str, float]:
-    """
-    Desc:
-        Interpolates between observed invariants and configuration-model
-        expectations under degree-preserving rewiring.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Perturbation strength in [0, 1].
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    alpha = _clip_unit_interval(1.0 - (1.0 - float(intensity)) ** 2)
-    keys = list(invariants.keys())
-    cm_invariants = _degree_invariants(degrees, n_nodes, float(n_edges), keys)
-
-    out: Dict[str, float] = {}
-    for k in keys:
-        b0 = float(invariants.get(k, 0.0))
-        c0 = float(cm_invariants.get(k, b0))
-        out[k] = (1.0 - alpha) * b0 + alpha * c0
-
-    return out
-
-## node sampling estimate (analytical)
-def _sample_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-) -> Dict[str, float]:
-    """
-    Desc:
-        Estimates invariants after uniform random node removal.
-        Fraction `intensity` of nodes are removed; surviving edges
-        are those whose *both* endpoints remain.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Fraction of nodes to remove in [0, 1].
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    p = 1.0 - _clip_unit_interval(float(intensity))  # survival probability
-    keys = list(invariants.keys())
-
-    if p <= 0.0:
-        return {k: 0.0 for k in keys}
-    if p >= 1.0:
-        return dict(invariants)
-
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-
-    ## surviving node count and expected degree after node sampling
-    n_nodes_p = max(int(round(n_nodes * p)), 1)
-    degree_p = degree * p  # each neighbour survives with probability p
-    n_edge_p = float(n_edges) * (p ** 2)  # both endpoints must survive
-
-    out = _degree_invariants(degree_p, n_nodes_p, n_edge_p, keys)
-
-    ## overrides that need the original base values
-    out["n_articulation_points"] = float(
-        invariants.get("n_articulation_points", 0.0)
-    ) * p
-
-    out["n_bridges"] = float(
-        invariants.get("n_bridges", 0.0)
-    ) * p
-
-    out["global_clustering"] = float(
-        invariants.get("global_clustering", 0.0)
-    )  # clustering coefficient is scale-free under uniform sampling
-
-    out["degree_assortativity"] = float(
-        invariants.get("degree_assortativity", 0.0)
-    )
-
-    for k in keys:
-        out.setdefault(k, float(invariants.get(k, 0.0)) * p)
-
-    return out
-
-
-## bernoulli edge densification (analytical)
-def _densify_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-    ) -> Dict[str, float]:
-    """
-    Desc:
-        Estimates invariants after adding random edges uniformly among
-        non-edges. The `intensity` fraction of existing edges is the
-        *expected number of new edges* to add, drawn from the complement
-        graph via independent Bernoulli trials.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Perturbation strength in [0, 1] as a fraction of |E|.
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    x = _clip_unit_interval(float(intensity))
-    keys = list(invariants.keys())
-
-    if x <= 0.0:
-        return dict(invariants)
-
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-
-    ## number of edges to add and complement size
-    n_add = float(n_edges) * x
-    max_edges = float(n_nodes * (n_nodes - 1)) / 2.0
-    n_complement = max(max_edges - float(n_edges), 1.0)
-
-    ## per non-edge addition probability
-    q = min(n_add / n_complement, 1.0)
-
-    ## densified degree sequence: each node gains non-neighbour edges
-    degree_q = degree + (float(n_nodes - 1) - degree) * q
-    n_edge_q = float(n_edges) + n_add
-
-    out = _degree_invariants(degree_q, n_nodes, n_edge_q, keys)
-
-    ## overrides for structural invariants
-    out["n_articulation_points"] = float(
-        invariants.get("n_articulation_points", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    out["n_bridges"] = float(
-        invariants.get("n_bridges", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    ## clustering increases with densification: added edges create
-    ## new triangles; approximate via ER triangle probability
-    base_clustering = float(invariants.get("global_clustering", 0.0))
-    out["global_clustering"] = min(base_clustering + (1.0 - base_clustering) * q, 1.0)
-
-    out["degree_assortativity"] = float(
-        invariants.get("degree_assortativity", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    for k in keys:
-        out.setdefault(k, float(invariants.get(k, 0.0)))
-
-    return out
-
 ## ----------------------------------------------------------------------------
 ## analytical perturbation
 ## ----------------------------------------------------------------------------
-def analytical_perturb(
+def _weighted_degree_moments(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    ) -> tuple[float, float]:
+
+    """Compute bias-corrected skewness and kurtosis from weighted degrees."""
+
+    n_nodes = int(np.sum(counts))
+    if n_nodes < 2:
+        return 0.0, 0.0
+    mean = float(np.sum(counts * degree) / n_nodes)
+    centered = degree - mean
+    moment_2 = float(np.sum(counts * centered**2) / n_nodes)
+    if moment_2 <= 1e-18:
+        return 0.0, 0.0
+
+    skewness = 0.0
+    if n_nodes >= 3:
+        moment_3 = float(np.sum(counts * centered**3) / n_nodes)
+        biased_skewness = moment_3 / moment_2**1.5
+        skewness = np.sqrt(n_nodes * (n_nodes - 1)) / (n_nodes - 2) * biased_skewness
+
+    kurtosis = 0.0
+    if n_nodes >= 4:
+        moment_4 = float(np.sum(counts * centered**4) / n_nodes)
+        biased_kurtosis = moment_4 / moment_2**2 - 3.0
+        kurtosis = (
+            (n_nodes - 1) / ((n_nodes - 2) * (n_nodes - 3))
+            * ((n_nodes + 1) * biased_kurtosis + 6.0)
+        )
+    return float(skewness), float(kurtosis)
+
+
+def _weighted_degree_entropy(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    stub_weighted: bool = False,
+    ) -> float:
+
+    """Compute entropy from a compact degree-value/count representation."""
+
+    rounded = np.rint(degree).astype(np.int64)
+    unique, inverse = np.unique(rounded, return_inverse = True)
+    grouped_counts = np.bincount(inverse, weights = counts).astype(float)
+    weights = unique.astype(float) * grouped_counts if stub_weighted else grouped_counts
+    weights = weights[weights > 0]
+    if weights.size == 0:
+        return 0.0
+    probabilities = weights / weights.sum()
+    entropy = -float(np.sum(probabilities * np.log(probabilities + 1e-16)))
+    return 2.0 * entropy if stub_weighted else entropy
+
+
+def _degree_model_invariants(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    n_edges: float,
+    keys: Sequence[str],
+    ) -> Dict[str, float]:
+
+    """Estimate graph invariants from a compact expected degree distribution."""
+
+    n_nodes = int(np.sum(counts))
+    if n_nodes <= 0 or n_edges <= 0.0:
+        return {key: 0.0 for key in keys}
+
+    sum_degree = float(np.sum(counts * degree))
+    sum_degree_sq = float(np.sum(counts * degree**2))
+    maximum_degree = float(np.max(degree))
+    mean_degree = sum_degree / n_nodes
+    mean_excess = sum_degree_sq / max(sum_degree, 1.0) - 1.0
+    diameter = (
+        max(2.0, float(np.log(max(n_nodes, 2))) / float(np.log(mean_excess)))
+        if mean_excess > 1.0
+        else float(n_nodes)
+    )
+    inverse_degree = 1.0 / np.maximum(degree, 1.0)
+    mean_inverse_degree = float(np.sum(counts * inverse_degree) / n_nodes)
+    skewness, kurtosis = _weighted_degree_moments(
+        degree = degree,
+        counts = counts,
+    )
+
+    features = {
+        "n_nodes": float(n_nodes),
+        "n_edges": float(n_edges),
+        "diameter": diameter,
+        "radius": 0.5 * diameter,
+        "degeneracy": min(maximum_degree, float(np.sqrt(2.0 * n_edges))),
+        "maximum_degree": maximum_degree,
+        "degree_variance": float(np.sum(counts * (degree - mean_degree)**2) / n_nodes),
+        "degree_entropy": _weighted_degree_entropy(degree = degree, counts = counts),
+        "joint_degree_entropy": _weighted_degree_entropy(
+            degree = degree,
+            counts = counts,
+            stub_weighted = True,
+        ),
+        "degree_skewness": skewness,
+        "normalized_laplacian_second_moment": _force_finite(
+            1.0 + (2.0 * n_edges * (n_nodes / max(sum_degree, 1.0))**2) / n_nodes,
+            0.0,
+        ),
+        "normalized_laplacian_third_moment": _force_finite(
+            1.0 + ((sum_degree_sq - sum_degree)**3 / max(sum_degree**3 * n_nodes, 1.0)),
+            0.0,
+        ),
+        "random_walk_triangle_weight": _force_finite(
+            6.0
+            * ((sum_degree_sq - sum_degree)**2 / max(6.0 * sum_degree, 1.0))
+            * mean_inverse_degree
+            / max(sum_degree, 1.0),
+            0.0,
+        ),
+        "random_walk_fourth_moment": _force_finite(
+            float(np.sum(
+                counts
+                * (
+                    degree * sum_degree_sq / max(sum_degree**2, 1.0)
+                    + max(mean_excess, 0.0) * inverse_degree
+                )
+            )) / n_nodes,
+            0.0,
+        ),
+        "adjacency_fourth_moment_per_node": _force_finite(
+            (
+                sum_degree
+                + (sum_degree_sq - sum_degree)
+                + sum_degree_sq**2 / max(2.0 * sum_degree, 1.0)
+            ) / n_nodes,
+            0.0,
+        ),
+        "degree_kurtosis": kurtosis,
+    }
+    features["k_core_size"] = float(np.sum(counts[degree >= features["degeneracy"]]))
+    for key in keys:
+        features.setdefault(key, 0.0)
+    return features
+
+
+def _rewire_estimate(
     invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
+    degree: np.ndarray,
+    counts: np.ndarray,
     n_edges: int,
-    method: Literal["degree_preserving_rewire", "uniform_node_sampling", "bernoulli_edge_densification"] = "degree_preserving_rewire",
+    intensity: float,
+    ) -> Dict[str, float]:
+
+    """Interpolate toward a degree-preserving configuration-model estimate."""
+
+    if intensity <= 0.0 or n_edges <= 0:
+        return dict(invariants)
+    alpha = 1.0 - (1.0 - intensity)**2
+    model = _degree_model_invariants(
+        degree = degree,
+        counts = counts,
+        n_edges = float(n_edges),
+        keys = list(invariants),
+    )
+    return {
+        key: (1.0 - alpha) * float(value) + alpha * float(model[key])
+        for key, value in invariants.items()
+    }
+
+
+def _densify_estimate(
+    invariants: Dict[str, float],
+    dimensions: tuple[int, int],
+    intensity: float,
+    ) -> Dict[str, float]:
+
+    """Estimate uniform edge addition over a complete bipartite complement."""
+
+    m, n = dimensions
+    n_nodes = m + n
+    n_edges = m * n
+    n_complement = m * (m - 1) // 2 + n * (n - 1) // 2
+    n_add = min(int(n_edges * intensity), n_complement)
+    if n_add <= 0 or n_complement <= 0:
+        return dict(invariants)
+
+    probability = n_add / n_complement
+    degree = np.array([
+        n + probability * (m - 1),
+        m + probability * (n - 1),
+    ], dtype = float)
+    counts = np.array([m, n], dtype = float)
+    output = _degree_model_invariants(
+        degree = degree,
+        counts = counts,
+        n_edges = float(n_edges + n_add),
+        keys = list(invariants),
+    )
+    attenuation = 1.0 - probability
+    output["n_articulation_points"] = float(invariants["n_articulation_points"]) * attenuation
+    output["n_bridges"] = float(invariants["n_bridges"]) * attenuation
+    output["global_clustering"] = min(
+        float(invariants["global_clustering"])
+        + (1.0 - float(invariants["global_clustering"])) * probability,
+        1.0,
+    )
+    output["degree_assortativity"] = float(invariants["degree_assortativity"]) * attenuation
+    return output
+
+
+def analytical_perturb(
+    dimensions: tuple[int, int],
+    partition_types: Sequence[bool] | None = None,
+    method: Literal[
+        "degree_preserving_rewire",
+        "uniform_node_sampling",
+        "bernoulli_edge_densification",
+    ] = "uniform_node_sampling",
     intensity: float = 0.1,
+    random_state: int = 42,
     ) -> Dict[str, float]:
     
     """
     Desc:
-        Estimates graph invariants after a topological perturbation without
-        constructing the perturbed graph. Returns the same key set as
-        invariants.
+        Compute exact node-sampling invariants or approximate rewiring and
+        densification invariants for a complete bipartite graph without
+        constructing its vertices or edges.
 
     Args:
-        invariants: Dict returned by GraphInvariants(graph).all().
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
+        dimensions: Ordered partition sizes for the complete bipartite graph.
+        partition_types: Optional vertex-aligned partition indicators.
         method: Analytical perturbation model.
         intensity: Perturbation strength in [0, 1].
+        random_state: Seed used by the explicit node-removal operation.
 
     Returns:
-        Dict of estimated invariants (finite floats).
+        Canonical 21-coordinate invariant dictionary.
 
     Raises:
-        ValueError: If the perturbation model is unsupported.
+        ValueError: If the method or partition representation is invalid.
     """
 
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-    x = _clip_unit_interval(float(intensity))
+    m, n = (int(dimensions[0]), int(dimensions[1]))
+    n_nodes = m + n
+    if m < 0 or n < 0:
+        raise ValueError("complete bipartite dimensions must be non-negative")
+    intensity = _clip_unit_interval(float(intensity))
+    invariants = BipartiteInvariants(m = m, n = n).all()
+    degree = np.array([n, m], dtype = float)
+    counts = np.array([m, n], dtype = float)
 
     if method == "degree_preserving_rewire":
-        out = _rewire_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
+        output = _rewire_estimate(
+            invariants = invariants,
+            degree = degree,
+            counts = counts,
+            n_edges = m * n,
+            intensity = intensity,
+        )
+    elif method == "bernoulli_edge_densification":
+        output = _densify_estimate(
+            invariants = invariants,
+            dimensions = (m, n),
+            intensity = intensity,
+        )
+    elif method == "uniform_node_sampling":
+        n_remove = int(n_nodes * intensity)
+        if n_remove <= 0:
+            output = invariants
+        elif n_remove >= n_nodes:
+            output = BipartiteInvariants(m = 0, n = 0).all()
+        else:
+            removed = np.random.default_rng(random_state).choice(
+                n_nodes,
+                n_remove,
+                replace = False,
+            )
+            if partition_types is None:
+                removed_m = int(np.count_nonzero(removed < m))
+            else:
+                types = np.asarray(partition_types, dtype = bool)
+                if len(types) != n_nodes or int(np.count_nonzero(~types)) != m:
+                    raise ValueError("partition types do not match complete bipartite dimensions")
+                removed_m = int(np.count_nonzero(~types[removed]))
+            removed_n = n_remove - removed_m
+            output = BipartiteInvariants(m = m - removed_m, n = n - removed_n).all()
+    else:
+        raise ValueError(f"unsupported analytical perturbation method: {method}")
 
-    if method == "uniform_node_sampling":
-        out = _sample_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
-
-    if method == "bernoulli_edge_densification":
-        out = _densify_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
-
-    raise ValueError(f"unsupported perturbation model: {method}")
+    finite = _force_finite_dict(output)
+    return {key: finite[key] for key in FEAT_X}
 
 ## ----------------------------------------------------------------------------
 ## network perturbation
@@ -401,7 +398,7 @@ def network_perturb(
     ## node sampling (remove nodes)
     elif method == "sample":
         n_remove = int(n_nodes * intensity)
-        if n_remove > 0 and n_remove < n_nodes:
+        if n_remove > 0:
             nodes_to_remove = rng.choice(n_nodes, n_remove, replace = False).tolist()
             G.delete_vertices(nodes_to_remove)
 
