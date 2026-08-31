@@ -16,7 +16,10 @@ from src.data.loaders.federal import FederalProcessor
 from src.data.loaders.metrla import _process_events_metrla
 from src.data.loaders.pemsbay import _process_events_pemsbay
 from src.data.builders import load_perturbed_data
-from src.data.perturbers import _execute_perturbations, _jitter_count_series
+from src.data.perturbers import _execute_perturbations, _jitter_count_series, _resolve_n_jobs
+from src.evaluators.config import FEAT_X
+from src.evaluators.perturbing import network_perturb
+from src.vectorizers.invariants import BipartiteInvariants
 
 
 class TrafficEventTests(unittest.TestCase):
@@ -140,6 +143,11 @@ class FederalEventTests(unittest.TestCase):
 
 class PerturbationDispatchTests(unittest.TestCase):
 
+    def test_worker_count_adapts_to_cpu_and_task_limits(self) -> None:
+        self.assertEqual(_resolve_n_jobs(n_jobs = -1, n_tasks = 10, cpu_count = 4), 4)
+        self.assertEqual(_resolve_n_jobs(n_jobs = -1, n_tasks = 2, cpu_count = 4), 2)
+        self.assertEqual(_resolve_n_jobs(n_jobs = 8, n_tasks = 10, cpu_count = 4), 4)
+
     def test_chunked_temporal_jitter_matches_vectorized_draws(self) -> None:
         positions = np.array([0, 2])
         counts = np.array([3, 2])
@@ -206,11 +214,41 @@ class PerturbationDispatchTests(unittest.TestCase):
                 proc = processor,
                 name = "test",
                 n_realizations = 2,
+                n_jobs = 1,
             )
 
         analytical_perturb_mock.assert_not_called()
+        graph_invariants_mock.assert_not_called()
         self.assertEqual(network_perturb_mock.call_count, 2)
         self.assertEqual(len(result["network_perturbed"]["rewire"]), 2)
+
+    @patch("src.data.perturbers.network_perturb", side_effect = RuntimeError("failed"))
+    def test_incomplete_network_perturbations_are_rejected(
+        self,
+        network_perturb_mock,
+    ) -> None:
+        processor = SimpleNamespace(
+            graph = ig.Graph.Ring(5),
+            invariants = {"n_nodes": 5, "n_edges": 5},
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"rewire": (0.1,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "expected 2, found 0"):
+                _execute_perturbations(
+                    proc = processor,
+                    name = "test",
+                    n_realizations = 2,
+                    n_jobs = 1,
+                )
+
+        self.assertEqual(network_perturb_mock.call_count, 2)
 
     @patch("src.data.perturbers.network_perturb")
     @patch("src.data.perturbers.GraphInvariants")
@@ -238,19 +276,89 @@ class PerturbationDispatchTests(unittest.TestCase):
                 proc = processor,
                 name = "test",
                 n_realizations = 3,
+                n_jobs = 1,
             )
 
         records = result["network_perturbed"]["rewire"]
         self.assertEqual([record["realization"] for record in records], [0, 1, 2])
         self.assertEqual([record["invariants"]["seed"] for record in records], [42, 43, 44])
 
+    def test_parallel_network_perturbations_match_serial_results(self) -> None:
+        processor = SimpleNamespace(
+            graph = ig.Graph.Ring(9),
+            invariants = None,
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict(
+                "src.data.perturbers.NETWORK_METHODS",
+                {"rewire": (0.35,), "densify": (0.35,), "sample": (0.35,)},
+                clear = True,
+            ),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            serial = _execute_perturbations(
+                proc = processor,
+                name = "serial",
+                n_realizations = 2,
+                n_jobs = 1,
+            )
+            parallel = _execute_perturbations(
+                proc = processor,
+                name = "parallel",
+                n_realizations = 2,
+                n_jobs = 2,
+            )
+
+        self.assertEqual(serial["network_perturbed"], parallel["network_perturbed"])
+
+    @patch("src.data.perturbers.mp.get_all_start_methods", return_value = ["spawn"])
+    def test_spawn_network_perturbations_match_serial_results(
+        self,
+        start_methods_mock,
+    ) -> None:
+        processor = SimpleNamespace(
+            graph = ig.Graph.Ring(9),
+            invariants = None,
+            dimensions = None,
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"sample": (0.35,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            serial = _execute_perturbations(
+                proc = processor,
+                name = "serial",
+                n_realizations = 2,
+                n_jobs = 1,
+            )
+            spawned = _execute_perturbations(
+                proc = processor,
+                name = "spawned",
+                n_realizations = 2,
+                n_jobs = 2,
+            )
+
+        self.assertEqual(serial["network_perturbed"], spawned["network_perturbed"])
+
+    @patch("src.data.perturbers.network_perturb")
     @patch("src.data.perturbers.analytical_perturb")
-    def test_complete_bipartite_graph_uses_analytical_network_perturbation(
+    def test_complete_bipartite_graph_uses_only_exact_analytical_sampling(
         self,
         analytical_perturb_mock,
+        network_perturb_mock,
     ) -> None:
         baseline = {"n_nodes": 5, "n_edges": 6}
         analytical_perturb_mock.return_value = baseline
+        network_perturb_mock.return_value = baseline
         processor = SimpleNamespace(
             graph = ig.Graph.Full_Bipartite(2, 3),
             invariants = baseline,
@@ -259,18 +367,121 @@ class PerturbationDispatchTests(unittest.TestCase):
         )
 
         with (
-            patch.dict("src.data.perturbers.NETWORK_METHODS", {"rewire": (0.1,)}, clear = True),
+            patch.dict(
+                "src.data.perturbers.NETWORK_METHODS",
+                {"rewire": (0.1,), "densify": (0.1,), "sample": (0.1,)},
+                clear = True,
+            ),
             patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
             patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
             patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
         ):
-            result = _execute_perturbations(proc = processor, name = "test")
+            result = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                n_realizations = 2,
+                n_jobs = 1,
+            )
 
-        analytical_perturb_mock.assert_called_once()
-        self.assertEqual(
-            result["network_perturbed"]["rewire"][0]["invariants"],
-            baseline,
+        self.assertEqual(analytical_perturb_mock.call_count, 2)
+        self.assertEqual(network_perturb_mock.call_count, 4)
+        self.assertEqual([call.kwargs["method"] for call in analytical_perturb_mock.call_args_list], ["uniform_node_sampling"] * 2)
+        self.assertEqual([record["realization"] for record in result["network_perturbed"]["sample"]], [0, 1])
+
+    def test_complete_bipartite_results_match_explicit_perturbation(self) -> None:
+        m, n = 4, 7
+        graph = ig.Graph.Full_Bipartite(m, n)
+        processor = SimpleNamespace(
+            graph = graph,
+            invariants = BipartiteInvariants(m = m, n = n).all(),
+            dimensions = (m, n),
+            events = None,
         )
+
+        with (
+            patch.dict(
+                "src.data.perturbers.NETWORK_METHODS",
+                {"rewire": (0.35,), "densify": (0.35,), "sample": (0.35,)},
+                clear = True,
+            ),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            actual = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                random_state = 42,
+                n_realizations = 2,
+                n_jobs = 1,
+            )
+
+        for method, records in actual["network_perturbed"].items():
+            for record in records:
+                expected = network_perturb(
+                    graph = graph,
+                    method = method,
+                    intensity = record["intensity"],
+                    random_state = 42 + record["realization"],
+                )
+                self.assertEqual(list(record["invariants"]), list(expected))
+                for key in expected:
+                    self.assertAlmostEqual(record["invariants"][key], expected[key], places = 12, msg = key)
+
+    def test_graph_free_complete_bipartite_sampling_repeats_exactly(self) -> None:
+        processor = SimpleNamespace(
+            graph = None,
+            invariants = {"n_nodes": 5, "n_edges": 6},
+            dimensions = (2, 3),
+            events = None,
+        )
+
+        with (
+            patch.dict("src.data.perturbers.NETWORK_METHODS", {"sample": (0.35,)}, clear = True),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            result = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                n_realizations = 3,
+            )
+
+        records = result["network_perturbed"]["sample"]
+        self.assertEqual([record["realization"] for record in records], [0, 1, 2])
+
+    def test_graph_free_complete_bipartite_uses_surrogates_when_numerical_is_unavailable(self) -> None:
+        processor = SimpleNamespace(
+            graph = None,
+            invariants = BipartiteInvariants(m = 2, n = 3).all(),
+            dimensions = (2, 3),
+            events = None,
+        )
+
+        with (
+            patch.dict(
+                "src.data.perturbers.NETWORK_METHODS",
+                {"rewire": (0.35,), "densify": (0.35,), "sample": (0.35,)},
+                clear = True,
+            ),
+            patch.dict("src.data.perturbers.INVARIANT_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.PROCESS_METHODS", {}, clear = True),
+            patch.dict("src.data.perturbers.SIGNATURE_METHODS", {}, clear = True),
+        ):
+            result = _execute_perturbations(
+                proc = processor,
+                name = "test",
+                n_realizations = 3,
+            )
+
+        self.assertEqual([r["realization"] for r in result["network_perturbed"]["rewire"]], [0])
+        self.assertEqual([r["realization"] for r in result["network_perturbed"]["densify"]], [0])
+        self.assertEqual([r["realization"] for r in result["network_perturbed"]["sample"]], [0, 1, 2])
+        for records in result["network_perturbed"].values():
+            for record in records:
+                self.assertEqual(list(record["invariants"]), FEAT_X)
+                self.assertTrue(np.isfinite(list(record["invariants"].values())).all())
 
     def test_loader_preserves_repeated_realizations(self) -> None:
         payload = {

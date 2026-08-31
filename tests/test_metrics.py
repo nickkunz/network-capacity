@@ -1,25 +1,42 @@
 import unittest
 from unittest.mock import patch
 
+import igraph as ig
 import numpy as np
 import pandas as pd
 
 from src.data.helpers import _create_igraph_object
 from src.data.loaders.windmill import _process_events_wind
+from src.evaluators.config import FEAT_X
 from src.evaluators.metrics import spec_marginal_delta
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
+    analytical_perturb,
     compile_perturbed_consensus,
     compile_perturbed_recovery,
     compile_perturbed_transfer,
     feature_perturb,
     find_perturbed_max,
+    network_perturb,
     stat_perturbed_tost,
 )
 from src.vectorizers.invariants import BipartiteInvariants, GraphInvariants
 
 
 class BipartiteInvariantsTests(unittest.TestCase):
+
+    def test_all_invariants_match_explicit_complete_bipartite_graphs(self) -> None:
+        for m, n in ((0, 4), (1, 1), (1, 4), (2, 3), (3, 3), (4, 7)):
+            with self.subTest(m = m, n = n):
+                graph = ig.Graph.Full_Bipartite(m, n)
+                explicit = GraphInvariants(graph = graph).all()
+                analytical = BipartiteInvariants(m = m, n = n).all()
+                self.assertEqual(list(explicit), FEAT_X)
+                self.assertEqual(list(analytical), FEAT_X)
+                for key in explicit:
+                    self.assertAlmostEqual(explicit[key], analytical[key], places = 12, msg = key)
+                if m == 0 or n == 0:
+                    self.assertEqual(analytical["k_core_size"], m + n)
 
     def test_random_walk_fourth_moment_matches_explicit_graph(self) -> None:
         left = ["left_0", "left_1"]
@@ -34,6 +51,87 @@ class BipartiteInvariantsTests(unittest.TestCase):
 
         self.assertAlmostEqual(actual, 2.0 / graph.vcount())
         self.assertAlmostEqual(actual, expected)
+
+    def test_analytical_sampling_matches_seeded_explicit_perturbation(self) -> None:
+        for m, n in ((1, 4), (2, 3), (4, 7), (7, 4)):
+            for intensity in (0.0, 0.20, 0.35, 1.0):
+                for random_state in (1, 42, 99):
+                    with self.subTest(m = m, n = n, intensity = intensity, random_state = random_state):
+                        graph = ig.Graph.Full_Bipartite(m, n)
+                        _, partition_types = graph.is_bipartite(return_types = True)
+                        expected = network_perturb(
+                            graph = graph,
+                            method = "sample",
+                            intensity = intensity,
+                            random_state = random_state,
+                        )
+                        actual = analytical_perturb(
+                            dimensions = (m, n),
+                            partition_types = partition_types,
+                            method = "uniform_node_sampling",
+                            intensity = intensity,
+                            random_state = random_state,
+                        )
+                        self.assertEqual(list(actual), FEAT_X)
+                        for key in expected:
+                            self.assertAlmostEqual(actual[key], expected[key], places = 12, msg = key)
+
+    def test_graph_free_analytical_sampling_matches_canonical_explicit_graph(self) -> None:
+        for m, n in ((1, 4), (2, 3), (7, 4)):
+            with self.subTest(m = m, n = n):
+                graph = ig.Graph.Full_Bipartite(m, n)
+                expected = network_perturb(
+                    graph = graph,
+                    method = "sample",
+                    intensity = 0.35,
+                    random_state = 42,
+                )
+                actual = analytical_perturb(
+                    dimensions = (m, n),
+                    method = "uniform_node_sampling",
+                    intensity = 0.35,
+                    random_state = 42,
+                )
+                for key in expected:
+                    self.assertAlmostEqual(actual[key], expected[key], places = 12, msg = key)
+
+    def test_analytical_surrogates_return_canonical_invariant_vector(self) -> None:
+        baseline = BipartiteInvariants(m = 2, n = 3).all()
+        for method in ("degree_preserving_rewire", "bernoulli_edge_densification"):
+            with self.subTest(method = method):
+                identity = analytical_perturb(
+                    dimensions = (2, 3),
+                    method = method,
+                    intensity = 0.0,
+                )
+                actual = analytical_perturb(
+                    dimensions = (2, 3),
+                    method = method,
+                    intensity = 0.35,
+                )
+
+                self.assertEqual(list(actual), FEAT_X)
+                self.assertEqual(len(actual), 21)
+                self.assertTrue(np.isfinite(list(actual.values())).all())
+                self.assertEqual(actual["n_nodes"], 5)
+                for key in FEAT_X:
+                    self.assertAlmostEqual(identity[key], baseline[key], places = 12, msg = key)
+
+        rewired = analytical_perturb(
+            dimensions = (2, 3),
+            method = "degree_preserving_rewire",
+            intensity = 0.35,
+        )
+        self.assertEqual(rewired["n_nodes"], baseline["n_nodes"])
+        self.assertEqual(rewired["n_edges"], baseline["n_edges"])
+
+        densified = analytical_perturb(
+            dimensions = (2, 3),
+            method = "bernoulli_edge_densification",
+            intensity = 0.35,
+        )
+        self.assertEqual(densified["n_nodes"], baseline["n_nodes"])
+        self.assertEqual(densified["n_edges"], 8)
 
 
 class CreateIgraphObjectTests(unittest.TestCase):
@@ -66,10 +164,12 @@ class GraphInvariantsEqualityTests(unittest.TestCase):
         adjacency = np.asarray(graph.get_adjacency().data, dtype = float)
         n = adjacency.shape[0]
         degrees = adjacency.sum(axis = 1)
-        d_inv_sqrt = 1.0 / np.sqrt(degrees)
+        d_inv_sqrt = np.zeros_like(degrees)
+        np.divide(1.0, np.sqrt(degrees), out = d_inv_sqrt, where = degrees > 0)
         a_hat = d_inv_sqrt[:, None] * adjacency * d_inv_sqrt[None, :]
-        random_walk = (1.0 / degrees)[:, None] * adjacency
-        laplacian = np.eye(n) - a_hat
+        random_walk = np.zeros_like(adjacency)
+        np.divide(adjacency, degrees[:, None], out = random_walk, where = degrees[:, None] > 0)
+        laplacian = np.diag((degrees > 0).astype(float)) - a_hat
         return {
             "normalized_laplacian_second_moment": np.trace(np.linalg.matrix_power(laplacian, 2)) / n,
             "normalized_laplacian_third_moment": np.trace(np.linalg.matrix_power(laplacian, 3)) / n,
@@ -99,6 +199,10 @@ class GraphInvariantsEqualityTests(unittest.TestCase):
             _create_igraph_object(  ## complete graph
                 nodes = [f"n{i}" for i in range(5)],
                 edges = [(f"n{i}", f"n{j}") for i in range(5) for j in range(i + 1, 5)],
+            ),
+            _create_igraph_object(  ## triangle with an isolate
+                nodes = [f"n{i}" for i in range(4)],
+                edges = [("n0", "n1"), ("n1", "n2"), ("n2", "n0")],
             ),
         ]
         for graph in graphs:
