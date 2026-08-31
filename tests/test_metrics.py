@@ -59,6 +59,93 @@ class CreateIgraphObjectTests(unittest.TestCase):
         self.assertEqual(invariants["adjacency_fourth_moment_per_node"], 0.0)
 
 
+class GraphInvariantsEqualityTests(unittest.TestCase):
+
+    @staticmethod
+    def _dense_reference(graph) -> dict:
+        adjacency = np.asarray(graph.get_adjacency().data, dtype = float)
+        n = adjacency.shape[0]
+        degrees = adjacency.sum(axis = 1)
+        d_inv_sqrt = 1.0 / np.sqrt(degrees)
+        a_hat = d_inv_sqrt[:, None] * adjacency * d_inv_sqrt[None, :]
+        random_walk = (1.0 / degrees)[:, None] * adjacency
+        laplacian = np.eye(n) - a_hat
+        return {
+            "normalized_laplacian_second_moment": np.trace(np.linalg.matrix_power(laplacian, 2)) / n,
+            "normalized_laplacian_third_moment": np.trace(np.linalg.matrix_power(laplacian, 3)) / n,
+            "random_walk_triangle_weight": np.trace(np.linalg.matrix_power(random_walk, 3)) / n,
+            "random_walk_fourth_moment": np.trace(np.linalg.matrix_power(random_walk, 4)) / n,
+            "adjacency_fourth_moment_per_node": np.trace(np.linalg.matrix_power(adjacency, 4)) / n,
+        }
+
+    def test_spectral_matches_dense_reference_on_small_graphs(self) -> None:
+        graphs = [
+            _create_igraph_object(  ## path
+                nodes = [f"n{i}" for i in range(5)],
+                edges = [("n0", "n1"), ("n1", "n2"), ("n2", "n3"), ("n3", "n4")],
+            ),
+            _create_igraph_object(  ## triangle with tail
+                nodes = [f"n{i}" for i in range(5)],
+                edges = [("n0", "n1"), ("n1", "n2"), ("n2", "n0"), ("n2", "n3"), ("n3", "n4")],
+            ),
+            _create_igraph_object(  ## star
+                nodes = [f"n{i}" for i in range(6)],
+                edges = [("n0", f"n{i}") for i in range(1, 6)],
+            ),
+            _create_igraph_object(  ## bipartite cycle
+                nodes = [f"n{i}" for i in range(6)],
+                edges = [(f"n{i}", f"n{(i + 1) % 6}") for i in range(6)],
+            ),
+            _create_igraph_object(  ## complete graph
+                nodes = [f"n{i}" for i in range(5)],
+                edges = [(f"n{i}", f"n{j}") for i in range(5) for j in range(i + 1, 5)],
+            ),
+        ]
+        for graph in graphs:
+            with self.subTest(n_nodes = graph.vcount(), n_edges = graph.ecount()):
+                actual = GraphInvariants(graph = graph).spectral()
+                expected = self._dense_reference(graph = graph)
+                for key, value in expected.items():
+                    self.assertAlmostEqual(actual[key], value, places = 12, msg = key)
+
+    def test_spectral_block_streaming_matches_single_block(self) -> None:
+        graph = _create_igraph_object(
+            nodes = [f"n{i}" for i in range(8)],
+            edges = [
+                ("n0", "n1"), ("n1", "n2"), ("n2", "n3"), ("n3", "n4"),
+                ("n4", "n5"), ("n5", "n6"), ("n6", "n7"), ("n7", "n0"),
+                ("n0", "n3"), ("n2", "n5"), ("n1", "n4"),
+            ],
+        )
+
+        single = GraphInvariants(graph = graph).spectral()
+        streamed = GraphInvariants(graph = graph).spectral(block_size = 2)
+
+        for key in single:
+            self.assertAlmostEqual(single[key], streamed[key], places = 12, msg = key)
+
+    def test_cohesion_matches_diameter_and_eccentricity(self) -> None:
+        graphs = [
+            _create_igraph_object(  ## tree
+                nodes = ["a", "b", "c", "d", "e"],
+                edges = [("a", "b"), ("b", "c"), ("c", "d"), ("b", "e")],
+            ),
+            _create_igraph_object(  ## cycle
+                nodes = [f"n{i}" for i in range(6)],
+                edges = [(f"n{i}", f"n{(i + 1) % 6}") for i in range(6)],
+            ),
+            _create_igraph_object(  ## disconnected giant plus edge
+                nodes = ["a", "b", "c", "d", "e", "x", "y"],
+                edges = [("a", "b"), ("b", "c"), ("c", "d"), ("b", "e"), ("x", "y")],
+            ),
+        ]
+        for graph in graphs:
+            giant = graph.components().giant()
+            cohesion = GraphInvariants(graph = graph).cohesion()
+            self.assertEqual(cohesion["diameter"], float(giant.diameter(directed = False, unconn = False)))
+            self.assertEqual(cohesion["radius"], float(min(giant.eccentricity())))
+
+
 class WindmillEventTests(unittest.TestCase):
 
     def test_positive_production_below_mean_remains_on(self) -> None:
