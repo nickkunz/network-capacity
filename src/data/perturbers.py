@@ -7,6 +7,7 @@ import configparser
 import json
 import numpy as np
 import pandas as pd
+import multiprocessing as mp
 from typing import Any, Sequence
 from pathlib import Path
 from scipy.special import ndtr
@@ -221,11 +222,88 @@ def _jitter_count_series(
             remaining -= draw_size
     return shifted_counts
 
+def _network_worker(
+    graph: Any,
+    job: tuple[str, float, int, int],
+    ) -> tuple[str, float, int, dict[str, Any] | None, str | None]:
+
+    """Run one explicit network perturbation."""
+
+    method, intensity, realization, seed = job
+    try:
+        features = network_perturb(
+            graph = graph,
+            method = method,
+            intensity = intensity,
+            random_state = seed,
+        )
+        return method, intensity, realization, features, None
+    except Exception as exc:
+        return method, intensity, realization, None, f"{type(exc).__name__}: {exc}"
+
+def _network_worker_batch(
+    graph: Any,
+    jobs: list[tuple[int, tuple[str, float, int, int]]],
+    connection: Any,
+    ) -> None:
+
+    """Run a process-local batch and return indexed results."""
+
+    try:
+        connection.send([
+            (index, _network_worker(graph = graph, job = job))
+            for index, job in jobs
+        ])
+    finally:
+        connection.close()
+
+def _resolve_n_jobs(
+    n_jobs: int,
+    n_tasks: int,
+    cpu_count: int | None = None,
+    ) -> int:
+
+    """Resolve worker count against available CPUs and pending tasks."""
+
+    if n_jobs == 0 or n_jobs < -1:
+        raise ValueError("n_jobs must be -1 or >= 1")
+    if n_tasks < 1:
+        return 1
+    if cpu_count is None:
+        cpu_count = (
+            len(os.sched_getaffinity(0))
+            if hasattr(os, "sched_getaffinity")
+            else os.cpu_count() or 1
+        )
+    requested = cpu_count if n_jobs == -1 else n_jobs
+    return max(1, min(int(requested), int(cpu_count), n_tasks))
+
+def _validate_perturbation_records(
+    records: dict[str, list[dict[str, Any]]],
+    methods: dict[str, Sequence[Any]],
+    realizations: int | dict[str, int],
+    name: str,
+    channel: str,
+    ) -> None:
+
+    """Reject incomplete perturbation output before it can be saved."""
+
+    mismatches = list()
+    for method, settings in methods.items():
+        count = realizations[method] if isinstance(realizations, dict) else realizations
+        expected = len(settings) * count
+        actual = len(records.get(method, list()))
+        if actual != expected:
+            mismatches.append(f"{method}: expected {expected}, found {actual}")
+    if mismatches:
+        raise RuntimeError(f"Incomplete {channel} perturbations for {name}: {'; '.join(mismatches)}")
+
 def _execute_perturbations(
     proc: Any,
     name: str,
     random_state: int = 42,
     n_realizations: int = 30,
+    n_jobs: int = -1,
     ) -> dict[str, Any]:
 
     """Run network, process, and temporal perturbations for a given processor."""
@@ -233,6 +311,8 @@ def _execute_perturbations(
     ## validate inputs
     if n_realizations < 1:
         raise ValueError("n_realizations must be >= 1")
+    if n_jobs == 0 or n_jobs < -1:
+        raise ValueError("n_jobs must be -1 or >= 1")
     results = dict()
 
     ## --- network perturbation --- ##
@@ -242,87 +322,166 @@ def _execute_perturbations(
     if graph is not None:
         
         ## ensure simple undirected graph (remove multi-edges and self-loops)
+        graph_was_simple = graph.is_simple()
         graph.simplify()
 
-        ## use analytical perturbation only when the graph structure is exact
+        ## use the exact analytical shortcut only when node sampling preserves structure
         network_results: dict[str, list[dict[str, Any]]] = dict()
-        analytical = _is_fully_connected_bipartite(graph)
+        complete_bipartite = _is_fully_connected_bipartite(graph)
+        bipartite_dimensions = None
+        partition_types = None
 
-        if analytical:
-            degrees = np.array(graph.degree(), dtype=float)
-            n_nodes = graph.vcount()
-            n_edges = graph.ecount()
+        if complete_bipartite:
+            _, types = graph.is_bipartite(return_types = True)
+            partition_types = np.asarray(types, dtype = bool)
+            bipartite_dimensions = (
+                int(np.count_nonzero(~partition_types)),
+                int(np.count_nonzero(partition_types)),
+            )
             invariants = dict(pre_inv) if pre_inv is not None else GraphInvariants(graph).all(analytical = True)
-            logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges)")
+            logging.info(f"  Using exact analytical node sampling for {name}")
         else:
-            invariants = GraphInvariants(graph).all(analytical = False)
+            invariants = (
+                dict(pre_inv)
+                if pre_inv is not None and graph_was_simple
+                else GraphInvariants(graph).all(analytical = False)
+            )
 
-        for method, intensities in NETWORK_METHODS.items():
-            for intensity in intensities:
-                realizations = range(1) if analytical else range(n_realizations)
-                for realization in realizations:
-                    if analytical:
-                        try:
-                            features = analytical_perturb(
-                                invariants = invariants,
-                                degrees = degrees,
-                                n_nodes = n_nodes,
-                                n_edges = n_edges,
-                                method = {"rewire": "degree_preserving_rewire", "densify": "bernoulli_edge_densification", "sample": "uniform_node_sampling"}[method],
-                                intensity = float(intensity),
-                            )
-                        except Exception as exc:
-                            logging.warning(f"Analytical {method} @ {intensity:.2f} failed for {name}: {exc}")
-                            continue
-                    else:
-                        try:
-                            features = network_perturb(
-                                graph,
-                                method = method,
-                                intensity = float(intensity),
-                                random_state = random_state + realization,
-                            )
-                        except Exception as exc:
-                            logging.warning(f"Network {method} @ {intensity:.2f} realization {realization} failed for {name}: {exc}")
-                            continue
-                    network_results.setdefault(method, []).append({
+        jobs = [
+            (method, float(intensity), realization, random_state + realization)
+            for method, intensities in NETWORK_METHODS.items()
+            if not (complete_bipartite and method == "sample")
+            for intensity in intensities
+            for realization in range(n_realizations)
+        ]
+        if jobs:
+            workers = _resolve_n_jobs(n_jobs = n_jobs, n_tasks = len(jobs))
+            logging.info(f"  Using {workers} network worker process(es) for {name}")
+
+            if workers == 1:
+                worker_results = [
+                    _network_worker(graph = graph, job = job)
+                    for job in jobs
+                ]
+            else:
+                start_method = "fork" if "fork" in mp.get_all_start_methods() else "spawn"
+                context = mp.get_context(start_method)
+                indexed_jobs = list(enumerate(jobs))
+                batches = [
+                    indexed_jobs[worker_index::workers]
+                    for worker_index in range(workers)
+                ]
+                processes = list()
+                connections = list()
+                for batch in batches:
+                    parent_connection, child_connection = context.Pipe(duplex = False)
+                    process = context.Process(
+                        target = _network_worker_batch,
+                        args = (graph, batch, child_connection),
+                    )
+                    process.start()
+                    child_connection.close()
+                    processes.append(process)
+                    connections.append(parent_connection)
+
+                indexed_results = list()
+                try:
+                    for connection in connections:
+                        indexed_results.extend(connection.recv())
+                except BaseException:
+                    for process in processes:
+                        if process.is_alive():
+                            process.terminate()
+                    raise
+                finally:
+                    for connection in connections:
+                        connection.close()
+                    for process in processes:
+                        process.join()
+
+                failed = [process.pid for process in processes if process.exitcode != 0]
+                if failed:
+                    raise RuntimeError(f"network worker processes failed: {failed}")
+                worker_results = [
+                    result
+                    for _, result in sorted(indexed_results, key = lambda item: item[0])
+                ]
+
+            for method, intensity, realization, features, error in worker_results:
+                if error is not None:
+                    logging.warning(
+                        f"Network {method} @ {intensity:.2f} realization {realization} failed for {name}: {error}"
+                    )
+                    continue
+                network_results.setdefault(method, []).append({
+                    'intensity': intensity,
+                    'realization': realization,
+                    'invariants': features
+                })
+
+        if complete_bipartite and "sample" in NETWORK_METHODS:
+            for intensity in NETWORK_METHODS["sample"]:
+                for realization in range(n_realizations):
+                    features = analytical_perturb(
+                        dimensions = bipartite_dimensions,
+                        partition_types = partition_types,
+                        method = "uniform_node_sampling",
+                        intensity = float(intensity),
+                        random_state = random_state + realization,
+                    )
+                    network_results.setdefault("sample", []).append({
                         'intensity': float(intensity),
                         'realization': realization,
-                        'invariants': features
+                        'invariants': features,
                     })
+        _validate_perturbation_records(
+            records = network_results,
+            methods = NETWORK_METHODS,
+            realizations = n_realizations,
+            name = name,
+            channel = "network",
+        )
         results['network_perturbed'] = network_results
         total = sum(len(v) for v in network_results.values())
         logging.info(f"  Network perturbation: {total} records")
     elif pre_inv is not None and dimensions is not None:
         m, n = int(dimensions[0]), int(dimensions[1])
-        n_nodes = int(m + n)
-        n_edges = int(m * n)
-        degrees = np.concatenate([
-            np.full(shape = m, fill_value = float(n), dtype = float),
-            np.full(shape = n, fill_value = float(m), dtype = float),
-        ])
         invariants = dict(pre_inv)
         network_results: dict[str, list[dict[str, Any]]] = dict()
-        logging.info(f"  Using analytical perturbation for {name} ({n_nodes:,} nodes, {n_edges:,} edges) [graph-free]")
+        analytical_methods = {
+            "rewire": "degree_preserving_rewire",
+            "densify": "bernoulli_edge_densification",
+            "sample": "uniform_node_sampling",
+        }
+        unknown = sorted(set(NETWORK_METHODS) - set(analytical_methods))
+        if unknown:
+            raise ValueError(f"Unsupported graph-free network methods: {unknown}")
+        realization_counts = {
+            method: n_realizations if method == "sample" else 1
+            for method in NETWORK_METHODS
+        }
+        logging.info(f"  Using analytical perturbation for {name} ({m:,} x {n:,}) [graph-free]")
         for method, intensities in NETWORK_METHODS.items():
             for intensity in intensities:
-                try:
+                for realization in range(realization_counts[method]):
                     features = analytical_perturb(
-                        invariants = invariants,
-                        degrees = degrees,
-                        n_nodes = n_nodes,
-                        n_edges = n_edges,
-                        method = {"rewire": "degree_preserving_rewire", "densify": "bernoulli_edge_densification", "sample": "uniform_node_sampling"}[method],
+                        dimensions = (m, n),
+                        method = analytical_methods[method],
                         intensity = float(intensity),
+                        random_state = random_state + realization,
                     )
-                except Exception as exc:
-                    logging.warning(f"Analytical {method} @ {intensity:.2f} failed for {name}: {exc}")
-                    continue
-                network_results.setdefault(method, []).append({
-                    'intensity': float(intensity),
-                    'realization': 0,
-                    'invariants': features
-                })
+                    network_results.setdefault(method, []).append({
+                        'intensity': float(intensity),
+                        'realization': realization,
+                        'invariants': features
+                    })
+        _validate_perturbation_records(
+            records = network_results,
+            methods = NETWORK_METHODS,
+            realizations = realization_counts,
+            name = name,
+            channel = "network",
+        )
         results['network_perturbed'] = network_results
         total = sum(len(v) for v in network_results.values())
         logging.info(f"  Network perturbation: {total} records")
@@ -356,6 +515,13 @@ def _execute_perturbations(
                         'realization': realization,
                         'invariants': row
                     })
+        _validate_perturbation_records(
+            records = invariant_results,
+            methods = INVARIANT_METHODS,
+            realizations = n_realizations,
+            name = name,
+            channel = "invariant",
+        )
         results['invariants_perturbed'] = invariant_results
         total = sum(len(v) for v in invariant_results.values())
         logging.info(f"  Invariant perturbation: {total} records")
@@ -385,6 +551,16 @@ def _execute_perturbations(
                         'realization': realization,
                         'signatures': sigs
                     })
+        _validate_perturbation_records(
+            records = process_results,
+            methods = PROCESS_METHODS,
+            realizations = {
+                method: n_realizations if method == 'bootstrapping' else 1
+                for method in PROCESS_METHODS
+            },
+            name = name,
+            channel = "process",
+        )
         results['process_perturbed'] = process_results
         total = sum(len(v) for v in process_results.values())
         logging.info(f"  Process perturbation: {total} records")
@@ -420,6 +596,13 @@ def _execute_perturbations(
                         'realization': realization,
                         'signatures': row
                     })
+        _validate_perturbation_records(
+            records = sig_pert_results,
+            methods = SIGNATURE_METHODS,
+            realizations = n_realizations,
+            name = name,
+            channel = "signature",
+        )
         results['signatures_perturbed'] = sig_pert_results
         total = sum(len(v) for v in sig_pert_results.values())
         logging.info(f"  Signature perturbation: {total} records")
@@ -540,6 +723,16 @@ def _execute_perturbations(
                             logging.warning(f"Temporal {method} @ {param} realization {realization} failed for {name}: {exc}")
                             continue
 
+            _validate_perturbation_records(
+                records = temporal_results,
+                methods = TEMPORAL_METHODS,
+                realizations = {
+                    method: 1 if method == 'aggregation' else n_realizations
+                    for method in TEMPORAL_METHODS
+                },
+                name = name,
+                channel = "temporal",
+            )
             results['temporal_perturbed'] = temporal_results
             total = sum(len(v) for v in temporal_results.values())
             logging.info(f"  Temporal perturbations: {total} records")
