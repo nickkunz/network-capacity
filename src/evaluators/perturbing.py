@@ -5,16 +5,15 @@ import warnings
 import igraph as ig
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
+from tqdm import tqdm
 from pathlib import Path
-from sklearn.utils import resample
 from sklearn.base import BaseEstimator
 from joblib import parallel, Parallel, delayed
 from joblib.parallel import BatchCompletionCallBack
-from typing import Sequence, Optional, Tuple, Dict, Literal, Any
+from typing import Sequence, Optional, Dict, Literal, Any
 from scipy.stats import wilcoxon
 from contextlib import contextmanager
-from tqdm import tqdm
+from itertools import combinations
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -22,12 +21,12 @@ if str(root) not in sys.path:
     sys.path.append(str(root))
     
 ## modules
-from itertools import combinations
 from src.evaluators.training import fit_predict_frontier
 from src.vectorizers.scalers import _log_transformer
-from src.evaluators.metrics import consensus_metrics
-from src.vectorizers.invariants import GraphInvariants, BipartiteInvariants
-from src.vectorizers.signatures import ProcessSignatures
+from src.evaluators.metrics import (
+    consensus_metrics, 
+    paired_rank_biserial
+)
 from src.evaluators.resampling import (
     logo_cross_valid,
     logo_cross_valid_frozen
@@ -36,6 +35,11 @@ from src.data.helpers import (
     _clip_unit_interval,
     _force_finite,
     _force_finite_dict,
+)
+from src.vectorizers.signatures import ProcessSignatures
+from src.vectorizers.invariants import (
+    GraphInvariants,
+    BipartiteInvariants
 )
 
 ## constants
@@ -635,115 +639,15 @@ def process_perturb(
 ## ----------------------------------------------------------------------------
 ## temporal perturbation
 ## ----------------------------------------------------------------------------
-def temporal_perturb(
-    event_times: Sequence[float],
-    scale: str = "1D",
-    start_time: Optional[pd.Timestamp] = None,
-    end_time: Optional[pd.Timestamp] = None,
-    ) -> Tuple[float, dict]:
-    
-    """
-    Desc:
-        Modifies aggregation target temporal resolution.
-        Recomputes y(Delta_t) and S(Delta_t).
-
-    Args:
-        event_times: List/Array of raw event timestamps **or day offsets
-                     (integers / floats)**.
-        scale: Pandas offset alias (e.g., '1D', '1H', '15min').
-        start_time: Start of observation window.
-        end_time: End of observation window.
-
-    Returns:
-        Tuple of (max_rate_y, signatures_dict).
-
-    Notes:
-        If `event_times` are numeric the function assumes they represent
-        days since some arbitrary origin.  In that case `scale` is expected
-        to be a days‑based alias (e.g. '2D', '7D') and `y` is reported per
-        day rather than per second.
-    """
-
-    if len(event_times) == 0:
-        return 0.0, {}
-
-    arr = np.asarray(event_times)
-
-    # ---------- numeric branch ---------- #
-    if np.issubdtype(arr.dtype, np.integer) or np.issubdtype(arr.dtype, np.floating):
-
-        # heuristic: if values look like Unix epoch timestamps (> 1e8),
-        # convert to proper datetimes and fall through to the timestamp branch
-        if float(np.median(arr)) > 1e8:
-            try:
-                ts = pd.to_datetime(arr, unit='s')
-            except Exception:
-                ts = pd.to_datetime(arr, unit='ms')
-        else:
-            # treat values as day indices
-            days = arr.astype(int)
-            lo, hi = int(days.min()), int(days.max())
-            full_idx = np.arange(lo, hi + 1)
-            counts = pd.Series(1, index=days)
-            daily_counts = counts.groupby(level=0).sum().reindex(full_idx, fill_value=0)
-            daily_counts = daily_counts.sort_index()
-
-            # parse scale duration in days ('7D' -> 7, '14D' -> 14)
-            if scale.endswith("D"):
-                try:
-                    bin_width = int(scale[:-1]) if scale[:-1] else 1
-                except Exception:
-                    bin_width = 1
-            else:
-                bin_width = 1
-            bin_width = max(bin_width, 1)
-
-            # re-aggregate daily counts into multi-day windows
-            if bin_width > 1:
-                day_vals = daily_counts.index.values
-                bin_labels = (day_vals - lo) // bin_width
-                counts_binned = daily_counts.groupby(bin_labels).sum()
-            else:
-                counts_binned = daily_counts
-
-            y_count = float(counts_binned.max())
-            y_val = y_count / float(bin_width)
-
-            data_temp = pd.DataFrame({"counts": counts_binned.values, "idx": range(len(counts_binned))})
-            sigs = ProcessSignatures(data_temp, sort_by=["idx"], target="counts")
-            return y_val, sigs.all()
-    else:
-        # ---------- parse to datetime ---------- #
-        ts = pd.to_datetime(event_times)
-
-    # ---------- timestamp branch ---------- #
-    if start_time is None:
-        start_time = ts.min()
-    if end_time is None:
-        end_time = ts.max()
-
-    full_range = pd.date_range(start=start_time, end=end_time, freq=scale)
-
-    df = pd.DataFrame({"t": ts}).set_index("t")
-    counts_binned = (
-        df.assign(count=1)
-        .resample(scale)
-        .sum()
-        .reindex(full_range, fill_value=0)
-    )["count"]
-
-    y_count = float(counts_binned.max())
-    if len(counts_binned) >= 2:
-        duration = float((counts_binned.index[1] - counts_binned.index[0]).total_seconds())
-    else:
-        duration = float(pd.Timedelta(scale).total_seconds())
-
-    duration = max(duration, 1.0)
-    y_val = y_count / duration
-
-    data_temp = pd.DataFrame({"counts": counts_binned.values, "idx": range(len(counts_binned))})
-    sigs = ProcessSignatures(data_temp, sort_by=["idx"], target="counts")
-    return y_val, sigs.all()
+# def temporal_perturb(
+#     event_times: Sequence[float],
+#     scale: str = "1D",
+#     start_time: Optional[pd.Timestamp] = None,
+#     end_time: Optional[pd.Timestamp] = None,
+#     ) -> Tuple[float, dict]:
+#
+#     """Recompute y(Delta_t) and signatures at a new temporal resolution."""
+#     ...  # implementation omitted (dead code)
 
 
 ## ----------------------------------------------------------------------------
@@ -756,7 +660,8 @@ FEAT_MAP = {
     "invariants": "x",
     "process":    "z",
     "signatures":  "z",
-    "temporal":   "z",
+    ## temporal channel excluded from the reported analysis; dead code
+    # "temporal":   "z",
 }
 
 ## json key to perturbation type
@@ -765,7 +670,8 @@ KEY_TO_TYPE = {
     "invariants_perturbed": "invariants",
     "process_perturbed":    "process",
     "signatures_perturbed": "signatures",
-    "temporal_perturbed":   "temporal",
+    ## temporal channel excluded from the reported analysis; dead code
+    # "temporal_perturbed":   "temporal",
 }
 
 def _iter_perturbation_realizations(data: pd.DataFrame):
@@ -1311,13 +1217,8 @@ def stat_perturbed_tost(
                 ## tost p = worst-case one-sided p-value
                 p_tost = max(p_upper, p_lower)
 
-            ## paired rank-biserial effect size from wilcoxon
-            if n >= 2:
-                w_plus, _ = wilcoxon(d, alternative = "greater")
-                t_sum = n * (n + 1) / 2
-                r_rb = (2 * w_plus / t_sum) - 1
-            else:
-                r_rb = np.nan
+            ## descriptive effect uses raw perturbed-minus-original differences
+            r_rb = paired_rank_biserial(differences = d)
 
             row = dict(zip(feat_group, group_key))
             tag = metric.upper()
@@ -1389,7 +1290,7 @@ def stat_perturbed_tost(
     print(
         f"Median Δ {metric_label}: Median of paired differences (perturbed - original), not the difference of marginal medians"
     )
-    print(f"Rank-biserial r: Paired effect size, positive values favor perturbed > original; equivalence is determined by TOST")
+    print("Rank-biserial r: Raw paired effect size; positive values indicate perturbed > original, independent of TOST")
     print(f"TOST p: max(Upper p, Lower p)")
     print(f"Holm-adj. p: Holm-Bonferroni adjusted TOST p-value")
     print("Significance codes reflect Holm-adj. p")
