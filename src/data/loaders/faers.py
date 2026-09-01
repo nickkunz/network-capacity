@@ -54,10 +54,31 @@ def _iter_reports_faers(id: str, url: str, key: str | None = None) -> Iterator[d
                 raise RuntimeError(f"incomplete FAERS pagination: fetched {skip} of {total}")
             break
 
+## parse report receipt date
+def _receipt_date_faers(rec: dict) -> pd.Timestamp | None:
+
+    """Return the report receipt date, or None when missing or unparseable."""
+
+    date_str = rec.get("receiptdate") or rec.get("receivedate")
+    if not date_str:
+        return None
+    dt = pd.to_datetime(date_str, format = "%Y%m%d", errors = "coerce")
+    return None if pd.isna(dt) else dt
+
+## fixed observation window check
+def _within_window_faers(rec: dict, end_date: str) -> bool:
+
+    """Keep reports without dates; drop reports received after the stated end date."""
+
+    dt = _receipt_date_faers(rec = rec)
+    return dt is None or dt.normalize() <= pd.Timestamp(end_date)
+
 ## load faers drug–reaction reporting network data
-def _load_network_faers(id: str, url: str, key: str | None = None) -> pd.DataFrame:
+def _load_network_faers(id: str, url: str, key: str | None = None, end_date: str = "2025-12-31") -> pd.DataFrame:
     obs = []
     for rec in _iter_reports_faers(id = id, url = url, key = key):
+            if not _within_window_faers(rec = rec, end_date = end_date):
+                continue
             reactions = []
             for rx in (rec.get("patient", {}) or {}).get("reaction", []) or []:
                 term = (rx.get("reactionmeddrapt") or "").strip().upper()
@@ -93,15 +114,13 @@ def _build_network_faers(data: pd.DataFrame) -> tuple[list[str], list[tuple]]:
     return nodes, edges
 
 ## load faers adverse event reports
-def _load_events_faers(id: str, url: str, key: str | None = None) -> pd.DataFrame:
+def _load_events_faers(id: str, url: str, key: str | None = None, end_date: str = "2025-12-31") -> pd.DataFrame:
     obs = []
+    end = pd.Timestamp(end_date)
 
     for page_index, rec in enumerate(_iter_reports_faers(id = id, url = url, key = key)):
-            date_str = rec.get("receiptdate") or rec.get("receivedate")
-            if not date_str:
-                continue
-            dt = pd.to_datetime(date_str, format = "%Y%m%d", errors = "coerce")
-            if pd.isna(dt):
+            dt = _receipt_date_faers(rec = rec)
+            if dt is None or dt.normalize() > end:
                 continue
             report_id = rec.get("safetyreportid") or f"missing-{page_index}"
             obs.append({"report_id": str(report_id), "date": dt.normalize()})
@@ -120,10 +139,11 @@ def _process_events_faers(data: pd.DataFrame) -> pd.DataFrame:
 
 ## faers adverse event network
 class FaersProcessor:
-    def __init__(self, id: str, url: str, key: str | None = None):
+    def __init__(self, id: str, url: str, key: str | None = None, end_date: str = "2025-12-31"):
         self.id = id
         self.url = url
         self.key = key or _load_env_var("FDA_API_KEY", os.path.join(root, ".env"))
+        self.end_date = end_date
         self.data_network: Optional[pd.DataFrame] = None
         self.data_events: Optional[pd.DataFrame] = None
         self.graph: Optional[Any] = None
@@ -133,8 +153,8 @@ class FaersProcessor:
 
     def load_data(self):
         """ Loads the raw data from source. """
-        self.data_network = _load_network_faers(id = self.id, url = self.url, key = self.key)
-        self.data_events = _load_events_faers(id = self.id, url = self.url, key = self.key)
+        self.data_network = _load_network_faers(id = self.id, url = self.url, key = self.key, end_date = self.end_date)
+        self.data_events = _load_events_faers(id = self.id, url = self.url, key = self.key, end_date = self.end_date)
         return self
 
     def process_network(self):
