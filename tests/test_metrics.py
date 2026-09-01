@@ -8,7 +8,9 @@ import pandas as pd
 from src.data.helpers import _create_igraph_object
 from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.config import FEAT_X
-from src.evaluators.metrics import spec_marginal_delta
+from src.evaluators.decomposing import stat_decomposed_test
+from src.evaluators.falsifying import stat_falsified_test
+from src.evaluators.metrics import paired_rank_biserial, spec_marginal_delta
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
     analytical_perturb,
@@ -20,7 +22,69 @@ from src.evaluators.perturbing import (
     network_perturb,
     stat_perturbed_tost,
 )
-from src.vectorizers.invariants import BipartiteInvariants, GraphInvariants
+from src.vectorizers.invariants import (
+    BipartiteInvariants, 
+    GraphInvariants
+)
+
+
+class RankBiserialTests(unittest.TestCase):
+
+    def test_uses_nonzero_raw_differences_with_test_positive_sign(self) -> None:
+        differences = np.array([3.0, -2.0, 0.0, 2.0])
+
+        actual = paired_rank_biserial(differences = differences)
+
+        self.assertAlmostEqual(actual, 0.5)
+
+    def test_returns_nan_without_nonzero_differences(self) -> None:
+        self.assertTrue(np.isnan(paired_rank_biserial(differences = [0.0, np.nan])))
+
+    def test_decomposition_summary_uses_unshifted_specification_difference(self) -> None:
+        models = ["a", "b", "c", "d"]
+        reference = np.full(shape = 4, fill_value = 0.5)
+        tested = np.array([0.75, 0.375, 0.5, 0.625])
+        results = pd.DataFrame({
+            "model": models * 2,
+            "group": ["g"] * 8,
+            "specification": ["additive"] * 4 + ["joint"] * 4,
+            "ei": np.concatenate([reference, tested]),
+        })
+
+        summary = stat_decomposed_test(
+            results = results,
+            delta = 0.5,
+            metric = "ei",
+            specs = ("joint",),
+            direction = "noninferiority",
+            decimals = 2,
+            index = False,
+        )
+
+        self.assertEqual(summary.loc[0, "Rank-biserial r"], "0.50")
+
+    def test_falsification_summary_uses_falsified_minus_original_sign(self) -> None:
+        models = ["a", "b", "c", "d"]
+        original = np.full(shape = 4, fill_value = 0.5)
+        falsified = np.array([0.75, 0.375, 0.5, 0.625])
+        results = pd.DataFrame({
+            "model": models * 2,
+            "group": ["g"] * 8,
+            "Falsification": ["frozen"] * 8,
+            "Method": ["target_remap"] * 8,
+            "condition": ["original"] * 4 + ["falsified"] * 4,
+            "ei": np.concatenate([original, falsified]),
+        })
+
+        summary = stat_falsified_test(
+            results = results,
+            feat_value = ["ei"],
+            feat_pairs = ["model", "group"],
+            decimals = 2,
+            index = False,
+        )
+
+        self.assertEqual(summary.loc[0, "Rank-biserial r"], "0.50")
 
 
 class BipartiteInvariantsTests(unittest.TestCase):
@@ -262,34 +326,35 @@ class WindmillEventTests(unittest.TestCase):
 
 class SpecMarginalDeltaTests(unittest.TestCase):
 
-    def test_spec_marginal_delta_rounds_to_nearest_decimal(self) -> None:
+    def test_spec_marginal_delta_floors_to_decimal(self) -> None:
         results = pd.DataFrame(
             {
                 "reference": ["baseline", "baseline"],
-                "lower_margin": [0.0, 0.084],
-                "upper_margin": [0.0, 0.086],
+                "ei_iqr": [0.0, 0.108803],
+                "ci_iqr": [0.0, 0.256123],
             }
         )
 
-        lower_margin = spec_marginal_delta(
+        ei_margin = spec_marginal_delta(
             results = results,
-            feat_value = ["lower_margin"],
+            feat_value = ["ei_iqr"],
             label_ref = "reference",
             value_ref = "baseline",
             method = "max",
             decimals = 2,
         )
-        upper_margin = spec_marginal_delta(
+        ci_margin = spec_marginal_delta(
             results = results,
-            feat_value = ["upper_margin"],
+            feat_value = ["ci_iqr"],
             label_ref = "reference",
             value_ref = "baseline",
             method = "max",
+            scale = 0.40,
             decimals = 2,
         )
 
-        self.assertEqual(lower_margin, 0.08)
-        self.assertEqual(upper_margin, 0.09)
+        self.assertEqual(ei_margin, 0.10)
+        self.assertEqual(ci_margin, 0.10)
 
 
 class PerturbationStatisticsTests(unittest.TestCase):
@@ -405,8 +470,8 @@ class PerturbationStatisticsTests(unittest.TestCase):
     @patch("src.evaluators.perturbing.wilcoxon")
     def test_tost_uses_full_precision_before_holm(self, wilcoxon_mock) -> None:
         wilcoxon_mock.side_effect = [
-            (0.0, 0.0049), (0.0, 0.001), (1.0, 0.5),
-            (0.0, 0.0251), (0.0, 0.001), (1.0, 0.5),
+            (0.0, 0.0049), (0.0, 0.001),
+            (0.0, 0.0251), (0.0, 0.001),
         ]
         results = pd.DataFrame(
             {
@@ -427,6 +492,28 @@ class PerturbationStatisticsTests(unittest.TestCase):
         )
 
         self.assertEqual(summary["Holm-adj. p"].tolist(), ["0.01", "0.03"])
+
+    def test_tost_rank_biserial_uses_raw_nonzero_differences(self) -> None:
+        results = pd.DataFrame(
+            {
+                "model": ["a", "b", "c", "d"] * 2,
+                "group": ["g"] * 8,
+                "perturbation": ["baseline"] * 4 + ["invariants"] * 4,
+                "method": [None] * 4 + ["noise"] * 4,
+                "ei": [0.5, 0.5, 0.5, 0.5, 0.75, 0.375, 0.5, 0.625],
+            }
+        )
+
+        summary = stat_perturbed_tost(
+            results = results,
+            feat_value = ["ei"],
+            feat_group = ["method"],
+            delta = 0.5,
+            decimals = 2,
+            index = False,
+        )
+
+        self.assertEqual(summary.loc[0, "Rank-biserial r"], "0.50")
 
     def test_find_perturbed_max_uses_method_severity(self) -> None:
         results = pd.DataFrame(
