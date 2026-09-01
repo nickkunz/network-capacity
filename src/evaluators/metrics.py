@@ -6,7 +6,7 @@ import pandas as pd
 # from itertools import combinations
 # from sklearn.decomposition import PCA
 from typing import Literal, Sequence
-from scipy.stats import ConstantInputWarning, spearmanr
+from scipy.stats import ConstantInputWarning, rankdata, spearmanr
 
 ## violation rate
 def _violation_rate(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -307,10 +307,10 @@ def spec_marginal_delta(
         label_base: Baseline value used by the default reference.
         method: Dispersion estimator ("mad", "iqr", or "max").
         scale: Multiplier applied to the dispersion estimate.
-        decimals: Number of decimal places to round the resulting margin.
+        decimals: Number of decimal places to floor the resulting margin.
 
     Returns:
-        Scalar empirical margin delta.
+        Scalar empirical margin delta, floored to `decimals` places.
 
     Raises:
         ValueError: If reference labels are unspecified, required columns are
@@ -355,7 +355,32 @@ def spec_marginal_delta(
     else:
         raise ValueError(f"unknown method: {method}")
 
-    return round(max(float(scale * dispersion), 1e-6), decimals)
+    ## floor the scaled dispersion to the specified number of decimal places
+    scaled = max(float(scale * dispersion), 1e-6)
+    factor = 10 ** int(decimals)
+    return float(np.floor(scaled * factor + 1e-12) / factor)
+
+## paired rank-biserial correlation
+def paired_rank_biserial(differences: Sequence[float]) -> float:
+
+    """
+    Desc:
+        Compute rank-biserial correlation from nonzero paired differences.
+    Args:
+        differences: Raw paired differences oriented as test minus reference.
+    Returns:
+        Rank-biserial correlation, or NaN when no nonzero differences exist.
+    """
+
+    values = np.asarray(differences, dtype = float)
+    values = values[np.isfinite(values) & (values != 0.0)]
+    if len(values) == 0:
+        return np.nan
+
+    ranks = rankdata(np.abs(values), method = "average")
+    positive = float(np.sum(ranks[values > 0.0]))
+    negative = float(np.sum(ranks[values < 0.0]))
+    return (positive - negative) / float(np.sum(ranks))
 
 # ## compute structural index via pca
 # def compute_kappa(K_vect: np.ndarray, y_pred: np.ndarray | None = None) -> np.ndarray:
