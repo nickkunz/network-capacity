@@ -7,7 +7,7 @@ from pathlib import Path
 from itertools import combinations
 from typing import Dict, Any, Sequence
 from joblib import Parallel, delayed
-from scipy.stats import rankdata, wilcoxon
+from scipy.stats import wilcoxon
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -18,7 +18,7 @@ if str(root) not in sys.path:
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.resampling import logo_cross_valid, logo_cross_valid_frozen
-from src.evaluators.metrics import consensus_metrics, frontier_metrics
+from src.evaluators.metrics import consensus_metrics, frontier_metrics, paired_rank_biserial
 from src.evaluators.config import FRONTIER_METRICS, CONSENSUS_METRICS
 
 ## ----------------------------------------------------------------------------
@@ -918,7 +918,7 @@ def stat_falsified_test(
     print(f"H₀: Δ {metric_label} ≥ 0")
     print(f"H₁: Δ {metric_label} < 0")
     print(f"Median Δ {metric_label}: Median of paired differences (falsified - original), not the difference of marginal medians")
-    print("Rank-biserial r: Paired effect size, negative values favor original > falsified")
+    print("Rank-biserial r: Raw paired effect size; negative values indicate falsified < original")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Diff.: Yes if Holm-adj. p < 0.05 and Median Δ < 0")
@@ -942,19 +942,14 @@ def stat_falsified_test(
 
             n_eff = int(np.sum(d != 0))
             if n < 2 or n_eff < 2:
-                r_eff, p_val = np.nan, np.nan
+                p_val = np.nan
             else:
 
                 ## strict one-sided test for falsified - original < 0
                 _, p_val = wilcoxon(y, x, alternative = "less")
 
-                ## rank-biserial r from signed differences (kerby 2014)
-                ## r < 0 means original > falsified, independent of scipy convention
-                d_nz = d[d != 0]
-                ranks = rankdata(np.abs(d_nz), method = "average")
-                pos_rank_sum = float(np.sum(ranks[d_nz > 0]))
-                neg_rank_sum = float(np.sum(ranks[d_nz < 0]))
-                r_eff = (pos_rank_sum - neg_rank_sum) / float(np.sum(ranks))
+            ## descriptive effect uses raw falsified-minus-original differences
+            r_eff = paired_rank_biserial(differences = d)
 
             rows.append((*group_key, metric, med_d, r_eff, float(p_val)))
 
