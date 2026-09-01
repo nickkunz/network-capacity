@@ -7,19 +7,20 @@ from contextlib import contextmanager
 from itertools import combinations
 from joblib.parallel import BatchCompletionCallBack
 from typing import Sequence, Dict, Any, Iterator
-from scipy.stats import rankdata, wilcoxon
+from scipy.stats import wilcoxon
 
 ## modules
 from src.evaluators.config import (
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
+from src.evaluators.metrics import paired_rank_biserial
 
-
+## constants
 SPECIFICATION_ORDER = [
     "additive",
     "interaction",
-    "interaction_joint",
+    # "interaction_joint",
     "joint",
     "capacity_only",
     "dynamics_only",
@@ -320,6 +321,7 @@ def _eval_separation_model(
         n_jobs = 1,
     )
 
+    ## joint single-stage fit (x' and z' concatenated)
     feat_joint = feat_x + feat_z
     frontier_c, y_pred_c = _single_stage_logo_cv(
         data = data,
@@ -332,17 +334,17 @@ def _eval_separation_model(
         n_jobs = 1,
     )
 
-    feat_int_joint = feat_x + feat_z + interaction_cols
-    frontier_d, y_pred_d = _single_stage_logo_cv(
-        data = data_aug,
-        feats = feat_int_joint,
-        estimator = model.estimator_c,
-        target = target,
-        group = group,
-        n_repeats = n_repeats,
-        random_state = random_state,
-        n_jobs = 1,
-    )
+    # feat_int_joint = feat_x + feat_z + interaction_cols
+    # frontier_d, y_pred_d = _single_stage_logo_cv(
+    #     data = data_aug,
+    #     feats = feat_int_joint,
+    #     estimator = model.estimator_c,
+    #     target = target,
+    #     group = group,
+    #     n_repeats = n_repeats,
+    #     random_state = random_state,
+    #     n_jobs = 1,
+    # )
 
     frontier_f, y_pred_f = _single_stage_logo_cv(
         data = data,
@@ -371,7 +373,7 @@ def _eval_separation_model(
 
     for spec, frontier in [
         ("additive", frontier_a), ("interaction", frontier_b),
-        ("joint", frontier_c), ("interaction_joint", frontier_d),
+        ("joint", frontier_c),
         ("capacity_only", frontier_f), ("dynamics_only", frontier_g),
     ]:
         for _, frow in frontier.iterrows():
@@ -382,7 +384,7 @@ def _eval_separation_model(
 
     for spec, y_pred_spec in [
         ("additive", y_pred_a), ("interaction", y_pred_b),
-        ("joint", y_pred_c), ("interaction_joint", y_pred_d),
+        ("joint", y_pred_c),
         ("capacity_only", y_pred_f), ("dynamics_only", y_pred_g),
     ]:
         for i in range(len(data)):
@@ -1391,20 +1393,15 @@ def stat_decomposed_attribution(
 
     if n < 2 or int((delta != 0).sum()) < 2:
         p_value = np.nan
-        r_effect = np.nan
     else:
         _, p_value = wilcoxon(x = delta.values, alternative = "greater")
-        delta_nonzero = delta[delta != 0]
-        ranks = rankdata(np.abs(delta_nonzero), method = "average")
-        pos_rank_sum = float(np.sum(ranks[delta_nonzero > 0]))
-        neg_rank_sum = float(np.sum(ranks[delta_nonzero < 0]))
-        r_effect = (pos_rank_sum - neg_rank_sum) / float(np.sum(ranks))
+    r_effect = paired_rank_biserial(differences = delta.values)
 
     print(f"Paired One-Sided Test (Wilcoxon Signed-Rank): n = {n}")
     print("H₀: Δ MAE ≤ 0")
     print("H₁: Δ MAE > 0")
     print("Median Δ MAE: Median of paired differences, not the difference of marginal medians")
-    print("Rank-biserial r: Paired effect size, positive values favor Z -> slack")
+    print("Rank-biserial r: Raw paired effect size; positive values indicate lower error for Z -> slack")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Diff.: Yes if Holm-adj. p < 0.05 and Median Δ MAE > 0")
@@ -1453,7 +1450,7 @@ def stat_decomposed_test(
     metric: str = "ei",
     specs: Sequence[str] = (
         "interaction",
-        "interaction_joint",
+        # "interaction_joint",
         "joint",
         "capacity_only",
         "dynamics_only",
@@ -1520,14 +1517,9 @@ def stat_decomposed_test(
 
         if n < 2 or int((margin_gap != 0).sum()) < 2:
             p_w = np.nan
-            r_effect = np.nan
         else:
             _, p_w = wilcoxon(x = margin_gap.values, alternative = "less")
-            margin_nonzero = margin_gap[margin_gap != 0]
-            ranks = rankdata(np.abs(margin_nonzero), method = "average")
-            pos_rank_sum = float(np.sum(ranks[margin_nonzero > 0]))
-            neg_rank_sum = float(np.sum(ranks[margin_nonzero < 0]))
-            r_effect = (neg_rank_sum - pos_rank_sum) / float(np.sum(ranks))
+        r_effect = paired_rank_biserial(differences = gap.values)
 
         rows.append({
             "Specification": spec.replace("_", " ").title(),
@@ -1581,7 +1573,7 @@ def stat_decomposed_test(
         print(f"H₁: Δ {metric_label} < -δ")
         print(f"Inf.: Yes if Holm-adj. p < 0.05 and Median Δ {metric_label} < -δ")
     print(f"Median Δ {metric_label}: Median of paired differences (Test - Original)")
-    print("Rank-biserial r: Paired effect size, positive values favor the tested direction")
+    print("Rank-biserial r: Raw paired effect size, positive values indicate specification > additive")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Significance codes reflect Holm-adj. p")
