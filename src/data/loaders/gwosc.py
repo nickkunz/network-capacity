@@ -68,7 +68,10 @@ def _event_detectors_safe(event_name: str, retries: int = 3, backoff: float = 0.
     return []
 
 ## process gravitational wave open science center event data
-def _process_events_gwosc(events: pd.DataFrame, network: set) -> pd.DataFrame:
+def _process_events_gwosc(events: pd.DataFrame, network: set, end_date: str = "2024-01-09") -> pd.DataFrame:
+
+    ## pin observation window to the stated corpus end date
+    end = pd.Timestamp(end_date, tz = "UTC")
     return (
         events[events["catalog.shortName"].astype(str).str.contains("GWTC", na = False)]
         .assign(
@@ -77,6 +80,7 @@ def _process_events_gwosc(events: pd.DataFrame, network: set) -> pd.DataFrame:
         )
         .drop(columns=["GPS"])
         .dropna(subset = ["datetime"])
+        .loc[lambda data: data["datetime"].dt.floor("D") <= end]
         .sort_values("datetime")
         .loc[lambda data: data["network"].apply(lambda dets: len(set(dets) & network) > 0)]
         .reset_index(drop = True)
@@ -84,8 +88,9 @@ def _process_events_gwosc(events: pd.DataFrame, network: set) -> pd.DataFrame:
 
 ## gravitational wave open science center network
 class GwoscProcessor:
-    def __init__(self, url: str):
+    def __init__(self, url: str, end_date: str = "2024-01-09"):
         self.url = url
+        self.end_date = end_date
         self.data_network: Optional[Dict[str, tuple]] = None
         self.data_events: Optional[pd.DataFrame] = None
         self.graph: Optional[ig.Graph] = None
@@ -113,7 +118,11 @@ class GwoscProcessor:
         if self.data_events is None or self.data_network is None:
             self.load_data()
         network_nodes = set(self.data_network.keys())
-        events = _process_events_gwosc(events = self.data_events, network = network_nodes)
+        events = _process_events_gwosc(
+            events = self.data_events,
+            network = network_nodes,
+            end_date = self.end_date,
+        )
         self.events = _aggregate_by_day(
             data = events,
             datetime = 'datetime',
