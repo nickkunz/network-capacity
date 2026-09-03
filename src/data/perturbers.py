@@ -1186,7 +1186,10 @@ def json_perturber(
             logging.info("Perturbing Amazon data...")
         proc = AmazonProcessor(root_path = PATH_ROOT, url = URL_AMAZON, name = NAME_AMAZON)
         proc.run()
-        data = _execute_perturbations(proc = proc, name = NAME_AMAZON)
+
+        ## note: 10m-node graph, a densify worker peaks ~12 gb private memory, cap workers for local ram
+        data = _execute_perturbations(proc = proc, name = NAME_AMAZON, n_jobs = 6)
+
         _save_to_json(data = data, path = amazon_path)
         logging.info(f"Amazon perturbations saved to {amazon_path}")
     else:
