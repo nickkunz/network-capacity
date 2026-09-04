@@ -5,6 +5,7 @@
 .DS_Store
 **/.DS_Store
 cache
+/outputs/
 
 __pycache__/
 **/__pycache__/
