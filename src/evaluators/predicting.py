@@ -9,9 +9,9 @@ from src.vectorizers.scalers import _log_transformer
 from src.evaluators.config import CONSENSUS_METRICS
 
 ## ----------------------------------------------------------------------------
-## structural agreement compilation
+## prediction consensus compilation
 ## ----------------------------------------------------------------------------
-def compile_structural_agreement(
+def compile_prediction_consensus(
     predictions: Mapping[str, np.ndarray],
     data: pd.DataFrame,
     target: str = "target",
@@ -69,7 +69,7 @@ def compile_structural_agreement(
     return result[columns].sort_values(by = ["model", "group"]).reset_index(drop = True)
 
 
-def results_structural_agreement(
+def results_prediction_consensus(
     results: pd.DataFrame,
     group_col: str = "group",
     index_name: str = "Domain",
@@ -82,11 +82,11 @@ def results_structural_agreement(
 
     """
     Desc:
-        Builds a display table summarizing structural agreement metrics across
+        Builds a display table summarizing prediction consensus across
         fitted learners within each held-out group.
 
     Args:
-        results: Structural agreement result table from compile_structural_agreement.
+        results: Consensus table from compile_prediction_consensus.
         group_col: Column containing held-out group labels.
         index_name: Name assigned to the output table index.
         group_label: Human-readable group label used in printed notes.
@@ -110,7 +110,7 @@ def results_structural_agreement(
     metric_labels = {
         "rho": "ρ",
         "rbo": "RBO",
-        "dcr": "DCR",
+        "dcr": "dCor",
     }
 
     grouped = results.groupby(by = group_col, observed = True)
