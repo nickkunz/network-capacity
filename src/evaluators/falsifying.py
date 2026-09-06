@@ -785,6 +785,45 @@ def compile_falsified_consensus(results: dict[str, Any]) -> pd.DataFrame:
 
     return pd.concat(frames, ignore_index = True)
 
+## full-corpus consensus falsification evaluation
+def compile_falsified_full(
+    results: dict[str, Any],
+    data_proc: pd.DataFrame,
+    data_fals: dict[str, pd.DataFrame],
+    target: str = "target",
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score full-corpus original and falsified predictions against their targets.
+    Args:
+        results: Raw output of train_falsified_consensus.
+        data_proc: Original corpus in prediction order.
+        data_fals: Falsified corpora in their respective prediction order.
+        target: Untransformed target column.
+    Returns:
+        Full-corpus model-observation consensus for each method and track.
+    """
+
+    from src.evaluators.predicting import compile_full_corpus_agreement
+
+    original = compile_full_corpus_agreement(
+        predictions = results["original"],
+        y_true = _log_transformer(data_proc[target]).to_numpy(dtype = float),
+    )
+    frames = []
+    for track, methods in results["falsified"].items():
+        for method, predictions in methods.items():
+            agreement = compile_full_corpus_agreement(
+                predictions = predictions,
+                y_true = _log_transformer(data_fals[method][target]).to_numpy(dtype = float),
+            )
+            frames.extend([
+                original.assign(Falsification = track, Method = method, condition = "original"),
+                agreement.assign(Falsification = track, Method = method, condition = "falsified"),
+            ])
+    return pd.concat(objs = frames, ignore_index = True) if frames else pd.DataFrame()
+
 
 ## pairwise consensus falsification evaluation wrapper
 def eval_falsified_consensus(
