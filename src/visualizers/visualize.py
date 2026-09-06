@@ -17,6 +17,8 @@ from matplotlib.figure import Figure
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
 from matplotlib.transforms import blended_transform_factory
+from matplotlib.patches import Rectangle
+from matplotlib.text import Text
 
 ## modules
 from src.evaluators.metrics import _efficiency_index, spec_marginal_delta
@@ -6971,12 +6973,6 @@ def _render_consensus_figure(
         "Falsified": "#C81C8E",
         "Ablated": "#566573",
     }
-    CONDITION_TITLES = {
-        "Original": "Original\nFull corpus",
-        "Perturbed": "Perturbed\nFull corpus",
-        "Falsified": "Falsified\nFull corpus",
-        "Ablated": "Ablated\nFull corpus",
-    }
     
     consensus_series = {
         "Original": results_original_ci["ci"],
@@ -7221,7 +7217,7 @@ def _render_consensus_figure(
                 )
     
         axis.set_title(
-            label = f"{PANEL_NUMBER[condition_label]})  {CONDITION_TITLES[condition_label]}",
+            label = f"{PANEL_NUMBER[condition_label]})  {condition_label}",
             fontsize = HEATMAP_TITLE_FONT_SIZE,
             fontweight = "semibold",
             color = TEXT_COLOR,
@@ -8506,7 +8502,7 @@ def _render_stress_test_figure(
         axis.text(
             x = -0.48,
             y = -0.47,
-            s = "Non-superior",
+            s = "Non-Superior",
             ha = "left",
             va = "bottom",
             color = "#B35F00",
