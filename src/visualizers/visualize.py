@@ -4,34 +4,24 @@ import pickle
 import subprocess
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from io import BytesIO
 from pathlib import Path
 from typing import Any
-
 import matplotlib as mpl
-import matplotlib._mathtext as _mathtext
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy as _np
 import pandas as pd
-from PIL import Image as PILImage
 from matplotlib.axes import Axes
-from matplotlib.collections import LineCollection, PathCollection, PolyCollection
 from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
-from matplotlib.font_manager import FontProperties
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
-from matplotlib.path import Path as MplPath
-from matplotlib.patches import Circle, FancyArrowPatch, PathPatch, Polygon, Rectangle
-from matplotlib.text import Text
-from matplotlib.textpath import TextPath
 from matplotlib.transforms import blended_transform_factory
 
 ## modules
 from src.evaluators.metrics import _efficiency_index, spec_marginal_delta
 from src.evaluators.perturbing import find_perturbed_max
-from src.evaluators.predicting import compile_prediction_consensus
+from src.evaluators.predicting import compile_full_corpus_agreement, compile_prediction_consensus
 from src.evaluators.resampling import kfold_cross_valid, logo_cross_valid
 from src.evaluators.transfering import compile_domain_transfer
 from src.vectorizers.scalers import _log_transformer
@@ -4299,8 +4289,8 @@ def _plot_transfer_invariance_legacy(
     regimes = [
         ("Random (10-Fold)",   results_data_10fold["ei"].dropna().to_numpy(), "#9aa0a6", "o"),
         ("Random (5-Fold)",    results_data_5fold["ei"].dropna().to_numpy(),  "#6b7075", "o"),
-        ("Domain (LOGO)",      _feasible_ei(results_data_domain),             "#2C6E91", "D"),
-        ("Discipline (LOGO)",  _feasible_ei(results_data_disc),               "#3A7D55", "D"),
+        ("Held-out domain",   _feasible_ei(results_data_domain),             "#2C6E91", "D"),
+        ("Held-out discipline", _feasible_ei(results_data_disc),             "#3A7D55", "D"),
     ]
     strip_jitter = 0.18
     for i, (name, vals, color, marker) in enumerate(regimes):
@@ -6790,13 +6780,16 @@ def _render_consensus_figure(
     results_falsified_consensus: pd.DataFrame,
 
 
-    results_decomposed_separation: pd.DataFrame,
+    results_original_agreement: pd.DataFrame,
 
 
-    results_perturbed_recovery: pd.DataFrame,
+    results_decomposed_full_agreement: pd.DataFrame,
 
 
-    results_falsified_agreement: pd.DataFrame,
+    results_perturbed_full_agreement: pd.DataFrame,
+
+
+    results_falsified_full_agreement: pd.DataFrame,
 
 
     figure_dir: Path,
@@ -6841,13 +6834,16 @@ def _render_consensus_figure(
         results_falsified_consensus: Falsified pairwise consensus results.
 
 
-        results_decomposed_separation: Decomposition model-truth results.
+        results_original_agreement: Original full-corpus model-truth results.
 
 
-        results_perturbed_recovery: Perturbation model-truth results.
+        results_decomposed_full_agreement: Decomposition full-corpus model-truth results.
 
 
-        results_falsified_agreement: Falsification model-truth results.
+        results_perturbed_full_agreement: Perturbation full-corpus model-truth results.
+
+
+        results_falsified_full_agreement: Falsification full-corpus model-truth results.
 
 
         figure_dir: Project figure output directory.
@@ -6873,6 +6869,16 @@ def _render_consensus_figure(
 
     """
 
+
+    for source_name, frame in {
+        "original agreement": results_original_agreement,
+        "ablation consensus": results_decomposed_consensus,
+        "ablation agreement": results_decomposed_full_agreement,
+        "perturbation agreement": results_perturbed_full_agreement,
+        "falsification agreement": results_falsified_full_agreement,
+    }.items():
+        if "evaluation" not in frame.columns or not frame["evaluation"].eq("full_corpus").all():
+            raise ValueError(f"Figure 3 requires full-corpus {source_name} results")
 
     FIGURE_DIR = figure_dir
 
@@ -6965,6 +6971,12 @@ def _render_consensus_figure(
         "Falsified": "#C81C8E",
         "Ablated": "#566573",
     }
+    CONDITION_TITLES = {
+        "Original": "Original\nFull corpus",
+        "Perturbed": "Perturbed\nFull corpus",
+        "Falsified": "Falsified\nFull corpus",
+        "Ablated": "Ablated\nFull corpus",
+    }
     
     consensus_series = {
         "Original": results_original_ci["ci"],
@@ -6982,9 +6994,9 @@ def _render_consensus_figure(
     
     
     ## ---- scatter inputs: validity (x) from canonical structural-agreement frames ----
-    separation = results_decomposed_separation.copy()
-    recovery = results_perturbed_recovery.copy()
-    agreement = results_falsified_agreement.copy()
+    separation = results_decomposed_full_agreement.copy()
+    recovery = results_perturbed_full_agreement.copy()
+    agreement = results_falsified_full_agreement.copy()
     
     recovery_use = recovery.copy()
     if "track" in recovery_use.columns:
@@ -6998,14 +7010,14 @@ def _render_consensus_figure(
         agreement_use = agreement_use.loc[agreement_use["track"] == "frozen"].copy()
     
     validity_series = {
-        "Original": separation.loc[separation["specification"] == "additive", "ci"],
+        "Original": results_original_agreement["ci"],
         "Perturbed": recovery_validity_max.loc[recovery_validity_max["perturbation"] != "baseline", "ci"],
         "Falsified": agreement_use.loc[agreement_use["condition"] == "falsified", "ci"],
         "Ablated": separation.loc[separation["specification"] != "additive", "ci"],
     }
     
     validity_frames = {
-        "Original": separation.loc[separation["specification"] == "additive"],
+        "Original": results_original_agreement,
         "Perturbed": recovery_validity_max.loc[recovery_validity_max["perturbation"] != "baseline"],
         "Falsified": agreement_use.loc[agreement_use["condition"] == "falsified"],
         "Ablated": separation.loc[separation["specification"] != "additive"],
@@ -7076,10 +7088,10 @@ def _render_consensus_figure(
         hspace = 0.22,
         wspace = 0.05,
     )
+    heatmap_positions = ((0, 0), (0, 1), (1, 0), (1, 1))
     axes_array = np.array([
-        fig.add_subplot(inner_grid[row, col])
-        for row in range(2)
-        for col in range(2)
+        fig.add_subplot(inner_grid[row_index, column_index])
+        for row_index, column_index in heatmap_positions
     ])
     
     ## ---- panel a: square overview scatter (numbered dots) ----
@@ -7098,14 +7110,17 @@ def _render_consensus_figure(
             fontweight = "bold", color = "white", zorder = 7,
         ))
     
-    ## ---- group bounding squares: {1 Original, 2 Perturbed} and {3 Falsified, 4 Ablated} ----
-    GROUP_PAIRS = [("Original", "Perturbed"), ("Falsified", "Ablated")]
+    ## ---- group bounds use the same pairwise-consensus evaluation protocol ----
+    GROUP_CONDITIONS = [
+        ("Original", "Perturbed"),
+        ("Falsified", "Ablated"),
+    ]
     GROUP_BOX_PAD = 0.05
     MINMAX_FONT_SIZE = 8.0
     MINMAX_LABEL_INSET = 0.01   # inward offset of Min/Max from the square corners
     MIN_GREEN_LABEL_DROP = 0.03   # extra downward shift of the green (high-CI) group's "Min"
     minmax_label_artists = []
-    for _group in GROUP_PAIRS:
+    for _group in GROUP_CONDITIONS:
         ## extremes that the square encapsulates: y from the panel-b matrix cells
         ## (the "table" values), x from the corresponding validity values
         ## box spans the actual min/max of the per-paradigm medians, the same way on
@@ -7206,7 +7221,7 @@ def _render_consensus_figure(
                 )
     
         axis.set_title(
-            label = f"{PANEL_NUMBER[condition_label]})  {condition_label}",
+            label = f"{PANEL_NUMBER[condition_label]})  {CONDITION_TITLES[condition_label]}",
             fontsize = HEATMAP_TITLE_FONT_SIZE,
             fontweight = "semibold",
             color = TEXT_COLOR,
@@ -7283,10 +7298,12 @@ def _render_consensus_figure(
     _left_col_x0 = axes_array[0].get_position().x0
     _panel_gap_frac = max(_left_col_x0 - _label_right, 0.01)
     _extra_col_gap_frac = 0.02
-    _right_col_x0 = _left_col_x0 + _matrix_w + _panel_gap_frac + _extra_col_gap_frac
-    for _idx in (1, 3):
-        _pos = axes_array[_idx].get_position()
-        axes_array[_idx].set_position([_right_col_x0, _pos.y0, _matrix_w, _pos.height])
+    for panel_index, (_, column_index) in enumerate(heatmap_positions):
+        if column_index == 0:
+            continue
+        position = axes_array[panel_index].get_position()
+        column_left = _left_col_x0 + column_index * (_matrix_w + _panel_gap_frac + _extra_col_gap_frac)
+        axes_array[panel_index].set_position([column_left, position.y0, _matrix_w, position.height])
     fig.canvas.draw()
     
     ## ---- match both scatter axes to the median-pairwise-CI colorbar ----
@@ -7316,7 +7333,7 @@ def _render_consensus_figure(
         top_right_position = axes_array[1].get_position()
         bottom_right_position = axes_array[3].get_position()
         colorbar_axis = fig.add_axes([
-            bottom_right_position.x1 + COLORBAR_PAD,
+            top_right_position.x1 + COLORBAR_PAD,
             bottom_right_position.y0,
             COLORBAR_WIDTH,
             top_right_position.y1 - bottom_right_position.y0,
@@ -7530,7 +7547,7 @@ def _render_stress_test_figure(
         label_pert = "perturbation",
         track = "frozen",
         method = "iqr",
-        scale = 0.40,
+        scale = 1.0,
         decimals = N_DECIMALS_WORK,
     )
     delta_decomp_ei = spec_marginal_delta(
@@ -7548,7 +7565,7 @@ def _render_stress_test_figure(
         label_ref = "specification",
         value_ref = "additive",
         method = "iqr",
-        scale = 0.40,
+        scale = 1.0,
         decimals = N_DECIMALS_WORK,
     )
     
@@ -9010,14 +9027,29 @@ def generate_consensus_figure(
     perturb = load_results_cache(name = "perturb", context = context)
     falsify = load_results_cache(name = "falsify", context = context)
     ablate = load_results_cache(name = "ablate", context = context)
+    for name, payload, required_key in (
+        ("perturb", perturb, "results_perturbed_full_agreement"),
+        ("falsify", falsify, "results_falsified_full_agreement"),
+        ("ablate", ablate, "results_decomposed_full_agreement"),
+    ):
+        if required_key not in payload:
+            raise RuntimeError(
+                f"Figure 3 requires full-corpus consensus results. Run notebooks/{name}.ipynb "
+                "through its consensus training and post-processing cells, then rerun this figure."
+            )
+    original_agreement = compile_full_corpus_agreement(
+        predictions = consensus["frontiers"],
+        y_true = _log_transformer(context.data[context.target]).to_numpy(dtype = float),
+    )
     return _render_consensus_figure(
         results_data = consensus["results_data"],
         results_perturbed_consensus = perturb["results_perturbed_consensus"],
         results_decomposed_consensus = ablate["results_decomposed_consensus"],
         results_falsified_consensus = falsify["results_falsified_consensus"],
-        results_decomposed_separation = ablate["results_decomposed_separation"],
-        results_perturbed_recovery = perturb["results_perturbed_recovery"],
-        results_falsified_agreement = falsify["results_falsified_agreement"],
+        results_original_agreement = original_agreement,
+        results_decomposed_full_agreement = ablate["results_decomposed_full_agreement"],
+        results_perturbed_full_agreement = perturb["results_perturbed_full_agreement"],
+        results_falsified_full_agreement = falsify["results_falsified_full_agreement"],
         figure_dir = context.figure_dir,
         export_nature_pdf_scaled = _nature_exporter(context = context),
         n_decimals = context.n_decimals,
