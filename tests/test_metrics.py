@@ -408,9 +408,9 @@ class PerturbationStatisticsTests(unittest.TestCase):
         self.assertAlmostEqual(row["ci"], 0.4)
 
     @patch("src.evaluators.perturbing.consensus_metrics")
-    def test_consensus_compilation_averages_realizations(self, metrics_mock) -> None:
+    def test_consensus_compilation_averages_predictions_before_scoring(self, metrics_mock) -> None:
         metrics_mock.side_effect = lambda y_true, y_pred: {
-            metric: float(np.mean(y_pred)) for metric in ("rho", "rbo", "dcr", "ci")
+            metric: float(np.mean(y_pred) ** 2) for metric in ("rho", "rbo", "dcr", "ci")
         }
         perturbed = list()
         for realization, value in enumerate((0.2, 0.6)):
@@ -435,7 +435,12 @@ class PerturbationStatisticsTests(unittest.TestCase):
         row = compiled.query("perturbation == 'invariants'").iloc[0]
 
         self.assertEqual(row["n_realizations"], 2)
-        self.assertAlmostEqual(row["ci"], 0.4)
+        self.assertAlmostEqual(row["ci"], 0.16)
+        self.assertEqual(metrics_mock.call_count, 2)
+        np.testing.assert_allclose(
+            actual = metrics_mock.call_args.kwargs["y_pred"],
+            desired = [0.4, 0.4],
+        )
 
     def test_transfer_compilation_averages_realizations_before_pairing(self) -> None:
         def frontier(ei: float) -> pd.DataFrame:

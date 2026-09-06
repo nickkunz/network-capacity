@@ -5,10 +5,34 @@ import tempfile
 import unittest
 from itertools import combinations
 from pathlib import Path
-from types import SimpleNamespace
+from types import CodeType, SimpleNamespace
 from unittest.mock import Mock
 
 from src.evaluators.caching import load_notebook_cache
+
+
+FULL_CORPUS_KEYS = {
+    "ablate": "results_decomposed_full_agreement",
+    "perturb": "results_perturbed_full_agreement",
+    "falsify": "results_falsified_full_agreement",
+}
+
+
+def _cache_setup_code(source: str) -> CodeType:
+    tree = ast.parse(source = source)
+    start = next(
+        index for index, node in enumerate(tree.body)
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id in {"cache_dir", "cache_path"} for target in node.targets)
+    )
+    tree.body = tree.body[start:]
+    return compile(tree, "<notebook cache setup>", "exec")
+
+
+def _execute_mocked_cell(source: str, namespace: dict) -> None:
+    tree = ast.parse(source = source)
+    tree.body = [node for node in tree.body if not isinstance(node, (ast.Import, ast.ImportFrom))]
+    exec(compile(tree, "<mocked notebook cell>", "exec"), namespace)
 
 
 class NotebookCacheTests(unittest.TestCase):
@@ -18,7 +42,7 @@ class NotebookCacheTests(unittest.TestCase):
             notebook = json.loads((root / "notebooks" / f"{name}.ipynb").read_text())
             cells = notebook["cells"]
             initialization = "".join(cells[5]["source"])
-            cache_setup = initialization[initialization.index("from src.evaluators.caching import"):]
+            cache_setup = _cache_setup_code(source = initialization)
             pipeline = []
             for cell in cells[6:]:
                 if cell["cell_type"] == "code":
@@ -35,6 +59,7 @@ class NotebookCacheTests(unittest.TestCase):
                         "N_REPEATS": 30, "RANDOM_STATE": 42,
                         "TARGET": "target", "FEAT_X": ["x"], "FEAT_Z": ["z"],
                         "FORCE_RECOMPUTE": False, "pickle": pickle,
+                        "load_notebook_cache": load_notebook_cache,
                         "combinations": combinations,
                         "pd": SimpleNamespace(DataFrame = Mock(return_value = "compiled")),
                     }
@@ -76,7 +101,7 @@ class NotebookCacheTests(unittest.TestCase):
                                     functions[function_name] = Mock(return_value = result)
                     namespace.update(functions)
                     for source in pipeline:
-                        exec(source, namespace)
+                        _execute_mocked_cell(source = source, namespace = namespace)
                     for function_name, function in functions.items():
                         if function_name != "consensus_metrics":
                             self.assertTrue(expr = function.called, msg = function_name)
@@ -96,18 +121,21 @@ class NotebookCacheTests(unittest.TestCase):
                 notebook = json.loads((root / "notebooks" / f"{name}.ipynb").read_text())
                 cells = notebook["cells"]
                 initialization = "".join(cells[5]["source"])
-                cache_setup = initialization[initialization.index("from src.evaluators.caching import"):]
+                cache_setup = _cache_setup_code(source = initialization)
                 namespace = {
                     "root": Path(directory), "data": [1], "data_proc": [1],
                     "models": {"model": None}, "N_REPEATS": 30, "RANDOM_STATE": 42,
                     "TARGET": "target", "FEAT_X": ["x"], "FEAT_Z": ["z"],
                     "FORCE_RECOMPUTE": False,
+                    "load_notebook_cache": load_notebook_cache,
                 }
                 exec(cache_setup, namespace)
                 payload = {
                     "metadata": namespace["cache_metadata"],
                     **{key: f"cached {key}" for key in namespace["cache_keys"]},
                 }
+                if name in FULL_CORPUS_KEYS:
+                    payload[FULL_CORPUS_KEYS[name]] = "cached full-corpus agreement"
                 cache_path = namespace["cache_path"]
                 cache_path.parent.mkdir(parents = True, exist_ok = True)
                 original_bytes = pickle.dumps(obj = payload)
@@ -121,10 +149,53 @@ class NotebookCacheTests(unittest.TestCase):
                             break
                         post_processing = "Post-Processing" in source
                     else:
-                        exec(source, namespace)
+                        _execute_mocked_cell(source = source, namespace = namespace)
                 for key in namespace["cache_keys"]:
                     self.assertEqual(first = namespace[key], second = payload[key])
                 self.assertEqual(first = cache_path.read_bytes(), second = original_bytes)
+
+    def test_consensus_upgrade_preserves_resampling_results(self) -> None:
+        root = Path(__file__).resolve().parents[1]
+        for name, full_key in FULL_CORPUS_KEYS.items():
+            with self.subTest(notebook = name), tempfile.TemporaryDirectory() as directory:
+                notebook = json.loads((root / "notebooks" / f"{name}.ipynb").read_text())
+                source = next(
+                    "".join(cell["source"]) for cell in notebook["cells"]
+                    if cell["cell_type"] == "code" and "cache_path.write_bytes" in "".join(cell["source"])
+                )
+                namespace = {
+                    "root": Path(directory), "data": [1], "data_proc": [1],
+                    "data_pert": {}, "data_fals": {}, "models": {},
+                    "N_REPEATS": 30, "RANDOM_STATE": 42,
+                    "TARGET": "target", "FEAT_X": ["x"], "FEAT_Z": ["z"],
+                    "FORCE_RECOMPUTE": False, "pickle": pickle,
+                    "load_notebook_cache": load_notebook_cache,
+                }
+                exec(_cache_setup_code(source = "".join(notebook["cells"][5]["source"])), namespace)
+                payload = {
+                    "metadata": namespace["cache_metadata"],
+                    **{key: f"cached {key}" for key in namespace["cache_keys"]},
+                }
+                namespace.update(payload)
+                namespace["cache_payload"] = payload
+                functions = {}
+                for node in ast.walk(node = ast.parse(source = source)):
+                    if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                        function_name = node.func.id
+                        if function_name.startswith(("train_", "compile_")):
+                            functions[function_name] = Mock(return_value = "full-corpus result")
+                namespace.update(functions)
+                _execute_mocked_cell(source = source, namespace = namespace)
+                upgraded = pickle.loads(namespace["cache_path"].read_bytes())
+                self.assertEqual(upgraded[full_key], "full-corpus result")
+                for key in namespace["cache_keys"]:
+                    if not key.endswith("_consensus"):
+                        self.assertEqual(upgraded[key], payload[key])
+                for function_name, function in functions.items():
+                    if function_name.endswith(("_consensus", "_full")):
+                        function.assert_called_once()
+                    else:
+                        function.assert_not_called()
 
     def test_cache_validation(self) -> None:
         metadata = {"n_obs": 25, "n_repeats": 30, "random_state": 42}

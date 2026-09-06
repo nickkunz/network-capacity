@@ -2,7 +2,9 @@ import pickle
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
+import numpy as np
 import pandas as pd
 
 from src.visualizers import visualize
@@ -103,6 +105,11 @@ class VisualizationCacheTests(unittest.TestCase):
                 context = self.context,
             )
 
+    def test_consensus_figure_rejects_legacy_caches(self) -> None:
+        with patch.object(target = visualize, attribute = "load_results_cache", return_value = {}):
+            with self.assertRaisesRegex(expected_exception = RuntimeError, expected_regex = "full-corpus.*perturb.ipynb"):
+                visualize.generate_consensus_figure(context = self.context, show = False)
+
 
 class VisualizationInterfaceTests(unittest.TestCase):
 
@@ -115,6 +122,96 @@ class VisualizationInterfaceTests(unittest.TestCase):
         )
 
         self.assertTrue(all(callable(generator) for generator in generators))
+
+
+class ConsensusFigureTests(unittest.TestCase):
+
+    def test_all_four_conditions_use_full_corpus_results(self) -> None:
+        pairs = pd.DataFrame({
+            "model_i": ["linear_quantile"],
+            "model_j": ["forest_quantile"],
+            "ci": [0.94],
+        })
+        decomposed = pd.concat(
+            objs = [
+                pairs.assign(specification = "additive", ci = 0.61),
+                pairs.assign(specification = "joint", ci = 0.52),
+            ],
+            ignore_index = True,
+        ).assign(evaluation = "full_corpus")
+        separation = pd.DataFrame({
+            "model": ["linear_quantile", "linear_quantile"],
+            "specification": ["additive", "joint"],
+            "ci": [0.80, 0.55],
+        }).assign(evaluation = "full_corpus")
+        recovery = pd.DataFrame({
+            "model": ["linear_quantile"],
+            "track": ["frozen"],
+            "perturbation": ["invariants"],
+            "method": ["noise"],
+            "intensity": [0.35],
+            "ci": [0.75],
+        }).assign(evaluation = "full_corpus")
+        agreement = pd.DataFrame({
+            "model": ["linear_quantile"],
+            "Falsification": ["frozen"],
+            "condition": ["falsified"],
+            "ci": [0.40],
+        }).assign(evaluation = "full_corpus")
+
+        with tempfile.TemporaryDirectory() as directory, visualize.mpl.rc_context(), patch.object(
+            target = visualize.Figure, attribute = "savefig",
+        ):
+            figure, _, _ = visualize._render_consensus_figure(
+                results_data = pairs,
+                results_perturbed_consensus = pairs.assign(
+                    perturbation = "invariants", method = "noise", intensity = 0.35, ci = 0.85,
+                ),
+                results_decomposed_consensus = decomposed,
+                results_falsified_consensus = pairs.assign(
+                    condition = "falsified", Falsification = "frozen", ci = 0.45,
+                ),
+                results_original_agreement = pd.DataFrame(data = {
+                    "model": ["linear_quantile"], "ci": [0.98], "evaluation": ["full_corpus"],
+                }),
+                results_decomposed_full_agreement = separation,
+                results_perturbed_full_agreement = recovery,
+                results_falsified_full_agreement = agreement,
+                figure_dir = Path(directory),
+                export_nature_pdf_scaled = Mock(return_value = Path(directory) / "3.pdf"),
+                n_decimals = 2,
+                show = False,
+            )
+            try:
+                heatmaps = {axis.get_title(): axis for axis in figure.axes if axis.images}
+                expected = {
+                    "1)  Original\nFull corpus": 0.94,
+                    "2)  Perturbed\nFull corpus": 0.85,
+                    "3)  Falsified\nFull corpus": 0.45,
+                    "4)  Ablated\nFull corpus": 0.52,
+                }
+                self.assertEqual(set(heatmaps), set(expected))
+                self.assertNotIn(
+                    member = "LOGO",
+                    container = "\n".join(
+                        artist.get_text() for artist in figure.findobj(match = visualize.Text)
+                    ),
+                )
+                for title, value in expected.items():
+                    np.testing.assert_allclose(
+                        actual = heatmaps[title].images[0].get_array().compressed(),
+                        desired = value,
+                    )
+                np.testing.assert_allclose(
+                    actual = figure.axes[0].collections[0].get_offsets(),
+                    desired = [[0.98, 0.94]],
+                )
+                np.testing.assert_allclose(
+                    actual = figure.axes[0].collections[3].get_offsets(),
+                    desired = [[0.55, 0.52]],
+                )
+            finally:
+                visualize.plt.close(fig = figure)
 
 
 if __name__ == "__main__":
