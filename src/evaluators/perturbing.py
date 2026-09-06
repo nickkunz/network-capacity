@@ -2018,20 +2018,27 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
         )
         pred_pert[key] = r["y_pred"]
 
-    ## calculate pairwise consensus per perturbation realization
+    ## average prediction vectors across realizations before consensus scoring
     setting_keys = list(dict.fromkeys(
-        (p, m, i, r) for (p, m, i, r, _) in pred_pert.keys()
+        (p, m, i) for (p, m, i, _, _) in pred_pert.keys()
     ))
-    for (pert_type, method, intensity, realization) in setting_keys:
+    for (pert_type, method, intensity) in setting_keys:
         for model_i, model_j in combinations(model_names, 2):
-            key_i = (pert_type, method, intensity, realization, model_i)
-            key_j = (pert_type, method, intensity, realization, model_j)
-            if key_i not in pred_pert or key_j not in pred_pert:
+            realization_keys = sorted({
+                realization
+                for p, m, i, realization, model in pred_pert
+                if (p, m, i) == (pert_type, method, intensity)
+                and model == model_i
+                and (p, m, i, realization, model_j) in pred_pert
+            })
+            if not realization_keys:
                 continue
-            y_i = pred_pert[key_i]
-            y_j = pred_pert[key_j]
-            if len(y_i) != len(y_j):
+            y_i_all = [pred_pert[(pert_type, method, intensity, realization, model_i)] for realization in realization_keys]
+            y_j_all = [pred_pert[(pert_type, method, intensity, realization, model_j)] for realization in realization_keys]
+            if len({len(values) for values in [*y_i_all, *y_j_all]}) != 1:
                 continue
+            y_i = np.mean(np.stack(y_i_all), axis = 0)
+            y_j = np.mean(np.stack(y_j_all), axis = 0)
             valid = np.isfinite(y_i) & np.isfinite(y_j)
             if int(np.sum(valid)) < 2:
                 continue
@@ -2044,10 +2051,10 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
                 "perturbation": pert_type,
                 "method": method,
                 "intensity": intensity,
-                "realization": realization,
                 "model_i": model_i,
                 "model_j": model_j,
                 "group": "all",
+                "n_realizations": len(realization_keys),
                 **mvals,
             })
 
@@ -2065,13 +2072,45 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
         ])
 
     data_rows = pd.DataFrame(rows)
-    group_cols = [
-        "track", "perturbation", "method", "intensity",
-        "model_i", "model_j", "group",
-    ]
-    averaged = data_rows.groupby(group_cols, dropna = False, as_index = False)[CONSENSUS_METRICS].mean()
-    counts = data_rows.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
-    return averaged.merge(counts, on = group_cols, how = "left")
+    return data_rows
+
+## full-corpus perturbed evaluation
+def compile_perturbed_full(
+    results: dict[str, Any],
+    data: pd.DataFrame,
+    target: str = "target",
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score full-corpus perturbation predictions after averaging realizations.
+    Args:
+        results: Raw output of train_perturbed_consensus.
+        data: Original corpus aligned to the full-corpus prediction vectors.
+        target: Untransformed target column.
+    Returns:
+        Full-corpus model-observation consensus by perturbation setting.
+    """
+
+    from src.evaluators.predicting import compile_full_corpus_agreement
+
+    y_true = _log_transformer(data[target]).to_numpy(dtype = float)
+    baseline = compile_full_corpus_agreement(predictions = results["baseline"], y_true = y_true)
+    frames = [baseline.assign(track = "frozen", perturbation = "baseline", method = None, intensity = None)]
+    settings = {}
+    for record in results["perturbed"]:
+        setting = (record["pert_type"], record["method"], record["intensity"])
+        settings.setdefault(setting, {}).setdefault(record["model"], []).append(record["y_pred"])
+    for (perturbation, method, intensity), model_predictions in settings.items():
+        predictions = {
+            model_name: np.mean(a = np.stack(arrays = realizations), axis = 0)
+            for model_name, realizations in model_predictions.items()
+        }
+        agreement = compile_full_corpus_agreement(predictions = predictions, y_true = y_true)
+        frames.append(agreement.assign(
+            track = "frozen", perturbation = perturbation, method = method, intensity = intensity,
+        ))
+    return pd.concat(objs = frames, ignore_index = True)
 
 
 ## pairwise consensus perturbation evaluation wrapper
