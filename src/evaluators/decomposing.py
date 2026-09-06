@@ -725,6 +725,126 @@ def compile_decomposed_separation(
 
     return frontier_df, prediction_df
 
+## train decomposed consensus models
+def train_decomposed_consensus(
+    data: pd.DataFrame,
+    models: Dict[str, Any],
+    feat_x: Sequence[str],
+    feat_z: Sequence[str],
+    target: str = "target",
+    n_repeats: int = 30,
+    random_state: int = 42,
+    n_jobs: int = -1,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Fit every decomposition specification on the full corpus and average
+        predictions across seeds for descriptive consensus evaluation.
+    Args:
+        data: Corpus containing named systems, features, and targets.
+        models: Estimator bundles with structural and residual stages.
+        feat_x: Graph invariant columns.
+        feat_z: Process signature columns.
+        target: Untransformed target column.
+        n_repeats: Number of full-corpus fits per specification and model.
+        random_state: Base seed, incremented for each fit.
+        n_jobs: Number of parallel model workers.
+    Returns:
+        Per-system, seed-averaged predictions with full-corpus provenance.
+    Raises:
+        ValueError: If n_repeats is less than one.
+    """
+
+    from joblib import Parallel, delayed
+    from src.evaluators.training import fit_predict_frontier
+    from src.vectorizers.scalers import _log_transformer
+
+    if n_repeats < 1:
+        raise ValueError("n_repeats must be >= 1")
+
+    feat_x = list(feat_x)
+    feat_z = list(feat_z)
+    interactions = {
+        f"{x_column}_x_{z_column}": (
+            pd.to_numeric(arg = data[x_column], errors = "coerce")
+            * pd.to_numeric(arg = data[z_column], errors = "coerce")
+        )
+        for x_column in feat_x
+        for z_column in feat_z
+    }
+    data_augmented = pd.concat(
+        objs = [data, pd.DataFrame(data = interactions, index = data.index)],
+        axis = 1,
+    )
+    y_star = _log_transformer(data[target]).astype(float)
+    indices = np.arange(len(data))
+    datasets = data["name"].to_numpy() if "name" in data.columns else indices
+    single_stage_features = {
+        "joint": feat_x + feat_z,
+        "capacity_only": feat_x,
+        "dynamics_only": feat_z,
+    }
+
+    def fit_model(model_name: str, model: Any) -> pd.DataFrame:
+        frames = []
+        for specification in SPECIFICATION_ORDER:
+            if specification in ("additive", "interaction"):
+                fit_result = fit_predict_frontier(
+                    data = data_augmented,
+                    feat_x = feat_x,
+                    feat_z = feat_z + list(interactions) if specification == "interaction" else feat_z,
+                    estimator_c = model.estimator_c,
+                    estimator_r = model.estimator_r,
+                    target = target,
+                    n_repeat = n_repeats,
+                    random_state = random_state,
+                )
+                prediction = fit_result["y_pred"]
+            else:
+                features = single_stage_features[specification]
+                feature_data = data[features].apply(pd.to_numeric, errors = "coerce")
+                repeat_predictions = np.full(
+                    shape = (n_repeats, len(data)), fill_value = np.nan, dtype = float,
+                )
+                for repeat_index in range(n_repeats):
+                    fit_result = _run_single_stage_fold(
+                        train_idx = indices,
+                        test_idx = indices,
+                        F = feature_data,
+                        y_star = y_star,
+                        feats = features,
+                        estimator = model.estimator_c,
+                        random_state = random_state + repeat_index,
+                        group_name = "all",
+                    )
+                    if fit_result is not None:
+                        repeat_predictions[repeat_index, fit_result["kept_indices"]] = fit_result["y_pred"]
+                prediction = np.full(shape = len(data), fill_value = np.nan, dtype = float)
+                valid = np.any(a = np.isfinite(repeat_predictions), axis = 0)
+                prediction[valid] = np.nanmean(a = repeat_predictions[:, valid], axis = 0)
+
+            frames.append(pd.DataFrame(data = {
+                "model": model_name,
+                "specification": specification,
+                "dataset": datasets,
+                "group": "all",
+                "y_true": y_star.to_numpy(),
+                "y_pred": prediction,
+                "evaluation": "full_corpus",
+            }))
+        return pd.concat(objs = frames, ignore_index = True)
+
+    model_frames = Parallel(n_jobs = n_jobs)(
+        delayed(fit_model)(model_name = model_name, model = model)
+        for model_name, model in models.items()
+    )
+    if not model_frames:
+        return pd.DataFrame(columns = [
+            "model", "specification", "dataset", "group", "y_true", "y_pred", "evaluation",
+        ])
+    return pd.concat(objs = model_frames, ignore_index = True)
+
 
 ## --------------------------------------------------------------------------
 ## pairwise consensus compilation
@@ -740,8 +860,8 @@ def compile_decomposed_consensus(
         Compile decomposed prediction rows into pairwise model consensus
         metrics for paradigm-level heatmaps.
     Args:
-        predictions: Per-dataset prediction table returned by
-            compile_decomposed_separation.
+        predictions: Per-dataset prediction table from train_decomposed_consensus
+            or compile_decomposed_separation. Full-corpus provenance is retained.
         specifications: Optional decomposition specifications to retain, in
             reporting order.
         min_obs: Minimum number of overlapping finite predictions required for
@@ -818,7 +938,39 @@ def compile_decomposed_consensus(
     if not rows:
         return pd.DataFrame(columns = columns)
 
-    return pd.DataFrame(rows).reindex(columns = columns)
+    compiled = pd.DataFrame(rows).reindex(columns = columns)
+    if "evaluation" in predictions.columns and predictions["evaluation"].eq("full_corpus").all():
+        compiled["evaluation"] = "full_corpus"
+    return compiled
+
+## full-corpus decomposed evaluation
+def compile_decomposed_full(predictions: pd.DataFrame) -> pd.DataFrame:
+
+    """
+    Desc:
+        Compile full-corpus model-observation consensus for each specification.
+    Args:
+        predictions: Output of train_decomposed_consensus.
+    Returns:
+        Full-corpus agreement rows indexed by model and specification.
+    Raises:
+        ValueError: If predictions do not have full-corpus provenance.
+    """
+
+    from src.evaluators.predicting import compile_full_corpus_agreement
+
+    if "evaluation" not in predictions.columns or not predictions["evaluation"].eq("full_corpus").all():
+        raise ValueError("Full-corpus decomposition predictions are required")
+    frames = []
+    for specification, frame in predictions.groupby(by = "specification", sort = False, observed = True):
+        table = frame.pivot(index = "dataset", columns = "model", values = "y_pred")
+        targets = frame.groupby(by = "dataset", observed = True)["y_true"].first().reindex(index = table.index)
+        agreement = compile_full_corpus_agreement(
+            predictions = {model_name: table[model_name].to_numpy() for model_name in table.columns},
+            y_true = targets.to_numpy(),
+        )
+        frames.append(agreement.assign(specification = specification))
+    return pd.concat(objs = frames, ignore_index = True) if frames else pd.DataFrame()
 
 
 ## --------------------------------------------------------------------------
