@@ -7374,7 +7374,6 @@ def _render_consensus_figure(
             f" - {PANEL_NUMBER[label]}) {label:>9}: validity x = {dot_points[label]['x']:.{N_DECIMALS}f}, "
             f"consensus y = {dot_points[label]['y']:.{N_DECIMALS}f}"
         )
-    print(f"Saved Superfigure To: {pdf_path}")
     return fig, pdf_path
 
 
@@ -8602,7 +8601,6 @@ def _render_stress_test_figure(
     print(f"Page size: {PAGE_SIZE_INCHES[0]:.1f} x {PAGE_SIZE_INCHES[1]:.1f} in")
     print(f"Artwork bounds: {ART_WIDTH_INCHES * 25.4:.0f} x {ART_HEIGHT_INCHES * 25.4:.0f} mm")
     print(f"All figure text: {NATURE_FONT_SIZE:.0f} pt {NATURE_FONT_FAMILY}")
-    print(f"Saved PDF to: {pdf_path}")
     return fig, pdf_path
 
 
@@ -8837,10 +8835,6 @@ def export_nature_pdf_scaled(
         check = True,
     )
     native_path.unlink(missing_ok = True)
-    print(
-        f"Exported Nature figure -> {final_path} "
-        f"({target_width_mm:.0f} mm wide, scale {scale:.4f})"
-    )
     return final_path
 
 
@@ -8853,11 +8847,10 @@ def _nature_exporter(context: VisualizationContext) -> Callable[..., Path]:
         pad_in: float = 0.1,
         bbox: mpl.transforms.Bbox | None = None,
         ) -> Path:
-        output_dir = context.submission_dir if context.submission_dir is not None else context.figure_dir
         return export_nature_pdf_scaled(
             fig = fig,
             index = index,
-            output_dir = output_dir,
+            output_dir = context.figure_dir,
             target_width_mm = target_width_mm,
             pad_in = pad_in,
             bbox = bbox,

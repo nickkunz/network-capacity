@@ -1265,6 +1265,5 @@ def build_capacity_frontier_illustration(
     )
     FIGURE_DIR.mkdir(parents = True, exist_ok = True)
     pdf_path = export_nature_pdf_scaled(fig, 1, target_width_mm = 183.0, bbox = _pdf_bbox)
-    plt.close(fig = fig)
 
     return fig, pdf_path
