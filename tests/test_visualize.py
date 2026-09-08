@@ -185,10 +185,10 @@ class ConsensusFigureTests(unittest.TestCase):
             try:
                 heatmaps = {axis.get_title(): axis for axis in figure.axes if axis.images}
                 expected = {
-                    "1)  Original\nFull corpus": 0.94,
-                    "2)  Perturbed\nFull corpus": 0.85,
-                    "3)  Falsified\nFull corpus": 0.45,
-                    "4)  Ablated\nFull corpus": 0.52,
+                    "1)  Original": 0.94,
+                    "2)  Perturbed": 0.85,
+                    "3)  Falsified": 0.45,
+                    "4)  Ablated": 0.52,
                 }
                 self.assertEqual(set(heatmaps), set(expected))
                 self.assertNotIn(
