@@ -6774,7 +6774,7 @@ def _render_consensus_figure(
     show: bool = False,
 
 
-    ) -> tuple[Figure, Path, Path]:
+    ) -> tuple[Figure, Path]:
 
 
     """
@@ -6834,7 +6834,7 @@ def _render_consensus_figure(
     Returns:
 
 
-        Figure and project JPEG/PDF artifact paths.
+        Figure and project PDF artifact path.
 
 
     """
@@ -7359,18 +7359,7 @@ def _render_consensus_figure(
     plt.rcParams["ps.fonttype"] = 42
     plt.rcParams["svg.fonttype"] = "none"
     
-    jpeg_path = out_dir / "consensus_ci_superfigure_fig3.jpeg"
-    pdf_path = out_dir / "consensus_ci_superfigure_fig3.pdf"
-    fig.savefig(
-        fname = jpeg_path,
-        format = "jpeg",
-        dpi = 600,
-        facecolor = fig.get_facecolor(),
-        bbox_inches = "tight",
-        pil_kwargs = {"quality": 100},
-    )
-    fig.savefig(pdf_path, dpi = 600, facecolor = fig.get_facecolor(), bbox_inches = "tight")
-    export_nature_pdf_scaled(fig, 3, target_width_mm = 183.0)
+    pdf_path = export_nature_pdf_scaled(fig, 3, target_width_mm = 183.0)
     if show:
         plt.show()
     
@@ -7385,9 +7374,8 @@ def _render_consensus_figure(
             f" - {PANEL_NUMBER[label]}) {label:>9}: validity x = {dot_points[label]['x']:.{N_DECIMALS}f}, "
             f"consensus y = {dot_points[label]['y']:.{N_DECIMALS}f}"
         )
-    print(f"Saved Superfigure To: {jpeg_path}")
     print(f"Saved Superfigure To: {pdf_path}")
-    return fig, jpeg_path, pdf_path
+    return fig, pdf_path
 
 
 def _render_stress_test_figure(
@@ -7420,7 +7408,7 @@ def _render_stress_test_figure(
     show: bool = False,
 
 
-    ) -> tuple[Figure, Path, Path]:
+    ) -> tuple[Figure, Path]:
 
 
     """
@@ -7471,7 +7459,7 @@ def _render_stress_test_figure(
     Returns:
 
 
-        Figure and project JPEG/PDF artifact paths.
+        Figure and project PDF artifact path.
 
 
     """
@@ -8606,21 +8594,7 @@ def _render_stress_test_figure(
     
     _apply_nature_text(figure = fig)
     
-    jpeg_path = out_dir / "n3s_stress_test_superfigure_fig4.jpeg"
-    pdf_path = out_dir / "n3s_stress_test_superfigure_fig4.pdf"
-    fig.savefig(
-        fname = jpeg_path,
-        format = "jpeg",
-        dpi = 300,
-        facecolor = fig.get_facecolor(),
-        pil_kwargs = {"quality": 100},
-    )
-    fig.savefig(
-        fname = pdf_path,
-        dpi = 300,
-        facecolor = fig.get_facecolor(),
-    )
-    export_nature_pdf_scaled(fig, 4, target_width_mm = 183.0)
+    pdf_path = export_nature_pdf_scaled(fig, 4, target_width_mm = 183.0)
     if show:
         plt.show()
     
@@ -8628,9 +8602,8 @@ def _render_stress_test_figure(
     print(f"Page size: {PAGE_SIZE_INCHES[0]:.1f} x {PAGE_SIZE_INCHES[1]:.1f} in")
     print(f"Artwork bounds: {ART_WIDTH_INCHES * 25.4:.0f} x {ART_HEIGHT_INCHES * 25.4:.0f} mm")
     print(f"All figure text: {NATURE_FONT_SIZE:.0f} pt {NATURE_FONT_FAMILY}")
-    print(f"Saved JPEG to: {jpeg_path}")
     print(f"Saved PDF to: {pdf_path}")
-    return fig, jpeg_path, pdf_path
+    return fig, pdf_path
 
 
 @dataclass(frozen = True)
@@ -8650,7 +8623,7 @@ class VisualizationContext:
     random_state: int
     cache_dir: Path
     figure_dir: Path
-    submission_dir: Path
+    submission_dir: Path | None = None
     n_decimals: int = 2
     target_width_mm: float = 183.0
 
@@ -8880,10 +8853,11 @@ def _nature_exporter(context: VisualizationContext) -> Callable[..., Path]:
         pad_in: float = 0.1,
         bbox: mpl.transforms.Bbox | None = None,
         ) -> Path:
+        output_dir = context.submission_dir if context.submission_dir is not None else context.figure_dir
         return export_nature_pdf_scaled(
             fig = fig,
             index = index,
-            output_dir = context.submission_dir,
+            output_dir = output_dir,
             target_width_mm = target_width_mm,
             pad_in = pad_in,
             bbox = bbox,
@@ -8895,7 +8869,7 @@ def _nature_exporter(context: VisualizationContext) -> Callable[..., Path]:
 def generate_conceptual_figure(
     context: VisualizationContext,
     show: bool = False,
-    ) -> tuple[Figure, Path, Path]:
+    ) -> tuple[Figure, Path]:
 
     """
     Desc:
@@ -8911,7 +8885,7 @@ def generate_conceptual_figure(
 def generate_universality_figure(
     context: VisualizationContext,
     show: bool = False,
-    ) -> tuple[Figure, dict[str, object], str, Path, Path]:
+    ) -> tuple[Figure, dict[str, object], str, Path]:
 
     """
     Desc:
@@ -8948,37 +8922,20 @@ def generate_universality_figure(
         show = False,
     )
 
-    context.figure_dir.mkdir(parents = True, exist_ok = True)
-    jpeg_path = context.figure_dir / "universality_superfigure_fig2.jpeg"
-    pdf_path = context.figure_dir / "universality_superfigure_fig2.pdf"
-    fig.savefig(
-        fname = jpeg_path,
-        format = "jpeg",
-        dpi = 300,
-        facecolor = fig.get_facecolor(),
-        bbox_inches = "tight",
-        pil_kwargs = {"quality": 100},
-    )
-    fig.savefig(
-        fname = pdf_path,
-        dpi = 300,
-        facecolor = fig.get_facecolor(),
-        bbox_inches = "tight",
-    )
-    _nature_exporter(context = context)(
+    pdf_path = _nature_exporter(context = context)(
         fig = fig,
         index = 2,
         target_width_mm = context.target_width_mm,
     )
     if show:
         plt.show()
-    return fig, axes, source_label, jpeg_path, pdf_path
+    return fig, axes, source_label, pdf_path
 
 
 def generate_consensus_figure(
     context: VisualizationContext,
     show: bool = False,
-    ) -> tuple[Figure, Path, Path]:
+    ) -> tuple[Figure, Path]:
 
     """
     Desc:
@@ -9022,7 +8979,7 @@ def generate_consensus_figure(
 def generate_stress_test_figure(
     context: VisualizationContext,
     show: bool = False,
-    ) -> tuple[Figure, Path, Path]:
+    ) -> tuple[Figure, Path]:
 
     """
     Desc:

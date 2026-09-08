@@ -23,7 +23,7 @@ from matplotlib.textpath import TextPath
 def build_capacity_frontier_illustration(
     figure_dir: Path,
     export_nature_pdf_scaled: Callable[..., Path],
-    ) -> tuple[mpl.figure.Figure, Path, Path]:
+    ) -> tuple[mpl.figure.Figure, Path]:
 
     """
     Desc:
@@ -34,7 +34,7 @@ def build_capacity_frontier_illustration(
         export_nature_pdf_scaled: Publication PDF export callback.
 
     Returns:
-        Figure and project JPEG/PDF artifact paths.
+        Figure and project PDF artifact path.
     """
     FIGURE_DIR = figure_dir
     _mathtext.SHRINK_FACTOR = 0.73
@@ -1263,22 +1263,8 @@ def build_capacity_frontier_illustration(
         _ink_right + _pdf_pad_in,
         _ink_top + _pdf_pad_in_vertical,
     )
-    export_nature_pdf_scaled(fig, 1, target_width_mm = 183.0, bbox = _pdf_bbox)
-    cropped_image = rendered_image.crop(box = crop_box).convert(mode = "RGB")
-    export_path = FIGURE_DIR / "n3s_conceptual_fig1.jpeg"
-    pdf_path = FIGURE_DIR / "n3s_conceptual_fig1.pdf"
-    export_path.parent.mkdir(parents = True, exist_ok = True)
-    cropped_image.save(fp = export_path, format = "JPEG", dpi = (300, 300), quality = 100)
-    display_buffer = BytesIO()
-    cropped_image.save(fp = display_buffer, format = "JPEG", dpi = (300, 300), quality = 100)
-    fig.savefig(
-        fname = pdf_path,
-        format = "pdf",
-        dpi = 300,
-        facecolor = fig.get_facecolor(),
-        bbox_inches = _pdf_bbox,
-        pad_inches = 0.0,
-    )
+    FIGURE_DIR.mkdir(parents = True, exist_ok = True)
+    pdf_path = export_nature_pdf_scaled(fig, 1, target_width_mm = 183.0, bbox = _pdf_bbox)
     plt.close(fig = fig)
 
-    return fig, export_path, pdf_path
+    return fig, pdf_path
