@@ -1,9 +1,9 @@
 ## libraries
 import logging
 import pickle
-from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
+from collections.abc import Mapping, Sequence
 
 ## loads, validates, and returns a notebook cache
 def load_notebook_cache(
@@ -14,13 +14,16 @@ def load_notebook_cache(
     ) -> dict[str, Any] | None:
 
     """
-    Desc: Load a trusted local producer cache when its settings and outputs match.
+    Desc: 
+        Load a trusted local producer cache when its settings and outputs match.
+    
     Args:
         cache_path: Path to a locally generated pickle file. Only trusted files
             may be loaded because pickle can execute code.
         metadata: Expected settings, including data size and model names.
         required_keys: Result entries needed by the notebook's analysis cells.
         force_recompute: Ignore an existing cache and request fresh computation.
+    
     Returns:
         Compatible payload, or None when recomputation is needed.
     """
