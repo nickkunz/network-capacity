@@ -6,6 +6,8 @@ from collections.abc import Mapping
 ## modules
 from src.evaluators.metrics import consensus_metrics
 from src.vectorizers.scalers import _log_transformer
+
+## constants
 from src.evaluators.config import CONSENSUS_METRICS
 
 ## full-corpus agreement evaluation
