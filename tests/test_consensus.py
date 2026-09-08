@@ -7,21 +7,21 @@ import pandas as pd
 from src.evaluators.decomposing import compile_decomposed_consensus, compile_decomposed_full
 from src.evaluators.falsifying import compile_falsified_full
 from src.evaluators.perturbing import compile_perturbed_full
-from src.evaluators.predicting import compile_full_corpus_agreement
+from src.evaluators.predicting import compile_corpus_full
 
 
 class FullCorpusAgreementTests(unittest.TestCase):
 
     def test_agreement_uses_all_systems(self) -> None:
         targets = np.array([1.0, 4.0, 2.0, 3.0])
-        result = compile_full_corpus_agreement(predictions = {"model": targets}, y_true = targets)
+        result = compile_corpus_full(predictions = {"model": targets}, y_true = targets)
         self.assertAlmostEqual(result.loc[0, "ci"], 1.0)
         self.assertEqual(result.loc[0, "group"], "all")
         self.assertEqual(result.loc[0, "evaluation"], "full_corpus")
 
     def test_misaligned_predictions_are_rejected(self) -> None:
         with self.assertRaisesRegex(expected_exception = ValueError, expected_regex = "target shape"):
-            compile_full_corpus_agreement(
+            compile_corpus_full(
                 predictions = {"model": np.array([1.0, 2.0])},
                 y_true = np.array([1.0, 2.0, 3.0]),
             )
