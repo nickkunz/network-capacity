@@ -8,6 +8,44 @@ from src.evaluators.metrics import consensus_metrics
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.config import CONSENSUS_METRICS
 
+## full-corpus agreement evaluation
+def compile_corpus_full(
+    predictions: Mapping[str, np.ndarray],
+    y_true: np.ndarray,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score seed-averaged full-corpus predictions against aligned targets.
+    Args:
+        predictions: Full-corpus prediction vectors indexed by model name.
+        y_true: Log-transformed targets in the same system order.
+    Returns:
+        One model-observation consensus row per model, tagged full_corpus.
+    Raises:
+        ValueError: If target and prediction vectors are not aligned.
+    """
+
+    y_true = np.asarray(a = y_true, dtype = float)
+    if y_true.ndim != 1:
+        raise ValueError("Full-corpus targets must be a one-dimensional vector")
+    rows = []
+    for model_name, prediction in predictions.items():
+        y_pred = np.asarray(a = prediction, dtype = float)
+        if y_pred.shape != y_true.shape:
+            raise ValueError(f"Full-corpus predictions for {model_name} do not match the target shape")
+        valid = np.isfinite(y_true) & np.isfinite(y_pred)
+        if int(np.sum(a = valid)) < 2:
+            continue
+        rows.append({
+            "model": model_name,
+            "group": "all",
+            **consensus_metrics(y_true = y_true[valid], y_pred = y_pred[valid]),
+            "evaluation": "full_corpus",
+        })
+    return pd.DataFrame(data = rows, columns = ["model", "group", *CONSENSUS_METRICS, "evaluation"])
+
+
 ## ----------------------------------------------------------------------------
 ## prediction consensus compilation
 ## ----------------------------------------------------------------------------

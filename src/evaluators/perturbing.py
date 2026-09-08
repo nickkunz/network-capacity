@@ -2092,10 +2092,10 @@ def compile_perturbed_full(
         Full-corpus model-observation consensus by perturbation setting.
     """
 
-    from src.evaluators.predicting import compile_full_corpus_agreement
+    from src.evaluators.predicting import compile_corpus_full
 
     y_true = _log_transformer(data[target]).to_numpy(dtype = float)
-    baseline = compile_full_corpus_agreement(predictions = results["baseline"], y_true = y_true)
+    baseline = compile_corpus_full(predictions = results["baseline"], y_true = y_true)
     frames = [baseline.assign(track = "frozen", perturbation = "baseline", method = None, intensity = None)]
     settings = {}
     for record in results["perturbed"]:
@@ -2106,7 +2106,7 @@ def compile_perturbed_full(
             model_name: np.mean(a = np.stack(arrays = realizations), axis = 0)
             for model_name, realizations in model_predictions.items()
         }
-        agreement = compile_full_corpus_agreement(predictions = predictions, y_true = y_true)
+        agreement = compile_corpus_full(predictions = predictions, y_true = y_true)
         frames.append(agreement.assign(
             track = "frozen", perturbation = perturbation, method = method, intensity = intensity,
         ))

@@ -805,16 +805,16 @@ def compile_falsified_full(
         Full-corpus model-observation consensus for each method and track.
     """
 
-    from src.evaluators.predicting import compile_full_corpus_agreement
+    from src.evaluators.predicting import compile_corpus_full
 
-    original = compile_full_corpus_agreement(
+    original = compile_corpus_full(
         predictions = results["original"],
         y_true = _log_transformer(data_proc[target]).to_numpy(dtype = float),
     )
     frames = []
     for track, methods in results["falsified"].items():
         for method, predictions in methods.items():
-            agreement = compile_full_corpus_agreement(
+            agreement = compile_corpus_full(
                 predictions = predictions,
                 y_true = _log_transformer(data_fals[method][target]).to_numpy(dtype = float),
             )
