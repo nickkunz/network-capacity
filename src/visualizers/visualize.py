@@ -23,7 +23,7 @@ from matplotlib.text import Text
 ## modules
 from src.evaluators.metrics import _efficiency_index, spec_marginal_delta
 from src.evaluators.perturbing import find_perturbed_max
-from src.evaluators.predicting import compile_full_corpus_agreement, compile_prediction_consensus
+from src.evaluators.predicting import compile_corpus_full, compile_prediction_consensus
 from src.evaluators.resampling import kfold_cross_valid, logo_cross_valid
 from src.evaluators.transfering import compile_domain_transfer
 from src.vectorizers.scalers import _log_transformer
@@ -9008,7 +9008,7 @@ def generate_consensus_figure(
                 f"Figure 3 requires full-corpus consensus results. Run notebooks/{name}.ipynb "
                 "through its consensus training and post-processing cells, then rerun this figure."
             )
-    original_agreement = compile_full_corpus_agreement(
+    original_agreement = compile_corpus_full(
         predictions = consensus["frontiers"],
         y_true = _log_transformer(context.data[context.target]).to_numpy(dtype = float),
     )
