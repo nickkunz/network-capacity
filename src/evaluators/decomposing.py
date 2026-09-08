@@ -2,15 +2,31 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from joblib import parallel
-from contextlib import contextmanager
 from itertools import combinations
 from joblib.parallel import BatchCompletionCallBack
-from typing import Sequence, Dict, Any, Iterator
+from joblib import parallel, Parallel, delayed
+from contextlib import contextmanager
 from scipy.stats import wilcoxon
+from sklearn.base import clone
+from sklearn.model_selection import LeaveOneGroupOut
+from typing import Sequence, Dict, Any, Iterator
 
 ## modules
-from src.evaluators.metrics import paired_rank_biserial
+from src.evaluators.metrics import (
+    frontier_metrics,
+    consensus_metrics,
+    paired_rank_biserial,
+)
+from src.evaluators.resampling import (
+    logo_cross_valid, 
+    _drop_nan_rows
+)
+from src.vectorizers.scalers import (
+    _log_transformer, 
+    _standardizer
+)
+from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.training import fit_predict_frontier
 
 ## constants
 from src.evaluators.config import (
@@ -116,10 +132,6 @@ def _run_single_stage_fold(
         or none if the fold is skipped due to insufficient data.
     """
 
-    from sklearn.base import clone
-    from src.vectorizers.scalers import _standardizer
-    from src.evaluators.metrics import frontier_metrics
-
     ## split
     F_tr = F.iloc[train_idx]
     y_tr = y_star.iloc[train_idx].values.astype(float)
@@ -191,10 +203,6 @@ def _single_stage_logo_cv(
     Returns:
         tuple of (frontier results dataframe, predicted values array).
     """
-
-    from sklearn.model_selection import LeaveOneGroupOut
-    from joblib import Parallel, delayed
-    from src.vectorizers.scalers import _log_transformer
 
     if n_repeats < 1:
         raise ValueError("n_repeats must be >= 1")
@@ -292,8 +300,6 @@ def _eval_separation_model(
     Returns:
         tuple of (frontier rows, prediction rows).
     """
-
-    from src.evaluators.resampling import logo_cross_valid
 
     frontier_a, y_pred_a = logo_cross_valid(
         data = data,
@@ -435,10 +441,6 @@ def _run_capacity_fold(
         or none if the fold is skipped.
     """
 
-    from sklearn.base import clone
-    from src.evaluators.resampling import _drop_nan_rows
-    from src.vectorizers.scalers import _standardizer
-
     X_tr, Z_tr, y_tr, _ = _drop_nan_rows(
         X = X.iloc[train_idx], Z = Z.iloc[train_idx],
         y = y_star.iloc[train_idx].values.astype(float),
@@ -507,10 +509,6 @@ def _run_slack_fold(
         dict with group name, r_squared, frontier metrics, predictions,
         and index mapping, or none if the fold is skipped.
     """
-
-    from sklearn.base import clone
-    from src.vectorizers.scalers import _standardizer
-    from src.evaluators.metrics import frontier_metrics
 
     group_name = groups[test_idx][0]
 
@@ -608,9 +606,6 @@ def train_decomposed_separation(
         Dictionary with raw model outputs from the separation evaluation.
     """
 
-    from joblib import Parallel, delayed
-    from src.vectorizers.scalers import _log_transformer
-
     feat_x = list(feat_x)
     feat_z = list(feat_z)
     if n_repeats < 1:
@@ -688,8 +683,6 @@ def compile_decomposed_separation(
         Tuple of (frontier results dataframe, per-dataset predictions dataframe).
     """
 
-    from src.evaluators.metrics import consensus_metrics
-
     model_outputs = results.get("model_outputs", list())
     frontier_rows = []
     prediction_rows = []
@@ -755,10 +748,6 @@ def train_decomposed_consensus(
     Raises:
         ValueError: If n_repeats is less than one.
     """
-
-    from joblib import Parallel, delayed
-    from src.evaluators.training import fit_predict_frontier
-    from src.vectorizers.scalers import _log_transformer
 
     if n_repeats < 1:
         raise ValueError("n_repeats must be >= 1")
@@ -872,8 +861,6 @@ def compile_decomposed_consensus(
         ValueError: If required columns are missing or min_obs is less than two.
     """
 
-    from src.evaluators.metrics import consensus_metrics
-
     if min_obs < 2:
         raise ValueError("min_obs must be >= 2")
 
@@ -956,8 +943,6 @@ def compile_decomposed_full(predictions: pd.DataFrame) -> pd.DataFrame:
     Raises:
         ValueError: If predictions do not have full-corpus provenance.
     """
-
-    from src.evaluators.predicting import compile_corpus_full
 
     if "evaluation" not in predictions.columns or not predictions["evaluation"].eq("full_corpus").all():
         raise ValueError("Full-corpus decomposition predictions are required")
@@ -1095,9 +1080,6 @@ def _eval_attribution_model(
         tuple of (frontier rows, prediction rows).
     """
 
-    from sklearn.model_selection import LeaveOneGroupOut
-    from src.vectorizers.scalers import _log_transformer
-
     X = data[feat_x].apply(pd.to_numeric, errors = "coerce")
     Z = data[feat_z].apply(pd.to_numeric, errors = "coerce")
     y_star = _log_transformer(data[target]).astype(float)
@@ -1234,8 +1216,6 @@ def train_decomposed_attribution(
     Returns:
         Dictionary with raw model outputs from the residual attribution evaluation.
     """
-
-    from joblib import Parallel, delayed
 
     feat_x = list(feat_x)
     feat_z = list(feat_z)
