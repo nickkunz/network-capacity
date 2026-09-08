@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 ## libraries
+import logging
 import numpy as np
 import matplotlib as mpl
 import matplotlib._mathtext as _mathtext
@@ -22,7 +23,7 @@ from matplotlib.textpath import TextPath
 ## 
 def build_capacity_frontier_illustration(
     figure_dir: Path,
-    export_nature_pdf_scaled: Callable[..., Path],
+    export_pdf_scaled: Callable[..., Path],
     ) -> tuple[mpl.figure.Figure, Path]:
 
     """
@@ -31,12 +32,13 @@ def build_capacity_frontier_illustration(
 
     Args:
         figure_dir: Directory for project figure artifacts.
-        export_nature_pdf_scaled: Publication PDF export callback.
+        export_pdf_scaled: Publication PDF export callback.
 
     Returns:
         Figure and project PDF artifact path.
     """
     FIGURE_DIR = figure_dir
+    logging.getLogger("fontTools").setLevel(logging.ERROR)
     _mathtext.SHRINK_FACTOR = 0.73
     ## n3s conceptual figure: observations, feasible frontier, and substrate
     ## reproducible, vectorizable, notebook-ready
@@ -1246,7 +1248,7 @@ def build_capacity_frontier_illustration(
         min(int(content_cols.max()) + CROP_PAD_PIXELS + 1, rendered_image.width),
         min(int(content_rows.max()) + CROP_PAD_PIXELS_VERTICAL + 1, rendered_image.height),
     )
-    ## export Nature vector PDF cropped to the same content extent as the raster
+    ## export vector PDF cropped to the same content extent as the raster
     ## (crop_box is in pixels, PIL top-left origin, at dpi 300 -> Bbox in inches)
     _pdf_dpi = 300
     _fig_h_px = rendered_image.height
@@ -1264,6 +1266,6 @@ def build_capacity_frontier_illustration(
         _ink_top + _pdf_pad_in_vertical,
     )
     FIGURE_DIR.mkdir(parents = True, exist_ok = True)
-    pdf_path = export_nature_pdf_scaled(fig, 1, target_width_mm = 183.0, bbox = _pdf_bbox)
+    pdf_path = export_pdf_scaled(fig, 1, target_width_mm = 183.0, bbox = _pdf_bbox)
 
     return fig, pdf_path

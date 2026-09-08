@@ -1,5 +1,6 @@
 ## libraries
 import pickle
+import logging
 import colorsys
 import subprocess
 import numpy as np
@@ -4863,9 +4864,9 @@ DISCIPLINE_LABELS = {
     "Cryptocurrency": "Crypto-\ncurrency",
 }
 FONT_FAMILY = ["Arial", "Helvetica", "sans-serif"]
-NATURE_TEXT_SIZE = 8.54   ## renders ~7 pt after the ~0.819x export downscale
-NATURE_PANEL_LABELS = {"a", "b", "c"}
-NATURE_PANEL_LABEL_SIZE = 9.76   ## renders ~8 pt after the ~0.819x export downscale
+PANEL_TEXT_SIZE = 8.54   ## renders ~7 pt after the ~0.819x export downscale
+PANEL_LABELS = {"a", "b", "c"}
+PANEL_LABEL_SIZE = 9.76   ## renders ~8 pt after the ~0.819x export downscale
 AXIS_LABEL_COLOR = "#000000"
 AXIS_LABEL_SIZE = 8.0
 AXIS_TICK_LENGTH = 2.4
@@ -4926,7 +4927,7 @@ def _discipline_label(discipline: object) -> str:
     return DISCIPLINE_LABELS.get(discipline_text, discipline_text)
 
 
-def _apply_nature_lettering(fig: Figure) -> None:
+def _apply_panel_lettering(fig: Figure) -> None:
 
     """
     Desc:
@@ -4943,12 +4944,12 @@ def _apply_nature_lettering(fig: Figure) -> None:
     for text_artist in fig.findobj(match = Text):
         text_artist.set_fontfamily(FONT_FAMILY)
         text_artist.set_fontstyle("normal")
-        if text_artist.get_text() in NATURE_PANEL_LABELS:
-            text_artist.set_fontsize(NATURE_PANEL_LABEL_SIZE)
+        if text_artist.get_text() in PANEL_LABELS:
+            text_artist.set_fontsize(PANEL_LABEL_SIZE)
             text_artist.set_fontweight("bold")
             continue
 
-        text_artist.set_fontsize(NATURE_TEXT_SIZE)
+        text_artist.set_fontsize(PANEL_TEXT_SIZE)
 
 
 ## ----------------------------------------------------------------------------
@@ -5099,7 +5100,6 @@ def load_or_compute_transfer_consensus_results(
             "then rerun notebooks/universality.ipynb."
         )
 
-    print("load_or_compute_transfer_consensus_results: computing source results")
     results_dict_domain: dict[str, np.ndarray] = dict()
     results_dict_5fold: dict[str, np.ndarray] = dict()
     results_dict_10fold: dict[str, np.ndarray] = dict()
@@ -5107,8 +5107,6 @@ def load_or_compute_transfer_consensus_results(
     transfer_10fold_dict: dict[str, pd.DataFrame] = dict()
 
     for model_name, model in models.items():
-        print(f"load_or_compute_transfer_consensus_results: {model_name}", flush = True)
-
         frontier_domain, y_pred_domain = logo_cross_valid(
             data = data,
             feat_x = feat_x,
@@ -6668,7 +6666,7 @@ def plot_universality_superfigure(
         ),
         bbox_transform = fig.transFigure,
         ncol = 3,
-        fontsize = NATURE_TEXT_SIZE,
+        fontsize = PANEL_TEXT_SIZE,
         frameon = True,
         facecolor = BG,
         edgecolor = LEGEND_EDGE,
@@ -6723,7 +6721,7 @@ def plot_universality_superfigure(
         legend.get_frame().set_alpha(1.0)
         legend.get_frame().set_edgecolor(LEGEND_EDGE)
 
-    _apply_nature_lettering(fig = fig)
+    _apply_panel_lettering(fig = fig)
 
     axes = {
         "domain": domain_axes,
@@ -6765,7 +6763,7 @@ def _render_consensus_figure(
     figure_dir: Path,
 
 
-    export_nature_pdf_scaled: Callable[..., Path],
+    export_pdf_scaled: Callable[..., Path],
 
 
     n_decimals: int = 2,
@@ -6819,7 +6817,7 @@ def _render_consensus_figure(
         figure_dir: Project figure output directory.
 
 
-        export_nature_pdf_scaled: Publication PDF export callback.
+        export_pdf_scaled: Publication PDF export callback.
 
 
         n_decimals: Number of displayed decimal places.
@@ -6855,7 +6853,7 @@ def _render_consensus_figure(
 
     N_DECIMALS = n_decimals
     ## ci-only consensus superfigure -- producer-cache-backed
-    ## nature arial mathtext patch
+    ## arial mathtext patch
     mpl.rcParams.update({
         "font.family": "sans-serif",
         "font.sans-serif": ["Arial", "Helvetica", "sans-serif"],
@@ -7008,7 +7006,7 @@ def _render_consensus_figure(
         for label in CONDITION_ORDER
     }
     
-    ## figure scaffold -- nature double column (183 mm wide; fonts 5-7 pt)
+    ## figure scaffold -- double column (183 mm wide; fonts 5-7 pt)
     plt.close("all")
     FONT_FAMILY = "Arial"
     TEXT_COLOR = "#000000"
@@ -7099,7 +7097,6 @@ def _render_consensus_figure(
             _ys.extend(_cells[np.isfinite(_cells)].tolist())
         _x_min, _x_max = min(_xs), max(_xs)
         _y_min, _y_max = min(_ys), max(_ys)
-        print(f"[region] {_group}: consensus y in [{_y_min:.2f}, {_y_max:.2f}], model-truth x in [{_x_min:.2f}, {_x_max:.2f}]")
         _group_ci = float(np.median(_ys))
         _group_color = cmap(norm(_group_ci))
         _darken = 0.8
@@ -7351,29 +7348,17 @@ def _render_consensus_figure(
     
     fig.canvas.draw()
     
-    ## save -- nature main submission standards
+    ## save -- publication standards
     ## vector PDF is the submission file: editable Type-42 (TrueType) embedded fonts,
     ## rasterised heatmaps at >=600 dpi, RGB, white background, tight bbox.
-    ## JPEG at 600 dpi is the high-resolution proof.
     plt.rcParams["pdf.fonttype"] = 42   # embed editable fonts (not Type 3 / not outlined)
     plt.rcParams["ps.fonttype"] = 42
     plt.rcParams["svg.fonttype"] = "none"
     
-    pdf_path = export_nature_pdf_scaled(fig, 3, target_width_mm = 183.0)
+    pdf_path = export_pdf_scaled(fig, 3, target_width_mm = 183.0)
     if show:
         plt.show()
     
-    print("Consensus Superfigure Inputs:")
-    print(f" $-$ Original: {len(results_original_ci)} Model-Pair Rows")
-    print(f" - Perturbed: {len(results_perturbed_plot)} Max-Intensity Model-Pair Rows ({perturbed_source})")
-    print(f" - Ablated: {len(results_ablated_plot)} Non-Additive Model-Pair Rows ({ablated_source})")
-    print(f" - Falsified: {len(results_falsified_plot)} Frozen Falsified Model-Pair Rows ({falsified_source})")
-    print("Consensus versus Validity (median per condition):")
-    for label in CONDITION_ORDER:
-        print(
-            f" - {PANEL_NUMBER[label]}) {label:>9}: validity x = {dot_points[label]['x']:.{N_DECIMALS}f}, "
-            f"consensus y = {dot_points[label]['y']:.{N_DECIMALS}f}"
-        )
     return fig, pdf_path
 
 
@@ -7398,7 +7383,7 @@ def _render_stress_test_figure(
     figure_dir: Path,
 
 
-    export_nature_pdf_scaled: Callable[..., Path],
+    export_pdf_scaled: Callable[..., Path],
 
 
     n_decimals: int = 2,
@@ -7443,7 +7428,7 @@ def _render_stress_test_figure(
         figure_dir: Project figure output directory.
 
 
-        export_nature_pdf_scaled: Publication PDF export callback.
+        export_pdf_scaled: Publication PDF export callback.
 
 
         n_decimals: Number of displayed decimal places.
@@ -7520,43 +7505,37 @@ def _render_stress_test_figure(
         decimals = N_DECIMALS_WORK,
     )
     
-    print("Prepared stress-test inputs from producer caches:")
-    print(f"  perturbation transfer rows: {len(results_pert_transfer)}")
-    print(f"  perturbation recovery rows: {len(results_pert_recovery)}")
-    print(f"  falsification transfer rows: {len(results_fals_transfer)}")
-    print(f"  falsification agreement rows: {len(results_fals_agreement)}")
-    print(f"  decomposition rows: {len(results_decomp)}")
-    ## n3s stress-test superfigure render -- nature print layout
+    ## n3s stress-test superfigure render -- publication print layout
     out_dir = FIGURE_DIR
     
-    ## nature print geometry and typography
-    NATURE_FONT_FAMILY = "Arial"
-    NATURE_FONT_SIZE = 8.0
+    ## print geometry and typography
+    PUBLICATION_FONT_FAMILY = "Arial"
+    PUBLICATION_FONT_SIZE = 8.0
     PAGE_SIZE_INCHES = (8.5, 9.0)
-    NATURE_DOUBLE_COLUMN_WIDTH_INCHES = 183.0 / 25.4
-    NATURE_REDUCED_DEPTH_INCHES = 205.0 / 25.4
-    ART_WIDTH_INCHES = min(NATURE_DOUBLE_COLUMN_WIDTH_INCHES, PAGE_SIZE_INCHES[0] - 0.50)
-    ART_HEIGHT_INCHES = min(NATURE_REDUCED_DEPTH_INCHES, PAGE_SIZE_INCHES[1] - 0.50)
+    DOUBLE_COLUMN_WIDTH_INCHES = 183.0 / 25.4
+    MAX_DEPTH_INCHES = 205.0 / 25.4
+    ART_WIDTH_INCHES = min(DOUBLE_COLUMN_WIDTH_INCHES, PAGE_SIZE_INCHES[0] - 0.50)
+    ART_HEIGHT_INCHES = min(MAX_DEPTH_INCHES, PAGE_SIZE_INCHES[1] - 0.50)
     ART_LEFT = (PAGE_SIZE_INCHES[0] - ART_WIDTH_INCHES) / (2.0 * PAGE_SIZE_INCHES[0])
     ART_RIGHT = 1.0 - ART_LEFT
     ART_BOTTOM = (PAGE_SIZE_INCHES[1] - ART_HEIGHT_INCHES) / (2.0 * PAGE_SIZE_INCHES[1])
     ART_TOP = 1.0 - ART_BOTTOM
     
     mpl.rcParams.update({
-        "font.family": NATURE_FONT_FAMILY,
-        "font.sans-serif": [NATURE_FONT_FAMILY],
-        "font.size": NATURE_FONT_SIZE,
-        "axes.labelsize": NATURE_FONT_SIZE,
-        "axes.titlesize": NATURE_FONT_SIZE,
-        "xtick.labelsize": NATURE_FONT_SIZE,
-        "ytick.labelsize": NATURE_FONT_SIZE,
-        "legend.fontsize": NATURE_FONT_SIZE,
-        "figure.titlesize": NATURE_FONT_SIZE,
+        "font.family": PUBLICATION_FONT_FAMILY,
+        "font.sans-serif": [PUBLICATION_FONT_FAMILY],
+        "font.size": PUBLICATION_FONT_SIZE,
+        "axes.labelsize": PUBLICATION_FONT_SIZE,
+        "axes.titlesize": PUBLICATION_FONT_SIZE,
+        "xtick.labelsize": PUBLICATION_FONT_SIZE,
+        "ytick.labelsize": PUBLICATION_FONT_SIZE,
+        "legend.fontsize": PUBLICATION_FONT_SIZE,
+        "figure.titlesize": PUBLICATION_FONT_SIZE,
         "mathtext.fontset": "custom",
-        "mathtext.rm": NATURE_FONT_FAMILY,
-        "mathtext.sf": NATURE_FONT_FAMILY,
-        "mathtext.it": f"{NATURE_FONT_FAMILY}:italic",
-        "mathtext.bf": f"{NATURE_FONT_FAMILY}:bold",
+        "mathtext.rm": PUBLICATION_FONT_FAMILY,
+        "mathtext.sf": PUBLICATION_FONT_FAMILY,
+        "mathtext.it": f"{PUBLICATION_FONT_FAMILY}:italic",
+        "mathtext.bf": f"{PUBLICATION_FONT_FAMILY}:bold",
         "mathtext.default": "regular",
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
@@ -7593,7 +7572,7 @@ def _render_stress_test_figure(
         return 0.2126 * red + 0.7152 * green + 0.0722 * blue
     
     
-    def _apply_nature_text(figure: plt.Figure) -> None:
+    def _apply_publication_text(figure: plt.Figure) -> None:
         title_artists = set()
         for axis in figure.axes:
             for attr_name in ("title", "_left_title", "_right_title"):
@@ -7601,7 +7580,7 @@ def _render_stress_test_figure(
                 if title_artist is not None:
                     title_artists.add(title_artist)
         for text_artist in figure.findobj(match = Text):
-            text_artist.set_fontfamily(NATURE_FONT_FAMILY)
+            text_artist.set_fontfamily(PUBLICATION_FONT_FAMILY)
             text_artist.set_fontstyle("normal")
             if text_artist.get_text() in {"a", "b", "c", "d"}:
                 text_artist.set_fontsize(8.84)  ## ->8.0 pt final after x0.905 downscale
@@ -7664,7 +7643,7 @@ def _render_stress_test_figure(
             va = "bottom",
             multialignment = "left",
             color = TEXT_COLOR,
-            fontsize = NATURE_FONT_SIZE,
+            fontsize = PUBLICATION_FONT_SIZE,
             fontweight = "bold",
             linespacing = 1.15,
             bbox = dict(
@@ -7707,7 +7686,7 @@ def _render_stress_test_figure(
             spine.set_linewidth(0.5)
         axis.tick_params(
             axis = "both",
-            labelsize = NATURE_FONT_SIZE,
+            labelsize = PUBLICATION_FONT_SIZE,
             length = 2.5,
             width = 0.5,
             color = "#000000",
@@ -8067,11 +8046,10 @@ def _render_stress_test_figure(
         "Complex": ["joint", "interaction"],
     }
     decomposition_spec_labels = {
-        "capacity_only": "Invariants only",
-        "dynamics_only": "Signatures only",
-        "interaction": "Interaction terms",
-        "joint": "Joint features",
-        "interaction_joint": "Interaction joint",
+        "capacity_only": "Invariants Only",
+        "dynamics_only": "Signatures Only",
+        "interaction": "Interaction Terms",
+        "joint": "Joint Features",
     }
     decomposition_base_color = "#C46A1C"
     decomposition_specs = [ 
@@ -8223,7 +8201,7 @@ def _render_stress_test_figure(
             )
             axis.text(
                 x = 0.03,
-                y = float(row_spec["margin"]) - 0.16,
+                y = float(row_spec["margin"]) - 0.13,
                 s = "Equivalent",
                 ha = "left",
                 va = "bottom",
@@ -8591,16 +8569,12 @@ def _render_stress_test_figure(
     )
     
     
-    _apply_nature_text(figure = fig)
+    _apply_publication_text(figure = fig)
     
-    pdf_path = export_nature_pdf_scaled(fig, 4, target_width_mm = 183.0)
+    pdf_path = export_pdf_scaled(fig, 4, target_width_mm = 183.0)
     if show:
         plt.show()
     
-    print("Nature print layout applied.")
-    print(f"Page size: {PAGE_SIZE_INCHES[0]:.1f} x {PAGE_SIZE_INCHES[1]:.1f} in")
-    print(f"Artwork bounds: {ART_WIDTH_INCHES * 25.4:.0f} x {ART_HEIGHT_INCHES * 25.4:.0f} mm")
-    print(f"All figure text: {NATURE_FONT_SIZE:.0f} pt {NATURE_FONT_FAMILY}")
     return fig, pdf_path
 
 
@@ -8750,7 +8724,7 @@ def load_results_cache(
     return payload
 
 
-def export_nature_pdf_scaled(
+def export_pdf_scaled(
     fig: Figure,
     index: int,
     output_dir: Path,
@@ -8765,16 +8739,17 @@ def export_nature_pdf_scaled(
 
     Args:
         fig: Figure to export.
-        index: Submission figure number.
-        output_dir: Submission output directory.
+        index: Publication figure number.
+        output_dir: Publication output directory.
         target_width_mm: Final page width in millimetres.
         pad_in: Tight-bounding-box padding in inches.
         bbox: Optional explicit crop bounding box in inches.
 
     Returns:
-        Path to the scaled submission PDF.
+        Path to the scaled publication PDF.
     """
 
+    logging.getLogger("fontTools").setLevel(logging.ERROR)
     output_dir.mkdir(parents = True, exist_ok = True)
     fig.canvas.draw()
     if bbox is None:
@@ -8838,7 +8813,11 @@ def export_nature_pdf_scaled(
     return final_path
 
 
-def _nature_exporter(context: VisualizationContext) -> Callable[..., Path]:
+## backwards-compatible alias
+export_nature_pdf_scaled = export_pdf_scaled
+
+
+def _figure_exporter(context: VisualizationContext) -> Callable[..., Path]:
 
     def exporter(
         fig: Figure,
@@ -8847,7 +8826,7 @@ def _nature_exporter(context: VisualizationContext) -> Callable[..., Path]:
         pad_in: float = 0.1,
         bbox: mpl.transforms.Bbox | None = None,
         ) -> Path:
-        return export_nature_pdf_scaled(
+        return export_pdf_scaled(
             fig = fig,
             index = index,
             output_dir = context.figure_dir,
@@ -8871,7 +8850,7 @@ def generate_conceptual_figure(
 
     return build_capacity_frontier_illustration(
         figure_dir = context.figure_dir,
-        export_nature_pdf_scaled = _nature_exporter(context = context),
+        export_pdf_scaled = _figure_exporter(context = context),
     )
 
 
@@ -8915,7 +8894,7 @@ def generate_universality_figure(
         show = False,
     )
 
-    pdf_path = _nature_exporter(context = context)(
+    pdf_path = _figure_exporter(context = context)(
         fig = fig,
         index = 2,
         target_width_mm = context.target_width_mm,
@@ -8963,7 +8942,7 @@ def generate_consensus_figure(
         results_perturbed_full_agreement = perturb["results_perturbed_full_agreement"],
         results_falsified_full_agreement = falsify["results_falsified_full_agreement"],
         figure_dir = context.figure_dir,
-        export_nature_pdf_scaled = _nature_exporter(context = context),
+        export_pdf_scaled = _figure_exporter(context = context),
         n_decimals = context.n_decimals,
         show = show,
     )
@@ -8989,7 +8968,7 @@ def generate_stress_test_figure(
         results_falsified_agreement = falsify["results_falsified_agreement"],
         results_decomposed_separation = ablate["results_decomposed_separation"],
         figure_dir = context.figure_dir,
-        export_nature_pdf_scaled = _nature_exporter(context = context),
+        export_pdf_scaled = _figure_exporter(context = context),
         n_decimals = context.n_decimals,
         show = show,
     )
