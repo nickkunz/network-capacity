@@ -162,7 +162,7 @@ class ConsensusFigureTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, visualize.mpl.rc_context(), patch.object(
             target = visualize.Figure, attribute = "savefig",
         ):
-            figure, _, _ = visualize._render_consensus_figure(
+            figure, _ = visualize._render_consensus_figure(
                 results_data = pairs,
                 results_perturbed_consensus = pairs.assign(
                     perturbation = "invariants", method = "noise", intensity = 0.35, ci = 0.85,
