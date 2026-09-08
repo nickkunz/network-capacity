@@ -19,7 +19,13 @@ from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.resampling import logo_cross_valid, logo_cross_valid_frozen
 from src.evaluators.metrics import consensus_metrics, frontier_metrics, paired_rank_biserial
-from src.evaluators.config import FRONTIER_METRICS, CONSENSUS_METRICS
+from src.evaluators.predicting import compile_corpus_full
+
+## constants
+from src.evaluators.config import (
+    FRONTIER_METRICS, 
+    CONSENSUS_METRICS
+)
 
 ## ----------------------------------------------------------------------------
 ## transfer falsifiability test
@@ -804,8 +810,6 @@ def compile_falsified_full(
     Returns:
         Full-corpus model-observation consensus for each method and track.
     """
-
-    from src.evaluators.predicting import compile_corpus_full
 
     original = compile_corpus_full(
         predictions = results["original"],
