@@ -1,10 +1,13 @@
 ## libraries
+import xgboost as xgb
 from typing import Any
 from sklearn.base import BaseEstimator
-import xgboost as xgb
 
-## modules
-from src.estimators.config import ASYMMETRY_C, ASYMMETRY_R
+## constants
+from src.estimators.config import (
+    ASYMMETRY_C, 
+    ASYMMETRY_R
+)
 
 ## xgboost sklearn regressors
 class XGBoostQuantile(BaseEstimator):

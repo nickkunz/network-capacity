@@ -10,8 +10,11 @@ from typing import Any, Callable
 from numpy.typing import ArrayLike, NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 
-## modules
-from src.estimators.config import ASYMMETRY_C, ASYMMETRY_R
+## constants
+from src.estimators.config import (
+    ASYMMETRY_C, 
+    ASYMMETRY_R
+)
 
 ## neural network sklearn regressors
 class NeuralQuantile(BaseEstimator):

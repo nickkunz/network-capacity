@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 
-## modules
+## constants
 from src.estimators.config import (
     ASYMMETRY_C,
     ASYMMETRY_R,

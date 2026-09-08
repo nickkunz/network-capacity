@@ -5,8 +5,11 @@ from numpy.typing import ArrayLike, NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn_quantile import RandomForestQuantileRegressor
 
-## modules
-from src.estimators.config import ASYMMETRY_C, ASYMMETRY_R
+## constants
+from src.estimators.config import (
+    ASYMMETRY_C, 
+    ASYMMETRY_R
+)
 
 ## random forest sklearn regressors
 class ForestQuantile(BaseEstimator):
