@@ -178,7 +178,7 @@ class ConsensusFigureTests(unittest.TestCase):
                 results_perturbed_full_agreement = recovery,
                 results_falsified_full_agreement = agreement,
                 figure_dir = Path(directory),
-                export_nature_pdf_scaled = Mock(return_value = Path(directory) / "3.pdf"),
+                export_pdf_scaled = Mock(return_value = Path(directory) / "3.pdf"),
                 n_decimals = 2,
                 show = False,
             )
