@@ -2135,7 +2135,7 @@ def plot_decomposition_moneyshot(
     """
     Desc:
         Plot paired decomposition coordinate fingerprints showing how each
-        test specification moves relative to the original additive reference on
+        test specification moves relative to the original log-additive decomposition on
         efficiency and consensus.
 
     Args:
@@ -2735,30 +2735,17 @@ def plot_universality_domain_columns(
             frontier_median = float(np.nanmedian(frontier_medians))
             domain_fit_x.append(observed_median)
             domain_fit_y.append(frontier_median)
-            violates_frontier = frontier_median < observed_median
-            if violates_frontier:
-                axis.scatter(
-                    x = observed_median,
-                    y = frontier_median,
-                    marker = "x",
-                    c = "#CC3333",
-                    s = 42,
-                    alpha = 0.95,
-                    linewidths = 1.15,
-                    zorder = 5,
-                )
-            else:
-                axis.plot(
-                    [observed_median],
-                    [frontier_median],
-                    marker = "o",
-                    markersize = 5.0,
-                    markerfacecolor = domain_color,
-                    markeredgecolor = domain_color,
-                    markeredgewidth = 0.0,
-                    linewidth = 0,
-                    zorder = 4,
-                )
+            axis.plot(
+                [observed_median],
+                [frontier_median],
+                marker = "o",
+                markersize = 5.0,
+                markerfacecolor = domain_color,
+                markeredgecolor = domain_color,
+                markeredgewidth = 0.0,
+                linewidth = 0,
+                zorder = 4,
+            )
 
         valid = domain_mask & np.isfinite(y_true) & np.isfinite(collapsed_prediction_values)
         if int(np.sum(valid)) >= 2:
@@ -2871,18 +2858,6 @@ def plot_universality_domain_columns(
             label = "Median across paradigms",
         )
     ]
-    legend_handles.append(
-        Line2D(
-            xdata = [],
-            ydata = [],
-            color = "#CC3333",
-            marker = "x",
-            linestyle = "None",
-            markersize = 6.0,
-            markeredgewidth = 1.2,
-            label = "Frontier violation",
-        )
-    )
     if add_legend:
         fig.legend(
             handles = legend_handles,
