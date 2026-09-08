@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from pathlib import Path
+from itertools import combinations
+from scipy.stats import wilcoxon
 from sklearn.base import BaseEstimator
 from joblib import parallel, Parallel, delayed
 from joblib.parallel import BatchCompletionCallBack
-from typing import Sequence, Optional, Dict, Literal, Any
-from scipy.stats import wilcoxon
 from contextlib import contextmanager
-from itertools import combinations
+from typing import Sequence, Optional, Dict, Literal, Any
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -22,6 +22,7 @@ if str(root) not in sys.path:
     
 ## modules
 from src.evaluators.training import fit_predict_frontier
+from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.metrics import (
     consensus_metrics, 
@@ -44,9 +45,9 @@ from src.vectorizers.invariants import (
 
 ## constants
 from src.evaluators.config import (
-    FEAT_X,
     FRONTIER_METRICS,
-    CONSENSUS_METRICS
+    CONSENSUS_METRICS,
+    FEAT_X
 )
 
 ## joblib progress bar bridge
@@ -2091,8 +2092,6 @@ def compile_perturbed_full(
     Returns:
         Full-corpus model-observation consensus by perturbation setting.
     """
-
-    from src.evaluators.predicting import compile_corpus_full
 
     y_true = _log_transformer(data[target]).to_numpy(dtype = float)
     baseline = compile_corpus_full(predictions = results["baseline"], y_true = y_true)
