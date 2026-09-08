@@ -8140,7 +8140,7 @@ def _render_stress_test_figure(
     
     ## perturbation panels
     PANEL_A_EQUIVALENT_Y_EI = float(delta_pert_ei) - 0.13
-    PANEL_A_EQUIVALENT_Y_CI = -0.19
+    PANEL_A_EQUIVALENT_Y_CI = -0.18
     row_specs = [
         {
             "label": r"$\Delta$ EI (Perturbed $-$ Original)",
