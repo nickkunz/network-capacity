@@ -10,17 +10,17 @@ from typing import Sequence, Dict, Any, Iterator
 from scipy.stats import wilcoxon
 
 ## modules
+from src.evaluators.metrics import paired_rank_biserial
+
+## constants
 from src.evaluators.config import (
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
-from src.evaluators.metrics import paired_rank_biserial
 
-## constants
 SPECIFICATION_ORDER = [
     "additive",
     "interaction",
-    # "interaction_joint",
     "joint",
     "capacity_only",
     "dynamics_only",
@@ -957,7 +957,7 @@ def compile_decomposed_full(predictions: pd.DataFrame) -> pd.DataFrame:
         ValueError: If predictions do not have full-corpus provenance.
     """
 
-    from src.evaluators.predicting import compile_full_corpus_agreement
+    from src.evaluators.predicting import compile_corpus_full
 
     if "evaluation" not in predictions.columns or not predictions["evaluation"].eq("full_corpus").all():
         raise ValueError("Full-corpus decomposition predictions are required")
@@ -965,7 +965,7 @@ def compile_decomposed_full(predictions: pd.DataFrame) -> pd.DataFrame:
     for specification, frame in predictions.groupby(by = "specification", sort = False, observed = True):
         table = frame.pivot(index = "dataset", columns = "model", values = "y_pred")
         targets = frame.groupby(by = "dataset", observed = True)["y_true"].first().reindex(index = table.index)
-        agreement = compile_full_corpus_agreement(
+        agreement = compile_corpus_full(
             predictions = {model_name: table[model_name].to_numpy() for model_name in table.columns},
             y_true = targets.to_numpy(),
         )
