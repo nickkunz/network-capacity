@@ -37,7 +37,7 @@ class FullCorpusConsensusTests(unittest.TestCase):
             target = "src.evaluators.decomposing._run_single_stage_fold",
             wraps = _run_single_stage_fold,
         ) as single_stage, patch(
-            target = "src.evaluators.training.fit_predict_frontier",
+            target = "src.evaluators.decomposing.fit_predict_frontier",
             wraps = fit_predict_frontier,
         ) as two_stage:
             predictions = train_decomposed_consensus(
