@@ -1,14 +1,14 @@
-## libraries
+## directives
 from __future__ import annotations
 
-from collections.abc import Callable
-from io import BytesIO
-from pathlib import Path
-
+## libraries
+import numpy as np
 import matplotlib as mpl
 import matplotlib._mathtext as _mathtext
 import matplotlib.pyplot as plt
-import numpy as np
+from collections.abc import Callable
+from io import BytesIO
+from pathlib import Path
 from PIL import Image as PILImage
 from matplotlib.axes import Axes
 from matplotlib.collections import LineCollection, PathCollection, PolyCollection
@@ -19,7 +19,7 @@ from matplotlib.patches import FancyArrowPatch, PathPatch, Polygon
 from matplotlib.text import Text
 from matplotlib.textpath import TextPath
 
-
+## 
 def build_capacity_frontier_illustration(
     figure_dir: Path,
     export_nature_pdf_scaled: Callable[..., Path],

@@ -1,16 +1,15 @@
 ## libraries
-import colorsys
 import pickle
+import colorsys
 import subprocess
+import numpy as np
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-import numpy as _np
-import pandas as pd
 from matplotlib.axes import Axes
 from matplotlib.colors import Normalize
 from matplotlib.figure import Figure
@@ -21,12 +20,13 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 
 ## modules
-from src.evaluators.metrics import _efficiency_index, spec_marginal_delta
+from src.evaluators.metrics import _efficiency_index, consensus_metrics, spec_marginal_delta
 from src.evaluators.perturbing import find_perturbed_max
 from src.evaluators.predicting import compile_corpus_full, compile_prediction_consensus
 from src.evaluators.resampling import kfold_cross_valid, logo_cross_valid
 from src.evaluators.transfering import compile_domain_transfer
 from src.vectorizers.scalers import _log_transformer
+from src.visualizers.illustrate import build_capacity_frontier_illustration
 
 ## constants
 DEFAULT_PARADIGM_ORDER = (
@@ -2602,9 +2602,6 @@ def plot_universality_domain_columns(
         ValueError: If required columns are missing or predictions are invalid.
     """
 
-    from src.evaluators.metrics import _efficiency_index, consensus_metrics
-    from src.vectorizers.scalers import _log_transformer
-
     required_columns = {target, domain_column, discipline_column}
     missing_columns = sorted(required_columns - set(data.columns))
     if missing_columns:
@@ -2918,8 +2915,6 @@ def load_universality_paradigm_predictions_from_cache(
             f"Cached predictions not found at {resolved_cache_path}. "
             "Run the universality COMPUTE cell once, then rerun this render cell."
         )
-
-    import pickle
 
     with open(file = resolved_cache_path, mode = "rb") as file_handle:
         cached = pickle.load(file_handle)
@@ -4575,8 +4570,6 @@ def plot_transfer_invariance(
 
     empirical_equivalence_margin = equivalence_margin is None
     if equivalence_margin is None:
-        from src.evaluators.metrics import spec_marginal_delta
-
         equivalence_margin = spec_marginal_delta(
             results = baseline.assign(reference = "baseline"),
             feat_value = ["ei"],
@@ -8828,10 +8821,10 @@ def export_nature_pdf_scaled(
     minimum_line_width = 0.25 / scale
     for artist in fig.findobj():
         if hasattr(artist, "set_linewidths") and hasattr(artist, "get_linewidths"):
-            line_widths = _np.atleast_1d(artist.get_linewidths()).astype(float)
+            line_widths = np.atleast_1d(artist.get_linewidths()).astype(float)
             thin_lines = (line_widths > 0) & (line_widths < minimum_line_width)
             if line_widths.size and thin_lines.any():
-                artist.set_linewidths(_np.where(thin_lines, minimum_line_width, line_widths))
+                artist.set_linewidths(np.where(thin_lines, minimum_line_width, line_widths))
         elif hasattr(artist, "set_linewidth") and hasattr(artist, "get_linewidth"):
             line_width = artist.get_linewidth()
             if line_width is not None and 0 < line_width < minimum_line_width:
@@ -8908,8 +8901,6 @@ def generate_conceptual_figure(
     Desc:
         Generate and export the conceptual capacity-frontier figure.
     """
-
-    from src.visualizers.illustrate import build_capacity_frontier_illustration
 
     return build_capacity_frontier_illustration(
         figure_dir = context.figure_dir,
