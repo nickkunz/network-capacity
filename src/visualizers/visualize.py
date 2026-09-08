@@ -8139,18 +8139,22 @@ def _render_stress_test_figure(
         ])
     
     ## perturbation panels
+    PANEL_A_EQUIVALENT_Y_EI = float(delta_pert_ei) - 0.13
+    PANEL_A_EQUIVALENT_Y_CI = -0.19
     row_specs = [
         {
             "label": r"$\Delta$ EI (Perturbed $-$ Original)",
             "margin": float(delta_pert_ei),
             "aggregate": transfer_aggregate,
             "interval": transfer_interval,
+            "equivalent_y": PANEL_A_EQUIVALENT_Y_EI,
         },
         {
             "label": r"$\Delta$ CI (Perturbed $-$ Original)",
             "margin": float(delta_pert_ci),
             "aggregate": recovery_aggregate,
             "interval": recovery_interval,
+            "equivalent_y": PANEL_A_EQUIVALENT_Y_CI,
         },
     ]
     for row_index, row_spec in enumerate(row_specs):
@@ -8201,7 +8205,7 @@ def _render_stress_test_figure(
             )
             axis.text(
                 x = 0.03,
-                y = float(row_spec["margin"]) - 0.13,
+                y = float(row_spec["equivalent_y"]),
                 s = "Equivalent",
                 ha = "left",
                 va = "bottom",
