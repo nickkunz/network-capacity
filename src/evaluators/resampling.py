@@ -11,7 +11,10 @@ from sklearn.model_selection import LeaveOneGroupOut, KFold, RepeatedKFold
 
 ## modules
 from src.evaluators.metrics import frontier_metrics
-from src.vectorizers.scalers import _log_transformer, _standardizer
+from src.vectorizers.scalers import (
+    _log_transformer,
+    _standardizer
+)
 
 ## ----------------------------------------------------------------------------
 ## fold-local helpers
