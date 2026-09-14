@@ -1060,7 +1060,7 @@ def build_capacity_frontier_illustration(
     ax.text(
         x = ANN_X_LABEL_POS,
         y = 3.06,
-        s = r"Data Standardization:" + "\n" + r"$z \rightarrow z{\prime}$",
+        s = r"Standardization:" + "\n" + r"$z \rightarrow z{\prime}$",
         ha = "left",
         va = "center",
         fontsize = 8,
@@ -1111,7 +1111,7 @@ def build_capacity_frontier_illustration(
     ax.text(
         x = ANN_X_LABEL_POS,
         y = 1.48,
-        s = r"Data Standardization:" + "\n" + r"$x \rightarrow x{\prime}$",
+        s = r"Standardization:" + "\n" + r"$x \rightarrow x{\prime}$",
         ha = "left",
         va = "center",
         fontsize = 8,
@@ -1153,7 +1153,7 @@ def build_capacity_frontier_illustration(
     ## layer label to its element (one per row)
     ANN_ARROW_TAIL_X = 2.25
     ANN_ARROW_LENGTH = 0.30
-    _layer_arrow_y = [4.51, 4.0785, 3.647, 3.06, 2.482, 2.232, 1.982, 1.48, 0.977, 0.4885, 0.00]
+    _layer_arrow_y = [4.51, 4.0785, 3.647, 3.06, 2.232, 1.48, 0.977, 0.4885, 0.00]
     for _ay in _layer_arrow_y:
         ax.annotate(
             "",
