@@ -1030,7 +1030,7 @@ def build_capacity_frontier_illustration(
     ax.text(
         x = ANN_X_LABEL_POS,
         y = 4.51,
-        s = r"Observed Dynamics:" + "\n" + r"$S$",
+        s = r"Dynamical Process:" + "\n" + r"$S$",
         ha = "left",
         va = "center",
         fontsize = 11.0,
