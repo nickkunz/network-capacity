@@ -1614,7 +1614,7 @@ def stat_decomposed_attribution(
     holm = _holm_adjust([p_value])[0]
     summary = pd.DataFrame([{
         "Property": "Residual Attribution",
-        "Comparison": "Topology vs Dynamics",
+        "Comparison": "Structure vs Dynamics",
         "Median Δ MAE": delta.median(),
         "Rank-biserial r": r_effect,
         p_label: p_value,
