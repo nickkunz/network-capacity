@@ -25,7 +25,7 @@ from src.evaluators.training import fit_predict_frontier
 from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.metrics import (
-    consensus_metrics, 
+    consensus_metrics,
     paired_rank_biserial
 )
 from src.evaluators.resampling import (
@@ -1266,10 +1266,14 @@ def stat_perturbed_tost(
     )
 
     ## fixed decimal formatting for display
-    num_cols = [c for c in summary.columns if c.startswith("Median") or c in ["Rank-biserial r", "TOST p", "Holm-adj. p"]]
+    num_cols = [c for c in summary.columns if c.startswith("Median") or c == "Rank-biserial r"]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
+        )
+    for col in ["TOST p", "Holm-adj. p"]:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
         )
 
     ## final display cleanup
