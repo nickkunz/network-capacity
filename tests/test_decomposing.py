@@ -8,6 +8,7 @@ from sklearn.tree import DecisionTreeRegressor
 
 from src.evaluators.decomposing import (
     SPECIFICATION_ORDER,
+    _build_nested_capacity_targets,
     _run_single_stage_fold,
     train_decomposed_consensus,
 )
@@ -89,6 +90,51 @@ class FullCorpusConsensusTests(unittest.TestCase):
             predictions["specification"].isin(["joint", "capacity_only", "dynamics_only"])
         ]
         np.testing.assert_allclose(actual = single_stage["y_pred"], desired = 42.5)
+
+
+class ResidualAttributionTests(unittest.TestCase):
+
+    def test_nested_capacity_targets_exclude_outer_test_from_training(self) -> None:
+        X = pd.DataFrame(data = {"structure": np.arange(6, dtype = float)})
+        Z = pd.DataFrame(data = {"process": np.arange(6, dtype = float)})
+        y_star = pd.Series(data = np.arange(10, 16, dtype = float))
+        groups = np.array(["first", "first", "second", "second", "third", "third"])
+        outer_train = np.array([0, 1, 2, 3])
+        outer_test = np.array([4, 5])
+
+        def capacity_fold(**kwargs: object) -> dict:
+            test_idx = np.asarray(a = kwargs["test_idx"])
+            return {
+                "kept_indices": test_idx,
+                "c_hat": np.zeros(shape = len(test_idx), dtype = float),
+                "slack": y_star.iloc[test_idx].to_numpy(),
+            }
+
+        with patch(
+            target = "src.evaluators.decomposing._run_capacity_fold",
+            side_effect = capacity_fold,
+        ) as capacity_worker:
+            result = _build_nested_capacity_targets(
+                train_idx = outer_train,
+                test_idx = outer_test,
+                X = X,
+                Z = Z,
+                y_star = y_star,
+                feat_x = ["structure"],
+                feat_z = ["process"],
+                estimator_c = DecisionTreeRegressor(random_state = 42),
+                groups = groups,
+                random_state = 42,
+            )
+
+        self.assertIsNotNone(result)
+        slack_nested, c_hat_outer = result
+        self.assertEqual(capacity_worker.call_count, 3)
+        for call in capacity_worker.call_args_list:
+            self.assertTrue(set(call.kwargs["train_idx"]).isdisjoint(outer_test))
+        np.testing.assert_allclose(actual = slack_nested, desired = y_star)
+        self.assertTrue(np.isnan(c_hat_outer[outer_train]).all())
+        np.testing.assert_allclose(actual = c_hat_outer[outer_test], desired = 0.0)
 
 
 if __name__ == "__main__":

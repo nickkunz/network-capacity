@@ -10,7 +10,7 @@ from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.config import FEAT_X
 from src.evaluators.decomposing import stat_decomposed_test
 from src.evaluators.falsifying import stat_falsified_test
-from src.evaluators.metrics import paired_rank_biserial, spec_marginal_delta
+from src.evaluators.metrics import format_p_value, paired_rank_biserial, spec_marginal_delta
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
     analytical_perturb,
@@ -29,6 +29,11 @@ from src.vectorizers.invariants import (
 
 
 class RankBiserialTests(unittest.TestCase):
+
+    def test_p_value_formatting_uses_three_decimals_and_threshold(self) -> None:
+        self.assertEqual(format_p_value(p_value = 0.0114770389), "0.011")
+        self.assertEqual(format_p_value(p_value = 0.001), "0.001")
+        self.assertEqual(format_p_value(p_value = 0.000999), "<0.001")
 
     def test_uses_nonzero_raw_differences_with_test_positive_sign(self) -> None:
         differences = np.array([3.0, -2.0, 0.0, 2.0])
@@ -62,6 +67,7 @@ class RankBiserialTests(unittest.TestCase):
         )
 
         self.assertEqual(summary.loc[0, "Rank-biserial r"], "0.50")
+        self.assertEqual(summary.loc[0, "Ablation"], "Joint")
 
     def test_falsification_summary_uses_falsified_minus_original_sign(self) -> None:
         models = ["a", "b", "c", "d"]
@@ -496,7 +502,7 @@ class PerturbationStatisticsTests(unittest.TestCase):
             index = False,
         )
 
-        self.assertEqual(summary["Holm-adj. p"].tolist(), ["0.01", "0.03"])
+        self.assertEqual(summary["Holm-adj. p"].tolist(), ["0.010", "0.025"])
 
     def test_tost_rank_biserial_uses_raw_nonzero_differences(self) -> None:
         results = pd.DataFrame(

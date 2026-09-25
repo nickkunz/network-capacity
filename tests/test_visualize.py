@@ -124,6 +124,49 @@ class VisualizationInterfaceTests(unittest.TestCase):
         self.assertTrue(all(callable(generator) for generator in generators))
 
 
+class TransferFigureTests(unittest.TestCase):
+
+    def test_transfer_differences_use_random_minus_domain_logo(self) -> None:
+        disciplines = np.array(["positive", "negative", "mixed"])
+        domain_prediction = np.array([2.0, 2.0, 2.0])
+        random_5fold = np.array([1.0, 3.0, 1.0])
+        random_10fold = np.array([1.5, 4.0, 4.0])
+        fold_metrics = pd.DataFrame({
+            "model": ["test_model", "test_model"],
+            "ei": [0.7, 0.9],
+        })
+
+        summary = visualize._summarize_transfer_panel(
+            y_true_log = np.ones(shape = 3),
+            disciplines = disciplines,
+            ordered_disciplines = disciplines.tolist(),
+            results_dict_domain = {"test_model": domain_prediction},
+            results_dict_5fold = {"test_model": random_5fold},
+            results_dict_10fold = {"test_model": random_10fold},
+            results_data_5fold = fold_metrics,
+            results_data_10fold = fold_metrics,
+            equivalence_fallback = 0.02,
+            feasibility_threshold = 0.0,
+        )
+
+        expected = np.stack(arrays = [
+            np.cbrt(1.0 / random_5fold),
+            np.cbrt(1.0 / random_10fold),
+        ]) - np.cbrt(1.0 / domain_prediction)
+        for column, quantile in (("q1", 0.25), ("median", 0.5), ("q3", 0.75)):
+            with self.subTest(column = column):
+                np.testing.assert_allclose(
+                    actual = summary["delta_summary"][column],
+                    desired = np.quantile(a = expected, q = quantile, axis = 0),
+                )
+        np.testing.assert_allclose(
+            actual = [summary["overall_delta_5fold"], summary["overall_delta_10fold"]],
+            desired = np.median(a = expected, axis = 1),
+        )
+        self.assertEqual(first = summary["n_feasible"], second = 6)
+        self.assertEqual(first = summary["n_total"], second = 6)
+
+
 class ConsensusFigureTests(unittest.TestCase):
 
     def test_all_four_conditions_use_full_corpus_results(self) -> None:
