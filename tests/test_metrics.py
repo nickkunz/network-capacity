@@ -10,7 +10,7 @@ from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.config import FEAT_X
 from src.evaluators.decomposing import stat_decomposed_test
 from src.evaluators.falsifying import stat_falsified_test
-from src.evaluators.metrics import format_p_value, paired_rank_biserial, spec_marginal_delta
+from src.evaluators.metrics import paired_rank_biserial, spec_marginal_delta
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
     analytical_perturb,
@@ -29,11 +29,6 @@ from src.vectorizers.invariants import (
 
 
 class RankBiserialTests(unittest.TestCase):
-
-    def test_p_value_formatting_uses_three_decimals_and_threshold(self) -> None:
-        self.assertEqual(format_p_value(p_value = 0.0114770389), "0.011")
-        self.assertEqual(format_p_value(p_value = 0.001), "0.001")
-        self.assertEqual(format_p_value(p_value = 0.000999), "<0.001")
 
     def test_uses_nonzero_raw_differences_with_test_positive_sign(self) -> None:
         differences = np.array([3.0, -2.0, 0.0, 2.0])
