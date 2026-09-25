@@ -74,6 +74,7 @@ def _process_events_gwosc(events: pd.DataFrame, network: set, end_date: str = "2
     end = pd.Timestamp(end_date, tz = "UTC")
     return (
         events[events["catalog.shortName"].astype(str).str.contains("GWTC", na = False)]
+        .drop_duplicates(subset = "commonName", keep = "last")
         .assign(
             datetime = lambda data: pd.to_datetime("1980-01-06", utc = True) + pd.to_timedelta(pd.to_numeric(data["GPS"], errors = "coerce"), unit = "s"),
             network = lambda data: data['commonName'].apply(lambda x: _event_detectors_safe(event_name = x, retries = 3, backoff = 0.8))
