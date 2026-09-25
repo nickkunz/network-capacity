@@ -7,7 +7,6 @@ import pandas as pd
 from sklearn.tree import DecisionTreeRegressor
 
 from src.evaluators.decomposing import (
-    SPECIFICATION_ORDER,
     _build_nested_capacity_targets,
     _run_single_stage_fold,
     train_decomposed_consensus,
@@ -47,13 +46,14 @@ class FullCorpusConsensusTests(unittest.TestCase):
                 target = "target", n_repeats = 2, random_state = 42, n_jobs = 1,
             )
 
-        self.assertEqual(predictions["specification"].drop_duplicates().tolist(), SPECIFICATION_ORDER)
+        expected_specs = ["additive", "interaction", "joint", "invariants", "signatures"]
+        self.assertEqual(predictions["specification"].drop_duplicates().tolist(), expected_specs)
         self.assertEqual(set(predictions["evaluation"]), {"full_corpus"})
         self.assertEqual(set(predictions["group"]), {"all"})
-        self.assertEqual(len(predictions), len(self.data) * len(SPECIFICATION_ORDER))
+        self.assertEqual(len(predictions), len(self.data) * len(expected_specs))
         np.testing.assert_allclose(
             actual = predictions["y_pred"],
-            desired = np.tile(A = np.log1p(self.data["target"]), reps = len(SPECIFICATION_ORDER)),
+            desired = np.tile(A = np.log1p(self.data["target"]), reps = len(expected_specs)),
         )
         self.assertEqual(single_stage.call_count, 6)
         for call in single_stage.call_args_list:
@@ -87,7 +87,7 @@ class FullCorpusConsensusTests(unittest.TestCase):
                 target = "target", n_repeats = 2, random_state = 42, n_jobs = 1,
             )
         single_stage = predictions.loc[
-            predictions["specification"].isin(["joint", "capacity_only", "dynamics_only"])
+            predictions["specification"].isin(["joint", "invariants", "signatures"])
         ]
         np.testing.assert_allclose(actual = single_stage["y_pred"], desired = 42.5)
 

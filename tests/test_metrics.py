@@ -8,7 +8,7 @@ import pandas as pd
 from src.data.helpers import _create_igraph_object
 from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.config import FEAT_X
-from src.evaluators.decomposing import stat_decomposed_test
+from src.evaluators.decomposing import stat_decomposed_summary, stat_decomposed_test
 from src.evaluators.falsifying import stat_falsified_test
 from src.evaluators.metrics import paired_rank_biserial, spec_marginal_delta
 from src.evaluators.perturbing import (
@@ -63,6 +63,31 @@ class RankBiserialTests(unittest.TestCase):
 
         self.assertEqual(summary.loc[0, "Rank-biserial r"], "0.50")
         self.assertEqual(summary.loc[0, "Ablation"], "Joint")
+
+    def test_decomposition_tables_populate_display_labels(self) -> None:
+        specs = ("additive", "interaction", "joint", "invariants", "signatures", "interaction_joint")
+        labels = ["Original", "Interaction", "Joint", "Invariants", "Signatures", "Interaction Joint"]
+        results = pd.DataFrame({
+            "model": ["m"] * (2 * len(specs)),
+            "group": ["g1", "g2"] * len(specs),
+            "specification": [spec for spec in specs for _ in range(2)],
+            "ei": [0.5, 0.6] * len(specs),
+        })
+
+        summary = stat_decomposed_summary(results = results, metrics = ("ei",))
+        self.assertEqual(summary.index.get_level_values("Method").tolist(), labels)
+
+        reversed_summary = stat_decomposed_summary(results = results.iloc[::-1], metrics = ("ei",))
+        self.assertEqual(reversed_summary.index.get_level_values("Method").tolist(), labels[::-1])
+        ordered_summary = stat_decomposed_summary(
+            results = results.iloc[::-1], metrics = ("ei",), spec_order = specs,
+        )
+        self.assertEqual(ordered_summary.index.get_level_values("Method").tolist(), labels)
+
+        test = stat_decomposed_test(
+            results = results, specs = specs[1:], delta = 0.5, index = False,
+        )
+        self.assertEqual(test["Ablation"].tolist(), labels[1:])
 
     def test_falsification_summary_uses_falsified_minus_original_sign(self) -> None:
         models = ["a", "b", "c", "d"]

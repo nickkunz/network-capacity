@@ -124,6 +124,33 @@ class VisualizationInterfaceTests(unittest.TestCase):
         self.assertTrue(all(callable(generator) for generator in generators))
 
 
+class DecompositionFigureTests(unittest.TestCase):
+
+    def test_simple_specifications_use_native_labels(self) -> None:
+        results = pd.DataFrame({
+            "model": ["model"] * 5,
+            "group": ["domain"] * 5,
+            "specification": ["additive", "invariants", "signatures", "joint", "interaction"],
+            "ei": [0.5, 0.4, 0.3, 0.45, 0.42],
+            "ci": [0.5, 0.4, 0.3, 0.45, 0.42],
+        })
+
+        figure, axes = visualize.plot_decomposition_moneyshot(
+            results = results,
+            delta_ei = 0.1,
+            delta_ci = 0.1,
+            show = False,
+        )
+        try:
+            self.assertTrue(expr = axes[0].collections)
+            self.assertEqual(
+                first = [label.get_text().split(":")[0] for label in axes[0].get_legend().get_texts()],
+                second = ["Invariants", "Signatures"],
+            )
+        finally:
+            visualize.plt.close(fig = figure)
+
+
 class TransferFigureTests(unittest.TestCase):
 
     def test_transfer_differences_use_random_minus_domain_logo(self) -> None:
