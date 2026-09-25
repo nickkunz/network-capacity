@@ -5410,8 +5410,8 @@ def _summarize_transfer_panel(
 
     """
     Desc:
-        Build the transfer penalty summary from domain LOGO predictions,
-        referencing 5-fold and 10-fold random splits as separate baselines.
+        Build paired EI differences as random-split resampling minus domain
+        LOGO, using 5-fold and 10-fold random splits as separate comparisons.
         Domain LOGO and k-fold EI values are summarized separately and only
         compared at the downstream delta step.
 
@@ -5568,7 +5568,7 @@ def _summarize_transfer_panel(
         raise ValueError("No matched domain LOGO and k-fold deltas available for panel c")
 
     combined_delta["delta_ei"] = (
-        combined_delta["domain_ei"] - combined_delta["baseline_ei"]
+        combined_delta["baseline_ei"] - combined_delta["domain_ei"]
     )
     combined_for_plot = combined_delta.loc[combined_delta["feasible"]].copy()
     if combined_for_plot.empty:
@@ -5924,7 +5924,7 @@ def _draw_transfer_panel(
 
     """
     Desc:
-        Render the transfer penalty panel.
+        Render the resampling EI difference panel.
 
     Args:
         axis: Transfer axis.
@@ -5934,7 +5934,7 @@ def _draw_transfer_panel(
         discipline_domain_map: Mapping from discipline to domain.
         domain_palette: Domain color palette.
         panel_label: Panel letter.
-        transfer_ylim: Y-axis limits for transfer penalties.
+        transfer_ylim: Y-axis limits for resampling EI differences.
 
     Returns:
         None.
@@ -6074,7 +6074,7 @@ def _draw_transfer_panel(
     axis.set_yticklabels(
         labels = [_format_decimal(value = tick, decimals = 1) for tick in transfer_ticks],
     )
-    axis.set_ylabel(ylabel = r"$\Delta$ EI (Domain LOGO - $\mathit{k}$-Fold)", color = AXIS_LABEL_COLOR, fontsize = AXIS_LABEL_SIZE, labelpad = 6)
+    axis.set_ylabel(ylabel = r"$\Delta$ EI ($\mathit{k}$-Fold - Domain LOGO)", color = AXIS_LABEL_COLOR, fontsize = AXIS_LABEL_SIZE, labelpad = 6)
     axis.set_xticks(ticks = x)
     axis.set_xticklabels(
         labels = [_discipline_label(discipline) for discipline in ordered_disciplines],
@@ -6354,7 +6354,7 @@ def plot_universality_superfigure(
         require_cache: Whether lower-panel source results must already exist.
         n_jobs: Number of parallel jobs used if recomputation is needed.
         axis_limits: Shared x/y limits for top scatter panels.
-        transfer_ylim: Y-axis limits for transfer penalties.
+        transfer_ylim: Y-axis limits for resampling EI differences.
         figsize: Figure size in inches.
         title: Main figure title.
         show: Whether to call plt.show().
@@ -6642,7 +6642,7 @@ def plot_universality_superfigure(
     for axis, label_text in (
         (domain_axes[0], "Estimated Log-Max"),
         (ax_consensus, "Relative Log-Max"),
-        (ax_transfer, r"$\Delta$ EI (Domain LOGO - $\mathit{k}$-Fold)"),
+        (ax_transfer, r"$\Delta$ EI ($\mathit{k}$-Fold - Domain LOGO)"),
     ):
         axis_position = axis.get_position()
         fig.text(
