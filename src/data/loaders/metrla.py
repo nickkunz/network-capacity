@@ -29,9 +29,13 @@ def _process_events_metrla(data: np.ndarray, sample_rate_minutes: int = 5, thres
     ## calculate samples per day
     samples_per_day = (24 * 60) // sample_rate_minutes
 
-    ## derive binary congestion via per-node threshold
-    threshold = np.percentile(data, thres_percentile, axis = 0)[None, :]
-    congested = data <= threshold
+    ## derive binary congestion via per-node threshold (zeros encode missing readings)
+    threshold = np.where(
+        (data > 0).any(axis = 0),
+        np.percentile(np.where(data > 0, data, np.nan), thres_percentile, axis = 0),
+        np.nan,
+    )[None, :]
+    congested = (data <= threshold) & (data > 0)
 
     ## detect congestion onset events
     stop_events = np.zeros_like(congested, dtype=np.int32)
