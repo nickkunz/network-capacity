@@ -1949,18 +1949,13 @@ def plot_decomposition_evidence(
             "interaction",
             "interaction_joint",
             "joint",
-            "capacity_only",
-            "dynamics_only",
+            "invariants",
+            "signatures",
         )
 
     def format_specification(specification: str) -> str:
         return {
-            "additive": "Additive",
-            "interaction": "Interaction",
             "interaction_joint": "Interaction-Joint",
-            "joint": "Joint",
-            "capacity_only": "Capacity-Only",
-            "dynamics_only": "Dynamics-Only",
         }.get(specification, str(specification).replace("_", " ").title())
 
     def coerce_numeric(series: pd.Series) -> pd.Series:
@@ -2163,8 +2158,8 @@ def plot_decomposition_moneyshot(
             "interaction",
             "interaction_joint",
             "joint",
-            "capacity_only",
-            "dynamics_only",
+            "invariants",
+            "signatures",
         )
 
     required_results = {"model", "group", "specification", "ei", "ci"}
@@ -2172,26 +2167,12 @@ def plot_decomposition_moneyshot(
     if missing_results:
         raise ValueError(f"Missing required result columns: {missing_results}")
 
-    spec_labels = {
-        "interaction": "Interaction",
-        "interaction_joint": "Interaction Joint",
-        "joint": "Joint",
-        "capacity_only": "Capacity Only",
-        "dynamics_only": "Dynamics Only",
-    }
-    spec_legend_labels = {
-        "interaction": "Interaction",
-        "interaction_joint": "Interaction Joint",
-        "joint": "Joint",
-        "capacity_only": "Capacity",
-        "dynamics_only": "Dynamics",
-    }
     spec_family = {
         "interaction": "Complex",
         "interaction_joint": "Complex",
         "joint": "Complex",
-        "capacity_only": "Simple",
-        "dynamics_only": "Simple",
+        "invariants": "Simple",
+        "signatures": "Simple",
     }
     decomposition_orange = "#C46A1C"
     orange_shades = tuple(
@@ -2205,15 +2186,15 @@ def plot_decomposition_moneyshot(
         "interaction": orange_shades[0],
         "interaction_joint": orange_shades[1],
         "joint": orange_shades[2],
-        "capacity_only": orange_shades[0],
-        "dynamics_only": orange_shades[1],
+        "invariants": orange_shades[0],
+        "signatures": orange_shades[1],
     }
     spec_markers = {
         "interaction": "o",
         "interaction_joint": "o",
         "joint": "o",
-        "capacity_only": "o",
-        "dynamics_only": "o",
+        "invariants": "o",
+        "signatures": "o",
     }
 
     additive = (
@@ -2237,7 +2218,7 @@ def plot_decomposition_moneyshot(
         paired_frames.append(
             gaps.assign(
                 specification = specification,
-                display = spec_labels.get(specification, specification.replace("_", " ").title()),
+                display = specification.replace("_", " ").title(),
                 family = spec_family.get(specification, "Other"),
                 delta_ei = lambda frame: frame["ei_alt"] - frame["ei_additive"],
                 delta_ci = lambda frame: frame["ci_alt"] - frame["ci_additive"],
@@ -2402,7 +2383,7 @@ def plot_decomposition_moneyshot(
             )
 
             legend_label = (
-                f"{spec_legend_labels[specification]}: "
+                f"{specification.replace('_', ' ').title()}: "
                 f"ΔEI = {median_x:+.2f}, "
                 f"ΔCI = {median_y:+.2f}"
             )
@@ -8042,12 +8023,10 @@ def _render_stress_test_figure(
     ## decomposition summaries
     decomposition_fingerprint = _decomposition_delta_frame(results = results_decomp)
     decomposition_family_specs = {
-        "Simple": ["capacity_only", "dynamics_only"],
+        "Simple": ["invariants", "signatures"],
         "Complex": ["joint", "interaction"],
     }
     decomposition_spec_labels = {
-        "capacity_only": "Invariants Only",
-        "dynamics_only": "Signatures Only",
         "interaction": "Interaction Terms",
         "joint": "Joint Features",
     }
