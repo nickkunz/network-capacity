@@ -47,7 +47,7 @@ def _process_events_chickenpox(data: pd.DataFrame) -> pd.DataFrame:
     ## construct final dataframe
     return pd.DataFrame({
         "date": data['date'].dt.date,
-        "target": feat_sum.astype("int64", errors = "ignore")
+        "target": feat_sum / 7.0
     })
 
 ## chickenpox network
