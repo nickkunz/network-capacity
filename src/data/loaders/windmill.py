@@ -57,7 +57,7 @@ class WindmillProcessor:
         """ Loads the raw data from source. """
         loader = WindmillOutputLargeDatasetLoader(raw_data_dir = self.raw_data_dir)
         self.dataset = _load_network_pygt(loader = loader)
-        self.production = np.asarray(loader._dataset["block"], dtype = float)[loader.lags:]
+        self.production = np.asarray(loader._dataset["block"], dtype = float)
         return self
 
     def process_network(self):
