@@ -7,15 +7,18 @@ from pandas.io.formats.style import Styler
 
 ## modules
 from src.vectorizers.scalers import _log_transformer
-from src.evaluators.config import FRONTIER_METRICS, CONSENSUS_METRICS
 from src.evaluators.metrics import (
     consensus_metrics,
-    format_p_value,
     frontier_metrics,
     paired_rank_biserial,
     spec_marginal_delta,
 )
 
+## constants
+from src.evaluators.config import (
+    FRONTIER_METRICS,
+    CONSENSUS_METRICS
+)
 
 ## ----------------------------------------------------------------------------
 ## domain-aligned resampling results
@@ -358,11 +361,7 @@ def stat_transfer_tost(
         summary[column] = formatted
     for column in ["TOST p", "Holm-adj. p"]:
         summary[column] = summary[column].apply(
-            lambda value: format_p_value(
-                p_value = float(value),
-                decimals = 3,
-                threshold = 0.001,
-            )
+            lambda value: "-" if not (pd.notna(value) and np.isfinite(float(value))) else "<0.001" if float(value) < 0.001 else f"{float(value):.3f}"
         )
 
     if index:
