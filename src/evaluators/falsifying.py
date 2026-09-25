@@ -17,9 +17,16 @@ if str(root) not in sys.path:
 ## modules
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
-from src.evaluators.resampling import logo_cross_valid, logo_cross_valid_frozen
-from src.evaluators.metrics import consensus_metrics, frontier_metrics, paired_rank_biserial
 from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.resampling import (
+    logo_cross_valid,
+    logo_cross_valid_frozen,
+)
+from src.evaluators.metrics import (
+    consensus_metrics,
+    frontier_metrics,
+    paired_rank_biserial,
+)
 
 ## constants
 from src.evaluators.config import (
@@ -1064,7 +1071,11 @@ def stat_falsified_test(
         if c in summary.columns and isinstance(summary[c].dtype, pd.CategoricalDtype):
             summary[c] = summary[c].astype(object)
 
-    round_cols = list(summary.select_dtypes(include = [np.number]).columns)
+    p_cols = [p_label, "Holm-adj. p"]
+    round_cols = [
+        col for col in summary.select_dtypes(include = [np.number]).columns
+        if col not in p_cols
+    ]
     if round_cols:
         summary[round_cols] = summary[round_cols].round(decimals)
 
@@ -1076,10 +1087,14 @@ def stat_falsified_test(
         value_cols_order = [med_d, *tail_cols]
 
     ## fixed decimal formatting for display
-    num_cols = [c for c in summary.columns if c.startswith("Median") or c in ["Rank-biserial r", p_label, "Holm-adj. p"]]
+    num_cols = [c for c in summary.columns if c.startswith("Median") or c == "Rank-biserial r"]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
+        )
+    for col in p_cols:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
         )
 
     ## final display formatting - note: columns have been renamed already
