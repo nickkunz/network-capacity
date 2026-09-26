@@ -130,7 +130,7 @@ def spec_transfer_delta(
         label_regime: Column containing resampling regime labels.
         model_col: Column identifying fitted models.
         scale: Multiplier applied to the reference IQR.
-        decimals: Decimal places used to floor the margin.
+        decimals: Decimal places used to ceil the margin.
 
     Returns:
         Empirical equivalence margin on the metric scale.
