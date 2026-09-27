@@ -128,6 +128,7 @@ class NotebookCacheTests(unittest.TestCase):
                     "TARGET": "target", "FEAT_X": ["x"], "FEAT_Z": ["z"],
                     "FORCE_RECOMPUTE": False,
                     "load_notebook_cache": load_notebook_cache,
+                    "compile_transfer_resampling": Mock(return_value = "compiled"),
                 }
                 exec(cache_setup, namespace)
                 payload = {
@@ -170,6 +171,7 @@ class NotebookCacheTests(unittest.TestCase):
                     "TARGET": "target", "FEAT_X": ["x"], "FEAT_Z": ["z"],
                     "FORCE_RECOMPUTE": False, "pickle": pickle,
                     "load_notebook_cache": load_notebook_cache,
+                    "compile_transfer_resampling": Mock(return_value = "compiled"),
                 }
                 exec(_cache_setup_code(source = "".join(notebook["cells"][5]["source"])), namespace)
                 payload = {
