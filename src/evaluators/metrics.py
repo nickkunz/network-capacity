@@ -256,10 +256,10 @@ def spec_marginal_delta(
         label_base: Baseline value used by the default reference.
         method: Dispersion estimator ("mad", "iqr", or "max").
         scale: Multiplier applied to the dispersion estimate.
-        decimals: Number of decimal places to ceil the resulting margin.
+        decimals: Number of decimal places to floor the resulting margin.
 
     Returns:
-        Scalar empirical margin delta, ceiled to `decimals` places.
+        Scalar empirical margin delta, floored to `decimals` places.
 
     Raises:
         ValueError: If reference labels are unspecified, required columns are
@@ -304,10 +304,10 @@ def spec_marginal_delta(
     else:
         raise ValueError(f"unknown method: {method}")
 
-    ## ceil the scaled dispersion to the specified number of decimal places
+    ## floor the scaled dispersion to the specified number of decimal places
     scaled = max(float(scale * dispersion), 1e-6)
     factor = 10 ** int(decimals)
-    return float(np.ceil(scaled * factor - 1e-12) / factor)
+    return float(np.floor(scaled * factor + 1e-12) / factor)
 
 ## paired rank-biserial correlation
 def paired_rank_biserial(differences: Sequence[float]) -> float:
