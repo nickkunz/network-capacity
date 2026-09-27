@@ -15,6 +15,7 @@ if str(root) not in sys.path:
 
 ## modules
 from src.data.helpers import _save_to_json
+from src.data.builders import metadata
 
 ## logging
 logger = logging.getLogger(__name__)
@@ -90,12 +91,16 @@ def _permute_target_mapping(
             f"Ensure {path_proc!r} contains at least two '*.json' files."
         )
 
-    ## create a deranged permutation of dataset indices to shuffle targets
+    ## map each dataset name to its domain for cross-domain derangement
+    domain_map = {name: domain for name, domain, _ in metadata}
+    domains = [domain_map.get(data['name'], data['name']) for data in json_data]
+
+    ## create a cross-domain deranged permutation so no system receives a target from its own domain
     rand = np.random.RandomState(seed = random_state)
     perm = np.arange(n)
     while True:
         rand.shuffle(perm)
-        if not np.any(perm == np.arange(n)):
+        if not np.any(perm == np.arange(n)) and not any(domains[perm[i]] == domains[i] for i in range(n)):
             break
 
     ## construct falsified payloads with permuted targets but original features/events
