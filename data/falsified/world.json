@@ -212,9 +212,9 @@
       "degree_kurtosis": 131179.53428096272
     },
     "signatures": {
-      "lag1_autocorr": 0.2217930320730837,
+      "lag1_autocorr": 0.25173880836765883,
       "coef_variation": 0.5209406198425419,
-      "fano_factor": 18453.297178415552,
+      "fano_factor": 18453.260200173285,
       "norm_succ_diff": 0.484790829093583,
       "hurst_exponent": 0.7067700484535513,
       "trend_coeff": -0.3670617492333037,
@@ -3245,20 +3245,20 @@
       "joint_degree_entropy": 6.477954185117514,
       "degree_skewness": -61.323306025552,
       "normalized_laplacian_second_moment": 0.5995062770443325,
-      "normalized_laplacian_third_moment": 0.7237213606577564,
+      "normalized_laplacian_third_moment": 0.7237213606577566,
       "random_walk_triangle_weight": 0.025811696665983992,
       "random_walk_fourth_moment": 0.43393911550807346,
       "adjacency_fourth_moment_per_node": -2286574140253.057,
       "degree_kurtosis": 27505.264469281676
     },
     "signatures": {
-      "lag1_autocorr": 0.029013962331409918,
-      "coef_variation": -1.3475642773451433,
-      "fano_factor": 1506.9270419596448,
-      "norm_succ_diff": 1.3519359861384561,
-      "hurst_exponent": 0.5082699885701623,
-      "trend_coeff": 1.4267025106310312,
-      "count_skewness": 4.784831426038535
+      "lag1_autocorr": 0.32049087341702887,
+      "coef_variation": -1.346487432791175,
+      "fano_factor": 1508.449077425688,
+      "norm_succ_diff": 1.3590422835584717,
+      "hurst_exponent": 0.5070476048468113,
+      "trend_coeff": 1.4113418886962203,
+      "count_skewness": 4.829968156479283
     },
     "events": [
       {

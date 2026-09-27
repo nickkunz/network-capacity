@@ -34,128 +34,216 @@
     },
     "events": [
       {
-        "day": 0,
-        "target": 3499
+        "date": "2025-06-02",
+        "target": 460
       },
       {
-        "day": 1,
-        "target": 3907
+        "date": "2025-06-03",
+        "target": 424
       },
       {
-        "day": 2,
-        "target": 4401
+        "date": "2025-06-04",
+        "target": 479
       },
       {
-        "day": 3,
-        "target": 4656
+        "date": "2025-06-05",
+        "target": 298
       },
       {
-        "day": 4,
-        "target": 4512
+        "date": "2025-06-06",
+        "target": 511
       },
       {
-        "day": 5,
-        "target": 5126
+        "date": "2025-06-07",
+        "target": 632
       },
       {
-        "day": 6,
-        "target": 5604
+        "date": "2025-06-08",
+        "target": 316
       },
       {
-        "day": 7,
-        "target": 5617
+        "date": "2025-06-09",
+        "target": 96
       },
       {
-        "day": 8,
-        "target": 5149
+        "date": "2025-06-10",
+        "target": 521
       },
       {
-        "day": 9,
-        "target": 5330
+        "date": "2025-06-11",
+        "target": 332
       },
       {
-        "day": 10,
-        "target": 5044
+        "date": "2025-06-13",
+        "target": 215
       },
       {
-        "day": 11,
-        "target": 5854
+        "date": "2025-06-14",
+        "target": 262
       },
       {
-        "day": 12,
-        "target": 5043
+        "date": "2025-06-17",
+        "target": 263
       },
       {
-        "day": 13,
-        "target": 5327
+        "date": "2025-06-18",
+        "target": 355
       },
       {
-        "day": 14,
-        "target": 5425
+        "date": "2025-06-19",
+        "target": 76
       },
       {
-        "day": 15,
-        "target": 5950
+        "date": "2025-06-20",
+        "target": 436
       },
       {
-        "day": 16,
-        "target": 5960
+        "date": "2025-06-21",
+        "target": 494
       },
       {
-        "day": 17,
-        "target": 5837
+        "date": "2025-06-22",
+        "target": 587
       },
       {
-        "day": 18,
-        "target": 5348
+        "date": "2025-06-23",
+        "target": 347
       },
       {
-        "day": 19,
-        "target": 5210
+        "date": "2025-06-24",
+        "target": 105
       },
       {
-        "day": 20,
-        "target": 4762
+        "date": "2025-06-25",
+        "target": 325
       },
       {
-        "day": 21,
-        "target": 5376
+        "date": "2025-06-26",
+        "target": 296
       },
       {
-        "day": 22,
-        "target": 6087
+        "date": "2025-06-27",
+        "target": 71
       },
       {
-        "day": 23,
-        "target": 5540
+        "date": "2025-06-29",
+        "target": 416
       },
       {
-        "day": 24,
-        "target": 5809
+        "date": "2025-06-30",
+        "target": 500
       },
       {
-        "day": 25,
-        "target": 5468
+        "date": "2025-07-01",
+        "target": 318
       },
       {
-        "day": 26,
-        "target": 5328
+        "date": "2025-07-02",
+        "target": 378
       },
       {
-        "day": 27,
-        "target": 4132
+        "date": "2025-07-03",
+        "target": 333
       },
       {
-        "day": 28,
-        "target": 4496
+        "date": "2025-07-04",
+        "target": 140
       },
       {
-        "day": 29,
-        "target": 4026
+        "date": "2025-08-10",
+        "target": 466
       },
       {
-        "day": 30,
-        "target": 3651
+        "date": "2025-08-11",
+        "target": 510
+      },
+      {
+        "date": "2025-08-12",
+        "target": 555
+      },
+      {
+        "date": "2025-08-13",
+        "target": 574
+      },
+      {
+        "date": "2025-08-14",
+        "target": 566
+      },
+      {
+        "date": "2025-08-15",
+        "target": 528
+      },
+      {
+        "date": "2025-08-16",
+        "target": 587
+      },
+      {
+        "date": "2025-08-17",
+        "target": 617
+      },
+      {
+        "date": "2025-08-18",
+        "target": 380
+      },
+      {
+        "date": "2025-08-19",
+        "target": 172
+      },
+      {
+        "date": "2025-08-20",
+        "target": 12
+      },
+      {
+        "date": "2025-08-21",
+        "target": 491
+      },
+      {
+        "date": "2025-08-22",
+        "target": 487
+      },
+      {
+        "date": "2025-08-23",
+        "target": 633
+      },
+      {
+        "date": "2025-08-24",
+        "target": 657
+      },
+      {
+        "date": "2025-08-25",
+        "target": 106
+      },
+      {
+        "date": "2025-08-26",
+        "target": 80
+      },
+      {
+        "date": "2025-08-27",
+        "target": 382
+      },
+      {
+        "date": "2025-08-28",
+        "target": 565
+      },
+      {
+        "date": "2025-08-29",
+        "target": 570
+      },
+      {
+        "date": "2025-08-30",
+        "target": 732
+      },
+      {
+        "date": "2025-08-31",
+        "target": 667
+      },
+      {
+        "date": "2025-09-01",
+        "target": 404
+      },
+      {
+        "date": "2025-09-02",
+        "target": 241
       }
     ]
   },
@@ -184,9 +272,9 @@
       "degree_kurtosis": 158118.8752220985
     },
     "signatures": {
-      "lag1_autocorr": 0.11994277911589113,
+      "lag1_autocorr": 0.15395657978306249,
       "coef_variation": 1.1103717322961417,
-      "fano_factor": 11071.793932037797,
+      "fano_factor": 11071.733757329741,
       "norm_succ_diff": 0.7199500068725884,
       "hurst_exponent": 0.8031909128477197,
       "trend_coeff": -0.3024045094595258,
@@ -25397,20 +25485,20 @@
       "joint_degree_entropy": 4.518386353374046,
       "degree_skewness": 160.30275524981622,
       "normalized_laplacian_second_moment": 1.103700133242467,
-      "normalized_laplacian_third_moment": 0.9770232775266418,
+      "normalized_laplacian_third_moment": 0.9770232775266425,
       "random_walk_triangle_weight": 0.015576748268679915,
       "random_walk_fourth_moment": -0.0790066798698369,
       "adjacency_fourth_moment_per_node": 7432129920007.75,
       "degree_kurtosis": -30434.155754100673
     },
     "signatures": {
-      "lag1_autocorr": 0.7208220335351043,
-      "coef_variation": 0.10482682456491921,
-      "fano_factor": 63.39648858993151,
-      "norm_succ_diff": 0.45850210124913787,
-      "hurst_exponent": 0.7607955345247328,
-      "trend_coeff": -0.4700846445124813,
-      "count_skewness": -2.405465639922453
+      "lag1_autocorr": 0.7164627880056551,
+      "coef_variation": 0.06441420668665271,
+      "fano_factor": 63.360716444417605,
+      "norm_succ_diff": 0.44237464952114947,
+      "hurst_exponent": 0.7594626957892774,
+      "trend_coeff": -0.4729746593851614,
+      "count_skewness": -2.446369523897359
     },
     "events": [
       {

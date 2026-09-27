@@ -35,123 +35,123 @@
     "events": [
       {
         "day": 0,
-        "target": 4953
+        "target": 188
       },
       {
         "day": 1,
-        "target": 17912
+        "target": 206
       },
       {
         "day": 2,
-        "target": 15345
+        "target": 116
       },
       {
         "day": 3,
-        "target": 12541
+        "target": 52
       },
       {
         "day": 4,
-        "target": 11054
+        "target": 168
       },
       {
         "day": 5,
-        "target": 8570
+        "target": 256
       },
       {
         "day": 6,
-        "target": 7301
+        "target": 197
       },
       {
         "day": 7,
-        "target": 8255
+        "target": 209
       },
       {
         "day": 8,
-        "target": 15489
+        "target": 240
       },
       {
         "day": 9,
-        "target": 14624
+        "target": 138
       },
       {
         "day": 10,
-        "target": 13456
+        "target": 54
       },
       {
         "day": 11,
-        "target": 13387
+        "target": 104
       },
       {
         "day": 12,
-        "target": 12698
+        "target": 217
       },
       {
         "day": 13,
-        "target": 11142
+        "target": 206
       },
       {
         "day": 14,
-        "target": 11190
+        "target": 184
       },
       {
         "day": 15,
-        "target": 15161
+        "target": 232
       },
       {
         "day": 16,
-        "target": 15259
+        "target": 108
       },
       {
         "day": 17,
-        "target": 17185
+        "target": 64
       },
       {
         "day": 18,
-        "target": 14695
+        "target": 193
       },
       {
         "day": 19,
-        "target": 15559
+        "target": 145
       },
       {
         "day": 20,
-        "target": 13254
+        "target": 209
       },
       {
         "day": 21,
-        "target": 14266
+        "target": 121
       },
       {
         "day": 22,
-        "target": 18213
+        "target": 217
       },
       {
         "day": 23,
-        "target": 16725
+        "target": 116
       },
       {
         "day": 24,
-        "target": 16274
+        "target": 46
       },
       {
         "day": 25,
-        "target": 14424
+        "target": 166
       },
       {
         "day": 26,
-        "target": 15445
+        "target": 181
       },
       {
         "day": 27,
-        "target": 13853
+        "target": 174
       },
       {
         "day": 28,
-        "target": 15514
+        "target": 194
       },
       {
         "day": 29,
-        "target": 18005
+        "target": 190
       }
     ]
   },
@@ -180,9 +180,9 @@
       "degree_kurtosis": 84090.91984269863
     },
     "signatures": {
-      "lag1_autocorr": 0.7206553066315774,
+      "lag1_autocorr": 0.7306759101106695,
       "coef_variation": 2.298783459862072,
-      "fano_factor": 25663.910955232048,
+      "fano_factor": 25663.89663643329,
       "norm_succ_diff": 1.0030055827042619,
       "hurst_exponent": 0.7006569820224458,
       "trend_coeff": -0.4536612367146615,
@@ -2313,20 +2313,20 @@
       "joint_degree_entropy": -5.0151498067294655,
       "degree_skewness": -94.39993097729561,
       "normalized_laplacian_second_moment": 0.8498754317116721,
-      "normalized_laplacian_third_moment": 0.765905921233504,
+      "normalized_laplacian_third_moment": 0.7659059212335043,
       "random_walk_triangle_weight": 0.04079842398851972,
       "random_walk_fourth_moment": 0.36195844690863527,
       "adjacency_fourth_moment_per_node": 8356104415215.56,
       "degree_kurtosis": -50904.692955774044
     },
     "signatures": {
-      "lag1_autocorr": -0.11559643089315358,
-      "coef_variation": 2.017861068435065,
-      "fano_factor": 2816.2369985287864,
-      "norm_succ_diff": 0.6768944789956873,
-      "hurst_exponent": 0.6925850309145833,
-      "trend_coeff": -0.4984102569326978,
-      "count_skewness": 2.107174583658251
+      "lag1_autocorr": -0.11273889776099827,
+      "coef_variation": 2.0169870020805125,
+      "fano_factor": 2669.5902320673567,
+      "norm_succ_diff": 0.6027282270453704,
+      "hurst_exponent": 0.6931266020038322,
+      "trend_coeff": -0.5006020757504778,
+      "count_skewness": 2.092293219567569
     },
     "events": [
       {
