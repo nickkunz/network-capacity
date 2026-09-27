@@ -1,0 +1,657 @@
+\begin{thebibliography}{114}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Newman(2003)]{ref01}
+M.~E.~J. Newman.
+\newblock The structure and function of complex networks.
+\newblock \emph{SIAM Review}, 45:\penalty0 167--256, 2003.
+
+\bibitem[Scheffer et~al.(2009)]{ref02}
+Marten Scheffer et~al.
+\newblock Early-warning signals for critical transitions.
+\newblock \emph{Nature}, 461:\penalty0 53--59, 2009.
+
+\bibitem[Gao et~al.(2016)Gao, Barzel, and Barabási]{ref16}
+Jian Gao, Baruch Barzel, and Albert-László Barabási.
+\newblock Universal resilience patterns in complex networks.
+\newblock \emph{Nature}, 530:\penalty0 307--312, 2016.
+
+\bibitem[Bak et~al.(1987)Bak, Tang, and Wiesenfeld]{ref33}
+Per Bak, Chao Tang, and Kurt Wiesenfeld.
+\newblock Self-organized criticality: an explanation of the 1/f noise.
+\newblock \emph{Physical Review Letters}, 59:\penalty0 381--384, 1987.
+\newblock \doi{10.1103/PhysRevLett.59.381}.
+
+\bibitem[Buldyrev et~al.(2010)Buldyrev, Parshani, Paul, Stanley, and
+  Havlin]{ref34}
+Sergey~V. Buldyrev, Roni Parshani, Gerald Paul, H.~Eugene Stanley, and Shlomo
+  Havlin.
+\newblock Catastrophic cascade of failures in interdependent networks.
+\newblock \emph{Nature}, 464:\penalty0 1025--1028, 2010.
+\newblock \doi{10.1038/nature08932}.
+
+\bibitem[Huang et~al.(2005)Huang, Eichler, Bar-Yam, and Ingber]{ref25}
+Sui Huang, G.~S. Eichler, Yaneer Bar-Yam, and Donald~E. Ingber.
+\newblock Cell fates as high-dimensional attractor states of a complex gene
+  regulatory network.
+\newblock \emph{Physical Review Letters}, 94:\penalty0 128701, 2005.
+\newblock \doi{10.1103/PhysRevLett.94.128701}.
+
+\bibitem[Guimerà et~al.(2002)Guimerà, Díaz-Guilera, Vega-Redondo, Cabrales,
+  and Arenas]{ref03}
+Roger Guimerà, Albert Díaz-Guilera, Fernando Vega-Redondo, Antonio Cabrales,
+  and Alex Arenas.
+\newblock Optimal network topologies for local search with congestion.
+\newblock \emph{Physical Review Letters}, 89:\penalty0 248701, 2002.
+
+\bibitem[Li et~al.(2015)]{ref04}
+Daqing Li et~al.
+\newblock Percolation transition in dynamical traffic network with evolving
+  critical bottlenecks.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 112:\penalty0
+  669--672, 2015.
+
+\bibitem[Taylor(1961)]{ref13}
+L.~R. Taylor.
+\newblock Aggregation, variance and the mean.
+\newblock \emph{Nature}, 189:\penalty0 732--735, 1961.
+
+\bibitem[Eisler et~al.(2008)Eisler, Bartos, and Kertész]{ref14}
+Zoltán Eisler, Imre Bartos, and János Kertész.
+\newblock Fluctuation scaling in complex systems: Taylor's law and beyond.
+\newblock \emph{Advances in Physics}, 57:\penalty0 89--137, 2008.
+
+\bibitem[Barzel and Barabási(2013)]{ref15}
+Baruch Barzel and Albert-László Barabási.
+\newblock Universality in network dynamics.
+\newblock \emph{Nature Physics}, 9:\penalty0 673--681, 2013.
+
+\bibitem[Boccaletti et~al.(2006)Boccaletti, Latora, Moreno, Chavez, and
+  Hwang]{ref05}
+Stefano Boccaletti, Vito Latora, Yamir Moreno, Mario Chavez, and Dong-U Hwang.
+\newblock Complex networks: structure and dynamics.
+\newblock \emph{Physics Reports}, 424:\penalty0 175--308, 2006.
+
+\bibitem[Ford and Fulkerson(1956)]{ref07}
+Lester~R. Ford and Delbert~R. Fulkerson.
+\newblock Maximal flow through a network.
+\newblock \emph{Canadian Journal of Mathematics}, 8:\penalty0 399--404, 1956.
+
+\bibitem[Ahlswede et~al.(2000)Ahlswede, Cai, Li, and Yeung]{ref08}
+Rudolf Ahlswede, Ning Cai, Shuo-Yen~Robert Li, and Raymond~W. Yeung.
+\newblock Network information flow.
+\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0
+  1204--1216, 2000.
+
+\bibitem[Gupta and Kumar(2000)]{ref28}
+Piyush Gupta and P.~R. Kumar.
+\newblock The capacity of wireless networks.
+\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0
+  388--404, 2000.
+\newblock \doi{10.1109/18.825799}.
+
+\bibitem[Chen and Wang(2006)]{ref35}
+Z.~Y. Chen and X.~F. Wang.
+\newblock Effects of network structure and routing strategy on network
+  capacity.
+\newblock \emph{Physical Review E}, 73:\penalty0 036107, 2006.
+\newblock \doi{10.1103/PhysRevE.73.036107}.
+
+\bibitem[Pastor-Satorras and Vespignani(2001)]{ref09}
+Romualdo Pastor-Satorras and Alessandro Vespignani.
+\newblock Epidemic spreading in scale-free networks.
+\newblock \emph{Physical Review Letters}, 86:\penalty0 3200--3203, 2001.
+
+\bibitem[Pastor-Satorras et~al.(2015)Pastor-Satorras, Castellano, Van~Mieghem,
+  and Vespignani]{ref30}
+Romualdo Pastor-Satorras, Claudio Castellano, Piet Van~Mieghem, and Alessandro
+  Vespignani.
+\newblock Epidemic processes in complex networks.
+\newblock \emph{Reviews of Modern Physics}, 87:\penalty0 925--979, 2015.
+\newblock \doi{10.1103/RevModPhys.87.925}.
+
+\bibitem[Motter and Lai(2002)]{ref10}
+Adilson~E. Motter and Ying-Cheng Lai.
+\newblock Cascade-based attacks on complex networks.
+\newblock \emph{Physical Review E}, 66:\penalty0 065102, 2002.
+
+\bibitem[Arenas et~al.(2008)Arenas, Díaz-Guilera, Kurths, Moreno, and
+  Zhou]{ref11}
+Alex Arenas, Albert Díaz-Guilera, Jürgen Kurths, Yamir Moreno, and Changsong
+  Zhou.
+\newblock Synchronization in complex networks.
+\newblock \emph{Physics Reports}, 469:\penalty0 93--153, 2008.
+
+\bibitem[Liu et~al.(2011)Liu, Slotine, and Barabási]{ref27}
+Yang-Yu Liu, Jean-Jacques Slotine, and Albert-László Barabási.
+\newblock Controllability of complex networks.
+\newblock \emph{Nature}, 473:\penalty0 167--173, 2011.
+\newblock \doi{10.1038/nature10011}.
+
+\bibitem[Barthélemy(2011)]{ref32}
+Marc Barthélemy.
+\newblock Spatial networks.
+\newblock \emph{Physics Reports}, 499:\penalty0 1--101, 2011.
+\newblock \doi{10.1016/j.physrep.2010.11.002}.
+
+\bibitem[Barrat et~al.(2008)Barrat, Barthélemy, and Vespignani]{ref06}
+Alain Barrat, Marc Barthélemy, and Alessandro Vespignani.
+\newblock \emph{Dynamical Processes on Complex Networks}.
+\newblock Cambridge University Press, 2008.
+
+\bibitem[Butts(2009)]{ref26}
+Carter~T. Butts.
+\newblock Revisiting the foundations of network analysis.
+\newblock \emph{Science}, 325:\penalty0 414--416, 2009.
+\newblock \doi{10.1126/science.1171022}.
+
+\bibitem[Holme and Saramäki(2012)]{ref12}
+Petter Holme and Jari Saramäki.
+\newblock Temporal networks.
+\newblock \emph{Physics Reports}, 519:\penalty0 97--125, 2012.
+
+\bibitem[West et~al.(1997)West, Brown, and Enquist]{ref17}
+Geoffrey~B. West, James~H. Brown, and Brian~J. Enquist.
+\newblock A general model for the origin of allometric scaling laws in biology.
+\newblock \emph{Science}, 276:\penalty0 122--126, 1997.
+
+\bibitem[Bettencourt et~al.(2007)Bettencourt, Lobo, Helbing, Kühnert, and
+  West]{ref18}
+Luís M.~A. Bettencourt, José Lobo, Dirk Helbing, Christian Kühnert, and
+  Geoffrey~B. West.
+\newblock Growth, innovation, scaling, and the pace of life in cities.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 104:\penalty0
+  7301--7306, 2007.
+
+\bibitem[Aigner et~al.(1977)Aigner, Lovell, and Schmidt]{ref19}
+Dennis Aigner, C.~A.~Knox Lovell, and Peter Schmidt.
+\newblock Formulation and estimation of stochastic frontier production function
+  models.
+\newblock \emph{Journal of Econometrics}, 6:\penalty0 21--37, 1977.
+
+\bibitem[Meeusen and van~den Broeck(1977)]{ref20}
+Wim Meeusen and Julien van~den Broeck.
+\newblock Efficiency estimation from cobb-douglas production functions with
+  composed error.
+\newblock \emph{International Economic Review}, 18:\penalty0 435--444, 1977.
+
+\bibitem[Charnes et~al.(1978)Charnes, Cooper, and Rhodes]{ref21}
+Abraham Charnes, William~W. Cooper, and Edwardo Rhodes.
+\newblock Measuring the efficiency of decision making units.
+\newblock \emph{European Journal of Operational Research}, 2:\penalty0
+  429--444, 1978.
+
+\bibitem[Koenker and Bassett(1978)]{ref22}
+Roger Koenker and Gilbert Bassett.
+\newblock Regression quantiles.
+\newblock \emph{Econometrica}, 46:\penalty0 33--50, 1978.
+
+\bibitem[Kumbhakar and Lovell(2000)]{ref23}
+Subal~C. Kumbhakar and C.~A.~Knox Lovell.
+\newblock \emph{Stochastic Frontier Analysis}.
+\newblock Cambridge University Press, 2000.
+
+\bibitem[Cazals et~al.(2002)Cazals, Florens, and Simar]{ref31}
+Catherine Cazals, Jean-Pierre Florens, and Léopold Simar.
+\newblock Nonparametric frontier estimation: a robust approach.
+\newblock \emph{Journal of Econometrics}, 106:\penalty0 1--25, 2002.
+\newblock \doi{10.1016/S0304-4076(01)00080-X}.
+
+\bibitem[Chernozhukov(2005)]{ref29}
+Victor Chernozhukov.
+\newblock Extremal quantile regression.
+\newblock \emph{The Annals of Statistics}, 33:\penalty0 806--839, 2005.
+\newblock \doi{10.1214/009053604000001165}.
+
+\bibitem[Gumbel(1958)]{ref58}
+Emil~J. Gumbel.
+\newblock \emph{Statistics of Extremes}.
+\newblock Columbia University Press, 1958.
+
+\bibitem[Pickands(1975)]{ref59}
+James Pickands.
+\newblock Statistical inference using extreme order statistics.
+\newblock \emph{The Annals of Statistics}, 3:\penalty0 119--131, 1975.
+
+\bibitem[Daouia et~al.(2010)Daouia, Florens, and Simar]{ref60}
+Abdelaati Daouia, Jean-Pierre Florens, and Léopold Simar.
+\newblock Frontier estimation and extreme value theory.
+\newblock \emph{Bernoulli}, 16:\penalty0 1039--1063, 2010.
+\newblock \doi{10.3150/10-BEJ256}.
+
+\bibitem[Hastie and Tibshirani(1986)]{ref67}
+Trevor Hastie and Robert Tibshirani.
+\newblock Generalized additive models.
+\newblock \emph{Statistical Science}, 1:\penalty0 297--310, 1986.
+
+\bibitem[Newey and Powell(1987)]{ref36}
+Whitney~K. Newey and James~L. Powell.
+\newblock Asymmetric least squares estimation and testing.
+\newblock \emph{Econometrica}, 55:\penalty0 819--847, 1987.
+
+\bibitem[Friedman et~al.(2010)Friedman, Hastie, and Tibshirani]{ref76}
+Jerome Friedman, Trevor Hastie, and Robert Tibshirani.
+\newblock Regularization paths for generalized linear models via coordinate
+  descent.
+\newblock \emph{Journal of Statistical Software}, 33:\penalty0 1--22, 2010.
+
+\bibitem[Meinshausen(2006)]{ref37}
+Nicolai Meinshausen.
+\newblock Quantile regression forests.
+\newblock \emph{Journal of Machine Learning Research}, 7:\penalty0 983--999,
+  2006.
+
+\bibitem[Friedman(2001)]{ref38}
+Jerome~H. Friedman.
+\newblock Greedy function approximation: a gradient boosting machine.
+\newblock \emph{The Annals of Statistics}, 29:\penalty0 1189--1232, 2001.
+
+\bibitem[Chen and Guestrin(2016)]{ref39}
+Tianqi Chen and Carlos Guestrin.
+\newblock Xgboost: a scalable tree boosting system.
+\newblock In \emph{Proceedings of the 22nd ACM SIGKDD International Conference
+  on Knowledge Discovery and Data Mining}, pages 785--794, 2016.
+
+\bibitem[Amos et~al.(2017)Amos, Xu, and Kolter]{ref40}
+Brandon Amos, Lei Xu, and J.~Zico Kolter.
+\newblock Input convex neural networks.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine
+  Learning}, pages 146--155, 2017.
+
+\bibitem[Nair and Hinton(2010)]{ref80}
+Vinod Nair and Geoffrey~E. Hinton.
+\newblock Rectified linear units improve restricted boltzmann machines.
+\newblock In \emph{Proceedings of the 27th International Conference on Machine
+  Learning}, pages 807--814, 2010.
+
+\bibitem[Srivastava et~al.(2014)Srivastava, Hinton, Krizhevsky, Sutskever, and
+  Salakhutdinov]{ref77}
+Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan
+  Salakhutdinov.
+\newblock Dropout: a simple way to prevent neural networks from overfitting.
+\newblock \emph{Journal of Machine Learning Research}, 15:\penalty0 1929--1958,
+  2014.
+
+\bibitem[Loshchilov and Hutter(2019)]{ref41}
+Ilya Loshchilov and Frank Hutter.
+\newblock Decoupled weight decay regularization.
+\newblock In \emph{International Conference on Learning Representations}, 2019.
+
+\bibitem[Farrell(1957)]{ref103}
+M.~J. Farrell.
+\newblock The measurement of productive efficiency.
+\newblock \emph{Journal of the Royal Statistical Society: Series A},
+  120:\penalty0 253--290, 1957.
+\newblock \doi{10.2307/2343100}.
+
+\bibitem[Simar and Wilson(1998)]{ref111}
+Léopold Simar and Paul~W. Wilson.
+\newblock Sensitivity analysis of efficiency scores: how to bootstrap in
+  nonparametric frontier models.
+\newblock \emph{Management Science}, 44:\penalty0 49--61, 1998.
+\newblock \doi{10.1287/mnsc.44.1.49}.
+
+\bibitem[Spearman(1904)]{ref42}
+Charles Spearman.
+\newblock The proof and measurement of association between two things.
+\newblock \emph{The American Journal of Psychology}, 15:\penalty0 72--101,
+  1904.
+
+\bibitem[Webber et~al.(2010)Webber, Moffat, and Zobel]{ref43}
+William Webber, Alistair Moffat, and Justin Zobel.
+\newblock A similarity measure for indefinite rankings.
+\newblock \emph{ACM Transactions on Information Systems}, 28:\penalty0 20,
+  2010.
+
+\bibitem[Székely et~al.(2007)Székely, Rizzo, and Bakirov]{ref44}
+Gábor~J. Székely, Maria~L. Rizzo, and Nail~K. Bakirov.
+\newblock Measuring and testing dependence by correlation of distances.
+\newblock \emph{The Annals of Statistics}, 35:\penalty0 2769--2794, 2007.
+
+\bibitem[Burman(1989)]{ref73}
+Prabir Burman.
+\newblock A comparative study of ordinary cross-validation, v-fold
+  cross-validation and the repeated learning-testing methods.
+\newblock \emph{Biometrika}, 76:\penalty0 503--514, 1989.
+
+\bibitem[Roberts et~al.(2017)]{ref74}
+David~R. Roberts et~al.
+\newblock Cross-validation strategies for data with temporal, spatial,
+  hierarchical, or phylogenetic structure.
+\newblock \emph{Ecography}, 40:\penalty0 913--929, 2017.
+
+\bibitem[Muandet et~al.(2013)Muandet, Balduzzi, and Schölkopf]{ref68}
+Krikamol Muandet, David Balduzzi, and Bernhard Schölkopf.
+\newblock Domain generalization via invariant feature representation.
+\newblock In \emph{Proceedings of the 30th International Conference on Machine
+  Learning}, pages 10--18, 2013.
+
+\bibitem[Peters et~al.(2016)Peters, Bühlmann, and Meinshausen]{ref69}
+Jonas Peters, Peter Bühlmann, and Nicolai Meinshausen.
+\newblock Causal inference by using invariant prediction: identification of
+  causal effects, modules, and error distributions.
+\newblock \emph{Journal of the Royal Statistical Society: Series B},
+  78:\penalty0 947--1012, 2016.
+
+\bibitem[Arjovsky et~al.(2019)Arjovsky, Bottou, Gulrajani, and
+  Lopez-Paz]{ref70}
+Martin Arjovsky, Léon Bottou, Ishaan Gulrajani, and David Lopez-Paz.
+\newblock Invariant risk minimization, 2019.
+
+\bibitem[Gulrajani and Lopez-Paz(2021)]{ref107}
+Ishaan Gulrajani and David Lopez-Paz.
+\newblock In search of lost domain generalization.
+\newblock In \emph{International Conference on Learning Representations}, 2021.
+\newblock \doi{10.48550/arXiv.2007.01434}.
+
+\bibitem[Wilcoxon(1945)]{ref45}
+Frank Wilcoxon.
+\newblock Individual comparisons by ranking methods.
+\newblock \emph{Biometrics Bulletin}, 1:\penalty0 80--83, 1945.
+
+\bibitem[Holm(1979)]{ref46}
+Sture Holm.
+\newblock A simple sequentially rejective multiple test procedure.
+\newblock \emph{Scandinavian Journal of Statistics}, 6:\penalty0 65--70, 1979.
+
+\bibitem[Kerby(2014)]{ref71}
+Dave~S. Kerby.
+\newblock The simple difference formula: An approach to teaching biserial
+  correlation.
+\newblock \emph{Comprehensive Psychology}, 3:\penalty0 11.IT.3.1, 2014.
+
+\bibitem[Schuirmann(1987)]{ref47}
+Donald~J. Schuirmann.
+\newblock A comparison of the two one-sided tests procedure and the power
+  approach for assessing the equivalence of average bioavailability.
+\newblock \emph{Journal of Pharmacokinetics and Biopharmaceutics}, 15:\penalty0
+  657--680, 1987.
+
+\bibitem[Maslov and Sneppen(2002)]{ref56}
+Sergei Maslov and Kim Sneppen.
+\newblock Specificity and stability in topology of protein networks.
+\newblock \emph{Science}, 296:\penalty0 910--913, 2002.
+
+\bibitem[Erdős and Rényi(1960)]{ref106}
+Paul Erdős and Alfréd Rényi.
+\newblock On the evolution of random graphs.
+\newblock \emph{Publicationes Mathematicae Institute of the Hungarian Academy
+  of Sciences}, 5:\penalty0 17--60, 1960.
+
+\bibitem[Albert et~al.(2000)Albert, Jeong, and Barabási]{ref104}
+Réka Albert, Hawoong Jeong, and Albert-László Barabási.
+\newblock Error and attack tolerance of complex networks.
+\newblock \emph{Nature}, 406:\penalty0 378--382, 2000.
+\newblock \doi{10.1038/35019019}.
+
+\bibitem[Cohen et~al.(2000)Cohen, Erez, ben Avraham, and Havlin]{ref105}
+Reuven Cohen, Keren Erez, Daniel ben Avraham, and Shlomo Havlin.
+\newblock Resilience of the internet to random breakdowns.
+\newblock \emph{Physical Review Letters}, 85:\penalty0 4626--4628, 2000.
+\newblock \doi{10.1103/PhysRevLett.85.4626}.
+
+\bibitem[Efron(1979)]{ref75}
+Bradley Efron.
+\newblock Bootstrap methods: another look at the jackknife.
+\newblock \emph{The Annals of Statistics}, 7:\penalty0 1--26, 1979.
+
+\bibitem[Wellek(2010)]{ref78}
+Stefan Wellek.
+\newblock \emph{Testing Statistical Hypotheses of Equivalence and
+  Noninferiority}.
+\newblock CRC Press, 2 edition, 2010.
+
+\bibitem[van Rossum and Drake(2009)]{ref86}
+Guido van Rossum and Fred~L. Drake.
+\newblock \emph{Python 3 Reference Manual}.
+\newblock CreateSpace, 2009.
+
+\bibitem[{Python}(2022)]{ref102}
+{Python}.
+\newblock Cpython, version 3.11, 2022.
+\newblock URL \url{https://github.com/python/cpython/releases/tag/v3.11.0}.
+
+\bibitem[Csárdi and Nepusz(2006)]{ref48}
+Gábor Csárdi and Tamás Nepusz.
+\newblock The igraph software package for complex network research.
+\newblock \emph{InterJournal Complex Systems}, page 1695, 2006.
+
+\bibitem[{igraph}(2025)]{ref93}
+{igraph}.
+\newblock igraph: the network analysis package, python-igraph 1.0.0, 2025.
+\newblock URL \url{https://github.com/igraph/python-igraph/releases/tag/1.0.0}.
+
+\bibitem[Harris et~al.(2020)]{ref81}
+Charles~R. Harris et~al.
+\newblock Array programming with numpy.
+\newblock \emph{Nature}, 585:\penalty0 357--362, 2020.
+
+\bibitem[{NumPy}(2025)]{ref96}
+{NumPy}.
+\newblock Numpy, version 2.3.5, 2025.
+\newblock URL \url{https://github.com/numpy/numpy/releases/tag/v2.3.5}.
+
+\bibitem[Virtanen et~al.(2020)]{ref82}
+Pauli Virtanen et~al.
+\newblock Scipy 1.0: fundamental algorithms for scientific computing in python.
+\newblock \emph{Nature Methods}, 17:\penalty0 261--272, 2020.
+
+\bibitem[{SciPy}(2025)]{ref97}
+{SciPy}.
+\newblock Scipy, version 1.16.3, 2025.
+\newblock URL \url{https://github.com/scipy/scipy/releases/tag/v1.16.3}.
+
+\bibitem[McKinney(2010)]{ref83}
+Wes McKinney.
+\newblock Data structures for statistical computing in python.
+\newblock In \emph{Proceedings of the 9th Python in Science Conference}, pages
+  56--61, 2010.
+
+\bibitem[{pandas}(2026)]{ref84}
+{pandas}.
+\newblock pandas, version 3.0.0, 2026.
+
+\bibitem[Hagberg et~al.(2008)Hagberg, Swart, and Schult]{ref91}
+Aric~A. Hagberg, Daniel~A. Swart, and Pieter~J. Schult.
+\newblock Exploring network structure, dynamics, and function using networkx.
+\newblock In \emph{Proceedings of the 7th Python in Science Conference}, pages
+  11--15, 2008.
+
+\bibitem[{NetworkX}(2025)]{ref98}
+{NetworkX}.
+\newblock Networkx, version 3.5, 2025.
+\newblock URL
+  \url{https://github.com/networkx/networkx/releases/tag/networkx-3.5}.
+
+\bibitem[Fey and Lenssen(2019)]{ref89}
+Matthias Fey and Jan~E. Lenssen.
+\newblock Fast graph representation learning with pytorch geometric, 2019.
+
+\bibitem[{PyTorch Geometric}(2025)]{ref99}
+{PyTorch Geometric}.
+\newblock Pytorch geometric, version 2.7.0, 2025.
+\newblock URL
+  \url{https://github.com/pyg-team/pytorch_geometric/releases/tag/2.7.0}.
+
+\bibitem[Rozemberczki et~al.(2021)]{ref90}
+Benedek Rozemberczki et~al.
+\newblock Pytorch geometric temporal: spatiotemporal signal processing with
+  neural machine learning models.
+\newblock In \emph{Proceedings of the 30th ACM International Conference on
+  Information and Knowledge Management}, pages 4564--4573, 2021.
+
+\bibitem[{PyTorch Geometric Temporal}(2024)]{ref100}
+{PyTorch Geometric Temporal}.
+\newblock Pytorch geometric temporal, version 0.56.2, 2024.
+\newblock URL
+  \url{https://github.com/benedekrozemberczki/pytorch_geometric_temporal/releases/tag/v0.56.2}.
+
+\bibitem[Pedregosa et~al.(2011)]{ref72}
+Fabian Pedregosa et~al.
+\newblock Scikit-learn: machine learning in python.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
+  2011.
+
+\bibitem[{scikit-learn}(2025)]{ref94}
+{scikit-learn}.
+\newblock scikit-learn, version 1.8.0, 2025.
+
+\bibitem[de~Vries(2022)]{ref87}
+H.~de~Vries.
+\newblock sklearn-quantile: quantile regression models for scikit-learn, 2022.
+\newblock URL \url{https://github.com/hdevries/sklearn-quantile}.
+
+\bibitem[{XGBoost}(2025)]{ref95}
+{XGBoost}.
+\newblock Xgboost: scalable gradient boosting, version 3.1.1, 2025.
+\newblock URL \url{https://github.com/dmlc/xgboost/releases/tag/v3.1.1}.
+
+\bibitem[Paszke et~al.(2019)]{ref85}
+Adam Paszke et~al.
+\newblock Pytorch: an imperative style, high-performance deep learning library.
+\newblock In \emph{Advances in Neural Information Processing Systems},
+  volume~32, pages 8024--8035, 2019.
+
+\bibitem[{PyTorch}(2025)]{ref115}
+{PyTorch}.
+\newblock Pytorch, version 2.9.0, 2025.
+\newblock URL \url{https://github.com/pytorch/pytorch/releases/tag/v2.9.0}.
+
+\bibitem[Carreño(2023)]{ref88}
+C.~Carreño.
+\newblock dcor: distance correlation and dependence measures in python, 2023.
+\newblock URL \url{https://github.com/vnmabus/dcor}.
+
+\bibitem[Hunter(2007)]{ref92}
+John~D. Hunter.
+\newblock Matplotlib: a 2d graphics environment.
+\newblock \emph{Computing in Science and Engineering}, 9:\penalty0 90--95,
+  2007.
+
+\bibitem[{Matplotlib}(2024)]{ref101}
+{Matplotlib}.
+\newblock Matplotlib, version 3.9.2, 2024.
+\newblock URL
+  \url{https://github.com/matplotlib/matplotlib/releases/tag/v3.9.2}.
+
+\bibitem[Watts and Strogatz(1998)]{ref49}
+Duncan~J. Watts and Steven~H. Strogatz.
+\newblock Collective dynamics of small-world networks.
+\newblock \emph{Nature}, 393:\penalty0 440--442, 1998.
+
+\bibitem[Newman(2002)]{ref50}
+Mark E.~J. Newman.
+\newblock Assortative mixing in networks.
+\newblock \emph{Physical Review Letters}, 89:\penalty0 208701, 2002.
+
+\bibitem[Seidman(1983)]{ref51}
+Stephen~B. Seidman.
+\newblock Network structure and minimum degree.
+\newblock \emph{Social Networks}, 5:\penalty0 269--287, 1983.
+
+\bibitem[Matula and Beck(1983)]{ref52}
+David~W. Matula and Leland~L. Beck.
+\newblock Smallest-last ordering and clustering and graph coloring algorithms.
+\newblock \emph{Journal of the ACM}, 30:\penalty0 417--427, 1983.
+
+\bibitem[Chung(1997)]{ref61}
+Fan R.~K. Chung.
+\newblock \emph{Spectral Graph Theory}.
+\newblock American Mathematical Society, 1997.
+
+\bibitem[Estrada and Higham(2010)]{ref62}
+Ernesto Estrada and Desmond~J. Higham.
+\newblock Network properties revealed through matrix functions.
+\newblock \emph{SIAM Review}, 52:\penalty0 696--714, 2010.
+
+\bibitem[Dehmer and Mowshowitz(2011)]{ref63}
+Matthias Dehmer and Abbe Mowshowitz.
+\newblock A history of graph entropy measures.
+\newblock \emph{Information Sciences}, 181:\penalty0 1865--1878, 2011.
+
+\bibitem[Dorogovtsev and Mendes(2002)]{ref64}
+Sergey~N. Dorogovtsev and José F.~F. Mendes.
+\newblock Evolution of networks.
+\newblock \emph{Advances in Physics}, 51:\penalty0 1079--1187, 2002.
+
+\bibitem[Shannon(1948)]{ref79}
+Claude~E. Shannon.
+\newblock A mathematical theory of communication.
+\newblock \emph{Bell System Technical Journal}, 27:\penalty0 379--423, 1948.
+
+\bibitem[Noh and Rieger(2004)]{ref112}
+Jae~Dong Noh and Heiko Rieger.
+\newblock Random walks on complex networks.
+\newblock \emph{Physical Review Letters}, 92:\penalty0 118701, 2004.
+\newblock \doi{10.1103/PhysRevLett.92.118701}.
+
+\bibitem[Van~Mieghem(2011)]{ref114}
+Piet Van~Mieghem.
+\newblock \emph{Graph Spectra for Complex Networks}.
+\newblock Cambridge University Press, 2011.
+
+\bibitem[Hurst(1951)]{ref53}
+Harold~E. Hurst.
+\newblock Long-term storage capacity of reservoirs.
+\newblock \emph{Transactions of the American Society of Civil Engineers},
+  116:\penalty0 770--799, 1951.
+
+\bibitem[Mandelbrot and Wallis(1969)]{ref54}
+Benoit~B. Mandelbrot and John~R. Wallis.
+\newblock Robustness of the rescaled range r/s in the measurement of noncyclic
+  long run statistical dependence.
+\newblock \emph{Water Resources Research}, 5:\penalty0 967--988, 1969.
+\newblock \doi{10.1029/WR005i005p00967}.
+
+\bibitem[Fano(1947)]{ref55}
+Ugo Fano.
+\newblock Ionization yield of radiations. ii. the fluctuations of the number of
+  ions.
+\newblock \emph{Physical Review}, 72:\penalty0 26--29, 1947.
+
+\bibitem[Fulcher and Jones(2014)]{ref65}
+Ben~D. Fulcher and Nicholas~S. Jones.
+\newblock Highly comparative feature-based time-series classification.
+\newblock \emph{IEEE Transactions on Knowledge and Data Engineering},
+  26:\penalty0 3026--3037, 2014.
+
+\bibitem[Lubba et~al.(2019)]{ref66}
+Carl~H. Lubba et~al.
+\newblock catch22: Canonical time-series characteristics.
+\newblock \emph{Data Mining and Knowledge Discovery}, 33:\penalty0 1821--1852,
+  2019.
+
+\bibitem[Peng et~al.(1994)]{ref108}
+C.-K. Peng et~al.
+\newblock Mosaic organization of dna nucleotides.
+\newblock \emph{Physical Review E}, 49:\penalty0 1685--1689, 1994.
+\newblock \doi{10.1103/PhysRevE.49.1685}.
+
+\bibitem[Hu et~al.(2001)Hu, Ivanov, Chen, Carpena, and Stanley]{ref109}
+Kun Hu, Plamen~Ch. Ivanov, Zhi Chen, P.~Carpena, and H.~Eugene Stanley.
+\newblock Effect of trends on detrended fluctuation analysis.
+\newblock \emph{Physical Review E}, 64:\penalty0 011114, 2001.
+\newblock \doi{10.1103/PhysRevE.64.011114}.
+
+\bibitem[Goh and Barabási(2008)]{ref110}
+Kwang-Il Goh and Albert-László Barabási.
+\newblock Burstiness and memory in complex systems.
+\newblock \emph{Europhysics Letters}, 81:\penalty0 48002, 2008.
+\newblock \doi{10.1209/0295-5075/81/48002}.
+
+\bibitem[Barabási(2005)]{ref113}
+Albert-László Barabási.
+\newblock The origin of bursts and heavy tails in human dynamics.
+\newblock \emph{Nature}, 435:\penalty0 207--211, 2005.
+\newblock \doi{10.1038/nature03459}.
+
+\bibitem[Molloy and Reed(1995)]{ref57}
+Michael Molloy and Bruce Reed.
+\newblock A critical point for random graphs with a given degree sequence.
+\newblock \emph{Random Structures and Algorithms}, 6:\penalty0 161--180, 1995.
+
+\end{thebibliography}
