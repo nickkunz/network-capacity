@@ -881,7 +881,6 @@ def eval_falsified_consensus(
     )
     return compile_falsified_consensus(results = results)
 
-## ----------------------------------------------------------------------------
 ## summarize falsification tests
 ## ----------------------------------------------------------------------------
 def stat_falsified_test(
