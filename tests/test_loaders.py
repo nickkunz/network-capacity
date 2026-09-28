@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+import datetime
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -10,6 +11,12 @@ import numpy as np
 import pandas as pd
 
 from src.data.loaders.bitcoin import build_network_bitcoin
+from src.data.loaders.crop import (
+    CropProcessor,
+    _extract_calendar_dates,
+    _process_events_croppol,
+    build_network_croppol,
+)
 from src.data.loaders.epilepsy import _load_events_epilepsy
 from src.data.loaders.faers import _iter_reports_faers, _process_events_faers
 from src.data.loaders.federal import FederalProcessor
@@ -139,6 +146,106 @@ class FederalEventTests(unittest.TestCase):
             processor.data_processed["Start Date"].dt.strftime("%Y-%m-%d").tolist(),
             ["2011-09-23"],
         )
+
+
+class CropLoaderTests(unittest.TestCase):
+
+    def test_extract_calendar_dates_from_ymd(self) -> None:
+        data = pd.DataFrame(
+            data = {
+                "Year_of_study": [2011, 2012],
+                "month_of_study": [5, 4],
+                "day_of_study": [10, 27],
+            }
+        )
+        dates = _extract_calendar_dates(data = data)
+        self.assertEqual(
+            dates.tolist(),
+            [datetime.date(2011, 5, 10), datetime.date(2012, 4, 27)]
+        )
+
+    def test_extract_calendar_dates_from_serial(self) -> None:
+        data = pd.DataFrame(
+            data = {
+                "Year_of_study": [np.nan],
+                "month_of_study": [np.nan],
+                "day_of_study": [np.nan],
+                "date_round1": [40673],
+            }
+        )
+        dates = _extract_calendar_dates(data = data)
+        self.assertEqual(
+            dates.tolist(),
+            [datetime.date(2011, 5, 10)]
+        )
+
+    def test_extract_calendar_dates_missing_returns_nat(self) -> None:
+        data = pd.DataFrame(
+            data = {
+                "Year_of_study": [np.nan],
+                "month_of_study": [np.nan],
+                "day_of_study": [np.nan],
+            }
+        )
+        dates = _extract_calendar_dates(data = data)
+        self.assertTrue(pd.isna(dates.iloc[0]))
+
+    def test_build_network_croppol_extracts_bipartite_edges(self) -> None:
+        data = pd.DataFrame(
+            data = {
+                "crop": ["Brassica_napus", "Brassica_napus"],
+                "final_fruitset": [0.5, 0.6],
+                "Apis_mellifera": [5, 0],
+                "Bombus_terrestris": [0, 2],
+                "Zero_count_species": [0, 0],
+            }
+        )
+        nodes, edges = build_network_croppol(data = [data])
+        self.assertEqual(
+            set(nodes),
+            {"Brassica_napus", "Apis_mellifera", "Bombus_terrestris"}
+        )
+        self.assertEqual(
+            set(edges),
+            {("Brassica_napus", "Apis_mellifera"), ("Brassica_napus", "Bombus_terrestris")}
+        )
+
+    def test_process_events_croppol_aggregates_daily_counts(self) -> None:
+        data = pd.DataFrame(
+            data = {
+                "crop": ["Brassica_napus", "Brassica_napus"],
+                "Year_of_study": [2011, 2011],
+                "month_of_study": [5, 5],
+                "day_of_study": [10, 10],
+                "final_fruitset": [0.5, 0.6],
+                "Apis_mellifera": [5, 3],
+                "Bombus_terrestris": [2, 1],
+            }
+        )
+        events = _process_events_croppol(data = [data])
+        self.assertEqual(events["date"].tolist(), ["2011-05-10"])
+        self.assertEqual(events["target"].tolist(), [11])
+
+    @patch("src.data.loaders.crop._load_rader_study")
+    def test_crop_processor_mock_run(self, mock_load) -> None:
+        mock_df = pd.DataFrame(
+            data = {
+                "crop": ["Brassica_napus", "Brassica_napus"],
+                "Year_of_study": [2011, 2011],
+                "month_of_study": [5, 5],
+                "day_of_study": [10, 11],
+                "final_fruitset": [0.5, 0.6],
+                "Apis_mellifera": [5, 3],
+                "Bombus_terrestris": [2, 1],
+            }
+        )
+        mock_load.return_value = mock_df
+        processor = CropProcessor(url = "unused")
+        res = processor.run()
+        self.assertIn("invariants", res)
+        self.assertIn("signatures", res)
+        self.assertIn("events", res)
+        self.assertEqual(len(res["events"]), 2)
 
 
 class PerturbationDispatchTests(unittest.TestCase):
