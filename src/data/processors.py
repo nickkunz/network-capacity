@@ -84,6 +84,7 @@ URL_WIKI = config['urls']['URL_WIKI'].strip('"')
 URL_OVERFLOW = config['urls']['URL_OVERFLOW'].strip('"')
 URL_EMAIL = config['urls']['URL_EMAIL'].strip('"')
 URL_COLLEGE = config['urls']['URL_COLLEGE'].strip('"')
+URL_CROP = config['urls'].get('URL_CROP', config['urls'].get('URL_CROP_RADER', '')).strip('"')
 URL_CROP_SAMPLING = config['urls']['URL_CROP_SAMPLING'].strip('"')
 URL_CROP_FIELD = config['urls']['URL_CROP_FIELD'].strip('"')
 URL_FAERS = config['urls']['URL_FAERS'].strip('"')
@@ -267,7 +268,7 @@ def json_processor(force: bool = False):
     path_crop = os.path.join(PATH_PROC, f"{NAME_CROP}.json")
     if force or not os.path.exists(path_crop):
         logging.info("Processing CropPol data...")
-        data_crop = CropProcessor(url_sampling = URL_CROP_SAMPLING, url_field = URL_CROP_FIELD).run()
+        data_crop = CropProcessor(url = URL_CROP).run()
         _save_to_json(data = data_crop, path = path_crop)
         logging.info(f"CropPol data saved to {path_crop}")
     else:
