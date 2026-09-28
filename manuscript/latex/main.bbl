@@ -26,34 +26,27 @@ Per Bak, Chao Tang, and Kurt Wiesenfeld.
 \newblock \emph{Physical Review Letters}, 59:\penalty0 381--384, 1987.
 \newblock \doi{10.1103/PhysRevLett.59.381}.
 
-\bibitem[Buldyrev et~al.(2010)Buldyrev, Parshani, Paul, Stanley, and
-  Havlin]{ref34}
-Sergey~V. Buldyrev, Roni Parshani, Gerald Paul, H.~Eugene Stanley, and Shlomo
-  Havlin.
+\bibitem[Buldyrev et~al.(2010)Buldyrev, Parshani, Paul, Stanley, and Havlin]{ref34}
+Sergey~V. Buldyrev, Roni Parshani, Gerald Paul, H.~Eugene Stanley, and Shlomo Havlin.
 \newblock Catastrophic cascade of failures in interdependent networks.
 \newblock \emph{Nature}, 464:\penalty0 1025--1028, 2010.
 \newblock \doi{10.1038/nature08932}.
 
 \bibitem[Huang et~al.(2005)Huang, Eichler, Bar-Yam, and Ingber]{ref25}
 Sui Huang, G.~S. Eichler, Yaneer Bar-Yam, and Donald~E. Ingber.
-\newblock Cell fates as high-dimensional attractor states of a complex gene
-  regulatory network.
+\newblock Cell fates as high-dimensional attractor states of a complex gene regulatory network.
 \newblock \emph{Physical Review Letters}, 94:\penalty0 128701, 2005.
 \newblock \doi{10.1103/PhysRevLett.94.128701}.
 
-\bibitem[Guimerà et~al.(2002)Guimerà, Díaz-Guilera, Vega-Redondo, Cabrales,
-  and Arenas]{ref03}
-Roger Guimerà, Albert Díaz-Guilera, Fernando Vega-Redondo, Antonio Cabrales,
-  and Alex Arenas.
+\bibitem[Guimerà et~al.(2002)Guimerà, Díaz-Guilera, Vega-Redondo, Cabrales, and Arenas]{ref03}
+Roger Guimerà, Albert Díaz-Guilera, Fernando Vega-Redondo, Antonio Cabrales, and Alex Arenas.
 \newblock Optimal network topologies for local search with congestion.
 \newblock \emph{Physical Review Letters}, 89:\penalty0 248701, 2002.
 
 \bibitem[Li et~al.(2015)]{ref04}
 Daqing Li et~al.
-\newblock Percolation transition in dynamical traffic network with evolving
-  critical bottlenecks.
-\newblock \emph{Proceedings of the National Academy of Sciences}, 112:\penalty0
-  669--672, 2015.
+\newblock Percolation transition in dynamical traffic network with evolving critical bottlenecks.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 112:\penalty0 669--672, 2015.
 
 \bibitem[Taylor(1961)]{ref13}
 L.~R. Taylor.
@@ -70,8 +63,7 @@ Baruch Barzel and Albert-László Barabási.
 \newblock Universality in network dynamics.
 \newblock \emph{Nature Physics}, 9:\penalty0 673--681, 2013.
 
-\bibitem[Boccaletti et~al.(2006)Boccaletti, Latora, Moreno, Chavez, and
-  Hwang]{ref05}
+\bibitem[Boccaletti et~al.(2006)Boccaletti, Latora, Moreno, Chavez, and Hwang]{ref05}
 Stefano Boccaletti, Vito Latora, Yamir Moreno, Mario Chavez, and Dong-U Hwang.
 \newblock Complex networks: structure and dynamics.
 \newblock \emph{Physics Reports}, 424:\penalty0 175--308, 2006.
@@ -84,20 +76,17 @@ Lester~R. Ford and Delbert~R. Fulkerson.
 \bibitem[Ahlswede et~al.(2000)Ahlswede, Cai, Li, and Yeung]{ref08}
 Rudolf Ahlswede, Ning Cai, Shuo-Yen~Robert Li, and Raymond~W. Yeung.
 \newblock Network information flow.
-\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0
-  1204--1216, 2000.
+\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0 1204--1216, 2000.
 
 \bibitem[Gupta and Kumar(2000)]{ref28}
 Piyush Gupta and P.~R. Kumar.
 \newblock The capacity of wireless networks.
-\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0
-  388--404, 2000.
+\newblock \emph{IEEE Transactions on Information Theory}, 46:\penalty0 388--404, 2000.
 \newblock \doi{10.1109/18.825799}.
 
 \bibitem[Chen and Wang(2006)]{ref35}
 Z.~Y. Chen and X.~F. Wang.
-\newblock Effects of network structure and routing strategy on network
-  capacity.
+\newblock Effects of network structure and routing strategy on network capacity.
 \newblock \emph{Physical Review E}, 73:\penalty0 036107, 2006.
 \newblock \doi{10.1103/PhysRevE.73.036107}.
 
@@ -106,10 +95,8 @@ Romualdo Pastor-Satorras and Alessandro Vespignani.
 \newblock Epidemic spreading in scale-free networks.
 \newblock \emph{Physical Review Letters}, 86:\penalty0 3200--3203, 2001.
 
-\bibitem[Pastor-Satorras et~al.(2015)Pastor-Satorras, Castellano, Van~Mieghem,
-  and Vespignani]{ref30}
-Romualdo Pastor-Satorras, Claudio Castellano, Piet Van~Mieghem, and Alessandro
-  Vespignani.
+\bibitem[Pastor-Satorras et~al.(2015)Pastor-Satorras, Castellano, Van~Mieghem, and Vespignani]{ref30}
+Romualdo Pastor-Satorras, Claudio Castellano, Piet Van~Mieghem, and Alessandro Vespignani.
 \newblock Epidemic processes in complex networks.
 \newblock \emph{Reviews of Modern Physics}, 87:\penalty0 925--979, 2015.
 \newblock \doi{10.1103/RevModPhys.87.925}.
@@ -119,10 +106,8 @@ Adilson~E. Motter and Ying-Cheng Lai.
 \newblock Cascade-based attacks on complex networks.
 \newblock \emph{Physical Review E}, 66:\penalty0 065102, 2002.
 
-\bibitem[Arenas et~al.(2008)Arenas, Díaz-Guilera, Kurths, Moreno, and
-  Zhou]{ref11}
-Alex Arenas, Albert Díaz-Guilera, Jürgen Kurths, Yamir Moreno, and Changsong
-  Zhou.
+\bibitem[Arenas et~al.(2008)Arenas, Díaz-Guilera, Kurths, Moreno, and Zhou]{ref11}
+Alex Arenas, Albert Díaz-Guilera, Jürgen Kurths, Yamir Moreno, and Changsong Zhou.
 \newblock Synchronization in complex networks.
 \newblock \emph{Physics Reports}, 469:\penalty0 93--153, 2008.
 
@@ -159,31 +144,25 @@ Geoffrey~B. West, James~H. Brown, and Brian~J. Enquist.
 \newblock A general model for the origin of allometric scaling laws in biology.
 \newblock \emph{Science}, 276:\penalty0 122--126, 1997.
 
-\bibitem[Bettencourt et~al.(2007)Bettencourt, Lobo, Helbing, Kühnert, and
-  West]{ref18}
-Luís M.~A. Bettencourt, José Lobo, Dirk Helbing, Christian Kühnert, and
-  Geoffrey~B. West.
+\bibitem[Bettencourt et~al.(2007)Bettencourt, Lobo, Helbing, Kühnert, and West]{ref18}
+Luís M.~A. Bettencourt, José Lobo, Dirk Helbing, Christian Kühnert, and Geoffrey~B. West.
 \newblock Growth, innovation, scaling, and the pace of life in cities.
-\newblock \emph{Proceedings of the National Academy of Sciences}, 104:\penalty0
-  7301--7306, 2007.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 104:\penalty0 7301--7306, 2007.
 
 \bibitem[Aigner et~al.(1977)Aigner, Lovell, and Schmidt]{ref19}
 Dennis Aigner, C.~A.~Knox Lovell, and Peter Schmidt.
-\newblock Formulation and estimation of stochastic frontier production function
-  models.
+\newblock Formulation and estimation of stochastic frontier production function models.
 \newblock \emph{Journal of Econometrics}, 6:\penalty0 21--37, 1977.
 
 \bibitem[Meeusen and van~den Broeck(1977)]{ref20}
 Wim Meeusen and Julien van~den Broeck.
-\newblock Efficiency estimation from cobb-douglas production functions with
-  composed error.
+\newblock Efficiency estimation from cobb-douglas production functions with composed error.
 \newblock \emph{International Economic Review}, 18:\penalty0 435--444, 1977.
 
 \bibitem[Charnes et~al.(1978)Charnes, Cooper, and Rhodes]{ref21}
 Abraham Charnes, William~W. Cooper, and Edwardo Rhodes.
 \newblock Measuring the efficiency of decision making units.
-\newblock \emph{European Journal of Operational Research}, 2:\penalty0
-  429--444, 1978.
+\newblock \emph{European Journal of Operational Research}, 2:\penalty0 429--444, 1978.
 
 \bibitem[Koenker and Bassett(1978)]{ref22}
 Roger Koenker and Gilbert Bassett.
@@ -235,15 +214,13 @@ Whitney~K. Newey and James~L. Powell.
 
 \bibitem[Friedman et~al.(2010)Friedman, Hastie, and Tibshirani]{ref76}
 Jerome Friedman, Trevor Hastie, and Robert Tibshirani.
-\newblock Regularization paths for generalized linear models via coordinate
-  descent.
+\newblock Regularization paths for generalized linear models via coordinate descent.
 \newblock \emph{Journal of Statistical Software}, 33:\penalty0 1--22, 2010.
 
 \bibitem[Meinshausen(2006)]{ref37}
 Nicolai Meinshausen.
 \newblock Quantile regression forests.
-\newblock \emph{Journal of Machine Learning Research}, 7:\penalty0 983--999,
-  2006.
+\newblock \emph{Journal of Machine Learning Research}, 7:\penalty0 983--999, 2006.
 
 \bibitem[Friedman(2001)]{ref38}
 Jerome~H. Friedman.
@@ -253,28 +230,22 @@ Jerome~H. Friedman.
 \bibitem[Chen and Guestrin(2016)]{ref39}
 Tianqi Chen and Carlos Guestrin.
 \newblock Xgboost: a scalable tree boosting system.
-\newblock In \emph{Proceedings of the 22nd ACM SIGKDD International Conference
-  on Knowledge Discovery and Data Mining}, pages 785--794, 2016.
+\newblock In \emph{Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, pages 785--794, 2016.
 
 \bibitem[Amos et~al.(2017)Amos, Xu, and Kolter]{ref40}
 Brandon Amos, Lei Xu, and J.~Zico Kolter.
 \newblock Input convex neural networks.
-\newblock In \emph{Proceedings of the 34th International Conference on Machine
-  Learning}, pages 146--155, 2017.
+\newblock In \emph{Proceedings of the 34th International Conference on Machine Learning}, pages 146--155, 2017.
 
 \bibitem[Nair and Hinton(2010)]{ref80}
 Vinod Nair and Geoffrey~E. Hinton.
 \newblock Rectified linear units improve restricted boltzmann machines.
-\newblock In \emph{Proceedings of the 27th International Conference on Machine
-  Learning}, pages 807--814, 2010.
+\newblock In \emph{Proceedings of the 27th International Conference on Machine Learning}, pages 807--814, 2010.
 
-\bibitem[Srivastava et~al.(2014)Srivastava, Hinton, Krizhevsky, Sutskever, and
-  Salakhutdinov]{ref77}
-Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan
-  Salakhutdinov.
+\bibitem[Srivastava et~al.(2014)Srivastava, Hinton, Krizhevsky, Sutskever, and Salakhutdinov]{ref77}
+Nitish Srivastava, Geoffrey Hinton, Alex Krizhevsky, Ilya Sutskever, and Ruslan Salakhutdinov.
 \newblock Dropout: a simple way to prevent neural networks from overfitting.
-\newblock \emph{Journal of Machine Learning Research}, 15:\penalty0 1929--1958,
-  2014.
+\newblock \emph{Journal of Machine Learning Research}, 15:\penalty0 1929--1958, 2014.
 
 \bibitem[Loshchilov and Hutter(2019)]{ref41}
 Ilya Loshchilov and Frank Hutter.
@@ -284,28 +255,24 @@ Ilya Loshchilov and Frank Hutter.
 \bibitem[Farrell(1957)]{ref103}
 M.~J. Farrell.
 \newblock The measurement of productive efficiency.
-\newblock \emph{Journal of the Royal Statistical Society: Series A},
-  120:\penalty0 253--290, 1957.
+\newblock \emph{Journal of the Royal Statistical Society: Series A}, 120:\penalty0 253--290, 1957.
 \newblock \doi{10.2307/2343100}.
 
 \bibitem[Simar and Wilson(1998)]{ref111}
 Léopold Simar and Paul~W. Wilson.
-\newblock Sensitivity analysis of efficiency scores: how to bootstrap in
-  nonparametric frontier models.
+\newblock Sensitivity analysis of efficiency scores: how to bootstrap in nonparametric frontier models.
 \newblock \emph{Management Science}, 44:\penalty0 49--61, 1998.
 \newblock \doi{10.1287/mnsc.44.1.49}.
 
 \bibitem[Spearman(1904)]{ref42}
 Charles Spearman.
 \newblock The proof and measurement of association between two things.
-\newblock \emph{The American Journal of Psychology}, 15:\penalty0 72--101,
-  1904.
+\newblock \emph{The American Journal of Psychology}, 15:\penalty0 72--101, 1904.
 
 \bibitem[Webber et~al.(2010)Webber, Moffat, and Zobel]{ref43}
 William Webber, Alistair Moffat, and Justin Zobel.
 \newblock A similarity measure for indefinite rankings.
-\newblock \emph{ACM Transactions on Information Systems}, 28:\penalty0 20,
-  2010.
+\newblock \emph{ACM Transactions on Information Systems}, 28:\penalty0 20, 2010.
 
 \bibitem[Székely et~al.(2007)Székely, Rizzo, and Bakirov]{ref44}
 Gábor~J. Székely, Maria~L. Rizzo, and Nail~K. Bakirov.
@@ -314,31 +281,25 @@ Gábor~J. Székely, Maria~L. Rizzo, and Nail~K. Bakirov.
 
 \bibitem[Burman(1989)]{ref73}
 Prabir Burman.
-\newblock A comparative study of ordinary cross-validation, v-fold
-  cross-validation and the repeated learning-testing methods.
+\newblock A comparative study of ordinary cross-validation, v-fold cross-validation and the repeated learning-testing methods.
 \newblock \emph{Biometrika}, 76:\penalty0 503--514, 1989.
 
 \bibitem[Roberts et~al.(2017)]{ref74}
 David~R. Roberts et~al.
-\newblock Cross-validation strategies for data with temporal, spatial,
-  hierarchical, or phylogenetic structure.
+\newblock Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure.
 \newblock \emph{Ecography}, 40:\penalty0 913--929, 2017.
 
 \bibitem[Muandet et~al.(2013)Muandet, Balduzzi, and Schölkopf]{ref68}
 Krikamol Muandet, David Balduzzi, and Bernhard Schölkopf.
 \newblock Domain generalization via invariant feature representation.
-\newblock In \emph{Proceedings of the 30th International Conference on Machine
-  Learning}, pages 10--18, 2013.
+\newblock In \emph{Proceedings of the 30th International Conference on Machine Learning}, pages 10--18, 2013.
 
 \bibitem[Peters et~al.(2016)Peters, Bühlmann, and Meinshausen]{ref69}
 Jonas Peters, Peter Bühlmann, and Nicolai Meinshausen.
-\newblock Causal inference by using invariant prediction: identification of
-  causal effects, modules, and error distributions.
-\newblock \emph{Journal of the Royal Statistical Society: Series B},
-  78:\penalty0 947--1012, 2016.
+\newblock Causal inference by using invariant prediction: identification of causal effects, modules, and error distributions.
+\newblock \emph{Journal of the Royal Statistical Society: Series B}, 78:\penalty0 947--1012, 2016.
 
-\bibitem[Arjovsky et~al.(2019)Arjovsky, Bottou, Gulrajani, and
-  Lopez-Paz]{ref70}
+\bibitem[Arjovsky et~al.(2019)Arjovsky, Bottou, Gulrajani, and Lopez-Paz]{ref70}
 Martin Arjovsky, Léon Bottou, Ishaan Gulrajani, and David Lopez-Paz.
 \newblock Invariant risk minimization, 2019.
 
@@ -360,16 +321,13 @@ Sture Holm.
 
 \bibitem[Kerby(2014)]{ref71}
 Dave~S. Kerby.
-\newblock The simple difference formula: An approach to teaching biserial
-  correlation.
+\newblock The simple difference formula: An approach to teaching biserial correlation.
 \newblock \emph{Comprehensive Psychology}, 3:\penalty0 11.IT.3.1, 2014.
 
 \bibitem[Schuirmann(1987)]{ref47}
 Donald~J. Schuirmann.
-\newblock A comparison of the two one-sided tests procedure and the power
-  approach for assessing the equivalence of average bioavailability.
-\newblock \emph{Journal of Pharmacokinetics and Biopharmaceutics}, 15:\penalty0
-  657--680, 1987.
+\newblock A comparison of the two one-sided tests procedure and the power approach for assessing the equivalence of average bioavailability.
+\newblock \emph{Journal of Pharmacokinetics and Biopharmaceutics}, 15:\penalty0 657--680, 1987.
 
 \bibitem[Maslov and Sneppen(2002)]{ref56}
 Sergei Maslov and Kim Sneppen.
@@ -379,8 +337,7 @@ Sergei Maslov and Kim Sneppen.
 \bibitem[Erdős and Rényi(1960)]{ref106}
 Paul Erdős and Alfréd Rényi.
 \newblock On the evolution of random graphs.
-\newblock \emph{Publicationes Mathematicae Institute of the Hungarian Academy
-  of Sciences}, 5:\penalty0 17--60, 1960.
+\newblock \emph{Publicationes Mathematicae Institute of the Hungarian Academy of Sciences}, 5:\penalty0 17--60, 1960.
 
 \bibitem[Albert et~al.(2000)Albert, Jeong, and Barabási]{ref104}
 Réka Albert, Hawoong Jeong, and Albert-László Barabási.
@@ -401,8 +358,7 @@ Bradley Efron.
 
 \bibitem[Wellek(2010)]{ref78}
 Stefan Wellek.
-\newblock \emph{Testing Statistical Hypotheses of Equivalence and
-  Noninferiority}.
+\newblock \emph{Testing Statistical Hypotheses of Equivalence and Noninferiority}.
 \newblock CRC Press, 2 edition, 2010.
 
 \bibitem[van Rossum and Drake(2009)]{ref86}
@@ -448,8 +404,7 @@ Pauli Virtanen et~al.
 \bibitem[McKinney(2010)]{ref83}
 Wes McKinney.
 \newblock Data structures for statistical computing in python.
-\newblock In \emph{Proceedings of the 9th Python in Science Conference}, pages
-  56--61, 2010.
+\newblock In \emph{Proceedings of the 9th Python in Science Conference}, pages 56--61, 2010.
 
 \bibitem[{pandas}(2026)]{ref84}
 {pandas}.
@@ -458,14 +413,12 @@ Wes McKinney.
 \bibitem[Hagberg et~al.(2008)Hagberg, Swart, and Schult]{ref91}
 Aric~A. Hagberg, Daniel~A. Swart, and Pieter~J. Schult.
 \newblock Exploring network structure, dynamics, and function using networkx.
-\newblock In \emph{Proceedings of the 7th Python in Science Conference}, pages
-  11--15, 2008.
+\newblock In \emph{Proceedings of the 7th Python in Science Conference}, pages 11--15, 2008.
 
 \bibitem[{NetworkX}(2025)]{ref98}
 {NetworkX}.
 \newblock Networkx, version 3.5, 2025.
-\newblock URL
-  \url{https://github.com/networkx/networkx/releases/tag/networkx-3.5}.
+\newblock URL \url{https://github.com/networkx/networkx/releases/tag/networkx-3.5}.
 
 \bibitem[Fey and Lenssen(2019)]{ref89}
 Matthias Fey and Jan~E. Lenssen.
@@ -474,27 +427,22 @@ Matthias Fey and Jan~E. Lenssen.
 \bibitem[{PyTorch Geometric}(2025)]{ref99}
 {PyTorch Geometric}.
 \newblock Pytorch geometric, version 2.7.0, 2025.
-\newblock URL
-  \url{https://github.com/pyg-team/pytorch_geometric/releases/tag/2.7.0}.
+\newblock URL \url{https://github.com/pyg-team/pytorch_geometric/releases/tag/2.7.0}.
 
 \bibitem[Rozemberczki et~al.(2021)]{ref90}
 Benedek Rozemberczki et~al.
-\newblock Pytorch geometric temporal: spatiotemporal signal processing with
-  neural machine learning models.
-\newblock In \emph{Proceedings of the 30th ACM International Conference on
-  Information and Knowledge Management}, pages 4564--4573, 2021.
+\newblock Pytorch geometric temporal: spatiotemporal signal processing with neural machine learning models.
+\newblock In \emph{Proceedings of the 30th ACM International Conference on Information and Knowledge Management}, pages 4564--4573, 2021.
 
 \bibitem[{PyTorch Geometric Temporal}(2024)]{ref100}
 {PyTorch Geometric Temporal}.
 \newblock Pytorch geometric temporal, version 0.56.2, 2024.
-\newblock URL
-  \url{https://github.com/benedekrozemberczki/pytorch_geometric_temporal/releases/tag/v0.56.2}.
+\newblock URL \url{https://github.com/benedekrozemberczki/pytorch_geometric_temporal/releases/tag/v0.56.2}.
 
 \bibitem[Pedregosa et~al.(2011)]{ref72}
 Fabian Pedregosa et~al.
 \newblock Scikit-learn: machine learning in python.
-\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830,
-  2011.
+\newblock \emph{Journal of Machine Learning Research}, 12:\penalty0 2825--2830, 2011.
 
 \bibitem[{scikit-learn}(2025)]{ref94}
 {scikit-learn}.
@@ -513,8 +461,7 @@ H.~de~Vries.
 \bibitem[Paszke et~al.(2019)]{ref85}
 Adam Paszke et~al.
 \newblock Pytorch: an imperative style, high-performance deep learning library.
-\newblock In \emph{Advances in Neural Information Processing Systems},
-  volume~32, pages 8024--8035, 2019.
+\newblock In \emph{Advances in Neural Information Processing Systems}, volume~32, pages 8024--8035, 2019.
 
 \bibitem[{PyTorch}(2025)]{ref115}
 {PyTorch}.
@@ -529,14 +476,12 @@ C.~Carreño.
 \bibitem[Hunter(2007)]{ref92}
 John~D. Hunter.
 \newblock Matplotlib: a 2d graphics environment.
-\newblock \emph{Computing in Science and Engineering}, 9:\penalty0 90--95,
-  2007.
+\newblock \emph{Computing in Science and Engineering}, 9:\penalty0 90--95, 2007.
 
 \bibitem[{Matplotlib}(2024)]{ref101}
 {Matplotlib}.
 \newblock Matplotlib, version 3.9.2, 2024.
-\newblock URL
-  \url{https://github.com/matplotlib/matplotlib/releases/tag/v3.9.2}.
+\newblock URL \url{https://github.com/matplotlib/matplotlib/releases/tag/v3.9.2}.
 
 \bibitem[Watts and Strogatz(1998)]{ref49}
 Duncan~J. Watts and Steven~H. Strogatz.
@@ -597,33 +542,28 @@ Piet Van~Mieghem.
 \bibitem[Hurst(1951)]{ref53}
 Harold~E. Hurst.
 \newblock Long-term storage capacity of reservoirs.
-\newblock \emph{Transactions of the American Society of Civil Engineers},
-  116:\penalty0 770--799, 1951.
+\newblock \emph{Transactions of the American Society of Civil Engineers}, 116:\penalty0 770--799, 1951.
 
 \bibitem[Mandelbrot and Wallis(1969)]{ref54}
 Benoit~B. Mandelbrot and John~R. Wallis.
-\newblock Robustness of the rescaled range r/s in the measurement of noncyclic
-  long run statistical dependence.
+\newblock Robustness of the rescaled range r/s in the measurement of noncyclic long run statistical dependence.
 \newblock \emph{Water Resources Research}, 5:\penalty0 967--988, 1969.
 \newblock \doi{10.1029/WR005i005p00967}.
 
 \bibitem[Fano(1947)]{ref55}
 Ugo Fano.
-\newblock Ionization yield of radiations. ii. the fluctuations of the number of
-  ions.
+\newblock Ionization yield of radiations. ii. the fluctuations of the number of ions.
 \newblock \emph{Physical Review}, 72:\penalty0 26--29, 1947.
 
 \bibitem[Fulcher and Jones(2014)]{ref65}
 Ben~D. Fulcher and Nicholas~S. Jones.
 \newblock Highly comparative feature-based time-series classification.
-\newblock \emph{IEEE Transactions on Knowledge and Data Engineering},
-  26:\penalty0 3026--3037, 2014.
+\newblock \emph{IEEE Transactions on Knowledge and Data Engineering}, 26:\penalty0 3026--3037, 2014.
 
 \bibitem[Lubba et~al.(2019)]{ref66}
 Carl~H. Lubba et~al.
 \newblock catch22: Canonical time-series characteristics.
-\newblock \emph{Data Mining and Knowledge Discovery}, 33:\penalty0 1821--1852,
-  2019.
+\newblock \emph{Data Mining and Knowledge Discovery}, 33:\penalty0 1821--1852, 2019.
 
 \bibitem[Peng et~al.(1994)]{ref108}
 C.-K. Peng et~al.

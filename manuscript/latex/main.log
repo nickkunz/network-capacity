@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  27 SEP 2026 14:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.3.8)  28 SEP 2026 00:19
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -962,7 +962,7 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 <../../notebooks/figures/fig1.pdf, id=32, 520.68527pt x 583.01817pt>
 File: ../../notebooks/figures/fig1.pdf Graphic file (type pdf)
 <use ../../notebooks/figures/fig1.pdf>
-Package pdftex.def Info: ../../notebooks/figures/fig1.pdf  used on input line 164.
+Package pdftex.def Info: ../../notebooks/figures/fig1.pdf  used on input line 165.
 (pdftex.def)             Requested size: 440.84746pt x 493.64621pt.
 
 
@@ -978,14 +978,14 @@ Package pdftex.def Info: ../../notebooks/figures/fig1.pdf  used on input line 16
 <../../notebooks/figures/fig2.pdf, id=151, 520.68527pt x 404.77223pt>
 File: ../../notebooks/figures/fig2.pdf Graphic file (type pdf)
 <use ../../notebooks/figures/fig2.pdf>
-Package pdftex.def Info: ../../notebooks/figures/fig2.pdf  used on input line 199.
+Package pdftex.def Info: ../../notebooks/figures/fig2.pdf  used on input line 200.
 (pdftex.def)             Requested size: 440.84746pt x 342.72392pt.
 
 
 [4]
 
 [5 <../../notebooks/figures/fig2.pdf>]
-Underfull \hbox (badness 6220) in paragraph at lines 221--222
+Underfull \hbox (badness 6220) in paragraph at lines 222--223
 \OT1/cmr/m/n/10 No alternative capacity frontier specification meaningfully outperformed the log-additive
  []
 
@@ -995,13 +995,13 @@ Underfull \hbox (badness 6220) in paragraph at lines 221--222
 <../../notebooks/figures/fig3.pdf, id=216, 520.68527pt x 252.97511pt>
 File: ../../notebooks/figures/fig3.pdf Graphic file (type pdf)
 <use ../../notebooks/figures/fig3.pdf>
-Package pdftex.def Info: ../../notebooks/figures/fig3.pdf  used on input line 226.
+Package pdftex.def Info: ../../notebooks/figures/fig3.pdf  used on input line 227.
 (pdftex.def)             Requested size: 440.84746pt x 214.19608pt.
-<../../notebooks/figures/fig4.pdf, id=217, 520.68527pt x 509.24252pt>
+<../../notebooks/figures/fig4.pdf, id=217, 520.68527pt x 509.7946pt>
 File: ../../notebooks/figures/fig4.pdf Graphic file (type pdf)
 <use ../../notebooks/figures/fig4.pdf>
-Package pdftex.def Info: ../../notebooks/figures/fig4.pdf  used on input line 235.
-(pdftex.def)             Requested size: 440.84746pt x 431.17978pt.
+Package pdftex.def Info: ../../notebooks/figures/fig4.pdf  used on input line 236.
+(pdftex.def)             Requested size: 440.84746pt x 431.64723pt.
 
 
 [7 <../../notebooks/figures/fig3.pdf>]
@@ -1009,72 +1009,84 @@ Package pdftex.def Info: ../../notebooks/figures/fig4.pdf  used on input line 23
 [8 <../../notebooks/figures/fig4.pdf>]
 
 [9]
-Underfull \hbox (badness 2126) in paragraph at lines 272--273
-\OT1/cmr/m/n/10 Each dynamical process was represented from source records without generating synthetic
- []
-
-
 
 [10]
-Underfull \hbox (badness 1152) in paragraph at lines 291--292
-\OT1/cmr/m/n/10 The graph-invariant vector collected 21 classical whole-graph quantities spanning 5 families:
- []
-
-
 
 [11]
 
 [12]
+Underfull \hbox (badness 2173) in paragraph at lines 358--359
+\OT1/cmr/m/n/10 Generalization was evaluated under strict leakage controls across four resampling regimes.
+ []
+
+
+Underfull \hbox (badness 3557) in paragraph at lines 360--361
+\OT1/cmr/m/n/10 drawn by \OT1/cmtt/m/n/10 RepeatedKFold \OT1/cmr/m/n/10 under random state 42 [[]]. Structured generalization used
+ []
+
+
 
 [13]
 
 [14]
+Underfull \hbox (badness 2142) in paragraph at lines 393--394
+[]\OT1/cmr/m/n/10 Benchmark temporal graph datasets were loaded using torch-geometric 2.7.0 [[], []] and
+ []
+
+
+Underfull \hbox (badness 1527) in paragraph at lines 393--394
+\OT1/cmr/m/n/10 torch[]-geometric[]-temporal 0.56.2 [[], []]. Observational records for gravitational wave and
+ []
+
+
 
 [15]
-Underfull \hbox (badness 1231) in paragraph at lines 365--366
+
+[16]
+Underfull \hbox (badness 1231) in paragraph at lines 400--401
 \OT1/cmr/m/n/10 All datasets were collated from publicly available sources. Access details are provided in
  []
 
 
 
-[16] (./main.bbl
-
-[17]
+[17] (./main.bbl
 
 [18]
 
 [19]
 
 [20]
-Underfull \hbox (badness 1152) in paragraph at lines 536--540
+
+[21]
+Underfull \hbox (badness 1152) in paragraph at lines 482--485
 []\OT1/cmr/m/n/10 Matplotlib.  Matplotlib, version 3.9.2, 2024.  URL [][]$\OT1/cmtt/m/n/10 https : / / github . com / matplotlib /
  []
 
 
 
-[21]
-Underfull \hbox (badness 1264) in paragraph at lines 617--621
+[22]
+Underfull \hbox (badness 1264) in paragraph at lines 559--562
 []\OT1/cmr/m/n/10 Ben D. Fulcher and Nicholas S. Jones.  Highly comparative feature-based time-series
  []
 
 )
 
-[22]
-Overfull \hbox (2.24185pt too wide) in paragraph at lines 465--465
+[23]
+Overfull \hbox (2.24185pt too wide) in paragraph at lines 500--500
 \OT1/cmr/m/n/7 surface-detector 
  []
 
 
-Overfull \hbox (3.49046pt too wide) in paragraph at lines 465--465
+Overfull \hbox (3.49046pt too wide) in paragraph at lines 500--500
 []|\OT1/cmr/m/n/7 Surface-detector 
  []
 
 
 
-[23
+[24
 
 ]
-Overfull \hbox (0.73593pt too wide) in paragraph at lines 535--535
+Overfull \hbox (0.73593pt too wide) in paragraph at lines 570--570
 []|\OT1/cmr/m/n/7 User--rating--user 
  []
 
@@ -1082,19 +1094,15 @@ Overfull \hbox (0.73593pt too wide) in paragraph at lines 535--535
 pdfTeX warning (ext4): destination with the same identifier (name{table.supp.1}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.593 \end{longtable}
-                      [24
+l.628 \end{longtable}
+                      [25
 
-] [25]
+] [26]
 
-[26]
-
-[27
-
-
-]
+[27]
 
 [28
+
 
 ]
 
@@ -1108,11 +1116,11 @@ l.593 \end{longtable}
 
 [31
 
-{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
+]
 
 [32
 
-]
+{/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc}]
 
 [33
 
@@ -1121,17 +1129,21 @@ l.593 \end{longtable}
 [34
 
 ]
-Underfull \hbox (badness 1527) in paragraph at lines 979--980
+
+[35
+
+]
+Underfull \hbox (badness 1527) in paragraph at lines 1014--1015
 []\OT1/cmr/m/n/8 OpenStreetMap con-trib-u-tors. Open-StreetMap [Dataset]. [][]$\OT1/cmtt/m/n/8 https : / / www . openstreetmap . org$[][] \OT1/cmr/m/n/8 (ac-cessed 1
  []
 
 
 
-[35
+[36
 
 ]
 
-[36] 
+[37] 
 enddocument/afterlastpage (AED): lastpage setting LastPage.
 (./main.aux)
  ***********
@@ -1142,18 +1154,18 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 45219 strings out of 473190
- 1022432 string characters out of 5715801
- 1583679 words of memory out of 5000000
+ 45220 strings out of 473190
+ 1022439 string characters out of 5715801
+ 1583677 words of memory out of 5000000
  67501 multiletter control sequences out of 15000+600000
  570626 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 94i,14n,131p,2303b,758s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 94i,14n,131p,2022b,758s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi5.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy5.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti7.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmti8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt8.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb>
-Output written on main.pdf (36 pages, 1345691 bytes).
+Output written on main.pdf (37 pages, 1341901 bytes).
 PDF statistics:
- 1002 PDF objects out of 1200 (max. 8388607)
- 822 compressed objects within 9 object streams
- 239 named destinations out of 1000 (max. 500000)
+ 1006 PDF objects out of 1200 (max. 8388607)
+ 825 compressed objects within 9 object streams
+ 240 named destinations out of 1000 (max. 500000)
  33 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -1,18 +1,18 @@
 # Fdb version 4
-["bibtex main"] 1790543132.04596 "main.aux" "main.bbl" "main" 1790545860.74883 0
+["bibtex main"] 1790579912.91587 "main.aux" "main.bbl" "main" 1790579970.03501 0
   "./ref.bib" 1790287596.10823 33303 fd50b8892f34bd204d3d0893a08e9db5 ""
   "/usr/local/texlive/2025/texmf-dist/bibtex/bst/natbib/unsrtnat.bst" 1233624470 24550 a41a6405f4de768c43e871d9fbce2bc8 ""
-  "main.aux" 1790545860.52091 24573 1379649eaf564993659705b2c6af20db "pdflatex"
+  "main.aux" 1790579969.81324 24573 3c4a372b54c51b1929d8a40da753a709 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1790545859.53703 "/Users/nickkunz/Documents/Nick’s MacBook Pro/Python/network-capacity/manuscript/latex/main.tex" "main.pdf" "main" 1790545860.749 0
-  "../../notebooks/figures/fig1.pdf" 1790491187.46823 473180 77555d5eafaf803972877fdb98bb54c8 ""
-  "../../notebooks/figures/fig2.pdf" 1790491188.14399 61980 8684713b11708f77631206efdf0613cb ""
-  "../../notebooks/figures/fig3.pdf" 1790491188.67693 43026 49479d199fab7cfa0d49ce585695ccc1 ""
-  "../../notebooks/figures/fig4.pdf" 1790492131.43125 193411 3ea17da0d9e8d382683b5a7c1d60defb ""
-  "/Users/nickkunz/Documents/Nick’s MacBook Pro/Python/network-capacity/manuscript/latex/main.tex" 1790545859.16031 109914 c8624f0d5cad09a927c423985f461dce ""
+["pdflatex"] 1790579968.86741 "/Users/nickkunz/Documents/Nick’s MacBook Pro/Python/network-capacity/manuscript/latex/main.tex" "main.pdf" "main" 1790579970.03515 0
+  "../../notebooks/figures/fig1.pdf" 1790579966.07369 473177 0196921fce662275009361af1717a6c8 ""
+  "../../notebooks/figures/fig2.pdf" 1790579966.61254 61346 e3ec026726ce68a147f6a54e8c26159c ""
+  "../../notebooks/figures/fig3.pdf" 1790579967.25873 43029 62fe09c75b1785254f9e7a781b43b64d ""
+  "../../notebooks/figures/fig4.pdf" 1790579968.21365 191222 6970f1e027b4e079877a695045d59451 ""
+  "/Users/nickkunz/Documents/Nick’s MacBook Pro/Python/network-capacity/manuscript/latex/main.tex" 1790579934.0776 108612 642d6254c20dd2abe1ed8abaad3bb225 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm0800.tfm" 1136768653 1536 05df9db6aeccc4eea94fec15c9024f79 ""
@@ -325,10 +325,10 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1760764395 5467155 19efa205003f9ecad95fbbaa6ff24da1 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1741450574 3345740 46b66fdb0378f7bf5921b5eabf1762b8 ""
   "/usr/local/texlive/2025/texmf.cnf" 1741450484 577 418a7058ec8e006d8704f60ecd22c938 ""
-  "main.aux" 1790545860.52091 24573 1379649eaf564993659705b2c6af20db "pdflatex"
-  "main.bbl" 1790544663.79807 25857 548645a4eee68daed79d3c4043393160 "bibtex main"
-  "main.out" 1790545860.1916 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "main.tex" 1790545859.16031 109914 c8624f0d5cad09a927c423985f461dce ""
+  "main.aux" 1790579969.81324 24573 3c4a372b54c51b1929d8a40da753a709 "pdflatex"
+  "main.bbl" 1790579912.99126 25737 7920527f1570b2f24feafc32aced7c7d "bibtex main"
+  "main.out" 1790579969.48532 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "main.tex" 1790579934.0776 108612 642d6254c20dd2abe1ed8abaad3bb225 ""
   (generated)
   "main.aux"
   "main.log"
