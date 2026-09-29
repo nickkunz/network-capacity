@@ -18,6 +18,7 @@ if str(root) not in sys.path:
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.helpers import _clean_differences
 from src.evaluators.resampling import (
     logo_cross_valid,
     logo_cross_valid_frozen,
@@ -986,7 +987,7 @@ def stat_falsified_test(
             valid = np.isfinite(x) & np.isfinite(y)
             x, y = x[valid], y[valid]
             n = len(x)
-            d = y - x
+            d = _clean_differences(y - x)
             med_d = float(np.median(d)) if n else np.nan
 
             n_eff = int(np.sum(d != 0))
@@ -995,7 +996,7 @@ def stat_falsified_test(
             else:
 
                 ## strict one-sided test for falsified - original < 0
-                _, p_val = wilcoxon(y, x, alternative = "less")
+                _, p_val = wilcoxon(d, alternative = "less")
 
             ## descriptive effect uses raw falsified-minus-original differences
             r_eff = paired_rank_biserial(differences = d)
