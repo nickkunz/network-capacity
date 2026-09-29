@@ -14,6 +14,7 @@ from typing import Sequence, Dict, Any, Iterator
 ## modules
 from src.evaluators.predicting import compile_corpus_full
 from src.evaluators.training import fit_predict_frontier
+from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
     frontier_metrics,
     consensus_metrics,
@@ -1590,6 +1591,7 @@ def stat_decomposed_attribution(
     )
 
     delta = (x_slack_err - z_slack_err).dropna()
+    delta = pd.Series(_clean_differences(delta.to_numpy()), index = delta.index)
     n = len(delta)
     p_label = "One-sided p"
     tail_cols = ["Rank-biserial r", p_label, "Holm-adj. p", "Sig.", "Diff."]
@@ -1714,6 +1716,7 @@ def stat_decomposed_test(
             .set_index(keys = ["model", "group"])[metric]
         )
         gap = (spec_vals - additive_vals).dropna()
+        gap = pd.Series(_clean_differences(gap.to_numpy()), index = gap.index)
         n = len(gap)
 
         if direction == "noninferiority":
