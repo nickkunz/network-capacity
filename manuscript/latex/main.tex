@@ -155,9 +155,9 @@
 \vspace{1em}
 \phantomsection
 \label{sec:intro}
-Maxima are critical for understanding complex networks. Network maxima are important because they are boundary characteristics where critical thresholds are met that mark changes in behavior \citep{ref01, ref02, ref16, ref33, ref34}. For example, a regulatory network that exceeds its threshold of localized molecular activity changes regimes \citep{ref25,ref02}. A transportation network that exceeds its carrying capacity changes behavior primarily by congestion, not by design \citep{ref03,ref04}. Although it is known that maxima can affect network behavior, understanding \textit{how} traditionally requires domain-specific knowledge \citep{ref02,ref03}. Whether or not network maxima express a common regularity across domains is still an open question \citep{ref13,ref14,ref15}. Addressing it requires a shared basis of comparison.
+Maxima are critical for understanding complex networks. Network maxima are important because they can mark where critical thresholds are met that cause material changes in behavior \citep{ref01, ref02, ref16, ref33, ref34}. For example, a regulatory network that exceeds its threshold of localized molecular activity changes regimes \citep{ref25,ref02}. A transportation network that exceeds its carrying capacity changes behavior primarily by congestion, not by design \citep{ref03,ref04}. Although it is known that network maxima can affect network behavior, understanding \textit{how} traditionally requires domain-specific knowledge \citep{ref02,ref03}. Whether or not network maxima have a common regularity across domains is still an open question \citep{ref13,ref14,ref15}. Addressing it requires a shared basis of comparison.
 
-In the previous examples, network structure formed the basis on which a dynamical process occurred \citep{ref02, ref03, ref04, ref05, ref15, ref33}. Size, connectivity, spectral organization, and other topological characteristics constrain network throughput, propagation, synchronization, etc. \citep{ref07,ref08,ref28,ref35,ref09,ref30,ref10,ref11,ref27,ref32}. The same network substrate can have different limits depending on the observational definition, activity attribution, temporal aggregation, and measurement regime \citep{ref06,ref26,ref12}. Conversely, structurally distinct substrates and dynamical processes can exhibit comparable limits under shared measurement conventions and operational definitions \citep{ref17,ref18,ref15}. In both cases, empirical maxima reflect the network substrate and the dynamical process by which observations are attributed, generated, and measured.
+In the previous examples, network structure formed the basis on which a dynamical process occurred \citep{ref02, ref03, ref04, ref05, ref15, ref33}. Size, connectivity, spectral organization, and other topological characteristics constrain network throughput, propagation, synchronization, etc. \citep{ref07,ref08,ref28,ref35,ref09,ref30,ref10,ref11,ref27,ref32}. The same network substrate can have different limits depending on the observational definition, activity attribution, temporal aggregation, and measurement regime \citep{ref06,ref26,ref12}. Conversely, structurally distinct substrates and dynamical processes can exhibit comparable limits under shared measurement conventions and operational definitions \citep{ref17,ref18,ref24,ref15}. In both cases, empirical maxima reflect the network substrate and the dynamical process by which observations are attributed, generated, and measured.
 
 %% fig 1
 \begin{figure}[H]
@@ -182,17 +182,17 @@ We evaluate whether this formulation supports a transferable, consistent, stable
 
 \subsection*{Shared Coordinate System}
 \label{sub-sec:shared}
-Encoding all systems as paired network substrate and dynamical process vectors placed unrelated phenomena within a shared coordinate system (Fig.~\ref{fig:concept}, Supplementary Table~\ref{tab:si-corpus}). The corpus of systems contained 5 broad domains: Earth \& Physical Sciences, Life Sciences \& Medicine, Technology \& Information, Trade \& Institutions, and Transportation \& Infrastructure. Each of the 5 broad domains contained 5 individual disciplines. Their measurements did not share units before encoding. The network substrate vector $x$ admitted 21 graph invariants and the dynamical process vector $z$ admitted 7 process signatures. Both were selected under prespecified criteria and standardized to $x'$ and $z'$. This encoding represented every N3S with the same number of dimensions despite large differences in substance and scale. It made empirical maxima from a wide range of domains and magnitudes directly comparable.
+Encoding all systems as paired network substrate and dynamical process vectors placed unrelated phenomena within a shared coordinate system (Fig.~\ref{fig:concept}, Supplementary Table~\ref{tab:si-corpus}). The corpus of 25 systems contained 5 broad domains: Earth \& Physical Sciences, Life Sciences \& Medicine, Technology \& Information, Trade \& Institutions, and Transportation \& Infrastructure. Their measurements did not share units before encoding. The network substrate vector $x$ admitted 21 graph invariants and the dynamical process vector $z$ admitted 7 process signatures. Both were selected under prespecified criteria and standardized to $x'$ and $z'$. This encoding represented every N3S with the same number of dimensions despite large differences in substance and scale. It made empirical maxima from a wide range of domains and magnitudes directly comparable.
 
-Within this shared representation, the capacity frontier bounded empirical maxima across the corpus (Supplementary Table~\ref{tab:si-transfer}). Under repeated $5$-Fold-CV and $10$-Fold-CV, the frontier was fit on each training set and evaluated on the corresponding test set. Each test was repeated 30 times to reduce dependence on any single seeded partition. Frontier performance was reported as medians across estimators after averaging them over test folds and repetitions. In $5$-Fold-CV and $10$-Fold-CV, frontier efficiency was 0.77 under both resampling regimes. Frontier efficiency was measured using the Efficiency Index (EI) --- the geometric mean of the non-violation rate and two bounded metrics $[0, 1]$ that decreased with violation magnitude and slack relative to the evaluated target scale. There were infrequent frontier violations, low violation magnitude, and consistent slack. The violation rate was 0.02 and 0.01 under 5-Fold-CV and 10-Fold-CV, respectively. Mean violation magnitude was 0.07 and 0.03, and mean slack was 6.72 and 6.74 log units under 5-Fold-CV and 10-Fold-CV, respectively. The formulation was found to accommodate the entire corpus of 25 individual systems.
+Within this shared representation, the capacity frontier bounded empirical maxima across the corpus (Supplementary Table~\ref{tab:si-transfer}). Under repeated $5$-Fold-CV and $10$-Fold-CV, the frontier was fit on each training set and evaluated on the corresponding test set. Each test was repeated 30 times to reduce dependence on any single seeded partition. Frontier performance was reported as medians across estimators after averaging them over test folds and repetitions. In $5$-Fold-CV and $10$-Fold-CV, frontier efficiency was 0.77 and 0.76, respectively. Frontier efficiency was measured using the Efficiency Index (EI) --- the geometric mean of the non-violation rate and two bounded metrics $[0, 1]$ that decreased with violation magnitude and slack relative to the evaluated target scale. There were infrequent frontier violations, low violation magnitude, and consistent slack. The violation rate was 0.02 and 0.01 under 5-Fold-CV and 10-Fold-CV, respectively. Mean violation magnitude was 0.06 and 0.02, and mean slack was 6.86 and 6.87 log units under 5-Fold-CV and 10-Fold-CV, respectively. The formulation was found to accommodate the entire corpus of 25 individual systems.
 
 \subsection*{Transfer Across Domains}
 \label{sub-sec:transfer}
-A capacity frontier trained without a given domain constrained the empirical maxima of that domain’s disciplines (Supplementary Table~\ref{tab:si-transfer}). Under domain-level LOGO-CV, the frontier was trained on $4/5$ broad domains and evaluated on the 5 individual disciplines in the withheld domain. Frontier efficiency was 0.75, ranging from 0.70 to 0.91 (Fig.~\ref{fig:transfer}a). Estimation-observation consensus was 0.84, ranging from 0.77 to 0.90 across the same evaluations (Fig.~\ref{fig:transfer}b). Estimation-observation consensus was measured using the Consensus Index (CI) --- the agreement between estimated and observed maxima measured by the geometric mean of global rank agreement, high-capacity overlap, and nonlinear dependence. The violation rate was 0.04. Mean violation magnitude was 0.12. Mean slack was 7.01 log units. Each withheld discipline supplied its own graph invariants, process signatures, and observed maxima so the protocol tested domain transfer of the frontier specification to a domain absent from training, not prediction in the absence of observation. This established generalization across tested domains.
+A capacity frontier trained without a given domain constrained the empirical maxima of that domain’s disciplines (Supplementary Table~\ref{tab:si-transfer}). Under domain-level LOGO-CV, the frontier was trained on $4/5$ broad domains and evaluated on the 5 individual disciplines in the withheld domain. Frontier efficiency was 0.75, ranging from 0.70 to 0.91 (Fig.~\ref{fig:transfer}a). Estimation-observation consensus was 0.84, ranging from 0.77 to 0.92 across the same evaluations (Fig.~\ref{fig:transfer}b). Estimation-observation consensus was measured using the Consensus Index (CI) --- the agreement between estimated and observed maxima measured by the geometric mean of global rank agreement, high-capacity overlap, and nonlinear dependence. The violation rate was 0.04. Mean violation magnitude was 0.08. Mean slack was 6.86 log units. Each withheld discipline supplied its own graph invariants, process signatures, and observed maxima so the protocol tested domain transfer of the frontier specification to a domain absent from training, not prediction in the absence of observation. This established generalization across tested domains.
 
-A capacity frontier trained without a given discipline also bounded that discipline’s empirical maxima. Withholding a single discipline tested similar generalization as domain-level LOGO-CV, but at a higher resolution. Under discipline-level LOGO-CV the frontier was trained on $24/25$ disciplines and evaluated on the one that was withheld, effectively Leave-One-Out Cross-Validation (LOO-CV). In this resampling regime frontier efficiency was 0.73, ranging from 0.52 to 0.90 across disciplines. Estimation-observation consensus was 0.84 based on out-of-fold predictions pooled within each of the 5 broad domains, ranging from 0.77 to 0.91 across domains. The violation rate was 0.00. Mean violation magnitude was 0.00. Mean slack was 6.18 log units. Violations were less common and smaller than under domain-level LOGO-CV. The experiment could not determine whether these differences reflected denser coverage of the coordinate system by the 24 in-sample disciplines or differences in test-fold size and metric aggregation. Nevertheless, the frontier generalized to out-of-sample disciplines similarly to out-of-sample domains, indicating indifference to resampling resolution.
+A capacity frontier trained without a given discipline also bounded that discipline’s empirical maxima. Withholding a single discipline tested similar generalization as domain-level LOGO-CV, but at a higher resolution. Under discipline-level LOGO-CV the frontier was trained on $24/25$ disciplines and evaluated on the one that was withheld, effectively Leave-One-Out Cross-Validation (LOO-CV). In this resampling regime frontier efficiency was 0.73, ranging from 0.52 to 0.90 across disciplines. Estimation-observation consensus was 0.82 based on out-of-sample predictions pooled within each of the 5 broad domains, ranging from 0.77 to 0.92 across domains. The violation rate was 0.00. Mean violation magnitude was 0.00. Mean slack was 6.12 log units. Violations were less common and smaller than under domain-level LOGO-CV. The experiment could not determine whether these differences reflected denser coverage of the coordinate system by the 24 in-sample disciplines or differences in test-fold size and metric aggregation. Nevertheless, the frontier generalized to out-of-sample disciplines similarly to out-of-sample domains, indicating indifference to resampling resolution.
 
-The capacity frontier achieved equivalent frontier performance across resampling regimes. Using the repeated $k$-Fold-CV results from \nameref{sub-sec:shared}, paired differences in frontier efficiency between domain-level LOGO-CV and repeated $k$-Fold-CV were tested across disciplines within the 5 broad domains (Fig.~\ref{fig:transfer}c). Paired differences were computed by subtracting domain-level LOGO-CV outcomes from those contained in the comparative resampling regime, where negative values indicated lower performance. Median paired differences in frontier efficiency were 0.00 for all resampling regimes. Median paired differences in estimation-observation consensus were 0.02 at most under the same evaluation. Paired Wilcoxon Two One-Sided Tests (TOST) across 45 estimator-by-domain comparisons supported equivalence within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.04$ and $\delta_{\mathrm{CI}} = 0.11$, all Holm-adjusted $p < 0.001$, Supplementary Table~\ref{tab:si-transfer-equivalence}). Withholding broad domains and individual disciplines preserved frontier performance when compared to repeated random resampling. Thus, domain generalization did not depend on any single tested resampling regime.
+The capacity frontier achieved equivalent frontier performance across resampling regimes. Using the repeated $k$-Fold-CV results from \nameref{sub-sec:shared}, paired differences in frontier efficiency between domain-level LOGO-CV and repeated $k$-Fold-CV were tested across disciplines within the 5 broad domains (Fig.~\ref{fig:transfer}c). Paired differences were computed by subtracting domain-level LOGO-CV outcomes from those contained in the comparative resampling regime, where negative values indicated lower performance. Median paired differences in frontier efficiency were 0.00 for all resampling regimes. Median paired differences in estimation-observation consensus were 0.01 in magnitude at most under the same evaluation. Paired Wilcoxon Two One-Sided Tests (TOST) across 45 estimator-by-domain comparisons supported equivalence within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.02$ and $\delta_{\mathrm{CI}} = 0.11$, all Holm-adjusted $p < 0.001$, Supplementary Table~\ref{tab:si-transfer-equivalence}). Withholding broad domains and individual disciplines preserved frontier performance when compared to repeated random resampling. Thus, domain generalization did not depend on any single tested resampling regime.
 
 %% fig 2
 \begin{figure}[H]
@@ -211,22 +211,22 @@ The capacity frontier was consistent across learning paradigms (Fig.~\ref{fig:co
 %% stress tests
 \subsection*{Stable Under Perturbation}
 \label{sub-sec:perturb}
-The capacity frontier was robust to perturbation (Fig.~\ref{fig:tests}a, Fig.~\ref{fig:tests}b, Supplementary Table~\ref{tab:si-perturb}). The 12 perturbations targeted 4 categories: network substrates, graph invariants, dynamical processes, and process signatures. Under domain-level LOGO-CV, the frontier was trained on the original data, the model frozen, then evaluated on the perturbed data in the withheld domain. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to perturbation realization and estimator initialization. Paired differences were computed by subtracting the original outcomes from the perturbed ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. At the highest tested intensity, median paired differences in frontier efficiency ranged from -0.02 to +0.01. Median paired differences in estimation-observation consensus were 0.00 for all network and invariant perturbations. Median paired differences in consensus were -0.08 for process bootstrapping, -0.04 for process scaling, and -0.06 for process smoothing. Signature jitter, noise, and masking produced median consensus differences of -0.02, -0.03, and -0.07, respectively. Paired Wilcoxon Two One-Sided Tests (TOST) across 45 estimator-by-domain comparisons supported equivalence for all 12 perturbations within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$, all Holm-adjusted $p \leq 0.021$). Response curves across normalized perturbation intensity were descriptive, where only the highest perturbation intensity was formally tested. Nevertheless, the frontier could withstand bounded structural alterations, process distortions, and feature noise while remaining reliable.
+The capacity frontier was robust to perturbation (Fig.~\ref{fig:tests}a, Fig.~\ref{fig:tests}b, Supplementary Table~\ref{tab:si-perturb}). The 12 perturbations targeted 4 categories: network substrates, graph invariants, dynamical processes, and process signatures. Under domain-level LOGO-CV, the frontier was trained on the original data, the model frozen, then evaluated on the perturbed data in the withheld domain. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to perturbation realization and estimator initialization. Paired differences were computed by subtracting the original outcomes from the perturbed ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. At the highest tested intensity, median paired differences in frontier efficiency ranged from -0.02 to +0.01. Median paired differences in estimation-observation consensus were 0.00 for all network and invariant perturbations. Median paired differences in consensus were -0.11 for process bootstrapping, -0.02 for process scaling, and -0.06 for process smoothing. Signature jitter, noise, and masking produced median consensus differences of -0.01, -0.01, and -0.04, respectively. Paired Wilcoxon Two One-Sided Tests (TOST) across 45 estimator-by-domain comparisons supported equivalence for all 12 perturbations within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$, all Holm-adjusted $p \leq 0.025$). Response curves across normalized perturbation intensity were descriptive, where only the highest perturbation intensity was formally tested. Nevertheless, the frontier could withstand bounded structural alterations, process distortions, and feature noise while remaining reliable.
 
 \subsection*{Degradation Under Falsification}
 \label{sub-sec:falsify}
-The capacity frontier predictably degraded under falsification (Fig.~\ref{fig:tests}c, Supplementary Table~\ref{tab:si-falsify}). There were 3 falsification procedures that disrupted the correspondence between feature representations and target maxima in distinct ways: target permutation preserved the empirical target distribution, random generation sampled within observed feature ranges, and vector generation maintained approximate featurewise scale. Under domain-level LOGO-CV, the frontier was evaluated by freezing the models after training on the original data, and separately after retraining on the falsified data. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to estimator initialization and training stochasticity. Paired differences were computed by subtracting the original outcomes from the falsified ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. Under the frozen model, median paired differences in frontier efficiency were -0.03 for target permutation, -0.04 for random generation, and -0.03 for vector generation. After retraining, median paired differences in frontier efficiency were -0.08 for target permutation, -0.02 for random generation, and -0.03 for vector generation. Median paired differences in estimation-observation consensus were -0.29, -0.30, and -0.21 when frozen, and -0.25, -0.17, and -0.31 after retraining, respectively. Paired One-Sided Wilcoxon Signed-Rank Tests supported lower efficiency and lower consensus across all 12 comparisons (all Holm-adjusted $p \le 0.005$ for efficiency and $p < 0.001$ for consensus). The falsified corpora served as prespecified negative controls. They indicated that the frontier depended on a true representation–target correspondence.
+The capacity frontier predictably degraded under falsification (Fig.~\ref{fig:tests}c, Supplementary Table~\ref{tab:si-falsify}). There were 3 falsification procedures that disrupted the correspondence between feature representations and target maxima in distinct ways: target permutation preserved the empirical target distribution, random generation sampled within observed feature ranges, and vector generation maintained approximate featurewise scale. Under domain-level LOGO-CV, the frontier was evaluated by freezing the models after training on the original data, and separately after retraining on the falsified data. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to estimator initialization and training stochasticity. Paired differences were computed by subtracting the original outcomes from the falsified ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. Under the frozen model, median paired differences in frontier efficiency were -0.02 for target permutation, -0.04 for random generation, and -0.03 for vector generation. After retraining, median paired differences in frontier efficiency were -0.09 for target permutation, -0.02 for random generation, and -0.03 for vector generation. Median paired differences in estimation-observation consensus were -0.29, -0.28, and -0.21 when frozen, and -0.24, -0.18, and -0.30 after retraining, respectively. Paired One-Sided Wilcoxon Signed-Rank Tests supported lower efficiency and lower consensus across all 12 comparisons (all Holm-adjusted $p \le 0.013$ for efficiency and $p < 0.001$ for consensus). The falsified corpora served as prespecified negative controls. They indicated that the frontier depended on a true representation–target correspondence.
 
 \subsection*{Parsimony Under Ablation}
 \label{sub-sec:ablate}
-No alternative capacity frontier specification meaningfully outperformed the log-additive decomposition (Fig.~\ref{fig:tests}d, Supplementary Table~\ref{tab:si-ablation}). The 4 alternative specifications contained simple ablations: invariants only and signatures only, and complex ablations: joint features and interaction terms. Invariants only trained the frontier using $x'$ alone, while signatures only used $z'$. Joint features combined both vectors into a single-stage fit, while interaction terms augmented the log-additive decomposition with pairwise products between the 2 vectors. Under domain-level LOGO-CV, ablations were fit on each training set and evaluated on the corresponding test set. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to estimator initialization and training stochasticity. Paired differences were computed by subtracting outcomes from the original formulation from the ablated ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. Median paired differences in frontier efficiency were -0.02 for joint features, and -0.01 for invariants only, signatures only, and interaction terms. Median paired differences in estimation-observation consensus were -0.28 for invariants only, -0.16 for signatures only, -0.20 for joint features, and -0.09 for interaction terms, respectively. Paired One-Sided Wilcoxon Signed-Rank tests supported non-inferiority of the log-additive decomposition to all 4 alternatives in both metrics within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$, all Holm-adjusted $p < 0.001$). These tests limited alternative advantages. They supported the log-additive decomposition as the parsimonious formulation of the frontier.
+No alternative capacity frontier specification meaningfully outperformed the log-additive decomposition (Fig.~\ref{fig:tests}d, Supplementary Table~\ref{tab:si-ablation}). The 4 alternative specifications contained simple ablations: invariants only and signatures only, and complex ablations: joint features and interaction terms. Invariants only trained the frontier using $x'$ alone, while signatures only used $z'$. Joint features combined both vectors into a single-stage fit, while interaction terms augmented the log-additive decomposition with pairwise products between the 2 vectors. Under domain-level LOGO-CV, ablations were fit on each training set and evaluated on the corresponding test set. Each test was repeated 30 times and averaged across repetitions to reduce sensitivity to estimator initialization and training stochasticity. Paired differences were computed by subtracting outcomes from the original formulation from the ablated ones across 45 estimator-by-domain comparisons, where negative values indicated lower performance. Median paired differences in frontier efficiency were -0.02 for joint features, and -0.01 for invariants only, signatures only, and interaction terms. Median paired differences in estimation-observation consensus were -0.20 for invariants only, -0.08 for signatures only, -0.27 for joint features, and -0.10 for interaction terms, respectively. Paired One-Sided Wilcoxon Signed-Rank tests supported non-inferiority of the log-additive decomposition to all 4 alternatives in both metrics within their empirically derived margins ($\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$, all Holm-adjusted $p < 0.001$). These tests limited alternative advantages. They supported the log-additive decomposition as the parsimonious formulation of the frontier.
 
 %% fig 3
 \begin{figure}[H]
 \centering
 \includegraphics[width=\linewidth]{fig3.pdf}
 \caption{
-    \textbf{Learning paradigm and estimation-observation consensus.} Agreement across 9 estimators in 3 learning paradigms evaluated on full-corpus fits across 30 seeds. \textbf{a}. Median estimation-observation consensus ($\widehat{y}^*$ versus $y^*$) by median pairwise model consensus ($\widehat{y}^*_i$ versus $\widehat{y}^*_j$). Points mark the tests: (1) original, (2) perturbed, (3) falsified, and (4) ablated. Shaded rectangles span coordinate-wise ranges of paradigm medians for the original and perturbed (green) and falsified and ablated (yellow) groups. \textbf{b}. Median pairwise model consensus across learning paradigms for each test in \textbf{a} with paradigm agreement along the diagonal axes.
+    \textbf{Learning paradigm and estimation-observation consensus.} Agreement across 9 estimators in 3 learning paradigms evaluated on full-corpus fits across 30 seeds. \textbf{a}. Median estimation-observation consensus ($\widehat{y}^*$ versus $y^*$) by median pairwise model consensus ($\widehat{y}^*_i$ versus $\widehat{y}^*_j$). Points mark the tests: (1) original, (2) perturbed, (3) falsified, and (4) ablated. Shaded rectangles span coordinate-wise ranges of paradigm medians for the original and perturbed (green) and falsified and ablated (yellow) groups. \textbf{b}. Median pairwise model consensus across learning paradigms for each test in \textbf{a} with paradigm agreement along the diagonal axes. Zeros under ablation were from estimators that returned constant predictions.
 }
 \label{fig:consensus}
 \end{figure}
@@ -235,7 +235,7 @@ No alternative capacity frontier specification meaningfully outperformed the log
 \centering
 \includegraphics[width=\linewidth]{fig4.pdf}
 \caption{
-    \textbf{Stress tests of the capacity frontier.} Paired shifts across 45 estimator-by-domain comparisons under domain-level LOGO-CV, computed as tested condition minus original condition, or alternative specification minus log-additive decomposition. \textbf{a}. Response curves across normalized intensity for 12 perturbations in 4 categories, with $\Delta\mathrm{EI}$ above and $\Delta\mathrm{CI}$ below. Lines and shaded bands show medians and interquartile ranges. \textbf{b}. Paired shifts at maximum perturbation intensity. \textbf{c}. Falsification shifts under frozen and retrained frontiers for target permutation, random generation, and vector generation. The red quadrant marks joint degradation ($\Delta\mathrm{EI} < 0$, $\Delta\mathrm{CI} < 0$). \textbf{d}. Simple (invariants only, signatures only) and complex (joint features, interaction terms) specifications compared with the log-additive decomposition. In \textbf{b--d}, faint points show individual comparisons and solid points show coordinate-wise medians connected to the origin. Green regions (\textbf{a}, \textbf{b}) mark perturbation equivalence margins ($\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.15$), and the yellow region (\textbf{d}) marks the ablation non-inferiority margin ($\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.15$).
+    \textbf{Stress tests of the capacity frontier.} Paired shifts across 45 estimator-by-domain comparisons under domain-level LOGO-CV, computed as tested condition minus original condition, or alternative specification minus log-additive decomposition. \textbf{a}. Response curves across normalized intensity for 12 perturbations in 4 categories, with $\Delta\mathrm{EI}$ above and $\Delta\mathrm{CI}$ below. Lines and shaded bands show medians and interquartile ranges. \textbf{b}. Paired shifts at maximum perturbation intensity. \textbf{c}. Falsification shifts under frozen and retrained frontiers for target permutation, random generation, and vector generation. The red quadrant marks joint degradation ($\Delta\mathrm{EI} < 0$, $\Delta\mathrm{CI} < 0$). \textbf{d}. Simple (invariants only, signatures only) and complex (joint features, interaction terms) specifications compared with the log-additive decomposition. In \textbf{b--d}, faint points show individual comparisons and solid points show coordinate-wise medians connected to the origin. Green regions (\textbf{a}, \textbf{b}) mark perturbation equivalence margins ($\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.14$), and the yellow region (\textbf{d}) marks the ablation non-inferiority margin ($\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.14$).
 }
 \label{fig:tests}
 \end{figure}
@@ -244,36 +244,35 @@ No alternative capacity frontier specification meaningfully outperformed the log
 \section*{Discussion}
 The capacity frontier makes empirical maxima comparable across disciplinary boundaries. A frontier with either a broad domain or individual discipline withheld from training bounded empirical maxima with performance comparable to random resampling. Information from one system was therefore useful for estimating the maxima in another despite differences in subject, size, scale, units, and dynamics. These comparisons provide a basis for asking which constraints are shared across systems and which depend on domain specificity. Capacity estimation can therefore use empirical evidence beyond a system’s own substantive boundary.
 
-The capacity frontier does not require a model of the dynamical processes. Graph invariants and process signatures support capacity estimation without training domain specific models or simulating their dynamics. Domain specific models are still important for causal explanation and intervention, but SCT provides a standard benchmark as a complement. Interpreting this benchmark requires additional inquiry, as the reported slack above the maxima was nearly 3 orders of magnitude. This gap may reflect a loose statistical envelope, unequal observation windows, or differences in measurement conventions. Although the meaning of the slack remains open, the capacity frontier still placed most evaluated maxima below its estimates without a traditional model of the underlying dynamics.
+The capacity frontier does not require a model of the dynamical processes. Graph invariants and process signatures support capacity estimation without training domain specific models or simulating their dynamics. Domain specific models are still important for causal explanation and intervention, but SCT provides a standard benchmark as a complement. Interpreting this benchmark requires additional inquiry, as the reported slack was nearly 3 orders of magnitude higher than the maxima. This gap may reflect a loose envelope, unequal observation windows, differences in measurements, or a combination of them. Although the meaning of the slack is still unclear, the frontier still reliably bounds empirical maxima without a traditional model of the underlying dynamics.
 
-Selective stability demonstrates why the capacity frontier is informative. Perturbations at the highest tested intensity generally preserved the frontier's original performance. Falsifications that deliberately destroyed the representation–target correspondence degraded frontier performance, which was unrecoverable even after retraining. Consensus among learning paradigms was relatively high and comparatively similar between the original and perturbed conditions. Only after falsification and ablation did the model consensus between learning paradigms degrade. This supports the frontier as a non-spurious object, distinguishable from a flexible upper envelope.
+Selective stability demonstrates why the capacity frontier is informative. Perturbations at the highest tested intensity generally preserved the frontier's original performance. Falsifications that deliberately destroyed the representation–target correspondence degraded frontier performance, which was unrecoverable even after retraining. Consensus among learning paradigms was relatively high and comparatively similar between the original and perturbed conditions. Only after falsification and ablation did the model consensus between learning paradigms degrade. This supports the frontier as a non-spurious object, distinguishable from just a flexible upper envelope.
 
 The capacity frontier is jointly determined and decomposable. Removing either component or combining them without log-additivity did not improve frontier performance or consensus among estimators. The results support the log-additive decomposition, but leave its exhaustiveness unresolved. All findings were conditioned on the 5 broad domains, 21 graph invariants, 7 process signatures, 3 learning paradigms, the log-additive decomposition, and the prespecified daily aggregation. Broader corpora, different vector representations, more diverse learning paradigms, and alternative temporal scales all provide direct tests of SCT.
 
 %% methods
 \section*{Methods}
 \subsection*{N3S Definition}
-Network Substrate Structured Systems (N3S) comprise a fixed graph substrate $G$, an observable dynamical process, and a convention for measuring an empirical rate maximum. The substrate contains finite elements with relational or attribution structure. The process is a time-indexed sequence of observed events or events reconstructed from published canonical timings, each attributable to substrate elements. 
+Within SCT, an N3S contains a fixed network substrate $G$, an observable dynamical process $S$, and a measurable empirical rate maximum $y^*$. The substrate contains finite elements with relational or attribution structure. The process is a time-indexed sequence of observed events or events reconstructed from published schedules, each attributable to substrate elements.
 
-The convention converts the sequence into an empirical rate series. Membership required empirical records for all 3 components. Operational recastings were fixed before evaluation. More information in that regard is found in Supplementary Table~\ref{tab:si-corpus}. Systems without an identifiable substrate or with only aggregate observations lacking substrate attribution were excluded.
+The convention converts the sequence into an empirical rate series. Membership requires empirical records for all 3 components. Operational recastings are fixed before evaluation. Systems without an identifiable substrate or with only aggregate observations lacking substrate attribution are excluded from analyses. More information is provided in Supplementary Table~\ref{tab:si-corpus}.
 
 \subsection*{Data and Corpus Composition}
 The corpus contained 25 individual systems across 5 broad domains: Earth \& Physical Sciences, Life Sciences \& Medicine, Technology \& Information, Trade \& Institutions, and Transportation \& Infrastructure. Each of the 5 broad domains contained 5 individual disciplines. Public data sources, access parameters, operational recastings, and system definitions appear in Supplementary Table~\ref{tab:si-corpus}. 
 
-Network substrates ranged from 5 to 10,356,390 nodes and from 10 to 7,220,486,175 edges. Empirical maximum rates ranged from 3 to 1,323,743 observations per day. Observation horizons ranged from 30 to 8,014 calendar days, which were native recording periods and canonical intervals. Measurements shared no units prior to encoding. Each system contributed exactly one record containing its graph invariants, process signatures, and empirical maximum.
+Network substrates ranged from 5 to 10,356,390 nodes and from 10 to 7,220,486,175 edges. Empirical maximum rates ranged from 3 to 1,323,743 observations per day. Observation windows ranged from 30 to 8,014 calendar days. Measurements shared no units prior to encoding. Each system contributed exactly one record containing its graph invariants $x$, process signatures $z$, and empirical maxima $y^*$.
 
 \subsection*{Network Substrate Construction}
-Every network substrate was represented as a static, unweighted, undirected graph.
-Vertices represented units. Edges represented native ties or prespecified associations. Directed and weighted records were converted to undirected, unweighted edges. Multi-edges and self-loops were removed, isolated vertices retained, and substrates held fixed across their observation windows.
+Every network substrate was represented as a static, unweighted, and undirected graph. Nodes represented units. Edges represented native connections between nodes or prespecified associations. Directed and weighted edges were converted to undirected and unweighted. Multi-edges and self-loops were removed. Isolated nodes were retained. Network substrates were held fixed across their observation windows.
 \begin{equation}
     G \;=\; (V, E),
     \qquad
     E \subseteq \binom{V}{2}
 \end{equation}
-An attribution map $a: \mathcal{O} \rightarrow V \cup E$ linked each observation $o \in \mathcal{O}$ to a node or edge through a measured or prespecified correspondence. Interaction logs formed unions of observed pairs or complete bipartite graphs over documented entity classes. Four complete bipartite substrates were defined by partition sizes $m$ and $n$ (college, email, mooc, and overflow). Their invariants used analytical expressions for $K_{m,n}$ to avoid instantiating billions of edges (Supplementary Table~\ref{tab:si-features}).
+Let $\mathcal{O}$ denote the observations from which the dynamical process $S$ was constructed. An attribution map $a: \mathcal{O} \rightarrow V \cup E$ linked each observation $o \in \mathcal{O}$ to a node or edge through a measured or prespecified mapping. Interaction logs formed unions of observed pairs or complete bipartite graphs over documented entity classes. Four complete bipartite substrates were defined by partition sizes $m$ and $n$ (college, email, mooc, and overflow). Their invariants used analytical expressions for $K_{m,n}$ to avoid instantiating billions of edges. More details in this regard are provided in Supplementary Table~\ref{tab:si-features}.
 
 \subsection*{Dynamical Process Construction}
-Dynamical processes were derived directly from empirical observation records. For continuous records, measurements were discretized using the prespecified operational thresholds found in Supplementary Table~\ref{tab:si-corpus}. Only population-mean transition times were published, records were structured as canonical event sequences. Event counts were aggregated into uniform daily intervals using UTC timestamps when present or consecutive 24-hour bins for relative timestamps and regular snapshots. This aggregation produced a discrete daily rate series:
+Dynamical processes were derived directly from empirical observations. For continuous records, measurements were discretized using the prespecified thresholds provided in Supplementary Table~\ref{tab:si-corpus}. Where only population-mean transition times were available (celegans), events followed a canonical timeline approximated from the published developmental schedules, with dauer maintenance extended to a 30-day reference. Event counts were aggregated into uniform daily intervals using UTC timestamps when present or consecutive 24-hour bins for relative timestamps and regular snapshots. This aggregation produced a discrete daily rate series:
 \begin{equation}
 S \;=\; \left\{ r_{t} \right\}_{t \in T},
 \qquad
@@ -282,25 +281,25 @@ r_{t} \;=\; \frac{n_{t}}{\Delta t},
 \Delta t \;=\; 1\ \mathrm{day}\ (24\ \mathrm{hours})
 \label{eq:series}
 \end{equation}
-where $n_{t}$ is the event count in interval $t$ and $T$ is the chronologically ordered set of evaluated intervals. The composition of the interval set $T$ followed source conventions. For 19 systems, $T$ contained only days with at least one recorded event, omitting event-free days. There were 5 systems that supplied regular snapshots that aggregated into complete daily series (metrla, pemsbay, montevideo, windmill, and wiki). The convention for each system appear in Supplementary Table~\ref{tab:si-corpus}. 
+where $n_{t}$ is the event count in interval $t$ and $T$ is the chronologically ordered set of evaluated intervals. The composition of the interval set $T$ followed source conventions. For 19 systems, $T$ contained only days with at least one recorded event and omitted event-free days. There were 5 systems that supplied regular snapshots that aggregated into complete daily series (metrla, pemsbay, montevideo, windmill, and wiki), and 1 system (chickenpox) that supplied weekly totals converted to daily averages at each report date. The convention for each system is provided in Supplementary Table~\ref{tab:si-corpus}.
 
-The full observed rate series supplied both the peak target and seven process signatures. In held-out folds, models used graph invariants from $G$ and signature summaries from that series, without the target scalar or raw trajectory as inputs. The Fano factor retained count scale: its ratio to the squared coefficient of variation equaled the series mean $\bar{r}$. The other six signatures were scale-free. No fitted dynamical equations or generative simulations entered the construction.
+The full observed rate series supplied both the peak target and 7 process signatures. In held-out folds, models used standardized graph invariants $x'$ from $G$ and standardized process signatures $z'$ from $S$ without the target scalar or raw trajectory as inputs. The Fano factor retained count scale: its ratio to the squared coefficient of variation equaled the series mean $\bar{r}$. The other six signatures were scale-free. No fitted dynamical equations or generative simulations entered the construction.
 
 \subsection*{Empirical Maximum Target}
-The estimation target for each system was the log-transformed maximum daily rate realized across its empirical observation window. For each rate series $S$ on interval set $T$, the peak daily rate was $r_{\max} = \max_{t \in T} r_t$. A sample maximum can grow with observation-window length \citep{ref58,ref59,ref60}. Observation windows varied across sources without an artificial horizon, so all capacity frontiers remained conditional on the empirical windows found in Supplementary Table~\ref{tab:si-corpus}. The estimation target was the shifted log-transformed maximum.
+The estimation target for each system was the log-transformed maximum daily rate realized across its observation window. For each rate series $S$ on interval set $T$, the peak daily rate was $r_{\max} = \max_{t \in T} r_t$. A sample maximum can grow with observation window length \citep{ref58,ref59,ref60}. Observation windows varied across sources without an artificial horizon so all capacity frontiers remained conditional on the windows provided in Supplementary Table~\ref{tab:si-corpus}. The estimation target was the shifted log-transformed maximum.
 \begin{equation}
 y^{*} \;=\; \ln\!\left(1 + r_{\max}\right)
 \label{eq:maximum}
 \end{equation}
-Each system contributed exactly one scalar target value. The logarithmic transformation mapped maxima spanning 5 orders of magnitude onto a shared scale. Slack and violation magnitudes were expressed in natural-log units. EI and CI were dimensionless. The capacity frontier $F(x', z')$ operated as an empirical upper envelope over these finite-window targets within the shared feature space. The Frontier does not assert analytical containment.
+Each system contributed exactly one scalar target value. The logarithmic transformation mapped maxima nearly 6 orders of magnitude onto a shared scale.
 
 \subsection*{Encoding and Standardization}
-Each network substrate contained 21 graph invariants across 5 categories: simple, cohesion, extremal, statistical, and spectral. The mapping from a network $G$ to its feature vector $x$ is denoted as:
+Each network substrate contained 21 graph invariants across 5 categories: simple, cohesion, extremal, statistical, and spectral. The mapping from a network $G$ to its vector representation $x$ is denoted as:
 \begin{equation}
 x \;=\; \phi(G) \;=\; (x_1, x_2, \ldots, x_{21}) \;\in\; \mathbb{R}^{21}
 \end{equation}
 
-Each dynamical process contained 7 process signatures: dependence, dispersion, volatility, trend, and asymmetry. The mapping from a series $S$ to its feature vector $z$ is denoted as:
+Each dynamical process contained 7 process signatures across 5 categories: dependence, dispersion, volatility, trend, and asymmetry. The mapping from a series $S$ to its vector representation $z$ is denoted as:
 \begin{equation}
 z \;=\; \psi(S) \;=\; (z_1, z_2, \ldots, z_7) \;\in\; \mathbb{R}^{7}
 \end{equation}
@@ -315,21 +314,21 @@ z' \;=\; \frac{z - \mu_z}{\sigma_z}
 Means and scales were fitted exclusively on training rows within each fold. Supplementary Tables~\ref{tab:si-features} and \ref{tab:si-signatures} provide definitions, citations, and asymptotic complexities.
 
 \subsection*{Capacity Frontier Learning}
-The capacity frontier was learned through a two-stage log-additive architecture. Each stage input $x'$ and $z'$ without hyperparameter tuning. 30 random seeds assessed numerical stability. 9 estimators across 3 distinct learning paradigms evaluated sensitivity to inductive bias. The learned frontier took a stagewise log-additive form with an identifiability constraint on the process stage \citep{ref67}:
+The capacity frontier was learned through a two-stage log-additive architecture. The structural stage used $x'$, and the process stage used $z'$. Hyperparameters were fixed without tuning. 30 random seeds assessed numerical stability. 9 estimators across 3 distinct learning paradigms evaluated sensitivity to inductive bias. The learned frontier took a stagewise log-additive form with an identifiability constraint on the process stage \citep{ref67}:
 \begin{equation}
 \widehat{y}^* = F(x', z') = f_C(x'; \tau_C) + f_R(z'; \tau_R)
 \label{eq:frontier}
 \end{equation}
 Stage 1 trained the structural component $f_C$ to target $y^{*}$ via asymmetric regression at $\tau_C = 0.99$. It placed the fit near the empirical upper envelope given graph invariants \citep{ref29}. Stage 2 trained the process component $f_R$ to the signed slack $y^{*} - \hat{f}_C(x')$ at $\tau_R = 0.50$. It modeled how process signatures modulated the structural ceiling. Subtracting the training mean of $f_R$ assigned the overall level to $f_C$ and centered modulation to $f_R$. Summing both stages yielded the frontier estimate. 9 estimators instantiated this form with identical asymmetry levels and fixed hyperparameters. 
 
-The linear parametric paradigm included linear quantile regression minimized mean pinball loss with $\alpha \lVert \beta \rVert_1$ penalty ($\alpha = 0.1$, HiGHS solver) \citep{ref22}. Linear asymmetric weighted least squares minimized $(2n)^{-1} \sum_{i=1}^{n} w_i e_i^{2} + \alpha \lVert \beta \rVert_1$ ($\alpha = 0.1$) with expectile weights $w_i = \tau$ for $e_i \ge 0$ and $w_i = 1 - \tau$ otherwise \citep{ref36}. Coefficients started at zero, and cyclic coordinate descent used tolerance $10^{-4}$ and at most 1,000 passes \citep{ref76}. Stage 1 used an unpenalized intercept initialized at the training-target mean, and stage 2 used no intercept. The concave-envelope regressor fit a linear quantile score ($\alpha = 0.1$) and linearly interpolated the concave upper envelope of target maxima along those scores, holding it constant beyond endpoints.
+The linear parametric paradigm included linear quantile regression which minimized mean pinball loss with $\alpha \lVert \beta \rVert_1$ penalty ($\alpha = 0.1$, HiGHS solver) \citep{ref22}. Linear asymmetric weighted least squares minimized $(2n)^{-1} \sum_{i=1}^{n} w_i e_i^{2} + \alpha \lVert \beta \rVert_1$ ($\alpha = 0.1$) with expectile weights $w_i = \tau$ for $e_i \ge 0$ and $w_i = 1 - \tau$ otherwise \citep{ref36}. Slope coefficients started at zero, and cyclic coordinate descent used tolerance $10^{-4}$ and at most 1,000 passes \citep{ref76}. In LAWS, the Stage 1 intercept was unpenalized and initialized at the training-target mean, and Stage 2 used no intercept. Linear quantile regression fit an unpenalized intercept in both stages. The concave-envelope regressor fit a linear quantile score ($\alpha = 0.1$) at the stage's asymmetry level and linearly interpolated the concave upper envelope of the stage target's per-score maxima, holding it constant beyond endpoints. In Stage 2 this envelope traced the maxima of the slack, so $\tau_R$ shaped only the score. With standardized invariants and $\alpha = 0.1$, the Stage 1 slopes of linear quantile regression and of the concave-envelope regressor were zero in all 481 training fits (the full corpus, repeated 5-fold and 10-fold CV, and both LOGO-CV regimes), so their $f_C$ equaled the largest training target, and LAWS retained 1 or 2 of 21 slopes.
 
 The non-linear ensemble paradigm included a quantile random forest with 100 bootstrap-sampled, fully grown trees, squared-error splits, a minimum leaf size of 1, and all predictors eligible at each split \citep{ref37}. Gradient-boosted quantile regression minimized pinball loss using 100 depth-3 trees, a learning rate of 0.1, and the full training sample \citep{ref38}. XGBoost used its quantile objective with 100 depth-6 trees, a learning rate of 0.3, an $\ell_2$ penalty $\lambda = 1$, and full row and feature sampling \citep{ref39}.
 
 The neural network paradigm included an MLP with pinball loss, an MLP with expectile loss, and an input-convex network with pinball loss whose non-input weights were constrained non-negative through absolute values \citep{ref40}. All networks employed hidden layers of 8 and 4 units, ReLU activations \citep{ref80}, dropout of 0.1 \citep{ref77}, output biases initialized to the training quantile, and full-batch AdamW optimization (learning rate 0.1, weight decay 0.01, gradient clipping at 5.0, 1,000 epochs) \citep{ref41}, with predictions clipped to the training-target range.
 
 \subsection*{Performance Metrics}
-Frontier tightness was measured by the Efficiency Index (EI) \citep{ref103,ref111}. For observed targets $y^{*}$ and frontier values $\hat{y}$, the Violation Rate (VR) was the fraction of systems where $y^{*} > \hat{y}$, the Mean Violation (MV) was the average exceedance among violators (0 when none occurred), and the Mean Slack (MS) was the average positive difference $\max(\hat{y} - y^{*}, 0)$ across all evaluated systems. EI was the geometric mean of 3 bounded scores, normalizing MV and MS by the sample mean absolute target $\overline{\lvert y^{*} \rvert} = n^{-1}\sum_{i=1}^{n} \lvert y_i^{*} \rvert$:
+Frontier efficiency was measured by the Efficiency Index (EI) \citep{ref103,ref111}. For observed targets $y^{*}$ and frontier values $\hat{y}$, the Violation Rate (VR) was the fraction of systems where $y^{*} > \hat{y}$, the Mean Violation (MV) was the average exceedance among violators (0 when none occurred), and the Mean Slack (MS) was the average positive difference $\max(\hat{y} - y^{*}, 0)$ across all evaluated systems. EI was the geometric mean of 3 bounded metrics, normalizing MV and MS by the sample mean absolute target $\overline{\lvert y^{*} \rvert} = n^{-1}\sum_{i=1}^{n} \lvert y_i^{*} \rvert$:
 \begin{equation}
 \mathrm{EI} \;=\;
 \Big[
@@ -338,28 +337,30 @@ Frontier tightness was measured by the Efficiency Index (EI) \citep{ref103,ref11
 \Big(1 + \frac{\mathrm{MS}}{\overline{\lvert y^{*} \rvert}}\Big)^{-1}
 \Big]^{1/3} \in [0, 1]
 \end{equation}
-EI reached 1 only when the frontier exhibited zero violations and zero slack. $1 - \mathrm{VR}$ floored at $10^{-12}$ for numerical stability. Agreement was measured by the Consensus Index (CI). CI was the geometric mean of rescaled Spearman rank correlation $\rho_s^{+} = (1 + \rho_s)/2$ \citep{ref42}, top-weighted rank-biased overlap (RBO) \citep{ref43}, and distance correlation ($\mathrm{dCor}$) \citep{ref44}:
+EI reached 1 only when the frontier exhibited zero violations and zero slack. $1 - \mathrm{VR}$ floored at $10^{-12}$ for numerical stability. MV and MS were expressed in natural-log units. EI was dimensionless.
+
+Agreement was measured by the Consensus Index (CI). CI was the geometric mean of rescaled Spearman rank correlation $\rho_s^{+} = (1 + \rho_s)/2$ \citep{ref42}, top-weighted rank-biased overlap (RBO) \citep{ref43}, and distance correlation ($\mathrm{dCor}$) \citep{ref44}:
 \begin{equation}
 \mathrm{CI} \;=\;
 \Big[
 \rho_s^{+}\ \mathrm{RBO}\ \mathrm{dCor}
 \Big]^{1/3} \in [0, 1]
 \end{equation}
-RBO evaluated descending rankings with persistence $p_{\mathrm{RBO}} = 0.9$ and index-based tie breaking, extrapolating the unobserved tail from depth agreement. Distance correlation used the standard V-statistic sample estimator. Components were clipped to $[0, 1]$ against precision error. Spearman correlation was set to zero when either vector was constant. CI served two roles: estimation-observation consensus between predicted frontiers and empirical maxima, and pairwise model consensus between predictions from different estimators.
+RBO evaluated descending rankings with persistence $p_{\mathrm{RBO}} = 0.9$, index-based tie breaking, and extrapolating the unobserved tail from depth agreement. Distance correlation used the standard V-statistic sample estimator. Components were clipped to $[0, 1]$ against precision error. Spearman correlation was set to zero when either vector was constant, and distance correlation is zero for a constant vector, so CI equaled zero whenever either vector was constant. CI served two roles: estimation-observation consensus between predicted frontiers and empirical maxima, and pairwise model consensus between predictions from different estimators. CI was also dimensionless.
 
 \subsection*{Resampling and Leakage Control}
-Generalization was evaluated under strict leakage controls across four resampling regimes. Standardizers for $x$ and $z$, both estimator stages, and the process centering mean in Eq.~\eqref{eq:frontier} were fitted exclusively on training rows of the active split. Estimators were freshly cloned for every fold. All feature values were finite, and the logarithmic target transform had no fitted parameters.
+Generalization was evaluated under strict leakage controls across the 4 resampling regimes. Standardizers for $x$ and $z$, both estimator stages, and the process centering mean in Eq.~\eqref{eq:frontier} were trained exclusively on observations of the active split. Estimators were freshly cloned for every fold. All feature values were finite, and the logarithmic target transform had no trained parameters.
 
-Random evaluation used repeated 5-Fold-CV and 10-Fold-CV over 30 repetitions, with partitions drawn by \texttt{RepeatedKFold} under random state 42 \citep{ref73}. Structured generalization used leave-one-group-out cross-validation (LOGO-CV) \citep{ref74}, withholding either one broad domain (5 folds) or one discipline (25 folds) \citep{ref68,ref69,ref70,ref107}. Because LOGO partitions were deterministic, the 30 repetitions varied model-fitting seeds $42 + b$ for $b = 0, \ldots, 29$. Metrics were computed within each held-out test fold and averaged over folds and repeats. Out-of-fold predictions averaged over the 30 seeds yielded domain-level Consensus Index scores. Under system-level LOGO-CV, predictions were pooled within domains before computing CI. Resampling equivalence rescored averaged out-of-fold predictions within each of the 5 broad domains.
+Baseline evaluation used repeated $k$-Fold-CV over 30 repetitions \citep{ref73}. Structured generalization used Leave-One-Group-Out Cross-Validation (LOGO-CV) \citep{ref68,ref69,ref70,ref74, ref107}. LOGO-CV partitions were deterministic, therefore the 30 repetitions varied model-fitting seeds $42 + b$ for $b = 0, \ldots, 29$. Metrics were computed within each held-out test fold and averaged over folds and repetitions. Out-of-sample predictions averaged over the 30 seeds yielded domain-level CI metrics. Under discipline-level LOGO-CV, predictions were pooled within domains before computing CI. Resampling equivalence rescored averaged out-of-sample predictions within each of the 5 broad domains.
 
 Stress tests followed two operational tracks. The frozen track applied models and standardizers fitted on original data directly to modified test inputs. The retrained track refit the entire pipeline on modified data under the identical cross-validation protocol. Two corpus-wide operations preceded dataset partitioning: generating the falsified negative control corpora and computing corpus-wide standard deviations for additive feature noise. In all cases, standardizer and estimator parameters remained strictly training-fold specific.
 
 \subsection*{Evaluation and Reporting Conventions}
 Shared-coordinate frontier quality used repeated 5-Fold-CV and 10-Fold-CV. Domain transfer used domain- and discipline-level LOGO-CV. Resampling equivalence benchmarked domain-level LOGO-CV, perturbation and falsification used the original condition, and ablation used the log-additive decomposition.
 
-Cross-paradigm consensus was evaluated descriptively on full-corpus fits across all 9 estimators and 30 seeds. Pairwise model consensus compared the 36 seed-averaged prediction pairs using CI. Figure~\ref{fig:consensus} presents these descriptive full-corpus consensus values across four conditions: original full-corpus fits, frozen fits applied to maximum-severity perturbations across all 25 systems, frozen fits scored on falsified corpora, and refitted ablations. Reported values represented median CI scores across all estimator pairs.
+Cross-paradigm consensus was evaluated descriptively on full-corpus fits across all 9 estimators and 30 seeds. Pairwise model consensus compared the 36 seed-averaged prediction pairs using CI. Figure~\ref{fig:consensus} presents these descriptive full-corpus consensus values across four conditions: original full-corpus fits, frozen fits applied to maximum-severity perturbations across all 25 systems, frozen fits scored on falsified corpora, and refitted ablations. Reported values represented median CI metrics across all estimator pairs. Under the invariants-only, signatures-only, and joint-feature ablations, 3 estimators returned constant predictions, which set CI to zero for 21 of 36 pairs.
 
-Hypothesis testing operated on a prespecified inference panel $\mathcal{P}$ of 45 estimator-by-domain cells (9 estimators by 5 withheld domains). Each cell's metric was averaged across 30 seeds before testing. For metric $M$, estimator $m$, and domain $d$, the paired difference was $d_{md} = M^{\mathrm{comparison}}_{md} - M^{\mathrm{benchmark}}_{md}$, with estimand $\theta_{\mathcal{P}} = \operatorname{median}_{(m,d) \in \mathcal{P}} d_{md}$. Because panel cells shared estimators and data splits, test outcomes co-varied, and statistical inference remained conditional on this panel. All tests employed one-sided Wilcoxon signed-rank tests \citep{ref45}, discarding zero differences under SciPy's default zero method, with Holm-Bonferroni corrections \citep{ref46} across each hypothesis family at a family-wise significance threshold of 0.05. Effect sizes were measured using rank-biserial correlations $(W_{+} - W_{-})/(W_{+} + W_{-})$ derived from nonzero differences \citep{ref71}.
+Hypothesis testing operated on a prespecified inference panel $\mathcal{P}$ of 45 estimator-by-domain cells (9 estimators by 5 withheld domains). Each cell combined 30 seeds before testing. Consensus metrics and the efficiency metrics of the resampling-equivalence and falsification tests were computed on predictions averaged across seeds, and all other efficiency metrics were averaged across seeds after computation. Stochastic perturbations were the exception, where each of 30 realizations was scored under its paired seed and both metrics were averaged across realizations. The CI of a stochastic perturbation therefore averaged single-seed values, whereas the original-condition CI used seed-averaged predictions. Without any perturbation, this difference alone shifted CI by $-0.016$ on average across the 45 cells (range $-0.197$ to $+0.111$). Constant predictions within a held-out domain set CI to zero, which occurred in 19 of 45 panel cells for each of invariants only, signatures only, and joint features, in 2 of 270 falsified cells, and in no other tested cell. For metric $M$, estimator $m$, and domain $d$, the paired difference was $d_{md} = M^{\mathrm{comparison}}_{md} - M^{\mathrm{benchmark}}_{md}$, with estimand $\theta_{\mathcal{P}} = \operatorname{median}_{(m,d) \in \mathcal{P}} d_{md}$. Because panel cells shared estimators and data splits, test outcomes co-varied, and statistical inference remained conditional on this panel. All tests employed one-sided Wilcoxon signed-rank tests \citep{ref45} in which paired differences below $10^{-9}$ in magnitude counted as zero and were discarded under SciPy's default zero method. P-values used SciPy's automatic method, which is exact without ties or zeros and a normal approximation with tie correction otherwise. Holm-Bonferroni corrections \citep{ref46} were applied across each hypothesis family at a family-wise significance threshold of 0.05. Effect sizes were measured using rank-biserial correlations $(W_{+} - W_{-})/(W_{+} + W_{-})$ derived from nonzero differences \citep{ref71}.
 
 Equivalence for resampling regimes and perturbation stability was evaluated using Two One-Sided Tests (TOST) \citep{ref47}:
 \begin{equation}
@@ -367,34 +368,39 @@ H_{01}:\; \theta \le -\delta,
 \qquad
 H_{02}:\; \theta \ge \delta
 \end{equation}
-Each null hypothesis was tested on differences shifted by $-\delta$ or $+\delta$. Equivalence was established when both nulls were rejected, with the TOST $p$-value taken as the maximum of the two tests. The margin $\delta$ was the interquartile range of benchmark values, floored to two decimal places. Resampling equivalence used 9 model-level domain LOGO means, each averaged across 5 domains. Perturbation stability used 45 original-condition panel cells, and ablation non-inferiority used 45 log-additive panel cells. The resulting margins were $\delta_{\mathrm{EI}} = 0.04$ and $\delta_{\mathrm{CI}} = 0.11$ for resampling equivalence, $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$ for perturbation stability, and $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$ for ablation non-inferiority. Where intervention intensities varied, response curves were displayed descriptively, with formal testing restricted to the maximum severity level found in Supplementary Table~\ref{tab:si-protocol}.
+Each null hypothesis was tested on differences shifted by $-\delta$ or $+\delta$. Equivalence was established when both nulls were rejected, with the TOST $p$-value taken as the maximum of the two tests. The margin $\delta$ was the interquartile range of benchmark values, floored to two decimal places. Resampling-equivalence margins were derived from 9 model-level domain LOGO means, each averaged equally across the 5 domains, while TOST comparisons used 45 paired estimator-by-domain cells. Perturbation stability used 45 original-condition panel cells, and ablation non-inferiority used 45 log-additive panel cells. The resulting margins were $\delta_{\mathrm{EI}} = 0.02$ and $\delta_{\mathrm{CI}} = 0.11$ for resampling equivalence, $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$ for perturbation stability, and $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$ for ablation non-inferiority. Where intervention intensities varied, response curves were displayed descriptively, with formal testing restricted to the maximum severity level provided in Supplementary Table~\ref{tab:si-protocol}.
 
 \subsection*{Perturbation, Falsification, Ablation}
 Model stability and representation dependence were evaluated through perturbation, falsification, and ablation stress tests. Perturbation tests assessed stability across 12 interventions distributed evenly over four categories: network substrates, graph invariants, dynamical processes, and process signatures. Each intervention was applied to every system across seven graded intensity levels (Supplementary Table~\ref{tab:si-protocol}).
 
-Network interventions included degree-preserving rewiring \citep{ref56} with $\max(1, \lfloor s\lvert E \rvert \rfloor)$ trials while preserving a simple graph (no self-loops or multiedges), random edge densification \citep{ref106} adding $\lfloor s\lvert E \rvert \rfloor$ edges sampled uniformly without replacement from nonadjacent pairs, and uniform node removal \citep{ref104,ref105} deleting $\lfloor s\lvert V \rvert \rfloor$ vertices. Invariants were recomputed after each modification. Complete bipartite substrates received exact node removal and closed-form approximations for rewiring and densification (\hyperref[sec:si-note-bipartite]{Supplementary Note 1}). Invariant and signature perturbations acted directly on raw vectors $x$ and $z$ prior to standardization. Additive Gaussian noise used $\mathcal{N}(0, (s\sigma_j)^2)$, where $\sigma_j$ was the corpus-wide sample standard deviation of raw coordinate $j$. Multiplicative jitter multiplied coordinates by $1 + \varepsilon_j$ with $\varepsilon_j \sim \mathcal{N}(0, s^2)$ and clipped originally nonnegative feature columns at zero. Coordinate masking retained $\lfloor \rho p \rfloor$ features and set unselected coordinates to zero, where $\rho$ was the retention fraction and $p$ the feature count (21 for $x$, 7 for $z$).
+Network interventions included degree-preserving rewiring \citep{ref56} with $\max(1, \lfloor s\lvert E \rvert \rfloor)$ trials while preserving a simple graph (no self-loops or multiedges), random edge densification \citep{ref106} adding $\lfloor s\lvert E \rvert \rfloor$ edges sampled uniformly without replacement from nonadjacent pairs, and uniform node removal \citep{ref104,ref105} deleting $\lfloor s\lvert V \rvert \rfloor$ nodes. Invariants were recomputed after each modification. Complete bipartite substrates received exact node removal and closed-form approximations for rewiring and densification (\hyperref[sec:si-note-bipartite]{Supplementary Note 1}). The 3 complete-graph substrates (gwosc, seismic, and windmill) admit no degree-preserving swap or added edge, so rewiring and densification returned their original invariants and only node removal could alter them. Invariant and signature perturbations acted directly on raw vectors $x$ and $z$ prior to standardization. Additive Gaussian noise used $\mathcal{N}(0, (s\sigma_j)^2)$, where $\sigma_j$ was the corpus-wide sample standard deviation of raw coordinate $j$. Feature perturbations were generated one system at a time using the same seed across systems within each realization. Thus, coordinate-wise noise and jitter draws and the masked-coordinate subset were shared across systems. Multiplicative jitter multiplied each coordinate by $1 + \varepsilon_j$, with $\varepsilon_j \sim \mathcal{N}(0, s^2)$, and clipped it at zero when that system's original coordinate was non-negative. Coordinate masking retained $\lfloor \rho p \rfloor$ features and set unselected coordinates to zero, where $\rho$ was the retention fraction and $p$ the feature count (21 for $x$, 7 for $z$).
 
 Process interventions acted directly on the rate series of Eq.~\eqref{eq:series} through power-law scaling $r_t' = (r_t + 1)^{\gamma} - 1$, smoothing with a $w$-interval trailing mean, and bootstrap resampling at support $s$ \citep{ref75}. Bootstrap resampling drew $k = \max(1, \operatorname{round}(s\lvert T \rvert))$ values with replacement and populated the remaining intervals by resampling from those $k$ values, destroying temporal order. Process signatures were recomputed from each modified series, while estimation targets remained fixed at the original empirical maxima.
 
-Falsification tests assessed degradation under 3 negative control procedures that deliberately destroyed the mapping from feature representations to empirical maxima. Target permutation assigned each system the complete event series and target $y^{*}$ of a different system via a cross-domain derangement, preserving the marginal target distribution. Random generation sampled every raw coordinate independently from a uniform distribution spanning its observed corpus range. Vector generation drew raw coordinates with replacement across systems and added Gaussian noise scaled to each coordinate's population standard deviation. Falsified datasets were generated once under base seed 42. Both frozen and retrained models tested degradation via one-sided Wilcoxon signed-rank tests ($H_0: \theta \ge 0$ versus $H_1: \theta < 0$) with Holm adjustment across the six comparison pairs.
+Falsification tests assessed degradation under 3 negative control procedures that deliberately destroyed the mapping from feature representations to empirical maxima. Target permutation assigned each system the target $y^{*}$ of a different system via a cross-domain derangement, leaving its own $x$ and $z$ unchanged and preserving the marginal target distribution. Random generation sampled every raw coordinate independently from a uniform distribution spanning its observed corpus range. Vector generation drew raw coordinates with replacement across systems and added Gaussian noise scaled to each coordinate's population standard deviation. Falsified datasets were generated once under base seed 42. Both frozen and retrained models tested degradation via one-sided Wilcoxon signed-rank tests ($H_0: \theta \ge 0$ versus $H_1: \theta < 0$) with Holm adjustment across the six comparison pairs.
 
 Ablation assessed structural dependence by comparing the log-additive decomposition against four alternative input specifications. Two simple specifications fit a single-stage model at $\tau_C = 0.99$ using invariants only ($x'$) or signatures only ($z'$). Two complex specifications tested alternative couplings: joint features combined $x'$ and $z'$ into a single-stage model, while interaction terms augmented the second stage with all 147 products of raw coordinates $x_j z_k$, standardized within each training fold. All ablations were refitted using the standard estimator protocols. One-sided signed-rank tests evaluated non-inferiority of the log-additive decomposition \citep{ref78} ($H_0: \theta \ge \delta$ versus $H_1: \theta < \delta$) on EI and CI with Holm adjustments applied separately within simple and complex specification pairs.
 
 \subsection*{Implementation and Reproducibility}
-All computational pipelines, graph algorithms, and statistical evaluations were implemented in Python 3.11 using deterministic, versioned environments \citep{ref86,ref102}. Graph representations and invariant calculations used python-igraph 1.0.0 \citep{ref48,ref93} with NumPy 2.3.5 \citep{ref81,ref96}, SciPy 1.16.3 \citep{ref82,ref97}, and pandas 3.0.0 \citep{ref83,ref84}. Urban street network construction used networkx 3.5 \citep{ref91,ref98} and OSMnx 2.0.6 (Supplementary Reference~\ref{src:S22}).
+All analyses were implemented in Python 3.11.9 \citep{ref86,ref102} with dependency versions pinned in the repositories requirements. Graph representations and invariant calculations used python-igraph 1.0.0 \citep{ref48,ref93} with NumPy 2.3.5 \citep{ref81,ref96}, SciPy 1.16.3 \citep{ref82,ref97}, and pandas 3.0.0 \citep{ref83,ref84}. Urban street network construction used networkx 3.5 \citep{ref91,ref98} and OSMnx 2.0.6 (Supplementary Reference~\ref{src:S22}).
 
-Benchmark temporal graph datasets were loaded using torch-geometric 2.7.0 \citep{ref89,ref99} and torch\_geometric\_temporal 0.56.2 \citep{ref90,ref100}. Observational records for gravitational wave and meteorological systems were retrieved via gwosc 0.8.1 and meteostat 1.7.6. Estimators used scikit-learn 1.8.0 \citep{ref72,ref94}, sklearn-quantile 0.1.1 \citep{ref87}, XGBoost 3.1.1 \citep{ref39,ref95}, and PyTorch 2.9.0 \citep{ref85,ref115}. Distance correlation was computed using dcor 0.7 \citep{ref88}, and scientific figures were generated with matplotlib 3.9.2 \citep{ref92,ref101}. Unspecified settings followed library defaults.
+Benchmark temporal graph datasets were loaded using torch-geometric 2.7.0 \citep{ref89,ref99} and torch\_geometric\_temporal 0.56.2 \citep{ref90,ref100}. Observational records for gravitational wave and meteorological systems were retrieved via gwosc 0.8.1 and meteostat 1.7.6. 
 
-All stochastic procedures descended from base random seed 42 with repeat indices applied as fixed numerical offsets. Random permutations, cross-validation folds, and perturbation realizations originated from explicitly seeded generators. PyTorch deterministic algorithms operated in warn-only mode, with device execution defaulting to CUDA when available and CPU otherwise. The code repository, curated datasets, and environment specifications provide a reproducible workflow, subject to hardware-level floating-point variations.
+Estimators used scikit-learn 1.8.0 \citep{ref72,ref94}, sklearn-quantile 0.1.1 \citep{ref87}, XGBoost 3.1.1 \citep{ref39,ref95}, and PyTorch 2.9.0 \citep{ref85,ref115}. Distance correlation was computed using dcor 0.7 \citep{ref88}, and scientific figures were generated with matplotlib 3.9.2 \citep{ref92,ref101}. Unspecified settings followed library defaults.
+
+All stochastic procedures descended from base random seed 42 with repeat indices applied as fixed numerical offsets. Random permutations, cross-validation folds, and perturbation realizations originated from explicitly seeded generators. 
+
+PyTorch deterministic algorithms were executed in warn-only mode. 
+PyTorch execution defaulted to CUDA when GPU resources were available and CPU otherwise. Results reproduced with the code repository, corpus, and environment specifications are subject to hardware-level floating-point imprecision.
 
 \break
 \section*{Data Availability}
 \label{sec:data}
-All datasets were collated from publicly available sources. Access details are found in Supplementary Table~\ref{tab:si-corpus}. The processed records used in all analyses are distributed with the code repository at: \url{https://github.com/nickkunz/network-capacity}.
+The corpus was collated from publicly available data sources. Access details are provided in Supplementary Table~\ref{tab:si-corpus}. The processed records used in all analyses are distributed with the source code repository at: \url{https://github.com/nickkunz/network-capacity}.
 
 \section*{Code Availability}
 \label{sec:code}
-All code for data processing, frontier estimation, evaluation, perturbation, falsification, and ablation, along with the notebooks that reproduce every figure and table are available at: \\ \url{https://github.com/nickkunz/network-capacity}.
+The scripts for data processing, frontier estimation, evaluation, perturbation, falsification, and ablation, along with the notebooks that reproduce every figure and table are also distributed with the source code repository at: \url{https://github.com/nickkunz/network-capacity}.
 
 \section*{Acknowledgements}
 \label{sec:acknowledge}
@@ -481,7 +487,7 @@ IRIS FDSN station service (\ref{src:S4}) and USGS FDSN event service (\ref{src:S
 \addlinespace[5pt]
 \textbf{\textit{rain}} & Earth \& Physical Sciences & Meteorology &
 Meteostat hourly stations in Laos. & Delaunay triangulation of station coordinates. &
-Hours with precipitation $>1$ mm. & Maximum daily wet hours $r_{\max} = 46$, $y^* = 3.850$. & 2024-01-12 to 2024-03-30 ($n = 79$). &
+Station-hours with precipitation $>1$ mm. & Maximum daily wet station-hours $r_{\max} = 46$, $y^* = 3.850$. & 2024-01-12 to 2024-03-30 ($n = 79$). &
 Meteostat (\ref{src:S6}). & Mutable service accessed 1 September 2026. Query cutoff 2024-03-31. \\
 \addlinespace[5pt]
 \textbf{\textit{celegans}} & Life Sciences \& Medicine & Biology &
@@ -537,7 +543,7 @@ Rozemberczki et al. Chickenpox dataset and UCI Hungarian chickenpox cases (\ref{
 \textbf{\textit{faers}} & Life Sciences \& Medicine & Pharmacology &
 Medicinal products and MedDRA reaction terms co-reported with imatinib. & Drug--reaction co-occurrence. &
 Unique FAERS case receipts. & Maximum daily case receipts $r_{\max} = 45$, $y^* = 3.829$. & 2004-01-23 to 2025-12-31 ($n = 8{,}014$). &
-openFDA drug-event API, query IMATINIB (\ref{src:S11}). & Mutable API accessed 1 September 2026. Case-receipt cutoff 2025-12-31. \\
+openFDA drug-event API, query IMATINIB (\ref{src:S11}). & Mutable API retrieved 13 March 2026. Case-receipt cutoff 2025-12-31. \\
 \addlinespace[5pt]
 \textbf{\textit{epilepsy}} & Life Sciences \& Medicine & Neurology &
 19 scalp electrodes (10--20 system). & Anatomical neighbours on the 10--20 montage. &
@@ -547,7 +553,7 @@ PhysioNet CHB-MIT (\ref{src:S12}). & PhysioNet version 1.0.0 released 2010. Cale
 \textbf{\textit{federal}} & Trade \& Institutions & Government &
 Awarding agencies and recipients. & Agency--\allowbreak recipient contract pairs. &
 Waterfowl-\allowbreak related contract start dates. & Maximum daily contract starts $r_{\max} = 17$, $y^* = 2.890$. & 2011-01-19 to 2024-12-30 ($n = 5{,}095$). &
-USAspending API, keyword waterfowl (\ref{src:S13}). & Mutable API accessed 1 September 2026. Award-start cutoff 2024-12-31. \\
+USAspending API, keyword waterfowl (\ref{src:S13}). & Mutable API retrieved 25 August 2026. Award-start cutoff 2024-12-31. \\
 \addlinespace[5pt]
 \textbf{\textit{mooc}} & Trade \& Institutions & Education &
 Students and course actions. & Complete bipartite graph between students and actions. &
@@ -566,8 +572,8 @@ PyTorch Geometric BitcoinOTC (\ref{src:S16}). & Dataset article published 2016. 
 \addlinespace[5pt]
 \textbf{\textit{world}} & Trade \& Institutions & International Development &
 World Bank lending instruments and countries. & Instrument--\allowbreak country eligibility. &
-Project board-approval dates. & Maximum daily project approvals $r_{\max} = 11$, $y^* = 2.485$. & 2015-12-21 to 2024-12-20 ($n = 3{,}288$). &
-World Bank projects and country APIs (\ref{src:S17}). & Mutable APIs accessed 1 September 2026. Approval-year cutoff 2024. \\
+Project board-approval dates. & Maximum daily project approvals $r_{\max} = 12$, $y^* = 2.565$. & 2014-01-14 to 2024-12-20 ($n = 3{,}994$). &
+World Bank projects and country APIs (\ref{src:S17}). & Mutable APIs retrieved 29 September 2026. Approval-year cutoff 2024. \\
 \addlinespace[5pt]
 \textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
 Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
@@ -595,7 +601,7 @@ Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678
 SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
 \addlinespace[5pt]
 \textbf{\textit{idling}} & Transportation \& Infrastructure & Mobility &
-Halifax drive-network vertices from the unsimplified OSM graph. & Street segments (OSM drive graph, undirected). &
+Halifax drive-network nodes from the unsimplified OSM graph. & Street segments (OSM drive graph, undirected). &
 Vehicle-idling records. & Maximum daily idling records $r_{\max} = 732$, $y^* = 6.597$. & 2025-06-02 to 2025-09-02 ($n = 93$). &
 OpenStreetMap via OSMnx, query Halifax, Canada (\ref{src:S21}, \ref{src:S22}), and local idling CSVs (\ref{src:S29}). & Data preprint first posted 2024 and revised 2025. Observations are from 2025. OSMnx article published 2025. \\
 \addlinespace[5pt]
@@ -616,13 +622,13 @@ PyTorch Geometric Temporal PEMS-BAY \citep{ref90} (\ref{src:S23}). & Benchmark a
 \addlinespace[5pt]
 \textbf{\textit{montevideo}} & Transportation \& Infrastructure & Ridership &
 Montevideo bus stops. & Stop adjacency from MontevideoBus snapshots. &
-Hours with inflow above the global 99th percentile. & Maximum daily exceedance hours $r_{\max} = 256$, $y^* = 5.549$. & Days 0--29 ($n = 30$). &
+Stop-hours with standardized inflow above the global 99th percentile. & Maximum daily exceedance stop-hours $r_{\max} = 256$, $y^* = 5.549$. & Days 0--29 ($n = 30$). &
 PyTorch Geometric Temporal MontevideoBus \citep{ref90} (\ref{src:S28}). & Data recorded in October 2020. Loader article published 2021. Dates represented as relative days. \\
 \end{longtable}
 \par\smallskip
 \begin{minipage}{\linewidth}
 \footnotesize
-Each row is one N3S. Nodes and edges describe the undirected substrate used for graph invariants. Events describe the observation stream aggregated to the series $r_t$ of Eq.~\eqref{eq:series}. Metrla, pemsbay, montevideo, windmill, and wiki supply regular snapshots that aggregate to complete daily series. Chickenpox supplies weekly county totals, each converted to its daily average and entered as 1 series value at its report date. For the remaining 19 systems, the series contains only days with at least 1 recorded event. Observation windows are the native recording periods, given as start--end dates or relative day indices, with the calendar span in days ($n$) from the first to the last recorded interval. Windows were not standardized in duration, and each empirical maximum is conditional on its native window. Targets give the realized maximum $r_{\max}$ and $y^* = \ln(1 + r_{\max})$ from Eq.~\eqref{eq:maximum}. Chickenpox uses the daily average entered at the report date, and the remaining 24 systems use the daily event count. Observation dates identify the records analyzed and differ from source release or publication dates. Source notes preserve versions, relative-date conventions, and fixed analysis cutoffs. A publication year outside the observation window is therefore expected. Source citations S1--S31 refer to the \hyperref[sec:si-sources]{Supplementary References} below.
+Each row is one N3S. Nodes and edges describe the undirected substrate used for graph invariants. Events describe the observation stream aggregated to the series $r_t$ of Eq.~\eqref{eq:series}. Metrla, pemsbay, montevideo, windmill, and wiki supply regular snapshots that aggregate to complete daily series. Chickenpox supplies weekly county totals, each converted to its daily average and entered as 1 series value at its report date. For the remaining 19 systems, the series contains only days with at least 1 recorded event. Observation windows follow the native recording periods, given as start--end dates or relative day indices, with the calendar span in days ($n$) from the first to the last recorded interval. The 7 systems retrieved through APIs (gwosc, river, seismic, rain, faers, federal, and world) are additionally bounded by query dates fixed in the processing scripts, with end cutoffs listed in the source notes. Windows were not standardized in duration, and each empirical maximum is conditional on its window. Targets give the realized maximum $r_{\max}$ and $y^* = \ln(1 + r_{\max})$ from Eq.~\eqref{eq:maximum}. Chickenpox uses the daily average entered at the report date, and the remaining 24 systems use the daily event count. Observation dates identify the records analyzed and differ from source release or publication dates. Source notes preserve versions, relative-date conventions, and fixed analysis cutoffs. A publication year outside the observation window is therefore expected. Processing conventions beyond the columns above are as follows. The federal series excludes awards with non-positive amounts and start dates outside 2011-01-01 to 2024-12-31. Zero speeds were treated as missing in metrla, where they form 8.1\% of readings, and as readings in pemsbay, where they form 0.003\%. The montevideo series drops the first 4 hours removed by the loader lag and the final 20 hours of the 744-hour source that do not complete a day. GPS timestamps (gwosc and auger) were converted to UTC without leap-second correction, which would move 19 auger events and no gwosc events to another day. The crop network retains 12 nodes and 30 edges from studies whose visits lack dates. The world network matched countries to lending metadata by exact name, which left 23 regional aggregates and spelling variants isolated. Source citations S1--S31 refer to the \hyperref[sec:si-sources]{Supplementary References} below.
 \end{minipage}
 \endgroup
 \end{landscape}
@@ -638,11 +644,11 @@ Each row is one N3S. Nodes and edges describe the undirected substrate used for 
 \toprule
 Evaluation & Method & Median EI [Q1--Q3] & VR & MV & MS \\
 \midrule
-Transfer & Domain (LOGO-CV) & 0.75 [0.74--0.77] & 0.04 & 0.12 & 7.01 \\
- & Discipline (LOGO-CV) & 0.73 [0.71--0.77] & 0.00 & 0.00 & 6.18 \\
+Transfer & Domain (LOGO-CV) & 0.75 [0.74--0.77] & 0.04 & 0.08 & 6.86 \\
+ & Discipline (LOGO-CV) & 0.73 [0.72--0.76] & 0.00 & 0.00 & 6.12 \\
 \addlinespace
-Baseline & Random ($5$-Fold-CV) & 0.77 [0.76--0.78] & 0.02 & 0.07 & 6.72 \\
- & Random ($10$-Fold-CV) & 0.77 [0.75--0.78] & 0.01 & 0.03 & 6.74 \\
+Baseline & Random ($5$-Fold-CV) & 0.77 [0.76--0.78] & 0.02 & 0.06 & 6.86 \\
+ & Random ($10$-Fold-CV) & 0.76 [0.75--0.78] & 0.01 & 0.02 & 6.87 \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
@@ -664,23 +670,23 @@ Each regime was evaluated using 9 estimators and 30 seeds (42--71). Entries are 
 \cmidrule(lr){1-7}
 Evaluation & \shortstack{Median\\$\Delta\mathrm{EI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
 \midrule
-Discipline (LOGO-CV) & 0.00 & -0.11 & $<0.001$ & $<0.001$ & *** & Yes \\
-Random ($5$-Fold-CV) & 0.00 & 0.35 & $<0.001$ & $<0.001$ & *** & Yes \\
-Random ($10$-Fold-CV) & 0.00 & 0.08 & $<0.001$ & $<0.001$ & *** & Yes \\
+Discipline (LOGO-CV) & 0.00 & -0.08 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($5$-Fold-CV) & 0.00 & 0.40 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($10$-Fold-CV) & 0.00 & 0.24 & $<0.001$ & $<0.001$ & *** & Yes \\
 \midrule
-\multicolumn{7}{c}{\textbf{Prediction Consensus Equivalence}} \\
+\multicolumn{7}{c}{\textbf{Estimation-Observation Consensus Equivalence}} \\
 \cmidrule(lr){1-7}
 Evaluation & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
 \midrule
-Discipline (LOGO-CV) & 0.00 & -0.23 & $<0.001$ & $<0.001$ & *** & Yes \\
-Random ($5$-Fold-CV) & -0.02 & -0.54 & $<0.001$ & $<0.001$ & *** & Yes \\
-Random ($10$-Fold-CV) & -0.01 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
+Discipline (LOGO-CV) & 0.00 & -0.14 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($5$-Fold-CV) & -0.01 & -0.32 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($10$-Fold-CV) & 0.00 & -0.34 & $<0.001$ & $<0.001$ & *** & Yes \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Averaged out-of-fold predictions from each regime were rescored within the same 5 broad domains. Each comparison uses 45 paired estimator-by-domain comparisons from 9 estimators and 5 domains, summarized over 30 seeds, with shifts defined as comparison regime minus Domain LOGO-CV. EI is the Efficiency Index, and CI is the Consensus Index between predictions and observed maxima. The rank-biserial effect $r$ uses unshifted paired differences and has the same direction. $p$ is the unadjusted TOST value, taken as the larger of the 2 one-sided Wilcoxon $p$ values. $p_{\mathrm H}$ is Holm-adjusted across the 3 regime comparisons separately for each outcome. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Eq. indicates rejection of both TOST nulls after adjustment at 0.05, within IQR margins $\delta_{\mathrm{EI}} = 0.04$ and $\delta_{\mathrm{CI}} = 0.11$. These margins were calculated from model-level Domain LOGO-CV means after each model was averaged equally across domains. Shifts rounding to zero are displayed as 0.00. The 45 comparisons share estimators, training systems, and domains, so inference is conditional on this panel.
+Averaged out-of-sample predictions from each regime were rescored within the same 5 broad domains. Each comparison uses 45 paired estimator-by-domain comparisons from 9 estimators and 5 domains, summarized over 30 seeds, with shifts defined as comparison regime minus Domain LOGO-CV. EI is the Efficiency Index, and CI is the Consensus Index between predictions and observed maxima. The rank-biserial effect $r$ uses unshifted paired differences and has the same direction. $p$ is the unadjusted TOST value, taken as the larger of the 2 one-sided Wilcoxon $p$ values. $p_{\mathrm H}$ is Holm-adjusted across the 3 regime comparisons separately for each outcome. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Eq. indicates rejection of both TOST nulls after adjustment at 0.05, within IQR margins $\delta_{\mathrm{EI}} = 0.02$ and $\delta_{\mathrm{CI}} = 0.11$. These margins were calculated from model-level Domain LOGO-CV means after each model was averaged equally across domains. Shifts rounding to zero are displayed as 0.00. The 45 comparisons share estimators, training systems, and domains, so inference is conditional on this panel.
 \end{minipage}
 \end{table}
 
@@ -698,47 +704,47 @@ Averaged out-of-fold predictions from each regime were rescored within the same 
 \cmidrule(lr){1-8}
 Perturbation & Method & \shortstack{Median\\$\Delta\mathrm{EI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
 \midrule
-Network & Sample & 0.00 & -0.16 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Rewire & 0.00 & -0.22 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Densify & 0.00 & -0.30 & $<0.001$ & $<0.001$ & *** & Yes \\
+Network & Sample & 0.00 & -0.35 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Rewire & 0.00 & -0.23 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Densify & 0.00 & -0.40 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Invariants & Jitter & 0.00 & -0.41 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Noise & 0.00 & -0.56 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Subset & 0.00 & 0.25 & $<0.001$ & $<0.001$ & *** & Yes \\
+Invariants & Jitter & 0.00 & -0.45 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Noise & 0.00 & -0.60 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Subset & 0.00 & 0.05 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Process & Bootstrapping & 0.01 & 0.41 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Scaling & -0.01 & -0.37 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Smoothing & -0.02 & -0.74 & $<0.001$ & $<0.001$ & *** & Yes \\
+Process & Bootstrapping & 0.01 & 0.33 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Scaling & -0.01 & -0.45 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Smoothing & -0.02 & -0.75 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Signatures & Jitter & 0.00 & -0.20 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Noise & 0.00 & -0.43 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Subset & -0.01 & -0.56 & $<0.001$ & $<0.001$ & *** & Yes \\
+Signatures & Jitter & 0.00 & -0.31 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Noise & 0.00 & -0.44 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Subset & -0.01 & -0.61 & $<0.001$ & $<0.001$ & *** & Yes \\
 \midrule
-\multicolumn{8}{c}{\textbf{Prediction Consensus}} \\
+\multicolumn{8}{c}{\textbf{Estimation-Observation Consensus}} \\
 \cmidrule(lr){1-8}
 Perturbation & Method & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
 \midrule
-Network & Sample & 0.00 & -0.59 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Rewire & 0.00 & -0.49 & $<0.001$ & $<0.001$ & *** & Yes \\
+Network & Sample & 0.00 & -0.58 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Rewire & 0.00 & -0.43 & $<0.001$ & $<0.001$ & *** & Yes \\
  & Densify & 0.00 & -0.47 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Invariants & Jitter & 0.00 & -0.60 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Noise & 0.00 & -0.47 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Subset & 0.00 & -0.44 & $<0.001$ & $<0.001$ & *** & Yes \\
+Invariants & Jitter & 0.00 & -0.42 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Noise & 0.00 & -0.42 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Subset & 0.00 & -0.40 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Process & Bootstrapping & -0.08 & -0.95 & 0.021 & 0.021 & * & Yes \\
- & Scaling & -0.04 & -0.43 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Smoothing & -0.06 & -0.77 & 0.002 & 0.004 & ** & Yes \\
+Process & Bootstrapping & -0.11 & -0.82 & 0.025 & 0.025 & * & Yes \\
+ & Scaling & -0.02 & -0.23 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Smoothing & -0.06 & -0.73 & 0.002 & 0.003 & ** & Yes \\
 \addlinespace
-Signatures & Jitter & -0.02 & -0.58 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Noise & -0.03 & -0.77 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Subset & -0.07 & -0.90 & $<0.001$ & $<0.001$ & *** & Yes \\
+Signatures & Jitter & -0.01 & -0.29 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Noise & -0.01 & -0.68 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Subset & -0.04 & -0.81 & $<0.001$ & $<0.001$ & *** & Yes \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (perturbed minus original), with positive values indicating higher scores under perturbation. The rank-biserial effect $r$ uses unshifted paired differences and has the same direction. Shifts and rank-biserial effects are rounded to two decimals, with shifts rounding to zero displayed as 0.00. The frozen domain-level LOGO-CV protocol uses 45 paired estimator-by-domain comparisons (9 estimators and 5 domains), summarized over 30 seeds. Only the maximum tested intensity for each method enters the test. Sample denotes node removal, and subset denotes coordinate masking. $p$ is the unadjusted TOST value, taken as the larger of the two one-sided Wilcoxon $p$ values. $p_{\mathrm H}$ is Holm-adjusted across the 12 methods separately for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Eq. indicates rejection of both TOST nulls after adjustment at 0.05, within IQR margins $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$. These margins are derived from original-condition variability. The 45 comparisons share estimators, training systems, and domains, so inference is conditional on this panel.
+EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (perturbed minus original), with positive values indicating higher metrics under perturbation. The rank-biserial effect $r$ uses unshifted paired differences and has the same direction. Shifts and rank-biserial effects are rounded to two decimals, with shifts rounding to zero displayed as 0.00. The frozen domain-level LOGO-CV protocol uses 45 paired estimator-by-domain comparisons (9 estimators and 5 domains), summarized over 30 seeds. Only the maximum tested intensity for each method enters the test. Sample denotes node removal, and subset denotes coordinate masking. $p$ is the unadjusted TOST value, taken as the larger of the two one-sided Wilcoxon $p$ values. $p_{\mathrm H}$ is Holm-adjusted across the 12 methods separately for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Eq. indicates rejection of both TOST nulls after adjustment at 0.05, within IQR margins $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$. These margins are derived from original-condition variability. The 45 comparisons share estimators, training systems, and domains, so inference is conditional on this panel.
 \end{minipage}
 \end{table}
 
@@ -756,31 +762,31 @@ EI is the Efficiency Index and CI is the Consensus Index between predictions and
 \cmidrule(lr){1-8}
 Falsification & Method & \shortstack{Median\\$\Delta\mathrm{EI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Diff. \\
 \midrule
-Frozen & Target Permutation & -0.03 & -0.44 & 0.005 & 0.005 & ** & Yes \\
- & Random Generation & -0.04 & -0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Vector Generation & -0.03 & -0.80 & $<0.001$ & $<0.001$ & *** & Yes \\
+Frozen & Target Permutation & -0.02 & -0.38 & 0.013 & 0.013 & * & Yes \\
+ & Random Generation & -0.04 & -0.91 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Vector Generation & -0.03 & -0.74 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Retrain & Target Permutation & -0.08 & -0.57 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Random Generation & -0.02 & -0.71 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Vector Generation & -0.03 & -0.67 & $<0.001$ & $<0.001$ & *** & Yes \\
+Retrain & Target Permutation & -0.09 & -0.53 & $<0.001$ & 0.001 & ** & Yes \\
+ & Random Generation & -0.02 & -0.59 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Vector Generation & -0.03 & -0.57 & $<0.001$ & $<0.001$ & *** & Yes \\
 \midrule
-\multicolumn{8}{c}{\textbf{Prediction Consensus}} \\
+\multicolumn{8}{c}{\textbf{Estimation-Observation Consensus}} \\
 \cmidrule(lr){1-8}
 Falsification & Method & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Diff. \\
 \midrule
-Frozen & Target Permutation & -0.29 & -1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Random Generation & -0.30 & -0.90 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Vector Generation & -0.21 & -0.95 & $<0.001$ & $<0.001$ & *** & Yes \\
+Frozen & Target Permutation & -0.29 & -0.97 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Random Generation & -0.28 & -0.91 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Vector Generation & -0.21 & -0.88 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Retrain & Target Permutation & -0.25 & -0.99 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Random Generation & -0.17 & -0.94 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Vector Generation & -0.31 & -0.99 & $<0.001$ & $<0.001$ & *** & Yes \\
+Retrain & Target Permutation & -0.24 & -0.99 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Random Generation & -0.18 & -0.93 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Vector Generation & -0.30 & -0.97 & $<0.001$ & $<0.001$ & *** & Yes \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (falsified minus original), with negative values indicating lower scores under falsification. The rank-biserial effect $r$ is computed from the unshifted paired differences and has the same direction. Each comparison uses 45 paired estimator-by-domain comparisons under domain-level LOGO-CV, summarized over 30 seeds. Frozen frontiers retain original-data fits, while retrained frontiers refit the pipeline on falsified data. $p$ is the unadjusted one-sided Wilcoxon signed-rank value. $p_{\mathrm H}$ is Holm-adjusted across the six method-by-frontier comparisons separately for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Diff. indicates $p_{\mathrm H}<0.05$ and a negative median shift, supporting inferiority to the original condition. The falsified corpora are corpus-level negative controls. Contrasts share estimators, training systems, and domains, so inference is conditional on this panel.
+EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (falsified minus original), with negative values indicating lower metrics under falsification. The rank-biserial effect $r$ is computed from the unshifted paired differences and has the same direction. Each comparison uses 45 paired estimator-by-domain comparisons under domain-level LOGO-CV, summarized over 30 seeds. Frozen frontiers retain original-data fits, while retrained frontiers refit the pipeline on falsified data. $p$ is the unadjusted one-sided Wilcoxon signed-rank value. $p_{\mathrm H}$ is Holm-adjusted across the six method-by-frontier comparisons separately for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. Diff. indicates $p_{\mathrm H}<0.05$ and a negative median shift, supporting inferiority to the original condition. The falsified corpora are corpus-level negative controls. Contrasts share estimators, training systems, and domains, so inference is conditional on this panel.
 \end{minipage}
 \end{table}
 
@@ -798,27 +804,27 @@ EI is the Efficiency Index and CI is the Consensus Index between predictions and
 \cmidrule(lr){1-8}
 Ablation & Method & \shortstack{Median\\$\Delta\mathrm{EI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & NI. \\
 \midrule
-Simple & Invariants Only & -0.01 & -0.74 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Signatures Only & -0.01 & -0.18 & $<0.001$ & $<0.001$ & *** & Yes \\
+Simple & Invariants Only & -0.01 & -0.77 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Signatures Only & -0.01 & -0.21 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Complex & Joint Features & -0.02 & -0.56 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Interaction Terms & -0.01 & -0.50 & $<0.001$ & $<0.001$ & *** & Yes \\
+Complex & Joint Features & -0.02 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Interaction Terms & -0.01 & -0.46 & $<0.001$ & $<0.001$ & *** & Yes \\
 \midrule
-\multicolumn{8}{c}{\textbf{Prediction Consensus}} \\
+\multicolumn{8}{c}{\textbf{Estimation-Observation Consensus}} \\
 \cmidrule(lr){1-8}
 Ablation & Method & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & NI. \\
 \midrule
-Simple & Invariants Only & -0.28 & -0.91 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Signatures Only & -0.16 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
+Simple & Invariants Only & -0.20 & -0.86 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Signatures Only & -0.08 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Complex & Joint Features & -0.20 & -0.69 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Interaction Terms & -0.09 & -0.70 & $<0.001$ & $<0.001$ & *** & Yes \\
+Complex & Joint Features & -0.27 & -0.67 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Interaction Terms & -0.10 & -0.65 & $<0.001$ & $<0.001$ & *** & Yes \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (alternative specification minus log-additive decomposition). Negative values favor the log-additive decomposition. The rank-biserial effect $r$ uses unshifted differences, so positive values indicate higher scores under the alternative independently of the tested margin. Each comparison uses 45 paired estimator-by-domain comparisons under retrained domain-level LOGO-CV, summarized over 30 seeds. The IQR non-inferiority margins are $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.15$, calculated from variability under the log-additive decomposition. The one-sided tests assess $H_0:\Delta\geq\delta$ against $H_1:\Delta<\delta$. $p$ is the unadjusted one-sided Wilcoxon signed-rank value. $p_{\mathrm H}$ is Holm-adjusted separately within the two simple and the two complex specifications for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. NI indicates support for non-inferiority of the log-additive decomposition when $p_{\mathrm H}<0.05$ and the median shift is below the margin. This decision concerns advantages of at least the stated margin. It does not establish inferiority of simple specifications. Shifts rounding to zero are displayed as 0.00. Contrasts share estimators, training systems, and domains, so inference is conditional on this panel.
+EI is the Efficiency Index and CI is the Consensus Index between predictions and observed maxima. Shifts are medians of paired differences (alternative specification minus log-additive decomposition). Negative values favor the log-additive decomposition. The rank-biserial effect $r$ uses unshifted differences, so positive values indicate higher metrics under the alternative independently of the tested margin. Each comparison uses 45 paired estimator-by-domain comparisons under retrained domain-level LOGO-CV, summarized over 30 seeds. The IQR non-inferiority margins are $\delta_{\mathrm{EI}} = 0.08$ and $\delta_{\mathrm{CI}} = 0.14$, calculated from variability under the log-additive decomposition. The one-sided tests assess $H_0:\Delta\geq\delta$ against $H_1:\Delta<\delta$. $p$ is the unadjusted one-sided Wilcoxon signed-rank value. $p_{\mathrm H}$ is Holm-adjusted separately within the two simple and the two complex specifications for each outcome. Both p-value columns are reported to 3 decimals, with values below 0.001 shown as $<0.001$. Sig. gives the Holm-adjusted significance code: *** for $p_{\mathrm H}<0.001$, ** for $p_{\mathrm H}<0.01$, and * for $p_{\mathrm H}<0.05$. NI indicates support for non-inferiority of the log-additive decomposition when $p_{\mathrm H}<0.05$ and the median shift is below the margin. This decision concerns advantages of at least the stated margin. It does not establish inferiority of simple specifications. Shifts rounding to zero are displayed as 0.00. Contrasts share estimators, training systems, and domains, so inference is conditional on this panel.
 \end{minipage}
 \end{table}
 
@@ -834,7 +840,7 @@ EI is the Efficiency Index and CI is the Consensus Index between predictions and
 \textbf{Category} & \textbf{Invariant} & \textbf{Definition} & \textbf{Formula} & \textbf{Complexity} \\
 \hline
 \multirow{4}{*}{\textbf{Simple}}
- & 1. Number of Nodes & Number of vertices $|V|$ & $n = |V|$ & $O(1)$ \\
+ & 1. Number of Nodes & Number of nodes $|V|$ & $n = |V|$ & $O(1)$ \\
  & 2. Number of Edges & Number of edges $|E|$ & $m = |E|$ & $O(1)$ \\
  & 3. Articulation Points & Vertices whose removal splits $G$ & $\lvert \{ v : \omega(G - v) > \omega(G) \} \rvert$ & $O(n+m)$ \\
  & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ e : \omega(G - e) > \omega(G) \} \rvert$ & $O(n+m)$ \\
@@ -868,7 +874,7 @@ EI is the Efficiency Index and CI is the Consensus Index between predictions and
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Admission criteria were prespecified. Each invariant was required to be (i) formally invariant, defined purely by the graph and preserved under relabeling, with no dependence on embeddings, weights, external parameters, or arbitrary thresholds, (ii) exactly and deterministically computable at the largest corpus scales, and (iii) globally informative, a whole-graph descriptor with non-trivial variation across systems. \dag~Diameter and radius were computed on the largest connected component. Spectral moments were computed as trace polynomials of sparse matrices, avoiding eigendecomposition at corpus scale, and all values were constrained finite. Here $n = |V|$ and $m = |E|$. In the formulae, $d_v$ is the degree of $v$, $\bar{d}$ the mean degree, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, $g_2 = \mu_4 / \mu_2^{2} - 3$, $\omega$ the number of connected components, $\epsilon(v)$ the eccentricity of $v$ in hops, $c(v)$ its core number, $p_k$ the fraction of vertices of degree $k$, $q_{kl}$ the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ the numbers of triangles and connected triples. The matrix $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ is taken over non-isolated vertices, $L = I - \hat{A}$, and $P = D^{-1} A$. Isolated vertices count toward $n$ and add 0 to $\mathrm{tr}(L^k)$, logarithms are natural, assortativity counts both orientations of each edge, and degeneracy and $k$-core size use the full graph. Undefined assortativity and clustering, and the skewness and kurtosis of equal degrees or of $n < 3$ and $n < 4$ vertices, respectively, were set to 0. The 4 complete bipartite substrates used closed-form values of these formulae. Feature names correspond to the released code. Invariant references: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
+Admission criteria were prespecified. Each invariant was required to be (i) formally invariant, defined purely by the graph and preserved under relabeling, with no dependence on embeddings, weights, external parameters, or arbitrary thresholds, (ii) exactly and deterministically computable at the largest corpus scales, and (iii) globally informative, a whole-graph descriptor with non-trivial variation across systems. \dag~Diameter and radius were computed on the largest connected component. Spectral moments were computed as trace polynomials of sparse matrices, avoiding eigendecomposition at corpus scale, and all values were constrained finite. Here $n = |V|$ and $m = |E|$. In the formulae, $d_v$ is the degree of $v$, $\bar{d}$ the mean degree, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, $g_2 = \mu_4 / \mu_2^{2} - 3$, $\omega$ the number of connected components, $\epsilon(v)$ the eccentricity of $v$ in hops, $c(v)$ its core number, $p_k$ the fraction of nodes of degree $k$, $q_{kl}$ the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ the numbers of triangles and connected triples. The matrix $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ is taken over non-isolated nodes, $L = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ and add 0 to $\mathrm{tr}(L^k)$, logarithms are natural, assortativity counts both orientations of each edge, and degeneracy and $k$-core size use the full graph. Undefined assortativity and clustering, and the skewness and kurtosis of equal degrees or of $n < 3$ and $n < 4$ nodes, respectively, were set to 0. The 4 complete bipartite substrates used closed-form values of these formulae. Feature names correspond to the released code. Invariant references: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
 \end{minipage}
 \end{table}
 
@@ -877,7 +883,7 @@ Admission criteria were prespecified. Each invariant was required to be (i) form
 \centering
 \footnotesize
 \captionsetup{position=top,skip=12pt}
-\caption{7 Process Signatures by Property -- Definitions, Formulae, and Asymptotic Time Complexity.}
+\caption{7 Process Signatures by Property: Definitions, Formulae, and Asymptotic Time Complexity.}
 \label{tab:si-signatures}
 \begin{tabularx}{\linewidth}{|l|l|>{\raggedright\arraybackslash}X|l|l|}
 \hline
@@ -913,13 +919,13 @@ Admission criteria were prespecified. Each signature was required to be (i) defi
 \centering
 \footnotesize
 \captionsetup{position=top,skip=12pt}
-\caption{Stress-test protocol: interventions, settings, tracks, and inference.}
+\caption{Stress Test Protocol: Interventions, Settings, Tracks, and Inference.}
 \label{tab:si-protocol}
 \begin{tabularx}{\linewidth}{@{}llXl@{}}
 \toprule
-\textbf{Category} & \textbf{Method} & \textbf{Setting} & \textbf{Track} \\
+\textbf{Category} & \textbf{Method} & \textbf{Description} & \textbf{Frontier} \\
 \midrule
-\multicolumn{4}{@{}l}{\textbf{Perturbation} (TOST equivalence at maximum intensity, $\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.15$)} \\
+\multicolumn{4}{@{}l}{\textbf{Perturbation} (TOST equivalence at maximum intensity, $\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.14$)} \\
 \midrule
 Network & Rewire & Degree-preserving edge swaps, fraction 0.05--0.35 (max 0.35) & Frozen \\
  & Densify & Uniform edge addition, fraction 0.05--0.35 (max 0.35) & Frozen \\
@@ -931,7 +937,7 @@ Invariants & Noise & Additive Gaussian noise, corpus-wide, 0.05--0.35 (max 0.35)
 \addlinespace
 Process & Bootstrapping & Bootstrap to destroy temporal order 0.05--0.35 (max 0.05) & Frozen \\
  & Scaling & Power-law scaling, exponent 0.25--1.75 (max 0.25) & Frozen \\
- & Smoothing & Rolling-mean smoothing, window 3--15 days (max 15) & Frozen \\
+ & Smoothing & Rolling-mean smoothing, window 3--15 intervals (max 15) & Frozen \\
 \addlinespace
 Signatures & Noise & Additive Gaussian noise, corpus-wide, 0.05--0.35 (max 0.35) & Frozen \\
  & Jitter & Multiplicative jitter, 0.05--0.35 (max 0.35) & Frozen \\
@@ -939,23 +945,23 @@ Signatures & Noise & Additive Gaussian noise, corpus-wide, 0.05--0.35 (max 0.35)
 \midrule
 \multicolumn{4}{@{}l}{\textbf{Falsification} (one-sided inferiority to the original condition, Holm-adjusted)} \\
 \midrule
-Negative control & Target Permutation & Cross-domain derangement of $y^{*}$ across systems with $x$ and $z$ unchanged & Frozen + Retrain \\
+Negative & Target Permutation & Cross-domain derangement of $y^{*}$ with $x$ and $z$ unchanged & Frozen + Retrain \\
  & Random Generation & Each feature redrawn uniformly within its observed corpus range & Frozen + Retrain \\
- & Vector Generation & Feature bootstrap across systems plus Gaussian noise at pooled dispersion & Frozen + Retrain \\
+ & Vector Generation & Feature bootstrap plus Gaussian noise at pooled dispersion & Frozen + Retrain \\
 \midrule
-\multicolumn{4}{@{}l}{\textbf{Ablation} (one-sided non-inferiority of the log-additive decomposition, $\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.15$)} \\
+\multicolumn{4}{@{}l}{\textbf{Ablation} (one-sided non-inferiority of the log-additive decomposition, $\delta_{\mathrm{EI}} = 0.08$, $\delta_{\mathrm{CI}} = 0.14$)} \\
 \midrule
 Simple & Invariants Only & Frontier fitted on $x'$ alone & Retrain \\
  & Signatures Only & Frontier fitted on $z'$ alone & Retrain \\
 \addlinespace
 Complex & Joint Features & $x'$ and $z'$ concatenated into a single-stage fit & Retrain \\
- & Interaction Terms & Log-additive decomposition augmented with all 147 pairwise products & Retrain \\
+ & Interaction Terms & Augmented with all 147 pairwise products & Retrain \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-All settings used 30 model-fitting seeds, paired 1-to-1 with 30 independent realizations for stochastic interventions, and deterministic interventions used 30 model-fitting seeds over a single realization. Grids used 7 equally spaced values between the stated end points, and the scaling grid includes the identity $\gamma = 1$. Here $s$ is the intensity, $\sigma_j$ the sample standard deviation of raw coordinate $j$ across the 25 systems, $p$ the number of coordinates in $x$ or $z$, $\rho$ the retention, $w$ the window, and $|T|$ the series length. For complete bipartite substrates, node removal used exact closed-form invariants, and rewiring and densification used the deterministic approximations of \hyperref[sec:si-note-bipartite]{Supplementary Note 1}, with rewiring interpolated toward configuration-model estimates \citep{ref57}. Falsified corpora were generated once under base seed 42 and served as corpus-level negative controls. The maximum tested intensity was the most severe setting, with severity equal to $s$ or $w$ for most methods, $1 - \rho$ for masking, $1 - s$ for bootstrapping, and $\lvert \ln \gamma \rvert$ for scaling. Inference used the 45 estimator-by-domain panel summarized over 30 seeds, with Holm adjustment within each test family.
+All stress tests used 30 model-fitting seeds, paired 1-to-1 with 30 independent realizations for stochastic interventions, and deterministic interventions used 30 model-fitting seeds over a single realization. Grids used 7 equally spaced values between the stated end points, and the scaling grid includes the identity $\gamma = 1$. Here $s$ is the intensity, $\sigma_j$ the sample standard deviation of raw coordinate $j$ across the 25 systems, $p$ the number of coordinates in $x$ or $z$, $\rho$ the retention, $w$ the window, and $|T|$ the series length. For complete bipartite substrates, node removal used exact closed-form invariants, and rewiring and densification used the deterministic approximations of \hyperref[sec:si-note-bipartite]{Supplementary Note 1}, with rewiring interpolated toward configuration-model estimates \citep{ref57}. For the 3 complete-graph substrates (gwosc, seismic, and windmill), rewiring and densification returned the original graph. Falsified corpora were generated once under base seed 42 and served as corpus-level negative controls. The maximum tested intensity was the most severe setting, with severity equal to $s$ or $w$ for most methods, $1 - \rho$ for masking, $1 - s$ for bootstrapping, and $\lvert \ln \gamma \rvert$ for scaling. Inference used the 45 estimator-by-domain panel summarized over 30 seeds, with Holm adjustment within each test family.
 \end{minipage}
 \end{table}
 
@@ -963,9 +969,9 @@ All settings used 30 model-fitting seeds, paired 1-to-1 with 30 independent real
 \subsection*{Supplementary Note 1: Complete Bipartite Perturbations}
 \phantomsection
 \label{sec:si-note-bipartite}
-The 4 complete bipartite substrates (college, email, mooc, overflow) were represented by their partition sizes $m$ and $n$, with $N = m + n$ vertices and $M = mn$ edges, because their explicit graphs reach up to 7,200,000,000 edges. Node removal at intensity $s$ deleted $\lfloor sN \rfloor$ vertices drawn uniformly without replacement, counted the removed vertices in each partition, and evaluated the closed forms of Supplementary Table~\ref{tab:si-features} for the remaining complete bipartite graph. This computation is exact and used 30 realizations. Rewiring and densification used a deterministic degree-class approximation with 1 realization.
+The 4 complete bipartite substrates (college, email, mooc, overflow) were represented by their partition sizes $m$ and $n$, with $N = m + n$ nodes and $M = mn$ edges, because their explicit graphs reach up to 7,200,000,000 edges. Node removal at intensity $s$ deleted $\lfloor sN \rfloor$ nodes drawn uniformly without replacement, counted the removed nodes in each partition, and evaluated the closed forms of Supplementary Table~\ref{tab:si-features} for the remaining complete bipartite graph. This computation is exact and used 30 realizations. Rewiring and densification used a deterministic degree-class approximation with 1 realization.
 
-For degree classes $c$ with degree $d_c$ and $N_c$ vertices, and an edge count $M'$, let
+For degree classes $c$ with degree $d_c$ and $N_c$ nodes, and an edge count $M'$, let
 \begin{equation*}
 N = \sum_c N_c, \quad S_1 = \sum_c N_c d_c, \quad S_2 = \sum_c N_c d_c^{2}, \quad \bar{d} = \frac{S_1}{N}, \quad \kappa = \frac{S_2}{\max(S_1, 1)} - 1, \quad \overline{d^{-1}} = \frac{1}{N} \sum_c \frac{N_c}{\max(d_c, 1)}.
 \end{equation*}
@@ -994,13 +1000,13 @@ Rewiring at intensity $s$ evaluated $\Phi$ on the classes of $K_{m,n}$, with deg
 \item \label{src:S8} Golden, J. W. \& Riddle, D. L. The \textit{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \textit{Dev. Biol.} \textbf{102}, 368--378 (1984). \url{https://doi.org/10.1016/0012-1606(84)90201-X}
 \item \label{src:S9} Allen-Perkins, A. et al. CropPol: A dynamic, open and global database on crop pollination. \textit{Ecology} \textbf{103}, e3614 (2022). \url{https://doi.org/10.1002/ecy.3614}
 \item \label{src:S10} Hungarian Chickenpox Cases [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5103B}
-\item \label{src:S11} U.S. Food and Drug Administration. openFDA Drug Event API. \url{https://open.fda.gov/apis/drug/event/} (accessed 1 September 2026).
+\item \label{src:S11} U.S. Food and Drug Administration. openFDA Drug Event API. \url{https://open.fda.gov/apis/drug/event/} (accessed 13 March 2026).
 \item \label{src:S12} Guttag, J. CHB-MIT Scalp EEG Database, version 1.0.0 [Dataset]. PhysioNet (2010). \url{https://doi.org/10.13026/C2K01R}
-\item \label{src:S13} U.S. Department of the Treasury. USAspending API. \url{https://api.usaspending.gov/} (accessed 1 September 2026).
+\item \label{src:S13} U.S. Department of the Treasury. USAspending API. \url{https://api.usaspending.gov/} (accessed 25 August 2026).
 \item \label{src:S14} Kumar, S., Zhang, X. \& Leskovec, J. Predicting dynamic embedding trajectory in temporal interaction networks. In \textit{Proc. 25th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining} 1269--1278 (ACM, 2019). \url{https://doi.org/10.1145/3292500.3330895}
 \item \label{src:S15} McAuley, J., Targett, C., Shi, Q. \& van den Hengel, A. Image-based recommendations on styles and substitutes. In \textit{Proc. 38th Int. ACM SIGIR Conf. Research and Development in Information Retrieval} 43--52 (ACM, 2015). \url{https://doi.org/10.1145/2766462.2767755}
 \item \label{src:S16} Kumar, S., Spezzano, F., Subrahmanian, V. S. \& Faloutsos, C. Edge weight prediction in weighted signed networks. In \textit{Proc. IEEE 16th Int. Conf. Data Mining} 221--230 (IEEE, 2016). \url{https://doi.org/10.1109/ICDM.2016.0033}
-\item \label{src:S17} World Bank. Projects \& Operations API and Country API. \url{https://search.worldbank.org/api/v2/projects} and \url{https://api.worldbank.org/v2/country} (accessed 1 September 2026).
+\item \label{src:S17} World Bank. Projects \& Operations API and Country API. \url{https://search.worldbank.org/api/v2/projects} and \url{https://api.worldbank.org/v2/country} (accessed 29 September 2026).
 \item \label{src:S18} Wikipedia Math Essentials [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5V32F}
 \item \label{src:S19} Paranjape, A., Benson, A. R. \& Leskovec, J. Motifs in temporal networks. In \textit{Proc. 10th ACM Int. Conf. Web Search and Data Mining} 601--610 (ACM, 2017). \url{https://doi.org/10.1145/3018661.3018731}
 \item \label{src:S20} Panzarasa, P., Opsahl, T. \& Carley, K. M. Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \textit{J. Am. Soc. Inf. Sci. Technol.} \textbf{60}, 911--932 (2009). \url{https://doi.org/10.1002/asi.21015}
