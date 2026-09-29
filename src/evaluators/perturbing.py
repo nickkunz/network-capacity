@@ -24,6 +24,7 @@ if str(root) not in sys.path:
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
+from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
     consensus_metrics,
     paired_rank_biserial
@@ -1201,7 +1202,7 @@ def stat_perturbed_tost(
             valid = np.isfinite(x) & np.isfinite(y)
             x, y = x[valid], y[valid]
             n = len(x)
-            d = y - x
+            d = _clean_differences(y - x)
             med_d = float(np.median(d)) if n else np.nan
 
             if n < 2:
