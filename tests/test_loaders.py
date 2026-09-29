@@ -22,6 +22,7 @@ from src.data.loaders.faers import _iter_reports_faers, _process_events_faers
 from src.data.loaders.federal import FederalProcessor
 from src.data.loaders.metrla import _process_events_metrla
 from src.data.loaders.pemsbay import _process_events_pemsbay
+from src.data.loaders.world import load_metadata_worldbank, load_network_worldbank
 from src.data.builders import load_perturbed_data
 from src.data.perturbers import _execute_perturbations, _jitter_count_series, _resolve_n_jobs
 from src.evaluators.config import FEAT_X
@@ -118,6 +119,57 @@ class FaersEventTests(unittest.TestCase):
 
         with self.assertRaisesRegex(RuntimeError, "incomplete FAERS pagination"):
             list(_iter_reports_faers(id = "IMATINIB", url = "unused"))
+
+
+class WorldBankLoaderTests(unittest.TestCase):
+
+    @patch("src.data.loaders.world._request_with_retry")
+    def test_projects_advance_by_returned_page_length(self, request_mock) -> None:
+        offsets = list()
+
+        def respond(url, params = None, **kwargs):
+            offset = int(params["os"])
+            offsets.append(offset)
+            ids = [f"P{i}" for i in range(offset, min(offset + 2, 5))]
+            payload = {"total": "5", "projects": {i: {"id": i} for i in ids}}
+            return SimpleNamespace(json = lambda: payload)
+
+        request_mock.side_effect = respond
+
+        data = load_network_worldbank(url = "unused", start_year = 2014, end_year = 2024, rows = 2000)
+
+        self.assertEqual(offsets, [0, 2, 4])
+        self.assertEqual(sorted(data["id"]), ["P0", "P1", "P2", "P3", "P4"])
+
+    @patch("src.data.loaders.world._request_with_retry")
+    def test_incomplete_projects_are_rejected(self, request_mock) -> None:
+        pages = iter([
+            {"total": "3", "projects": {"P0": {"id": "P0"}, "P1": {"id": "P1"}}},
+            {"total": "3", "projects": {}},
+        ])
+        request_mock.side_effect = lambda url, params = None, **kwargs: SimpleNamespace(
+            json = lambda page = next(pages): page
+        )
+
+        with self.assertRaisesRegex(RuntimeError, "incomplete world bank projects"):
+            load_network_worldbank(url = "unused", start_year = 2014, end_year = 2024)
+
+    @patch("src.data.loaders.world._request_with_retry")
+    def test_country_metadata_reads_every_page(self, request_mock) -> None:
+        requested = list()
+
+        def respond(url, params = None, **kwargs):
+            page = int(params["page"])
+            requested.append(page)
+            records = [{"id": f"C{page}", "name": f"Country {page}"}]
+            return SimpleNamespace(json = lambda: [{"page": page, "pages": 3}, records])
+
+        request_mock.side_effect = respond
+
+        meta = load_metadata_worldbank(url = "unused", per_page = 1)
+
+        self.assertEqual(requested, [1, 2, 3])
+        self.assertEqual(meta["name"].tolist(), ["Country 1", "Country 2", "Country 3"])
 
 
 class FederalEventTests(unittest.TestCase):

@@ -10,6 +10,7 @@ from src.data.loaders.windmill import _process_events_wind
 from src.evaluators.config import FEAT_X
 from src.evaluators.decomposing import stat_decomposed_summary, stat_decomposed_test
 from src.evaluators.falsifying import stat_falsified_test
+from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import paired_rank_biserial, spec_marginal_delta
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
@@ -39,6 +40,16 @@ class RankBiserialTests(unittest.TestCase):
 
     def test_returns_nan_without_nonzero_differences(self) -> None:
         self.assertTrue(np.isnan(paired_rank_biserial(differences = [0.0, np.nan])))
+
+    def test_round_off_differences_count_as_zero(self) -> None:
+        noisy = [1e-16, -3e-16, 0.5, 0.25, -0.125]
+        clean = [0.0, 0.0, 0.5, 0.25, -0.125]
+
+        self.assertEqual(_clean_differences(noisy).tolist(), clean)
+        self.assertAlmostEqual(
+            paired_rank_biserial(differences = _clean_differences(noisy)),
+            paired_rank_biserial(differences = clean),
+        )
 
     def test_decomposition_summary_uses_unshifted_specification_difference(self) -> None:
         models = ["a", "b", "c", "d"]
