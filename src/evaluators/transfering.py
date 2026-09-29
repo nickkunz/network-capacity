@@ -7,6 +7,7 @@ from pandas.io.formats.style import Styler
 
 ## modules
 from src.vectorizers.scalers import _log_transformer
+from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
     consensus_metrics,
     frontier_metrics,
@@ -261,7 +262,7 @@ def stat_transfer_tost(
         reference_values = paired["reference_value"].to_numpy(dtype = float)
         comparison_values = paired["comparison_value"].to_numpy(dtype = float)
         valid = np.isfinite(reference_values) & np.isfinite(comparison_values)
-        differences = comparison_values[valid] - reference_values[valid]
+        differences = _clean_differences(comparison_values[valid] - reference_values[valid])
         n_pairs = len(differences)
         pair_counts.append(n_pairs)
 
