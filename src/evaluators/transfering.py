@@ -9,8 +9,8 @@ from pandas.io.formats.style import Styler
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.helpers import (
     _clean_differences,
-    _paired_rank_biserial,
-    _spec_marginal_delta,
+    paired_rank_biserial,
+    spec_marginal_delta,
 )
 from src.evaluators.metrics import (
     frontier_consensus,
@@ -157,7 +157,7 @@ def spec_transfer_delta(
         .mean()
         .assign(**{label_regime: reference})
     )
-    return _spec_marginal_delta(
+    return spec_marginal_delta(
         results = model_results,
         feat_value = [metric],
         label_ref = label_regime,
@@ -294,7 +294,7 @@ def stat_transfer_tost(
             f"Median Δ {metric.upper()}": (
                 float(np.median(differences)) if n_pairs else np.nan
             ),
-            "Rank-biserial r": _paired_rank_biserial(
+            "Rank-biserial r": paired_rank_biserial(
                 differences = differences.tolist(),
             ),
             "TOST p": p_tost,

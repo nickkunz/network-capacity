@@ -14,7 +14,7 @@ from typing import Sequence, Dict, Any, Iterator
 ## modules
 from src.evaluators.predicting import compile_corpus_full
 from src.evaluators.training import fit_predict_frontier
-from src.evaluators.helpers import _clean_differences, _paired_rank_biserial
+from src.evaluators.helpers import _clean_differences, paired_rank_biserial
 from src.evaluators.metrics import (
     frontier_efficiency,
     frontier_consensus,
@@ -1599,7 +1599,7 @@ def stat_decomposed_attribution(
         p_value = np.nan
     else:
         _, p_value = wilcoxon(x = delta.values, alternative = "greater")
-        r_effect = _paired_rank_biserial(diff = delta.values)
+        r_effect = paired_rank_biserial(diff = delta.values)
 
     print(f"Paired One-Sided Test (Wilcoxon Signed-Rank): n = {n}")
     print("H₀: Δ MAE ≤ 0")
@@ -1727,7 +1727,7 @@ def stat_decomposed_test(
             p_w = np.nan
         else:
             _, p_w = wilcoxon(x = margin_gap.values, alternative = "less")
-        r_effect = _paired_rank_biserial(diff = gap.values)
+        r_effect = paired_rank_biserial(diff = gap.values)
 
         rows.append({
             "Ablation": (

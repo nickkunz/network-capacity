@@ -18,7 +18,7 @@ if str(root) not in sys.path:
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.predicting import compile_corpus_full
-from src.evaluators.helpers import _clean_differences, _paired_rank_biserial
+from src.evaluators.helpers import _clean_differences, paired_rank_biserial
 from src.evaluators.resampling import (
     logo_cross_valid,
     logo_cross_valid_frozen,
@@ -998,7 +998,7 @@ def stat_falsified_test(
                 _, p_val = wilcoxon(d, alternative = "less")
 
             ## descriptive effect uses raw falsified-minus-original differences
-            r_eff = _paired_rank_biserial(diff = d)
+            r_eff = paired_rank_biserial(diff = d)
 
             rows.append((*group_key, metric, med_d, r_eff, float(p_val)))
 

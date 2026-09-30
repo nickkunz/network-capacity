@@ -11,8 +11,35 @@ def _clean_differences(diff: ArrayLike, tol: float = 1e-9) -> np.ndarray:
     values[np.abs(values) < tol] = 0.0
     return values
 
+## paired rank-biserial correlation
+def paired_rank_biserial(diff: Sequence[float]) -> float:
+
+    """
+    Desc:
+        Compute rank-biserial correlation from nonzero paired differences.
+
+    Args:
+        diff: Raw paired differences oriented as test minus reference.
+        Only nonzero, finite differences are considered.
+
+    Returns:
+        float: Rank-biserial correlation, or NaN when no nonzero differences exist.
+
+    Raises:
+        None.
+    """
+    values = np.asarray(diff, dtype = float)
+    values = values[np.isfinite(values) & (values != 0.0)]
+    if len(values) == 0:
+        return np.nan
+
+    ranks = rankdata(np.abs(values), method = "average")
+    positive = float(np.sum(ranks[values > 0.0]))
+    negative = float(np.sum(ranks[values < 0.0]))
+    return (positive - negative) / float(np.sum(ranks))
+
 ## empirical margin of equivalent variability
-def _spec_marginal_delta(
+def spec_marginal_delta(
     results: pd.DataFrame,
     feat_value: Sequence[str],
     track: str | Sequence[str] | None = None,
@@ -95,25 +122,3 @@ def _spec_marginal_delta(
     scaled = max(float(scale * dispersion), 1e-6)
     factor = 10 ** int(decimals)
     return float(np.floor(scaled * factor + 1e-12) / factor)
-
-## paired rank-biserial correlation
-def _paired_rank_biserial(diff: Sequence[float]) -> float:
-
-    """
-    Desc:
-        Compute rank-biserial correlation from nonzero paired differences.
-    Args:
-        diff: Raw paired differences oriented as test minus reference.
-    Returns:
-        Rank-biserial correlation, or NaN when no nonzero differences exist.
-    """
-
-    values = np.asarray(diff, dtype = float)
-    values = values[np.isfinite(values) & (values != 0.0)]
-    if len(values) == 0:
-        return np.nan
-
-    ranks = rankdata(np.abs(values), method = "average")
-    positive = float(np.sum(ranks[values > 0.0]))
-    negative = float(np.sum(ranks[values < 0.0]))
-    return (positive - negative) / float(np.sum(ranks))
