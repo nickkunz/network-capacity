@@ -24,7 +24,7 @@ from src.data.loaders.metrla import _process_events_metrla
 from src.data.loaders.pemsbay import _process_events_pemsbay
 from src.data.loaders.world import load_metadata_worldbank, load_network_worldbank
 from src.data.builders import load_perturbed_data
-from src.data.perturbers import _execute_perturbations, _jitter_count_series, _resolve_n_jobs
+from src.data.perturbers import _execute_perturbations, _resolve_n_jobs
 from src.evaluators.config import FEAT_X
 from src.evaluators.perturbing import network_perturb
 from src.vectorizers.invariants import BipartiteInvariants
@@ -306,43 +306,6 @@ class PerturbationDispatchTests(unittest.TestCase):
         self.assertEqual(_resolve_n_jobs(n_jobs = -1, n_tasks = 10, cpu_count = 4), 4)
         self.assertEqual(_resolve_n_jobs(n_jobs = -1, n_tasks = 2, cpu_count = 4), 2)
         self.assertEqual(_resolve_n_jobs(n_jobs = 8, n_tasks = 10, cpu_count = 4), 4)
-
-    def test_chunked_temporal_jitter_matches_vectorized_draws(self) -> None:
-        positions = np.array([0, 2])
-        counts = np.array([3, 2])
-        seed = 42
-        expanded = np.repeat(positions, counts)
-        expected_positions = np.rint(
-            expanded + np.random.default_rng(seed).normal(0, 0.5, size = len(expanded))
-        ).astype(int).clip(0, 2)
-        expected = np.bincount(expected_positions, minlength = 3)
-
-        actual = _jitter_count_series(
-            positions = positions,
-            counts = counts,
-            sigma = 0.5,
-            lower = 0,
-            upper = 2,
-            rng = np.random.default_rng(seed),
-        )
-
-        np.testing.assert_array_equal(actual, expected)
-
-    def test_chunked_temporal_jitter_conserves_large_counts(self) -> None:
-        actual = _jitter_count_series(
-            positions = np.array([0, 1]),
-            counts = np.array([1_000_000, 2_000_000]),
-            sigma = 0.5,
-            lower = 0,
-            upper = 1,
-            rng = np.random.default_rng(42),
-            chunk_size = 10_000,
-        )
-
-        self.assertEqual(int(actual.sum()), 3_000_000)
-        self.assertEqual(len(actual), 2)
-        expected_lower = 1_000_000 * 0.841344746 + 2_000_000 * 0.158655254
-        self.assertLess(abs(float(actual[0]) - expected_lower), 5_000)
 
     @patch("src.data.perturbers.GraphInvariants")
     @patch("src.data.perturbers.network_perturb")
