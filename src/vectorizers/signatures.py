@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 ## process signatures class
 class ProcessSignatures:
+    
     """
     Desc:
         Computes seven universal process signatures for an ordered sequence
@@ -37,6 +38,7 @@ class ProcessSignatures:
                     If target is an invalid column.
                     If there are fewer than two observations.
     """
+    
     def __init__(self, data, sort_by, target):
         ## validate input dataframe
         if not isinstance(data, pd.DataFrame):
@@ -177,51 +179,3 @@ class ProcessSignatures:
                 raise ValueError(f"process feature '{k}' is non-finite ({v})")
 
         return signatures
-
-"""
-Process Signatures
-------------------
-These statistics characterize temporal dependence, dispersion, burstiness,
-non-stationarity, and higher-order distributional structure of the process.
-They are designed to be scale-aware, interpretable, and broadly applicable
-across domains.
------------
-lag1_autocorr : float
-    Lag-1 autocorrelation of the event counts. Measures short-term temporal
-    dependence by quantifying linear correlation between counts at time t
-    and t-1. Captures immediate memory and clustering effects beyond Poisson
-    independence.
-
-coef_variation : float
-    Coefficient of variation (standard deviation divided by mean) of the
-    event counts. Provides a scale-free measure of relative dispersion and
-    temporal intensity heterogeneity.
-
-fano_factor : float
-    Variance-to-mean ratio of the event counts. Indicates deviation from
-    Poisson statistics: values greater than 1 imply over-dispersion and
-    burstiness, values near 1 indicate Poisson-like behavior, and values
-    below 1 indicate under-dispersion or regularity.
-
-norm_succ_diff : float
-    Normalized successive difference statistic. Measures local temporal
-    volatility by averaging absolute differences between consecutive counts
-    and normalizing by the mean level, emphasizing high-frequency roughness
-    independent of scale.
-
-hurst_exponent : float
-    Estimated Hurst exponent of the count process. Characterizes long-range
-    dependence: values greater than 0.5 indicate persistence, values near
-    0.5 indicate memoryless behavior, and values below 0.5 indicate
-    anti-persistence.
-
-trend_coeff : float
-    Linear trend coefficient obtained by regressing counts on time. Captures
-    systematic non-stationarity in the mean event rate, distinguishing secular
-    growth or decay from stochastic fluctuations.
-
-count_skewness : float
-    Skewness of the event count distribution over time. Measures asymmetry
-    in the distribution, highlighting the presence of rare extreme bursts
-    versus symmetric or light-tailed temporal behavior.
-"""
