@@ -20,7 +20,7 @@ from matplotlib.patches import FancyArrowPatch, PathPatch, Polygon
 from matplotlib.text import Text
 from matplotlib.textpath import TextPath
 
-## 
+## build capacity frontier illustration
 def build_capacity_frontier_illustration(
     figure_dir: Path,
     export_pdf_scaled: Callable[..., Path],

@@ -21,7 +21,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 
 ## modules
-from src.evaluators.helpers import _spec_marginal_delta
+from src.evaluators.helpers import spec_marginal_delta
 from src.evaluators.metrics import _efficiency_index, frontier_consensus
 from src.evaluators.perturbing import find_perturbed_max
 from src.evaluators.predicting import compile_corpus_full, compile_prediction_consensus
@@ -4090,7 +4090,7 @@ def _plot_transfer_invariance_legacy(
         domain_labels: Optional override for domain -> short label.
         equivalence_margin: Half-width of the equivalence band on Delta EI. If
             None, derives the margin from the IQR of pooled random-split
-            baseline EI values using _spec_marginal_delta.
+            baseline EI values using spec_marginal_delta.
         feasibility_threshold: Estimators with transfer EI at or below this
             value are treated as feasibility failures (predictions violating
             the capacity bound) and excluded from per-row Delta EI summaries.
@@ -4507,7 +4507,7 @@ def plot_transfer_invariance(
         domain_labels: Optional override for domain -> short label.
         equivalence_margin: Half-width of the equivalence band on Delta EI. If
             None, derives the margin from the IQR of pooled random-split
-            baseline EI values using _spec_marginal_delta.
+            baseline EI values using spec_marginal_delta.
         feasibility_threshold: Estimators with transfer EI at or below this
             value are treated as feasibility failures and excluded from per-row
             Delta EI summaries.
@@ -4553,7 +4553,7 @@ def plot_transfer_invariance(
 
     empirical_equivalence_margin = equivalence_margin is None
     if equivalence_margin is None:
-        equivalence_margin = _spec_marginal_delta(
+        equivalence_margin = spec_marginal_delta(
             results = baseline.assign(reference = "baseline"),
             feat_value = ["ei"],
             label_ref = "reference",
@@ -5466,7 +5466,7 @@ def _summarize_transfer_panel(
         if residual.size >= 2:
             iqr = tuple(np.quantile(residual, [0.25, 0.75]))
         try:
-            margin = _spec_marginal_delta(
+            margin = spec_marginal_delta(
                 results = cleaned.assign(reference = "baseline"),
                 feat_value = ["ei"],
                 label_ref = "reference",
@@ -7450,7 +7450,7 @@ def _render_stress_test_figure(
     results_pert_recovery_max = find_perturbed_max(
         results = results_pert_recovery,
     )
-    delta_pert_ei = _spec_marginal_delta(
+    delta_pert_ei = spec_marginal_delta(
         results = results_pert_transfer,
         feat_value = ["ei"],
         track = "frozen",
@@ -7459,7 +7459,7 @@ def _render_stress_test_figure(
         scale = 1.0,
         decimals = N_DECIMALS_WORK,
     )
-    delta_pert_ci = _spec_marginal_delta(
+    delta_pert_ci = spec_marginal_delta(
         results = results_pert_recovery,
         feat_value = ["ci"],
         label_pert = "perturbation",
@@ -7468,7 +7468,7 @@ def _render_stress_test_figure(
         scale = 1.0,
         decimals = N_DECIMALS_WORK,
     )
-    delta_decomp_ei = _spec_marginal_delta(
+    delta_decomp_ei = spec_marginal_delta(
         results = results_decomp,
         feat_value = ["ei"],
         label_ref = "specification",
@@ -7477,7 +7477,7 @@ def _render_stress_test_figure(
         scale = 1.0,
         decimals = N_DECIMALS_WORK,
     )
-    delta_decomp_ci = _spec_marginal_delta(
+    delta_decomp_ci = spec_marginal_delta(
         results = results_decomp,
         feat_value = ["ci"],
         label_ref = "specification",
