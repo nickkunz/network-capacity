@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 ## exact diameter and radius without all-pairs bfs
 def _exact_diameter_radius(graph: ig.Graph) -> tuple[int, int]:
+    
     """
     Desc:
         Computes the exact diameter and radius of a connected graph by iteratively
@@ -78,6 +79,7 @@ def _closed_walk_traces(
     degrees: np.ndarray,
     chunk_triples: int = 10_000_000,
     ) -> tuple[float, float, float]:
+    
     """
     Desc:
         Computes tr(A_hat^3), tr(A_hat^4) and tr(A^4) of a simple graph exactly by
@@ -96,6 +98,7 @@ def _closed_walk_traces(
     Returns:
         tuple[float, float, float]: (trace_ah3, trace_ah4, trace_a4).
     """
+    
     n_nodes = degrees.size
     n_edges = edge_array.shape[0]
     inv_deg = np.zeros_like(degrees)
@@ -179,6 +182,7 @@ def _closed_walk_traces(
 
 ## compute graph invariant vector
 class GraphInvariants:
+    
     """
     Desc:
         Computes true graph-wise global invariants for igraph.Graph objects without 
@@ -195,6 +199,7 @@ class GraphInvariants:
     Raises:
         TypeError: If the input is not an igraph.Graph object.
     """
+    
     ## init input
     def __init__(self, graph):
         if not isinstance(graph, ig.Graph):
@@ -452,6 +457,7 @@ class GraphInvariants:
 
 ## compute graph invariants for fully connected bipartite graph
 class BipartiteInvariants:
+    
     """
     Desc:
         Computes analytic graph-wise invariants for a complete bipartite graph
@@ -665,88 +671,3 @@ class BipartiteInvariants:
             if not np.isfinite(v):
                 raise ValueError(f"Feature '{k}' is non-finite ({v}).")
         return features
-
-"""
-Graph Invariants
-----------------
-These statistics characterize the structural properties of an undirected
-graph. They are grouped into simple, cohesion, extremal, statistical, and
-spectral categories. All values are guaranteed finite.
------------
-n_nodes : int
-    Number of vertices in the graph.
-
-n_edges : int
-    Number of edges in the graph.
-
-n_articulation_points : int
-    Number of cut vertices whose removal disconnects the graph.
-
-n_bridges : int
-    Number of edges whose removal increases the number of connected
-    components.
-
-diameter : float
-    Longest shortest-path distance among all vertex pairs in the largest
-    connected component.
-
-radius : float
-    Minimum eccentricity among vertices in the largest connected component.
-
-degeneracy : float
-    Largest core number in the k-core decomposition of the graph.
-
-k_core_size : float
-    Number of vertices belonging to the maximum k-core.
-
-maximum_degree : float
-    Largest vertex degree in the graph.
-
-degree_variance : float
-    Variance of the degree sequence, measuring heterogeneity in vertex
-    connectivity.
-
-global_clustering : float
-    Fraction of closed triangles among connected triples, quantifying
-    local triadic closure.
-
-degree_assortativity : float
-    Pearson correlation of degrees across connected vertex pairs. Positive
-    values indicate assortative mixing, negative values disassortative.
-
-degree_entropy : float
-    Shannon entropy of the degree distribution, capturing diversity of
-    vertex connectivity patterns.
-
-joint_degree_entropy : float
-    Shannon entropy of unordered degree pairs across edges, measuring
-    diversity of edge-level connectivity patterns.
-
-degree_skewness : float
-    Fisher-Pearson skewness of the degree sequence, indicating asymmetry
-    in the degree distribution.
-
-degree_kurtosis : float
-    Excess kurtosis of the degree sequence, indicating heavy-tailedness
-    relative to a normal distribution.
-
-normalized_laplacian_second_moment : float
-    Second spectral moment of the normalized Laplacian, computed via
-    trace of its square divided by the number of nodes.
-
-normalized_laplacian_third_moment : float
-    Third spectral moment of the normalized Laplacian, computed via
-    trace of its cube divided by the number of nodes.
-
-random_walk_triangle_weight : float
-    Trace of the third power of the random-walk transition matrix divided
-    by the number of nodes, measuring triangle density weighted by degree.
-
-random_walk_fourth_moment : float
-    Trace of the fourth power of the random-walk transition matrix divided
-    by the number of nodes, capturing higher-order return probabilities.
-
-adjacency_fourth_moment_per_node : float
-    Trace of the fourth power of the adjacency matrix divided by the
-    number of nodes, counting closed walks of length four per vertex.
-"""
