@@ -16,7 +16,7 @@ from src.evaluators.predicting import compile_corpus_full
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
-    frontier_metrics,
+    frontier_efficiency,
     consensus_metrics,
     paired_rank_biserial,
 )
@@ -157,7 +157,7 @@ def _run_single_stage_fold(
 
     ## frontier metrics
     kept_indices = test_idx[mask_te.values]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": group_name,
@@ -637,7 +637,7 @@ def _run_slack_fold(
     y_pred = (c_te + s_pred).astype(float)
 
     kept_indices = test_idx[mask_te.values]
-    frontier = frontier_metrics(y_true = y_te, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_te, y_pred = y_pred)
 
     return {
         "group_name": group_name,

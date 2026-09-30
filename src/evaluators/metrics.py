@@ -72,7 +72,7 @@ def _efficiency_index(
     return float(np.exp(log_ei))
 
 ## joint frontier metrics
-def frontier_metrics(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> dict:
+def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> dict:
 
     """ Compute all frontier metrics and return as a dictionary. """
     

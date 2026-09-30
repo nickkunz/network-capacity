@@ -10,7 +10,7 @@ from src.vectorizers.scalers import _log_transformer
 from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
     consensus_metrics,
-    frontier_metrics,
+    frontier_efficiency,
     paired_rank_biserial,
     spec_marginal_delta,
 )
@@ -84,7 +84,7 @@ def compile_transfer_resampling(
                     "regime": regime,
                     "model": model,
                     "group": group_name,
-                    **frontier_metrics(
+                    **frontier_efficiency(
                         y_true = y_true[valid],
                         y_pred = y_pred[valid],
                     ),

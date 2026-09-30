@@ -25,7 +25,7 @@ from src.evaluators.resampling import (
 )
 from src.evaluators.metrics import (
     consensus_metrics,
-    frontier_metrics,
+    frontier_efficiency,
     paired_rank_biserial,
 )
 
@@ -127,7 +127,7 @@ def train_falsified_transfer(
                 continue
             frontier_rows.append({
                 "group": group_name,
-                **frontier_metrics(y_true = y_true_proc[mask], y_pred = y_pred_mean[mask]),
+                **frontier_efficiency(y_true = y_true_proc[mask], y_pred = y_pred_mean[mask]),
             })
 
         real_cv[model_name] = (pd.DataFrame(frontier_rows), y_pred_mean)
@@ -212,7 +212,7 @@ def train_falsified_transfer(
                     continue
                 frontier_rows.append({
                     "group": group_name,
-                    **frontier_metrics(y_true = y_true_eval[mask], y_pred = y_pred_mean[mask]),
+                    **frontier_efficiency(y_true = y_true_eval[mask], y_pred = y_pred_mean[mask]),
                 })
 
             false_results_mean.append((pd.DataFrame(frontier_rows), y_pred_mean))

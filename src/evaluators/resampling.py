@@ -10,7 +10,7 @@ from sklearn.base import BaseEstimator, clone
 from sklearn.model_selection import LeaveOneGroupOut, KFold, RepeatedKFold
 
 ## modules
-from src.evaluators.metrics import frontier_metrics
+from src.evaluators.metrics import frontier_efficiency
 from src.vectorizers.scalers import (
     _log_transformer,
     _standardizer
@@ -174,7 +174,7 @@ def _run_retrain_fold(
 
     ## compute frontier metrics for this fold
     kept_indices = test_idx[kept_test]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": group_name,
@@ -313,7 +313,7 @@ def _run_frozen_fold(
 
     ## compute frontier metrics for this fold
     kept_global = test_mask_indices[kept_test]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": held_out_group,
