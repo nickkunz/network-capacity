@@ -3,6 +3,7 @@ import re
 import os
 import sys
 import logging
+import argparse
 import configparser
 import json
 import numpy as np
@@ -137,11 +138,6 @@ SIGNATURE_METHODS = {
     'jitter': tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
     'subset': tuple(np.round(np.linspace(start = 0.95, stop = 0.65, num = 7), decimals = 2)),
 }
-# TEMPORAL_METHODS = {
-#     'aggregation': ('2D', '7D', '14D', '30D', '60D', '90D', '180D'),
-#     'jitter':      tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
-#     'dropout':     tuple(np.round(np.linspace(start = 0.05, stop = 0.35, num = 7), decimals = 2)),
-# }
 
 ## helper functions
 def _is_fully_connected_bipartite(graph: Any) -> bool:
@@ -608,140 +604,6 @@ def _execute_perturbations(
         total = sum(len(v) for v in sig_pert_results.values())
         logging.info(f"  Signature perturbation: {total} records")
 
-    ## --- temporal aggregation --- ##
-    # if events is not None and isinstance(events, pd.DataFrame) and not events.empty:
-    #     date_col = next((c for c in ('date', 'datetime', 'timestamp', 'day') if c in events.columns), None)
-    #     target_col = next((c for c in ('target', 'count') if c in events.columns), None)
-
-    #     if date_col is not None and target_col is not None:
-    #         temporal_results: dict[str, list[dict[str, Any]]] = dict()
-    #         data_temp = events[[date_col, target_col]].copy()
-    #         is_ordinal = pd.api.types.is_integer_dtype(data_temp[date_col])
-
-    #         if is_ordinal:
-    #             data_temp = data_temp.sort_values(date_col).reset_index(drop = True)
-    #             day_min = int(data_temp[date_col].min())
-    #             day_max = int(data_temp[date_col].max())
-    #         else:
-    #             data_temp[date_col] = pd.to_datetime(data_temp[date_col])
-    #             data_temp = data_temp.set_index(date_col).sort_index()
-
-    #         for method, params in TEMPORAL_METHODS.items():
-    #             for param in params:
-    #                 realizations = range(1) if method == 'aggregation' else range(n_realizations)
-    #                 for realization in realizations:
-    #                     try:
-    #                         rng = np.random.default_rng(random_state + realization)
-    #                         if method == 'aggregation':
-    #                             scale = param
-    #                             if is_ordinal:
-    #                                 scale_days = int(re.match(r'(\d+)', scale).group(1))
-    #                                 bin_edges = list(range(day_min, day_max + scale_days, scale_days))
-    #                                 if len(bin_edges) < 2:
-    #                                     bin_edges = [day_min, day_min + scale_days]
-    #                                 labels = bin_edges[:-1]
-    #                                 data_temp['_bin'] = pd.cut(
-    #                                     data_temp[date_col], bins = bin_edges,
-    #                                     right = False, labels = labels, include_lowest = True
-    #                                 )
-    #                                 agg = data_temp.groupby('_bin', observed = False)[target_col].sum()
-    #                                 records = [
-    #                                     {'day': int(b), 'target': int(v)}
-    #                                     for b, v in agg.items()
-    #                                 ]
-    #                                 data_temp.drop(columns = '_bin', inplace = True, errors = 'ignore')
-    #                             else:
-    #                                 resampled = data_temp[target_col].resample(scale).sum()
-    #                                 records = [
-    #                                     {'date': str(dt.date()), 'target': int(val)}
-    #                                     for dt, val in resampled.items()
-    #                                 ]
-    #                             temporal_results.setdefault(method, []).append({'intensity': scale, 'realization': realization, 'events': records})
-
-    #                         elif method == 'jitter':
-    #                             intensity = float(param)
-    #                             if is_ordinal:
-    #                                 counts_arr = data_temp[target_col].values.clip(0).astype(int)
-    #                                 if int(counts_arr.sum()) == 0:
-    #                                     continue
-    #                                 sigma = intensity * max(day_max - day_min, 1)
-    #                                 new_counts = _jitter_count_series(
-    #                                     positions = data_temp[date_col].values.astype(int),
-    #                                     counts = counts_arr,
-    #                                     sigma = sigma,
-    #                                     lower = day_min,
-    #                                     upper = day_max,
-    #                                     rng = rng,
-    #                                 )
-    #                                 records = [
-    #                                     {'day': int(day_min + offset), 'target': int(new_counts[offset])}
-    #                                     for offset in np.flatnonzero(new_counts)
-    #                                 ]
-    #                             else:
-    #                                 daily = data_temp[target_col].resample('1D').sum()
-    #                                 n_days = len(daily)
-    #                                 if n_days == 0:
-    #                                     continue
-    #                                 counts_arr = daily.values.clip(0).astype(int)
-    #                                 if int(counts_arr.sum()) == 0:
-    #                                     continue
-    #                                 sigma = intensity * max(n_days, 1)
-    #                                 new_daily = _jitter_count_series(
-    #                                     positions = np.arange(n_days),
-    #                                     counts = counts_arr,
-    #                                     sigma = sigma,
-    #                                     lower = 0,
-    #                                     upper = n_days - 1,
-    #                                     rng = rng,
-    #                                 )
-    #                                 records = [
-    #                                     {'date': str(daily.index[i].date()), 'target': int(new_daily[i])}
-    #                                     for i in range(n_days)
-    #                                 ]
-    #                             temporal_results.setdefault(method, []).append({'intensity': intensity, 'realization': realization, 'events': records})
-
-    #                         elif method == 'dropout':
-    #                             intensity = float(param)
-    #                             if is_ordinal:
-    #                                 counts_arr = data_temp[target_col].values.clip(0).astype(int)
-    #                                 survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
-    #                                 records = [
-    #                                     {'day': int(data_temp[date_col].iloc[i]), 'target': int(survived[i])}
-    #                                     for i in range(len(data_temp))
-    #                                 ]
-    #                             else:
-    #                                 counts_arr = data_temp[target_col].values.clip(0).astype(int)
-    #                                 survived = rng.binomial(counts_arr, max(0.0, 1.0 - intensity))
-    #                                 dropped = pd.Series(survived.astype(float), index = data_temp.index)
-    #                                 resampled = dropped.resample('1D').sum()
-    #                                 records = [
-    #                                     {'date': str(dt.date()), 'target': int(val)}
-    #                                     for dt, val in resampled.items()
-    #                                 ]
-    #                             temporal_results.setdefault(method, []).append({'intensity': intensity, 'realization': realization, 'events': records})
-
-    #                     except Exception as exc:
-    #                         logging.warning(f"Temporal {method} @ {param} realization {realization} failed for {name}: {exc}")
-    #                         continue
-
-    #         _validate_perturbation_records(
-    #             records = temporal_results,
-    #             methods = TEMPORAL_METHODS,
-    #             realizations = {
-    #                 method: 1 if method == 'aggregation' else n_realizations
-    #                 for method in TEMPORAL_METHODS
-    #             },
-    #             name = name,
-    #             channel = "temporal",
-    #         )
-    #         results['temporal_perturbed'] = temporal_results
-    #         total = sum(len(v) for v in temporal_results.values())
-    #         logging.info(f"  Temporal perturbations: {total} records")
-    #     else:
-    #         logging.warning(f"  No date/target columns for {name}, skipping temporal perturbations.")
-    # else:
-    #     logging.warning(f"  No events for {name}, skipping temporal perturbations.")
-
     return results
 
 ## perturbation pipeline
@@ -749,7 +611,26 @@ def json_perturber(
     force: bool = False,
     include: Sequence[str] | None = None,
     exclude: Sequence[str] = (),
-    ):
+    ) -> None:
+
+    """
+    Desc:
+        Creates perturbed JSON payloads under PATH_PERT, one per dataset.
+        Existing files serve as a cache: a dataset is regenerated only
+        when selected by `include` and `exclude` and its file is missing,
+        or when `force` is set. Regeneration re-queries the data sources,
+        so mutable sources can return records that differ from previously
+        saved payloads.
+
+    Args:
+        force: Re-query sources and overwrite existing files.
+        include: Dataset names (file stems) to restrict the run to. None
+            selects every dataset.
+        exclude: Dataset names to skip.
+
+    Returns:
+        None. Payloads are written to disk under PATH_PERT.
+    """
 
     ## ensure perturbation directory exists
     os.makedirs(name = PATH_PERT, exist_ok = True)
@@ -1198,4 +1079,10 @@ def json_perturber(
 
 ## primary execution
 if __name__ == '__main__':
-    json_perturber(force = True)
+    logging.basicConfig(
+        level = logging.INFO,
+        format = '%(asctime)s - %(levelname)s - %(message)s',
+        stream = sys.stdout
+    )
+    args = _parse_args()
+    json_perturber(force = args.force, include = args.include, exclude = args.exclude)
