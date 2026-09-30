@@ -21,7 +21,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 
 ## modules
-from src.evaluators.metrics import _efficiency_index, consensus_metrics, spec_marginal_delta
+from src.evaluators.metrics import _efficiency_index, frontier_consensus, spec_marginal_delta
 from src.evaluators.perturbing import find_perturbed_max
 from src.evaluators.predicting import compile_corpus_full, compile_prediction_consensus
 from src.evaluators.resampling import kfold_cross_valid, logo_cross_valid
