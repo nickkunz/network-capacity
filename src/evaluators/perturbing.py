@@ -24,10 +24,9 @@ if str(root) not in sys.path:
 from src.evaluators.training import fit_predict_frontier
 from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
-from src.evaluators.helpers import _clean_differences
+from src.evaluators.helpers import _clean_differences, _paired_rank_biserial
 from src.evaluators.metrics import (
     frontier_consensus,
-    paired_rank_biserial
 )
 from src.evaluators.resampling import (
     logo_cross_valid,
@@ -1220,7 +1219,7 @@ def stat_perturbed_tost(
                 p_tost = max(p_upper, p_lower)
 
             ## descriptive effect uses raw perturbed-minus-original differences
-            r_rb = paired_rank_biserial(differences = d)
+            r_rb = _paired_rank_biserial(diff = d)
 
             row = dict(zip(feat_group, group_key))
             tag = metric.upper()
