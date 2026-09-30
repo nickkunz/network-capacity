@@ -38,7 +38,7 @@ def _mean_slack(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     s = np.maximum(0.0, y_pred - y_true)
     return float(s.mean())
 
-## efficiency index
+## efficiency index (ei)
 def _efficiency_index(
     y_true: np.ndarray,
     y_pred: np.ndarray,
@@ -166,7 +166,7 @@ def _rank_biased_overlap(y_true: np.ndarray, y_pred: np.ndarray, p: float) -> fl
     tail = weight * last_agreement
     return float((1.0 - p) * score + tail)
 
-## consensus index
+## consensus index (ci)
 def consensus_index(
     rho: float,
     rbo: float,
@@ -206,4 +206,3 @@ def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -
         dcr = metrics["dcr"],
     )
     return metrics
-
