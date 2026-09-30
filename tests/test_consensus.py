@@ -26,7 +26,7 @@ class FullCorpusAgreementTests(unittest.TestCase):
                 y_true = np.array([1.0, 2.0, 3.0]),
             )
 
-    @patch("src.evaluators.predicting.consensus_metrics")
+    @patch("src.evaluators.predicting.frontier_consensus")
     def test_perturbation_agreement_averages_predictions_first(self, scorer) -> None:
         scorer.side_effect = lambda y_true, y_pred: {
             metric: float(np.mean(y_pred) ** 2) for metric in ("rho", "rbo", "dcr", "ci")

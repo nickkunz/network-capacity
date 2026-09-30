@@ -86,7 +86,7 @@ class NotebookCacheTests(unittest.TestCase):
                             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
                                 function_name = node.func.id
                                 if function_name.startswith(("train_", "compile_")) or function_name in (
-                                    "logo_cross_valid", "kfold_cross_valid", "fit_predict_frontier", "consensus_metrics"
+                                    "logo_cross_valid", "kfold_cross_valid", "fit_predict_frontier", "frontier_consensus"
                                 ):
                                     result = "compiled"
                                     if function_name in ("logo_cross_valid", "kfold_cross_valid"):
@@ -103,7 +103,7 @@ class NotebookCacheTests(unittest.TestCase):
                     for source in pipeline:
                         _execute_mocked_cell(source = source, namespace = namespace)
                     for function_name, function in functions.items():
-                        if function_name != "consensus_metrics":
+                        if function_name != "frontier_consensus":
                             self.assertTrue(expr = function.called, msg = function_name)
                     loaded = load_notebook_cache(
                         cache_path = namespace["cache_path"],

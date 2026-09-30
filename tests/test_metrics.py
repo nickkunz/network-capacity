@@ -415,7 +415,7 @@ class PerturbationStatisticsTests(unittest.TestCase):
             [3.0, 3.0],
         )
 
-    @patch("src.evaluators.perturbing.consensus_metrics")
+    @patch("src.evaluators.perturbing.frontier_consensus")
     def test_recovery_compilation_averages_realizations(self, metrics_mock) -> None:
         metrics_mock.side_effect = lambda y_true, y_pred: {
             metric: float(np.mean(y_pred)) for metric in ("rho", "rbo", "dcr", "ci")
@@ -444,7 +444,7 @@ class PerturbationStatisticsTests(unittest.TestCase):
         self.assertEqual(row["n_realizations"], 2)
         self.assertAlmostEqual(row["ci"], 0.4)
 
-    @patch("src.evaluators.perturbing.consensus_metrics")
+    @patch("src.evaluators.perturbing.frontier_consensus")
     def test_consensus_compilation_averages_predictions_before_scoring(self, metrics_mock) -> None:
         metrics_mock.side_effect = lambda y_true, y_pred: {
             metric: float(np.mean(y_pred) ** 2) for metric in ("rho", "rbo", "dcr", "ci")
