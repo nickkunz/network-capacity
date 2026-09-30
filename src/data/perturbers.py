@@ -1,5 +1,4 @@
 ## libraries
-import re
 import os
 import sys
 import logging
@@ -11,7 +10,6 @@ import pandas as pd
 import multiprocessing as mp
 from typing import Any, Sequence
 from pathlib import Path
-from scipy.special import ndtr
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -153,6 +151,7 @@ def _is_fully_connected_bipartite(graph: Any) -> bool:
     n2 = len(types) - n1
     return graph.ecount() == n1 * n2
 
+## corpus feature scales
 def _load_corpus_feature_scales(path_proc: str = PATH_PROC) -> tuple[pd.Series, pd.Series]:
 
     """Load corpus-wide standard deviations for invariant and signature noise."""
@@ -171,53 +170,6 @@ def _load_corpus_feature_scales(path_proc: str = PATH_PROC) -> tuple[pd.Series, 
     invariant_scale = pd.DataFrame(invariants).apply(pd.to_numeric, errors = "coerce").std(axis = 0)
     signature_scale = pd.DataFrame(signatures).apply(pd.to_numeric, errors = "coerce").std(axis = 0)
     return invariant_scale.fillna(0.0), signature_scale.fillna(0.0)
-
-def _jitter_count_series(
-    positions: np.ndarray,
-    counts: np.ndarray,
-    sigma: float,
-    lower: int,
-    upper: int,
-    rng: np.random.Generator,
-    chunk_size: int = 100_000,
-    multinomial_threshold: int = 1_000_000,
-    ) -> np.ndarray:
-
-    """Jitter count-weighted positions without expanding to individual events."""
-
-    shifted_counts = np.zeros(upper - lower + 1, dtype = np.int64)
-    if sigma <= 0:
-        for position, count in zip(positions, counts):
-            shifted_counts[int(np.clip(position, lower, upper)) - lower] += max(0, int(count))
-        return shifted_counts
-
-    if int(np.sum(np.maximum(counts, 0))) > multinomial_threshold:
-        boundaries = np.arange(lower, upper, dtype = float) + 0.5
-        for position, count in zip(positions, counts):
-            count = max(0, int(count))
-            if count == 0:
-                continue
-            cumulative = ndtr((boundaries - float(position)) / sigma)
-            probabilities = np.diff(np.concatenate(([0.0], cumulative, [1.0])))
-            probabilities = np.clip(probabilities, 0.0, 1.0)
-            probabilities /= probabilities.sum()
-            shifted_counts += rng.multinomial(count, probabilities)
-        return shifted_counts
-
-    for position, count in zip(positions, counts):
-        remaining = max(0, int(count))
-        while remaining > 0:
-            draw_size = min(remaining, chunk_size)
-            shifted = np.rint(
-                float(position) + rng.normal(0, sigma, size = draw_size)
-            ).astype(np.int64)
-            np.clip(shifted, lower, upper, out = shifted)
-            shifted_counts += np.bincount(
-                shifted - lower,
-                minlength = len(shifted_counts),
-            )
-            remaining -= draw_size
-    return shifted_counts
 
 def _network_worker(
     graph: Any,
@@ -1076,6 +1028,41 @@ def json_perturber(
         logging.info(f"Amazon perturbations saved to {amazon_path}")
     else:
         logging.info(f"Amazon perturbations already exist at {amazon_path}. Skipping.")
+
+## command-line argument parsing
+def _parse_args() -> argparse.Namespace:
+
+    """
+    Desc:
+        Parses command-line arguments for the standalone perturber run.
+
+    Returns:
+        Parsed arguments with force, include, and exclude.
+    """
+
+    parser = argparse.ArgumentParser(
+        description = "Create perturbed datasets, reading existing files as a cache by default."
+    )
+    parser.add_argument(
+        "--force",
+        action = "store_true",
+        help = "Re-query all sources and overwrite existing perturbed files.",
+    )
+    parser.add_argument(
+        "--include",
+        nargs = "+",
+        default = None,
+        metavar = "NAME",
+        help = "Restrict the run to these dataset names (file stems, e.g. amazon rain).",
+    )
+    parser.add_argument(
+        "--exclude",
+        nargs = "+",
+        default = (),
+        metavar = "NAME",
+        help = "Skip these dataset names.",
+    )
+    return parser.parse_args()
 
 ## primary execution
 if __name__ == '__main__':
