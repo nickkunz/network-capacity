@@ -17,7 +17,7 @@ from src.evaluators.training import fit_predict_frontier
 from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
     frontier_efficiency,
-    consensus_metrics,
+    frontier_consensus,
     paired_rank_biserial,
 )
 from src.evaluators.resampling import (
@@ -778,7 +778,7 @@ def compile_decomposed_separation(
             y_pred = grp_df["y_pred"].to_numpy(dtype = float)
             valid = np.isfinite(y_true) & np.isfinite(y_pred)
             if valid.sum() >= 2:
-                cm = consensus_metrics(y_true[valid], y_pred[valid])
+                cm = frontier_consensus(y_true[valid], y_pred[valid])
             else:
                 cm = {k: np.nan for k in ["r", "rho", "tau", "rbo", "dcr", "ci"]}
             consensus_rows.append({"model": model, "specification": spec, "group": grp, **cm})
@@ -976,7 +976,7 @@ def compile_decomposed_consensus(
             if len(pair_values) < min_obs:
                 continue
 
-            metrics = consensus_metrics(
+            metrics = frontier_consensus(
                 y_true = pair_values[model_i].to_numpy(dtype = float),
                 y_pred = pair_values[model_j].to_numpy(dtype = float),
             )

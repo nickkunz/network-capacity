@@ -26,7 +26,7 @@ from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
-    consensus_metrics,
+    frontier_consensus,
     paired_rank_biserial
 )
 from src.evaluators.resampling import (
@@ -1703,7 +1703,7 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
             )
             if int(np.sum(mask)) < 2:
                 continue
-            mvals = consensus_metrics(
+            mvals = frontier_consensus(
                 y_true = y_true[mask],
                 y_pred = y_pred[mask],
             )
@@ -2000,7 +2000,7 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
         valid = np.isfinite(y_i) & np.isfinite(y_j)
         if int(np.sum(valid)) < 2:
             continue
-        mvals = consensus_metrics(
+        mvals = frontier_consensus(
             y_true = y_i[valid],
             y_pred = y_j[valid],
         )
@@ -2048,7 +2048,7 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
             valid = np.isfinite(y_i) & np.isfinite(y_j)
             if int(np.sum(valid)) < 2:
                 continue
-            mvals = consensus_metrics(
+            mvals = frontier_consensus(
                 y_true = y_i[valid],
                 y_pred = y_j[valid],
             )

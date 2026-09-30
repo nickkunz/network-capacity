@@ -9,7 +9,7 @@ from pandas.io.formats.style import Styler
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.helpers import _clean_differences
 from src.evaluators.metrics import (
-    consensus_metrics,
+    frontier_consensus,
     frontier_efficiency,
     paired_rank_biserial,
     spec_marginal_delta,
@@ -88,7 +88,7 @@ def compile_transfer_resampling(
                         y_true = y_true[valid],
                         y_pred = y_pred[valid],
                     ),
-                    **consensus_metrics(
+                    **frontier_consensus(
                         y_true = y_true[valid],
                         y_pred = y_pred[valid],
                     ),

@@ -71,10 +71,10 @@ def _efficiency_index(
     log_ei = (np.log(vr_score) + np.log(mv_score) + np.log(ms_score)) / 3.0
     return float(np.exp(log_ei))
 
-## joint frontier metrics
+## frontier efficiency metrics
 def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> dict:
 
-    """ Compute all frontier metrics and return as a dictionary. """
+    """ Compute all frontier efficiency metrics and return as a dictionary. """
     
     metrics = {
         key: func(y_true, y_pred)
@@ -188,25 +188,10 @@ def consensus_index(
     )
     return float(np.prod(ci_vals) ** (1.0 / 3.0))
 
+## frontier consensus metrics
+def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict:
 
-def _consensus_index(
-    rho: float,
-    rbo: float,
-    dcr: float,
-    ) -> float:
-
-    """ CI geometric mean over comparable agreement-scale metrics. """
-
-    return consensus_index(
-        rho = rho,
-        rbo = rbo,
-        dcr = dcr,
-    )
-
-## joint consensus metrics
-def consensus_metrics(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict:
-
-    """ Compute all consensus metrics and return as a dictionary. """
+    """ Compute all frontier consensus metrics and return as a dictionary. """
 
     rho = _spearman_rho(y_true, y_pred)
     rbo = _rank_biased_overlap(y_true, y_pred, p = p)
@@ -217,7 +202,7 @@ def consensus_metrics(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) ->
         "rbo": rbo,
         "dcr": dcr,
     }
-    metrics["ci"] = _consensus_index(
+    metrics["ci"] = consensus_index(
         rho = metrics["rho"],
         rbo = metrics["rbo"],
         dcr = metrics["dcr"],

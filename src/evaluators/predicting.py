@@ -4,7 +4,7 @@ import pandas as pd
 from collections.abc import Mapping
 
 ## modules
-from src.evaluators.metrics import consensus_metrics
+from src.evaluators.metrics import frontier_consensus
 from src.vectorizers.scalers import _log_transformer
 
 ## constants
@@ -42,7 +42,7 @@ def compile_corpus_full(
         rows.append({
             "model": model_name,
             "group": "all",
-            **consensus_metrics(y_true = y_true[valid], y_pred = y_pred[valid]),
+            **frontier_consensus(y_true = y_true[valid], y_pred = y_pred[valid]),
             "evaluation": "full_corpus",
         })
     return pd.DataFrame(data = rows, columns = ["model", "group", *CONSENSUS_METRICS, "evaluation"])
@@ -91,7 +91,7 @@ def compile_prediction_consensus(
             if int(np.sum(a = valid)) < 2:
                 continue
 
-            metrics = consensus_metrics(
+            metrics = frontier_consensus(
                 y_true = y_true_full[valid],
                 y_pred = y_pred[valid],
             )

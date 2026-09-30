@@ -24,7 +24,7 @@ from src.evaluators.resampling import (
     logo_cross_valid_frozen,
 )
 from src.evaluators.metrics import (
-    consensus_metrics,
+    frontier_consensus,
     frontier_efficiency,
     paired_rank_biserial,
 )
@@ -538,7 +538,7 @@ def compile_falsified_agreement(results: dict[str, Any]) -> pd.DataFrame:
                         if int(np.sum(mask)) < 2:
                             continue
 
-                        mvals = consensus_metrics(
+                        mvals = frontier_consensus(
                             y_true = y_true[mask],
                             y_pred = y_pred[mask],
                         )
@@ -769,7 +769,7 @@ def compile_falsified_consensus(results: dict[str, Any]) -> pd.DataFrame:
                     valid = np.isfinite(y_i) & np.isfinite(y_j)
                     if int(np.sum(valid)) == 0:
                         continue
-                    mvals = consensus_metrics(
+                    mvals = frontier_consensus(
                         y_true = y_i[valid],
                         y_pred = y_j[valid],
                     )
