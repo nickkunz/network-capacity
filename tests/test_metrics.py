@@ -12,8 +12,8 @@ from src.evaluators.decomposing import stat_decomposed_summary, stat_decomposed_
 from src.evaluators.falsifying import stat_falsified_test
 from src.evaluators.helpers import (
     _clean_differences,
-    _paired_rank_biserial,
-    _spec_marginal_delta,
+    paired_rank_biserial,
+    spec_marginal_delta,
 )
 from src.evaluators.perturbing import (
     _iter_perturbation_realizations,
@@ -37,12 +37,12 @@ class RankBiserialTests(unittest.TestCase):
     def test_uses_nonzero_raw_differences_with_test_positive_sign(self) -> None:
         differences = np.array([3.0, -2.0, 0.0, 2.0])
 
-        actual = _paired_rank_biserial(diff = differences)
+        actual = paired_rank_biserial(diff = differences)
 
         self.assertAlmostEqual(actual, 0.5)
 
     def test_returns_nan_without_nonzero_differences(self) -> None:
-        self.assertTrue(np.isnan(_paired_rank_biserial(diff = [0.0, np.nan])))
+        self.assertTrue(np.isnan(paired_rank_biserial(diff = [0.0, np.nan])))
 
     def test_round_off_differences_count_as_zero(self) -> None:
         noisy = [1e-16, -3e-16, 0.5, 0.25, -0.125]
@@ -50,8 +50,8 @@ class RankBiserialTests(unittest.TestCase):
 
         self.assertEqual(_clean_differences(noisy).tolist(), clean)
         self.assertAlmostEqual(
-            _paired_rank_biserial(diff = _clean_differences(noisy)),
-            _paired_rank_biserial(diff = clean),
+            paired_rank_biserial(diff = _clean_differences(noisy)),
+            paired_rank_biserial(diff = clean),
         )
 
     def test_decomposition_summary_uses_unshifted_specification_difference(self) -> None:
@@ -375,7 +375,7 @@ class SpecMarginalDeltaTests(unittest.TestCase):
             }
         )
 
-        ei_margin = _spec_marginal_delta(
+        ei_margin = spec_marginal_delta(
             results = results,
             feat_value = ["ei_iqr"],
             label_ref = "reference",
@@ -383,7 +383,7 @@ class SpecMarginalDeltaTests(unittest.TestCase):
             method = "max",
             decimals = 2,
         )
-        ci_margin = _spec_marginal_delta(
+        ci_margin = spec_marginal_delta(
             results = results,
             feat_value = ["ci_iqr"],
             label_ref = "reference",
