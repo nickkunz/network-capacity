@@ -692,7 +692,7 @@ def plot_perturbation_superfigure(
         )
         merged_ticks: list[float] = []
         for tick in ordered_ticks:
-            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-9, rtol = 0.0):
+            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-10, rtol = 0.0):
                 continue
             merged_ticks.append(tick)
 
@@ -700,7 +700,7 @@ def plot_perturbation_superfigure(
         for tick in merged_ticks:
             tick_label = None
             for delta_tick, delta_label in delta_ticks.items():
-                if np.isclose(tick, float(delta_tick), atol = 1e-9, rtol = 0.0):
+                if np.isclose(tick, float(delta_tick), atol = 1e-10, rtol = 0.0):
                     tick_label = delta_label
                     break
             labels.append(f"{tick:.2f}" if tick_label is None else tick_label)
@@ -1343,7 +1343,7 @@ def plot_falsification_fingerprint(
         )
         merged_ticks: list[float] = []
         for tick in ordered_ticks:
-            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-9, rtol = 0.0):
+            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-10, rtol = 0.0):
                 continue
             merged_ticks.append(tick)
 
@@ -1351,7 +1351,7 @@ def plot_falsification_fingerprint(
         for tick in merged_ticks:
             tick_label = None
             for delta_tick, delta_label in delta_ticks.items():
-                if np.isclose(tick, float(delta_tick), atol = 1e-9, rtol = 0.0):
+                if np.isclose(tick, float(delta_tick), atol = 1e-10, rtol = 0.0):
                     tick_label = delta_label
                     break
             labels.append(f"{tick:.2f}" if tick_label is None else tick_label)
@@ -2273,7 +2273,7 @@ def plot_decomposition_moneyshot(
         ordered_ticks = sorted([float(tick) for tick in base_ticks] + [float(tick) for tick in delta_ticks.keys()])
         merged_ticks: list[float] = []
         for tick in ordered_ticks:
-            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-9, rtol = 0.0):
+            if merged_ticks and np.isclose(tick, merged_ticks[-1], atol = 1e-10, rtol = 0.0):
                 continue
             merged_ticks.append(tick)
 
@@ -2281,7 +2281,7 @@ def plot_decomposition_moneyshot(
         for tick in merged_ticks:
             tick_label = None
             for delta_tick, delta_label in delta_ticks.items():
-                if np.isclose(tick, float(delta_tick), atol = 1e-9, rtol = 0.0):
+                if np.isclose(tick, float(delta_tick), atol = 1e-10, rtol = 0.0):
                     tick_label = delta_label
                     break
             labels.append(f"{tick:.2f}" if tick_label is None else tick_label)
@@ -5684,7 +5684,7 @@ def _draw_left_axis_line(axis: Axes) -> None:
 
     axis.spines["left"].set_visible(False)
     y_lo, y_hi = axis.get_ylim()
-    ticks = [t for t in axis.get_yticks() if y_lo - 1e-9 <= t <= y_hi + 1e-9]
+    ticks = [t for t in axis.get_yticks() if y_lo - 1e-10 <= t <= y_hi + 1e-10]
     lo, hi = (min(ticks), max(ticks)) if ticks else (y_lo, y_hi)
     axis.plot(
         [0.0, 0.0],
