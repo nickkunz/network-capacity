@@ -298,6 +298,7 @@ The target value for each system was the log-transformed maximum rate realized a
 Maxima can grow with observation window length \citep{ref58,ref59,ref60}. Observation windows varied across sources and were held at their recorded durations. All frontiers remained conditional on the observational windows reported in Supplementary Table~\ref{tab:si-corpus}. Each $y^*$ served as the target bounded by the capacity frontier across its observation window.
 
 \subsection*{Encoding and Standardization}
+\label{sec:encoding}
 Each network substrate was encoded using 21 graph invariants across 5 categories: simple, cohesion, extremal, statistical, and spectral. The mapping $G \to x$ is formally defined as:
 \begin{equation}
     x \;=\; \phi(G) \;=\; (x_1, x_2, \ldots, x_{21}) \;\in\; \mathbb{R}^{21}
@@ -385,7 +386,9 @@ Paired differences $\Delta\mathrm{EI}$ and $\Delta\mathrm{CI}$ were computed as 
 
 For a margin $\delta > 0$, resampling equivalence and perturbation stability used TOST~\citep{ref47} of $H_{01}: \theta \le -\delta$ and $H_{02}: \theta \ge \delta$. Equivalence required rejection of both nulls with the TOST $p$-value taken as the larger of the 2 one-sided values. Falsification tested degradation ($H_0: \theta \ge 0$ versus $H_1: \theta < 0$). Ablation tested non-inferiority of the log-additive decomposition to each alternative \citep{ref78} ($H_0: \theta \ge \delta$ versus $H_1: \theta < \delta$).
 
-Equivalence and non-inferiority margins $\delta$ were empirically specified based on interquartile ranges (IQR) rounded down 2 decimal places (Supplementary Tables~\ref{tab:si-transfer-equivalence},~\ref{tab:si-perturb}, and~\ref{tab:si-ablation}). Holm-Bonferroni adjustments (Holm-adjusted $p$, denoted $p_{\mathrm H}$) \citep{ref46} used a significance threshold of $\alpha = 0.05$ separately for EI and CI within 5 families: resampling, perturbation, falsification, simple ablations, and complex ablations. Rank-biserial effects $r$ used unshifted paired differences \citep{ref71}. Numerical settings, constant-prediction frequencies, and aggregation-order diagnostics appear in \hyperref[sec:si-note-inference]{Supplementary Note 2}.
+All margins $\delta$ were empirically derived based on interquartile ranges (IQR) rounded down 2 decimal places (Supplementary Tables~\ref{tab:si-transfer-equivalence},~\ref{tab:si-perturb}, and~\ref{tab:si-ablation}). Holm-Bonferroni adjustments (Holm-adjusted $p$, denoted $p_{\mathrm H}$) \citep{ref46} used a significance threshold of $\alpha = 0.05$ separately for EI and CI within 5 families: resampling, perturbation, falsification, simple ablations, and complex ablations.
+
+Rank-biserial effect sizes were computed as $r = (W_{+} - W_{-})/(W_{+} + W_{-})$ from nonzero, unshifted paired differences \citep{ref71}. Here $W_{+}$ and $W_{-}$ are the sums of ranks of absolute differences with positive and negative signs, respectively, with average ranks for ties.
 
 Full-corpus consensus tests were descriptive (Fig.~\ref{fig:consensus}). Each estimator's predictions were averaged across training seeds. For stochastic perturbations, realizations were paired before computing estimation-observation and pairwise model CI. Pairwise model consensus was the median CI across the 36 distinct estimator pairs. Original data fits were frozen for evaluation on the highest intensity perturbed corpora and the falsified corpora. Ablations were refit on the full original corpus.
 
@@ -430,7 +433,7 @@ The authors declare no competing interests.
 
 \section*{Additional Information}
 \label{sec:additional}
-\textbf{Supplementary information} available in Supplementary Tables 1--9 and Supplementary Notes 1--2.
+\textbf{Supplementary information} available in Supplementary Tables 1--9 and Supplementary Note 1.
 
 \textbf{Correspondence and requests for materials} should be addressed to N. Kunz.
 
@@ -639,7 +642,7 @@ PyTorch Geometric Temporal MontevideoBus \citep{ref90} (\ref{src:S28}). & Data r
 \par\smallskip
 \begin{minipage}{\linewidth}
 \footnotesize
-Each row is one N3S. Nodes and edges describe the undirected substrate used for graph invariants. Events describe the observation stream aggregated to the series $r_t$ of Eq.~\eqref{eq:series}. Metrla, pemsbay, montevideo, windmill, and wiki supply regular snapshots that aggregate to complete daily series. Chickenpox supplies weekly county totals, each converted to its daily average and entered as 1 series value at its report date. For the remaining 19 systems, the series contains only days with at least 1 recorded event. Observation windows follow the native recording periods, given as start--end dates or relative day indices, with the calendar span in days ($n$) from the first to the last recorded interval. The 7 systems retrieved through APIs (gwosc, river, seismic, rain, faers, federal, and world) are additionally bounded by query dates fixed in the processing scripts, with end cutoffs listed in the source notes. Windows were not standardized in duration, and each empirical maximum is conditional on its window. Targets give the realized maximum $r_{\max}$ and $y^* = \ln(1 + r_{\max})$ from Eq.~\eqref{eq:maximum}. Chickenpox uses the daily average entered at the report date, and the remaining 24 systems use the daily event count. Observation dates identify the records analyzed and differ from source release or publication dates. Source notes preserve versions, relative-date conventions, and fixed analysis cutoffs. A publication year outside the observation window is therefore expected. Processing conventions beyond the columns above are as follows. The federal series excludes awards with non-positive amounts and start dates outside 2011-01-01 to 2024-12-31. Zero speeds were treated as missing in metrla, where they form 8.1\% of readings, and as readings in pemsbay, where they form 0.003\%. The montevideo series drops the first 4 hours removed by the loader lag and the final 20 hours of the 744-hour source that do not complete a day. GPS timestamps (gwosc and auger) were converted to UTC without leap-second correction, which would move 19 auger events and no gwosc events to another day. The crop network retains 12 nodes and 30 edges from studies whose visits lack dates. The world network matched countries to lending metadata by exact name, which left 23 regional aggregates and spelling variants isolated. Source citations S1--S31 refer to the \hyperref[sec:si-sources]{Supplementary References} below.
+Each row represents one N3S, with observations aggregated to $r_t$ (Eq.~\eqref{eq:series}) and targets $r_{\max}$ and $y^* = \ln(1 + r_{\max})$ (Eq.~\eqref{eq:maximum}). Metrla, pemsbay, montevideo, windmill, and wiki provide complete daily series, including zero-event days. Chickenpox provides weekly county totals, summed and divided by 7, with one daily-average value per report date; the other 24 systems use daily event counts. The remaining 19 series include only days with recorded events. Windows follow native recording periods, expressed as dates or relative day indices; $n$ is the inclusive span in days, not necessarily the series length $L$. The 7 API systems (gwosc, river, seismic, rain, faers, federal, and world) also use fixed script query dates, with end cutoffs in the source notes. Durations were not standardized, and maxima remain conditional on their windows. Observation dates differ from source release or publication dates; source notes specify versions and relative-date conventions. Additional processing conventions appear in \hyperref[sec:si-note-processing]{Supplementary Note 2}. Citations S1--S31 refer to the \hyperref[sec:si-sources]{Supplementary References}.
 \end{minipage}
 \endgroup
 \end{landscape}
@@ -665,7 +668,7 @@ Baseline & Random ($5$-Fold-CV) & 0.77 [0.76--0.78] & 0.02 & 0.06 & 6.86 \\
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Each regime was evaluated using 9 estimators and 30 seeds (42--71). Entries are medians across estimator-level means over folds or groups and repeats. Brackets give the first and third quartiles across estimators. Groups, folds, repeats, and estimators received equal weight. LOGO-CV folds were fixed across repeats, while repeated random folds were reshuffled. EI is the Efficiency Index, VR the violation rate, MV the mean exceedance among violators within a fold (0 when none occurred), and MS the mean non-negative slack across evaluated systems. MV and MS are in natural-log target units. These are descriptive summaries.
+Entries are medians of estimator-level means over folds or groups and 30 repeats (seeds 42--71), with quartiles across 9 estimators in brackets. Groups, folds, repeats, and estimators are equally weighted. LOGO-CV folds are fixed across repeats; random folds are reshuffled. EI denotes the Efficiency Index, VR the violation rate, MV the mean exceedance among within-fold violators (0 if none), and MS the mean non-negative slack across evaluated systems. MV and MS use natural-log target units. Descriptive summaries only.
 \end{minipage}
 \end{table}
 
@@ -844,7 +847,7 @@ EI is the Efficiency Index and CI is the Consensus Index between predictions and
 \centering
 \footnotesize
 \captionsetup{position=top,skip=12pt}
-\caption{21 Classical Graph Invariants by Category -- Definitions, Formulae, and Asymptotic Time Complexity.}
+\caption{21 graph invariants: definitions, formulae, and asymptotic time complexity.}
 \label{tab:si-features}
 \begin{tabularx}{\linewidth}{|l|l|>{\raggedright\arraybackslash}X|l|l|}
 \hline
