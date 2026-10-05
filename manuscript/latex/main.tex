@@ -34,7 +34,7 @@
 \usepackage{svg}
 \usepackage[none]{hyphenat}
 
-\graphicspath{{../../notebooks/figures/}}
+\graphicspath{{figures/}}
 
 %% doc settings
 \hyphenchar\font=-1 % suppress hyphenation
@@ -164,7 +164,7 @@ In the previous examples, network structure formed the basis on which a dynamica
 \centering
 \includegraphics[width=\linewidth]{fig1.pdf}
 \caption{
-    \textbf{Conceptual representation of Structural Capacity Theory (SCT).} Schematic illustration of the Network Substrate Structured Systems (N3S) framework. The network substrate $G$ (blue graph, bottom) is encoded as a standardized graph invariant vector $x'$ on the structural plane. The dynamical process $S$ (pink markers, top) produces observations attributed to network substrate elements and is encoded as a standardized process signature vector $z'$ on the dynamics plane. The curved manifold (purple surface, middle) represents the capacity frontier $F(x', z') = f_C(x') + f_R(z')$, where the learned structural component $f_C(x')$ is modulated log-additively by the learned process component $f_R(z')$ to estimate maximum rates $y^*$ (gold points, middle).
+    \textbf{Conceptual representation of Structural Capacity Theory (SCT).} Schematic illustration of the Network Substrate Structured Systems (N3S). The network substrate $G$ (blue graph, bottom) is encoded as a standardized graph invariant vector $x'$ on the structural plane. The dynamical process $S$ (pink markers, top) produces observations attributed to network substrate elements and is encoded as a standardized process signature vector $z'$ on the dynamics plane. The curved manifold (purple surface, middle) represents the capacity frontier $F(x', z') = f_C(x') + f_R(z')$, where the learned structural component $f_C(x')$ is modulated log-additively by the learned process component $f_R(z')$ to estimate maximum rates $y^*$ (gold points, middle).
 }
 \label{fig:concept}
 \end{figure}
@@ -486,8 +486,8 @@ Peaks of discharge (parameter 00060) above the site-wise 99th percentile. & Maxi
 USGS NWIS site and instantaneous-\allowbreak values services (\ref{src:S2}). & NWIS dataset record published 1994. API query cutoff 2024-12-31. \\
 \addlinespace[5pt]
 \textbf{\textit{auger}} & Earth \& Physical Sciences & Physics &
-Pierre Auger Observatory surface-detector stations. & Reciprocal 6-nearest neighbours within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
-Surface-detector air-shower events. & Maximum daily air-shower events $r_{\max} = 66$, $y^* = 4.205$. & 2004-01-03 to 2018-09-01 ($n = 5{,}356$). &
+Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbours within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
+Surface-\allowbreak detector air-shower events. & Maximum daily air-shower events $r_{\max} = 66$, $y^* = 4.205$. & 2004-01-03 to 2018-09-01 ($n = 5{,}356$). &
 Auger Open Data station map and Zenodo record 10488964 (\ref{src:S3}). & Open Data version 3 released 2024. Observations span 2004--2018. \\
 \addlinespace[5pt]
 \textbf{\textit{seismic}} & Earth \& Physical Sciences & Geology &
@@ -514,6 +514,7 @@ Cassada \& Russell, \textit{Dev. Biol.} \textbf{46}, 326--342 (1975) (\ref{src:S
 \scriptsize
 \setlength{\tabcolsep}{2pt}
 \addtocounter{table}{-1}
+\renewcommand{\theHtable}{supp.1.cont}
 \begin{longtable}{@{}
     >{\raggedright\arraybackslash}p{\dimexpr.08\linewidth-2\tabcolsep\relax}
     >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
@@ -576,7 +577,7 @@ Review timestamps. & Maximum daily reviews $r_{\max} = 37{,}293$, $y^* = 10.527$
 SNAP Amazon product graph, Books ratings (\ref{src:S15}). & Dataset article published 2015. Reviews span 1996--2014. \\
 \addlinespace[5pt]
 \textbf{\textit{bitcoin}} & Trade \& Institutions & Cryptocurrency &
-OTC users and integer rating values. & User--rating--user incidences over the complete Bitcoin OTC history. &
+OTC users and integer rating values. & User--\allowbreak rating--\allowbreak user incidences over the complete Bitcoin OTC history. &
 Rating timestamps. & Maximum daily ratings $r_{\max} = 319$, $y^* = 5.768$. & 2010-11-08 to 2016-01-25 ($n = 1{,}905$). &
 PyTorch Geometric BitcoinOTC (\ref{src:S16}). & Dataset article published 2016. Ratings span 2010--2016. \\
 \addlinespace[5pt]
