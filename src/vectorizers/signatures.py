@@ -75,7 +75,7 @@ class ProcessSignatures:
         x_center = x - x.mean()
         num = np.sum(x_center[:-1] * x_center[1:])
         den = np.sum(x_center**2)
-        val = num / den if den > 1e-12 else 0.0
+        val = num / den if den > 1e-10 else 0.0
         return _force_finite(val, 0.0)
 
     ## compute coefficient of variation (scale-free dispersion)
@@ -84,7 +84,7 @@ class ProcessSignatures:
         if m <= 0:
             return 0.0
         sd = float(np.std(self.counts, ddof = 1))
-        cv = sd / (m + 1e-12)
+        cv = sd / (m + 1e-10)
         return _force_finite(cv, 0.0)
 
     ## compute overdispersion relative to mean (fano factor)
@@ -93,7 +93,7 @@ class ProcessSignatures:
         if m <= 0:
             return 0.0
         var = float(np.var(self.counts, ddof = 1))
-        fano = var / (m + 1e-12)
+        fano = var / (m + 1e-10)
         return _force_finite(fano, 0.0)
 
     ## compute normalized mean absolute successive difference (local roughness)
@@ -104,7 +104,7 @@ class ProcessSignatures:
         diffs = np.abs(np.diff(self.counts))
         if len(diffs) == 0:
             return 0.0
-        b = float(np.mean(diffs)) / (m + 1e-12)
+        b = float(np.mean(diffs)) / (m + 1e-10)
         return _force_finite(b, 0.0)
 
     ## hurst exponent via rescaled range
@@ -120,7 +120,7 @@ class ProcessSignatures:
         s = np.std(x_center, ddof = 1)
 
         ## degenerate fallback
-        if s <= 1e-12 or r <= 1e-12:
+        if s <= 1e-10 or r <= 1e-10:
             return 0.5
 
         rs = r / s
@@ -140,7 +140,7 @@ class ProcessSignatures:
         num = np.sum(xc * tc)
         den = np.sqrt(np.sum(xc**2) * np.sum(tc**2))
 
-        beta = num / den if den > 1e-12 else 0.0
+        beta = num / den if den > 1e-10 else 0.0
         return _force_finite(float(beta), 0.0)
 
     ## compute skewness of counts distribution
@@ -152,7 +152,7 @@ class ProcessSignatures:
         m = float(np.mean(x))
         sd = float(np.std(x, ddof = 1))
         
-        if sd <= 1e-12:
+        if sd <= 1e-10:
             return 0.0
         
         ## standardized third moment
