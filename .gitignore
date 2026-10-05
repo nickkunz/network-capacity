@@ -25,3 +25,4 @@ manuscript/latex/*
 !manuscript/latex/*.tex
 !manuscript/latex/*.pdf
 !manuscript/latex/*.bib
+!manuscript/latex/figures
