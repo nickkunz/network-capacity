@@ -42,7 +42,7 @@ def _mean_slack(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 def _efficiency_index(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    eps: float = 1e-12,
+    eps: float = 1e-10,
     ) -> float:
 
     """ EI efficiency index that combines violation rate, mean violation,
@@ -70,7 +70,7 @@ def _efficiency_index(
     return float(np.exp(log_ei))
 
 ## frontier efficiency metrics
-def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> dict:
+def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-10) -> dict:
 
     """ Compute all frontier efficiency metrics and return as a dictionary. """
     
