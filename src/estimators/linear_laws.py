@@ -96,7 +96,7 @@ class BaseLAWS(BaseEstimator, RegressorMixin):
                 num = np.mean(w * X_[:, j] * r_j)
                 den = np.mean(w * X_[:, j] ** 2)
 
-                if den < 1e-12:
+                if den < 1e-10:
                     beta[j] = 0.0
                     continue
 
