@@ -121,4 +121,4 @@ def spec_marginal_delta(
     ## floor the scaled dispersion to the specified number of decimal places
     scaled = max(float(scale * dispersion), 1e-6)
     factor = 10 ** int(decimals)
-    return float(np.floor(scaled * factor + 1e-12) / factor)
+    return float(np.floor(scaled * factor + 1e-10) / factor)
