@@ -291,7 +291,7 @@ def _generate_vector_features(
             if pool.size == 0:
                 continue
             base = float(rand.choice(pool, size = 1))
-            sigma = max(float(np.nanstd(pool, ddof = 0)), 1e-12)
+            sigma = max(float(np.nanstd(pool, ddof = 0)), 1e-10)
             value = float(base + rand.normal(loc = 0.0, scale = sigma, size = 1))
             if key in payload['invariants']:
                 rand_inv[key] = value
