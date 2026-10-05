@@ -4820,7 +4820,7 @@ LEGEND_BORDERPAD_A = 0.35
 LEGEND_BORDERPAD_BC = 0.45
 EQUIVALENCE = "#000000"
 EQUIVALENCE_LINE = LINE_GREY
-DELTA_EQ_FALLBACK = 0.05
+DELTA_EQ_FALLBACK = 0.02
 FEASIBILITY_THRESHOLD = 0.05
 LOWER_DOMAIN_LABELS = {
     "Earth & Physical Sciences": "Earth & Physical",
@@ -4925,12 +4925,17 @@ def _apply_panel_lettering(fig: Figure) -> None:
 
     for text_artist in fig.findobj(match = Text):
         text_artist.set_fontfamily(FONT_FAMILY)
-        text_artist.set_fontstyle("normal")
         if text_artist.get_text() in PANEL_LABELS:
+            text_artist.set_fontstyle("normal")
             text_artist.set_fontsize(PANEL_LABEL_SIZE)
             text_artist.set_fontweight("bold")
             continue
+        if text_artist.get_text() in {"+δ", "-δ"}:
+            text_artist.set_fontstyle("italic")
+            text_artist.set_fontsize(PANEL_TEXT_SIZE)
+            continue
 
+        text_artist.set_fontstyle("normal")
         text_artist.set_fontsize(PANEL_TEXT_SIZE)
 
 
@@ -5061,6 +5066,7 @@ def load_or_compute_transfer_consensus_results(
                 "results_dict_domain": cached["predicts_dict_domain"],
                 "results_dict_5fold": cached["predicts_dict_5fold"],
                 "results_dict_10fold": cached["predicts_dict_10fold"],
+                "results_data_domain": cached.get("results_data_domain"),
                 "results_data_domain_consensus": cached["results_data_consensus"],
                 "results_data_5fold": cached["results_data_5fold"],
                 "results_data_10fold": cached["results_data_10fold"],
@@ -5388,6 +5394,7 @@ def _summarize_transfer_panel(
     results_data_10fold: pd.DataFrame,
     equivalence_fallback: float,
     feasibility_threshold: float,
+    results_data_domain: pd.DataFrame | None = None,
     ) -> dict[str, object]:
 
     """
@@ -5408,6 +5415,7 @@ def _summarize_transfer_panel(
         results_data_10fold: Random 10-fold frontier metrics.
         equivalence_fallback: Fallback equivalence margin.
         feasibility_threshold: Minimum raw EI used for feasibility filtering.
+        results_data_domain: Optional domain LOGO frontier metrics table.
 
     Returns:
         Dictionary of transfer-panel summaries and annotations.
@@ -5556,17 +5564,41 @@ def _summarize_transfer_panel(
     if combined_for_plot.empty:
         combined_for_plot = combined_delta.copy()
 
-    baseline_iqr = (0.0, 0.0)
-    if baseline_residuals:
-        baseline_residual = np.concatenate(baseline_residuals)
-        if baseline_residual.size >= 2:
-            baseline_iqr = tuple(np.quantile(baseline_residual, [0.25, 0.75]))
-    finite_margins = [
-        float(margin)
-        for margin in fold_margins.values()
-        if np.isfinite(margin)
-    ]
-    equivalence_margin = max(finite_margins) if finite_margins else equivalence_fallback
+    equivalence_margin = equivalence_fallback
+    if results_data_domain is not None and not results_data_domain.empty and "model" in results_data_domain.columns and "ei" in results_data_domain.columns:
+        try:
+            cleaned_domain = results_data_domain[["model", "ei"]].dropna(subset = ["ei"])
+            domain_model_means = (
+                cleaned_domain.groupby("model", observed = True)["ei"]
+                .mean()
+                .to_frame()
+                .assign(reference = "baseline")
+            )
+            equivalence_margin = spec_marginal_delta(
+                results = domain_model_means,
+                feat_value = ["ei"],
+                label_ref = "reference",
+                value_ref = "baseline",
+                method = "iqr",
+                scale = 1.0,
+                decimals = 2,
+            )
+        except (ValueError, KeyError):
+            finite_margins = [
+                float(margin)
+                for margin in fold_margins.values()
+                if np.isfinite(margin)
+            ]
+            equivalence_margin = min(finite_margins) if finite_margins else equivalence_fallback
+    else:
+        finite_margins = [
+            float(margin)
+            for margin in fold_margins.values()
+            if np.isfinite(margin)
+        ]
+        equivalence_margin = min(finite_margins) if finite_margins else equivalence_fallback
+
+    baseline_iqr = (-equivalence_margin, equivalence_margin)
 
     delta_summary = (
         combined_for_plot.groupby("discipline", observed = True)["delta_ei"]
@@ -5927,7 +5959,11 @@ def _draw_transfer_panel(
     delta_summary = transfer_summary["delta_summary"]
     baseline_iqr = transfer_summary["baseline_iqr"]
     equivalence_margin = transfer_summary["equivalence_margin"]
-    transfer_tick_candidates = [transfer_ylim[0], -0.1, 0.0, 0.1, transfer_ylim[1]]
+    has_equivalence_band = baseline_iqr[1] > baseline_iqr[0]
+    if has_equivalence_band:
+        transfer_tick_candidates = [transfer_ylim[0], -0.1, 0.1, transfer_ylim[1]]
+    else:
+        transfer_tick_candidates = [transfer_ylim[0], -0.1, 0.0, 0.1, transfer_ylim[1]]
     transfer_ticks = []
     for tick in transfer_tick_candidates:
         if transfer_ylim[0] <= tick <= transfer_ylim[1] and not any(
@@ -5948,27 +5984,36 @@ def _draw_transfer_panel(
             fontsize = 11.0,
             fontweight = "bold",
         )
-    if baseline_iqr[1] > baseline_iqr[0]:
+    if has_equivalence_band:
         axis.axhspan(
             ymin = baseline_iqr[0],
             ymax = baseline_iqr[1],
-            facecolor = "#DCEAF7",
+            facecolor = "#E6F4EA",
             edgecolor = "none",
-            alpha = 0.28,
-            zorder = 1,
+            zorder = 0,
         )
-    for reference_level in transfer_ticks:
-        ## keep only reference lines at 0 and 1 (omit intermediate gridlines)
-        if not (np.isclose(reference_level, 0.0) or np.isclose(reference_level, 1.0)):
-            continue
         axis.axhline(
-            y = reference_level,
-            color = OBSERVED if reference_level == 0.0 else EQUIVALENCE,
-            lw = 0.9 if reference_level == 0.0 else 0.75,
-            ls = "-",
-            alpha = 0.65 if reference_level == 0.0 else 0.90,
+            y = baseline_iqr[1],
+            color = "#8A8A8A",
+            lw = 0.6,
+            ls = "--",
             zorder = 1,
         )
+        axis.axhline(
+            y = baseline_iqr[0],
+            color = "#8A8A8A",
+            lw = 0.6,
+            ls = "--",
+            zorder = 1,
+        )
+    axis.axhline(
+        y = 0.0,
+        color = OBSERVED,
+        lw = 0.9,
+        ls = "-",
+        alpha = 0.65,
+        zorder = 1,
+    )
 
     for _, row in delta_summary.iterrows():
         discipline = row["discipline"]
@@ -6056,6 +6101,24 @@ def _draw_transfer_panel(
     axis.set_yticklabels(
         labels = [_format_decimal(value = tick, decimals = 1) for tick in transfer_ticks],
     )
+    if has_equivalence_band:
+        label_specs = [(float(baseline_iqr[1]), "+δ"), (float(baseline_iqr[0]), "-δ")]
+        t0 = axis.get_yticklabels()[0] if axis.get_yticklabels() else None
+        label_transform = t0.get_transform() if t0 is not None else axis.get_yaxis_transform()
+        for y_value, label in label_specs:
+            axis.text(
+                x = 0.0 if t0 is not None else -0.015,
+                y = y_value,
+                s = label,
+                transform = label_transform,
+                ha = "right",
+                va = "center",
+                color = "#8A8A8A",
+                fontstyle = "italic",
+                fontsize = PANEL_TEXT_SIZE,
+                clip_on = False,
+                zorder = 6,
+            )
     axis.set_ylabel(ylabel = r"$\Delta$ EI ($\mathit{k}$-Fold - Domain LOGO)", color = AXIS_LABEL_COLOR, fontsize = AXIS_LABEL_SIZE, labelpad = 6)
     axis.set_xticks(ticks = x)
     axis.set_xticklabels(
@@ -6438,6 +6501,7 @@ def plot_universality_superfigure(
         results_data_10fold = source_results["results_data_10fold"],
         equivalence_fallback = DELTA_EQ_FALLBACK,
         feasibility_threshold = FEASIBILITY_THRESHOLD,
+        results_data_domain = source_results.get("results_data_domain"),
     )
 
     transfer_span = float(transfer_ylim[1] - transfer_ylim[0])
@@ -8028,6 +8092,8 @@ def _render_stress_test_figure(
         "Complex": ["joint", "interaction"],
     }
     decomposition_spec_labels = {
+        "invariants": "Invariants Only",
+        "signatures": "Signatures Only",
         "interaction": "Interaction Terms",
         "joint": "Joint Features",
     }
