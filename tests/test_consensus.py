@@ -7,10 +7,10 @@ import pandas as pd
 from scipy.stats import spearmanr
 
 from src.evaluators.decomposing import compile_decomposed_consensus, compile_decomposed_full
-from src.evaluators.falsifying import compile_falsified_full
+from src.evaluators.falsifying import compile_falsified_full, stat_falsified_summary
 from src.evaluators.metrics import _distance_corr, _rescaled_spearman_rho, consensus_index, frontier_consensus
 from src.evaluators.perturbing import compile_perturbed_full
-from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.predicting import compile_corpus_full, results_prediction_consensus
 
 
 class RescaledSpearmanTests(unittest.TestCase):
@@ -50,6 +50,18 @@ class RescaledSpearmanTests(unittest.TestCase):
                     second = 0.5,
                 )
                 self.assertEqual(first = frontier_consensus(y_true = vector, y_pred = vector)["ci"], second = 0.0)
+
+    def test_summary_tables_preserve_rho_label_without_transforming_again(self) -> None:
+        targets = np.array(object = [1.0, 2.0, 3.0, 4.0])
+        results = compile_corpus_full(predictions = {"reverse": targets[::-1]}, y_true = targets)
+        prediction_summary = results_prediction_consensus(results = results, print_summary = False)
+        self.assertEqual(first = prediction_summary.loc["all", "ρ"], second = "0.00")
+        falsified_summary = stat_falsified_summary(
+            results = results.assign(condition = "original", Falsification = "original", Method = "original"),
+            metrics = ["rho", "rbo", "dcr", "ci"],
+            decimals = 2,
+        )
+        self.assertEqual(first = falsified_summary.loc[("original", "original"), "ρ"], second = 0.0)
 
 
 class DistanceCorrelationTests(unittest.TestCase):
@@ -98,6 +110,18 @@ class DistanceCorrelationTests(unittest.TestCase):
                     second = float(dcor.distance_correlation(x = y_true, y = y_pred)),
                     places = 12,
                 )
+
+    def test_distance_estimator_failures_propagate(self) -> None:
+        y_true = np.array(object = [1.0, 2.0, 3.0])
+        y_pred = np.array(object = [1.5, 1.0, 3.0])
+        for scorer in (_distance_corr, frontier_consensus):
+            with self.subTest(scorer = scorer.__name__):
+                with patch(
+                    target = "src.evaluators.metrics.dcor.distance_correlation",
+                    side_effect = RuntimeError("distance estimator failed"),
+                ):
+                    with self.assertRaisesRegex(expected_exception = RuntimeError, expected_regex = "distance estimator failed"):
+                        scorer(y_true = y_true, y_pred = y_pred)
 
     def test_nearly_constant_inputs_are_not_treated_as_constant(self) -> None:
         y_true = np.array(object = [1.0, 2.0, 3.0])
