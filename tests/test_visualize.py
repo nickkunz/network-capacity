@@ -42,6 +42,7 @@ class VisualizationCacheTests(unittest.TestCase):
             "target": "target",
             "feat_x": ["x_1"],
             "feat_z": ["z_1"],
+            "rho_rescaled": True,
         }
 
     def _write_consensus_cache(self, payload: dict[str, object]) -> Path:
@@ -86,6 +87,52 @@ class VisualizationCacheTests(unittest.TestCase):
                 name = "consensus",
                 context = self.context,
             )
+
+    def test_load_results_cache_rejects_unscaled_rho(self) -> None:
+        for scale in (None, False):
+            with self.subTest(scale = scale):
+                metadata = self._metadata()
+                if scale is None:
+                    metadata.pop("rho_rescaled")
+                else:
+                    metadata["rho_rescaled"] = scale
+                self._write_consensus_cache(payload = {
+                    "metadata": metadata,
+                    "frontiers": {},
+                    "results_data": pd.DataFrame(data = {"rho": [0.89]}),
+                })
+                with self.assertRaisesRegex(expected_exception = RuntimeError, expected_regex = "rho_rescaled"):
+                    visualize.load_results_cache(name = "consensus", context = self.context)
+
+    def test_flat_transfer_cache_requires_rescaled_rho(self) -> None:
+        payload = {
+            **self._metadata(),
+            "results_dict_domain": {},
+            "results_dict_5fold": {},
+            "results_dict_10fold": {},
+            "results_data_domain_consensus": pd.DataFrame(),
+            "results_data_5fold": pd.DataFrame(),
+            "results_data_10fold": pd.DataFrame(),
+        }
+        path = self.context.cache_dir / "transfer_results.pkl"
+        arguments = {
+            "data": self.context.data,
+            "models": self.context.models,
+            "feat_x": self.context.feat_x,
+            "feat_z": self.context.feat_z,
+            "target": self.context.target,
+            "cache_path": path,
+            "n_repeats": self.context.n_repeats,
+            "random_state": self.context.random_state,
+            "require_cache": True,
+        }
+        path.write_bytes(pickle.dumps(obj = payload))
+        _, source = visualize.load_or_compute_transfer_consensus_results(**arguments)
+        self.assertEqual(first = source, second = "cached consensus/transfer results")
+        payload.pop("rho_rescaled")
+        path.write_bytes(pickle.dumps(obj = payload))
+        with self.assertRaisesRegex(expected_exception = FileNotFoundError, expected_regex = "compatible transfer cache"):
+            visualize.load_or_compute_transfer_consensus_results(**arguments)
 
     def test_load_results_cache_rejects_missing_payload_key(self) -> None:
         self._write_consensus_cache(payload = {

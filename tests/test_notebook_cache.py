@@ -50,7 +50,7 @@ class NotebookCacheTests(unittest.TestCase):
                     pipeline.append(source)
                     if "cache_path.write_bytes" in source:
                         break
-            for mode in ("missing", "mismatch", "forced"):
+            for mode in ("missing", "mismatch", "legacy_rho", "raw_rho", "forced"):
                 with self.subTest(notebook = name, mode = mode), tempfile.TemporaryDirectory() as directory:
                     namespace = {
                         "root": Path(directory), "data": [1], "data_proc": [1],
@@ -71,6 +71,10 @@ class NotebookCacheTests(unittest.TestCase):
                         }
                         if mode == "mismatch":
                             payload["metadata"]["random_state"] = 0
+                        elif mode == "legacy_rho":
+                            payload["metadata"].pop("rho_rescaled")
+                        elif mode == "raw_rho":
+                            payload["metadata"]["rho_rescaled"] = False
                         cache_path = namespace["cache_path"]
                         cache_path.parent.mkdir(parents = True, exist_ok = True)
                         cache_path.write_bytes(pickle.dumps(obj = payload))
@@ -200,7 +204,7 @@ class NotebookCacheTests(unittest.TestCase):
                         function.assert_not_called()
 
     def test_cache_validation(self) -> None:
-        metadata = {"n_obs": 25, "n_repeats": 30, "random_state": 42}
+        metadata = {"n_obs": 25, "n_repeats": 30, "random_state": 42, "rho_rescaled": True}
         with tempfile.TemporaryDirectory() as directory:
             cache_path = Path(directory) / "results.pkl"
             arguments = {
@@ -215,6 +219,8 @@ class NotebookCacheTests(unittest.TestCase):
             self.assertIsNone(obj = load_notebook_cache(**arguments, force_recompute = True))
             for invalid in (
                 {"metadata": {**metadata, "n_repeats": 10}, "results": [1]},
+                {"metadata": {key: value for key, value in metadata.items() if key != "rho_rescaled"}, "results": [1]},
+                {"metadata": {**metadata, "rho_rescaled": False}, "results": [1]},
                 {"metadata": metadata},
                 {"metadata": metadata, "results": None},
                 {"metadata": None, "results": [1]},
