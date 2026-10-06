@@ -295,7 +295,7 @@ def stat_transfer_tost(
                 float(np.median(differences)) if n_pairs else np.nan
             ),
             "Rank-biserial r": paired_rank_biserial(
-                differences = differences.tolist(),
+                diff = differences.tolist(),
             ),
             "TOST p": p_tost,
         })
