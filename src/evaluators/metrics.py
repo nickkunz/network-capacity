@@ -89,22 +89,31 @@ def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-
     )
     return metrics
 
-## spearman rank correlation
-def _spearman_rho(y_true: np.ndarray, y_pred: np.ndarray) -> float:
+## rescaled spearman rank correlation
+def _rescaled_spearman_rho(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
-    """ Global monotone agreement of predicted capacities. """
+    """
+    Desc:
+        Measure global rank agreement as (raw Spearman rho + 1) / 2.
+    Args:
+        y_true: Reference capacities.
+        y_pred: Predicted capacities aligned with the reference.
+    Returns:
+        Agreement on [0, 1], or neutral agreement of 0.5 when raw
+        correlation is undefined.
+    """
 
-    y_true = np.asarray(y_true, dtype = float)
-    y_pred = np.asarray(y_pred, dtype = float)
+    y_true = np.asarray(a = y_true, dtype = float)
+    y_pred = np.asarray(a = y_pred, dtype = float)
     if y_true.size < 2 or y_pred.size < 2:
-        return 0.0
+        return 0.5
     if np.std(y_true) == 0.0 or np.std(y_pred) == 0.0:
-        return 0.0
+        return 0.5
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category = ConstantInputWarning)
-        rho, _ = spearmanr(y_true, y_pred)
-    return float(rho) if not np.isnan(rho) else 0.0
+        rho, _ = spearmanr(a = y_true, b = y_pred)
+    return (float(rho) + 1.0) / 2.0 if not np.isnan(rho) else 0.5
 
 ## distance correlation
 def _distance_corr(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -191,27 +200,43 @@ def consensus_index(
     dcr: float,
     ) -> float:
 
-    """ CI geometric mean over comparable agreement-scale metrics.
-    Components are clipped to their theoretical [0, 1] bounds to correct
-    floating-point error; exact zeros are retained so CI = 0 when any
-    factor is zero. """
+    """
+    Desc:
+        Compute the geometric mean of agreement-scale metrics, clipping
+        floating-point error to [0, 1] and retaining exact zeros.
+    Args:
+        rho: Rescaled Spearman agreement on [0, 1].
+        rbo: Rank-biased overlap on [0, 1].
+        dcr: Distance correlation on [0, 1].
+    Returns:
+        Consensus index on [0, 1].
+    """
 
-    rho_agree = (rho + 1.0) / 2.0
     ci_vals = np.clip(
-        np.array([rho_agree, rbo, dcr], dtype = float),
+        np.array(object = [rho, rbo, dcr], dtype = float),
         a_min = 0.0,
         a_max = 1.0,
     )
     return float(np.prod(ci_vals) ** (1.0 / 3.0))
 
 ## frontier consensus metrics
-def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict:
+def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict[str, float]:
 
-    """ Compute all frontier consensus metrics and return as a dictionary. """
+    """
+    Desc:
+        Compute frontier consensus metrics on a common agreement scale.
+    Args:
+        y_true: Reference capacities.
+        y_pred: Predicted capacities aligned with the reference.
+        p: Rank-biased overlap persistence.
+    Returns:
+        rho, rbo, dcr, and ci on [0, 1]. The rho field contains
+        rescaled Spearman agreement, (raw rho + 1) / 2, not raw correlation.
+    """
 
-    rho = _spearman_rho(y_true, y_pred)
-    rbo = _rank_biased_overlap(y_true, y_pred, p = p)
-    dcr = _distance_corr(y_true, y_pred)
+    rho = _rescaled_spearman_rho(y_true = y_true, y_pred = y_pred)
+    rbo = _rank_biased_overlap(y_true = y_true, y_pred = y_pred, p = p)
+    dcr = _distance_corr(y_true = y_true, y_pred = y_pred)
 
     metrics = {
         "rho": rho,
@@ -219,7 +244,7 @@ def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -
         "dcr": dcr,
     }
     metrics["ci"] = consensus_index(
-        rho = metrics["rho"],
+        rho = rho,
         rbo = metrics["rbo"],
         dcr = metrics["dcr"],
     )
