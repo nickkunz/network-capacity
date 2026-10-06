@@ -289,7 +289,7 @@ For continuous records, measurements were discretized using system-specific thre
 where $n_{t}$ is the event count in interval $t$ and $T$ is the chronologically ordered set of intervals. The number of included intervals was $L = \lvert T \rvert$, with series mean $\bar{r} = L^{-1}\sum_{t \in T} r_t$. Source conventions determined interval inclusion. For 19 systems, $T$ contained only days with at least one recorded event. There were 5 systems that supplied regular snapshots aggregated into consecutive daily intervals, including zero-event days (metrla, pemsbay, montevideo, windmill, and wiki) and 1 system (chickenpox) that computed a daily-average rate at each weekly report date. Each $S$ served as the realization of the system's dynamical process across its observation window.
 
 \subsection*{Maximum Rate Target}
-The target value for each system was the log-transformed maximum rate realized across its observation window. The log-transformation compressed the range of empirical maxima. For each rate series $S$ on interval set $T$, the maximum rate $r_{\max}$ and log-transformed maximum rate target $y^*$ are formally defined as:
+The target value for each system was the log-transformed maximum rate realized across its observation window. The log-transformation compressed the range of empirical maxima. For each rate series $S$ on interval set $T$ (Eq.~\eqref{eq:series}), the maximum rate $r_{\max}$ and log-transformed maximum rate target $y^*$ are formally defined as:
 \begin{equation}
     y^{*} \;=\; \ln\!\left(1 + r_{\max}\right),
     \qquad
