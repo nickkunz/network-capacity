@@ -138,10 +138,7 @@ def _distance_corr(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     if np.all(y_true == y_true[0]) or np.all(y_pred == y_pred[0]):
         return 0.0
 
-    try:
-        return float(dcor.distance_correlation(x = y_true, y = y_pred))
-    except Exception:
-        return 0.0
+    return float(dcor.distance_correlation(x = y_true, y = y_pred))
 
 ## rank-biased overlap
 def _rank_biased_overlap(y_true: np.ndarray, y_pred: np.ndarray, p: float) -> float:
