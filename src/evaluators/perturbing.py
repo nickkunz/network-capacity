@@ -5,16 +5,15 @@ import warnings
 import igraph as ig
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
+from tqdm import tqdm
 from pathlib import Path
-from sklearn.utils import resample
+from itertools import combinations
+from scipy.stats import wilcoxon
 from sklearn.base import BaseEstimator
 from joblib import parallel, Parallel, delayed
 from joblib.parallel import BatchCompletionCallBack
-from typing import Sequence, Optional, Tuple, Dict, Literal, Any
-from scipy.stats import wilcoxon
 from contextlib import contextmanager
-from tqdm import tqdm
+from typing import Sequence, Optional, Dict, Literal, Any
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -22,26 +21,33 @@ if str(root) not in sys.path:
     sys.path.append(str(root))
     
 ## modules
-from itertools import combinations
 from src.evaluators.training import fit_predict_frontier
+from src.evaluators.predicting import compile_corpus_full
 from src.vectorizers.scalers import _log_transformer
-from src.evaluators.metrics import consensus_metrics
-from src.vectorizers.invariants import GraphInvariants
-from src.vectorizers.signatures import ProcessSignatures
+from src.evaluators.helpers import _clean_differences, paired_rank_biserial
+from src.evaluators.metrics import (
+    frontier_consensus,
+)
 from src.evaluators.resampling import (
     logo_cross_valid,
     logo_cross_valid_frozen
 )
 from src.data.helpers import (
-    _force_finite, 
+    _clip_unit_interval,
+    _force_finite,
     _force_finite_dict,
-    _clip_unit_interval
+)
+from src.vectorizers.signatures import ProcessSignatures
+from src.vectorizers.invariants import (
+    GraphInvariants,
+    BipartiteInvariants
 )
 
 ## constants
 from src.evaluators.config import (
     FRONTIER_METRICS,
-    CONSENSUS_METRICS
+    CONSENSUS_METRICS,
+    FEAT_X
 )
 
 ## joblib progress bar bridge
@@ -62,298 +68,294 @@ def _tqdm_joblib(total: int, desc: str):
         parallel.BatchCompletionCallBack = batch_callback
         pbar.close()
 
-## entropy of the degree distribution
-def _degree_entropy(degree: np.ndarray, n_nodes: int) -> float:
-    if n_nodes <= 0 or degree.size == 0:
-        return 0.0
-    counts = np.bincount(degree)
-    probs = counts[counts > 0].astype(float) / float(n_nodes)
-    eps = 1e-16
-    return -float(np.sum(probs * np.log(probs + eps)))
-
-## entropy of the degree distribution weighted by degree
-def _joint_degree_entropy(degree: np.ndarray, denom: float) -> float:
-    if denom <= 0.0 or degree.size == 0:
-        return 0.0
-
-    counts = np.bincount(degree)
-    nonzero = np.flatnonzero(counts)
-
-    ## stub-weighted degree probabilities pk ~ k * p(k) / <k>
-    pk = (nonzero.astype(float) * counts[nonzero].astype(float)) / float(denom)
-    pk = pk[pk > 0]
-
-    eps = 1e-16
-    marginal = -float(np.sum(pk * np.log(pk + eps)))
-    return 2.0 * marginal
-
-## skewness and kurtosis with guard for low-variance cases
-def _skew_kurtosis(degree: np.ndarray, discrete: bool = True) -> Tuple[float, float]:
-    x = degree.astype(int) if discrete else degree
-    skewness = 0.0
-    kurtosis = 0.0
-
-    ## guard: need variance > 0 (unique values for int, std for float)
-    has_spread = np.unique(x).size > 1 if discrete else float(np.std(x)) > 1e-9
-    if x.size >= 3 and has_spread:
-        skewness = _force_finite(stats.skew(x, bias = False), default = 0.0)
-    if x.size >= 4 and has_spread:
-        kurtosis = _force_finite(stats.kurtosis(x, fisher = True, bias = False), default = 0.0)
-
-    return float(skewness), float(kurtosis)
-
-## core invariants that can be estimated from the degree sequence alone
-def _degree_invariants(degree: np.ndarray, n_nodes: int, n_edges: float, keys: Sequence[str]) -> Dict[str, float]:
-    if n_nodes <= 0 or n_edges <= 0.0 or degree.size == 0: return {k: 0.0 for k in keys}
-    
-    S1, S2, degree_max = float(np.sum(degree)), float(np.sum(degree ** 2)), float(np.max(degree))
-    mean_excess = (S2 / max(S1, 1.0)) - 1.0
-    diam = max(2.0, float(np.log(max(n_nodes, 2))) / float(np.log(mean_excess))) if mean_excess > 1.0 else float(n_nodes)
-    
-    is_discrete = np.allclose(degree, np.round(degree))
-    degree_int = np.round(degree).astype(int)
-    inv_d = 1.0 / np.maximum(degree, 1.0)
-
-    feat = {
-        "n_nodes": float(n_nodes),
-        "n_edges": n_edges,
-        "diameter": diam,
-        "radius": 0.5 * diam,
-        "degeneracy": min(degree_max, float(np.sqrt(2.0 * n_edges))),
-        "maximum_degree": degree_max,
-        "degree_variance": float(np.var(degree)),
-        "degree_entropy": _degree_entropy(degree_int, n_nodes),
-        "joint_degree_entropy": _joint_degree_entropy(degree_int, float(np.sum(degree_int)) if not is_discrete else S1) if n_edges > 0 else 0.0,
-        "normalized_laplacian_second_moment": _force_finite(1.0 + (2.0 * n_edges * (n_nodes / max(S1, 1.0)) ** 2) / max(n_nodes, 1.0), 0.0),
-        "normalized_laplacian_third_moment": _force_finite(1.0 + (((S2 - S1) ** 3) / max(S1 ** 3 * n_nodes, 1.0)), 0.0),
-        "random_walk_triangle_weight": _force_finite(6.0 * (((S2 - S1) ** 2) / max(6.0 * S1, 1.0)) * float(inv_d.mean()) / max(S1, 1.0), 0.0),
-        "random_walk_fourth_moment": _force_finite((1.0 / max(n_nodes, 1.0)) * float(np.sum(degree * S2 / max(S1 ** 2, 1.0) + max(mean_excess, 0.0) * inv_d)), 0.0),
-        "adjacency_fourth_moment_per_node": _force_finite((S1 + (S2 - S1) + (S2 ** 2) / max(2.0 * S1, 1.0)) / max(n_nodes, 1.0), 0.0)
-    }
-    feat["k_core_size"] = float(np.sum(degree >= feat["degeneracy"]))
-    feat["degree_skewness"], feat["degree_kurtosis"] = _skew_kurtosis(degree, discrete=is_discrete)
-    
-    for k in keys: feat.setdefault(k, 0.0)
-    return feat
-
-## degree-preserving rewiring
-def _rewire_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-    ) -> Dict[str, float]:
-    """
-    Desc:
-        Interpolates between observed invariants and configuration-model
-        expectations under degree-preserving rewiring.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Perturbation strength in [0, 1].
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    alpha = _clip_unit_interval(1.0 - (1.0 - float(intensity)) ** 2)
-    keys = list(invariants.keys())
-    cm_invariants = _degree_invariants(degrees, n_nodes, float(n_edges), keys)
-
-    out: Dict[str, float] = {}
-    for k in keys:
-        b0 = float(invariants.get(k, 0.0))
-        c0 = float(cm_invariants.get(k, b0))
-        out[k] = (1.0 - alpha) * b0 + alpha * c0
-
-    return out
-
-## node sampling estimate (analytical)
-def _sample_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-) -> Dict[str, float]:
-    """
-    Desc:
-        Estimates invariants after uniform random node removal.
-        Fraction `intensity` of nodes are removed; surviving edges
-        are those whose *both* endpoints remain.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Fraction of nodes to remove in [0, 1].
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    p = 1.0 - _clip_unit_interval(float(intensity))  # survival probability
-    keys = list(invariants.keys())
-
-    if p <= 0.0:
-        return {k: 0.0 for k in keys}
-    if p >= 1.0:
-        return dict(invariants)
-
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-
-    ## surviving node count and expected degree after node sampling
-    n_nodes_p = max(int(round(n_nodes * p)), 1)
-    degree_p = degree * p  # each neighbour survives with probability p
-    n_edge_p = float(n_edges) * (p ** 2)  # both endpoints must survive
-
-    out = _degree_invariants(degree_p, n_nodes_p, n_edge_p, keys)
-
-    ## overrides that need the original base values
-    out["n_articulation_points"] = float(
-        invariants.get("n_articulation_points", 0.0)
-    ) * p
-
-    out["n_bridges"] = float(
-        invariants.get("n_bridges", 0.0)
-    ) * p
-
-    out["global_clustering"] = float(
-        invariants.get("global_clustering", 0.0)
-    )  # clustering coefficient is scale-free under uniform sampling
-
-    out["degree_assortativity"] = float(
-        invariants.get("degree_assortativity", 0.0)
-    )
-
-    for k in keys:
-        out.setdefault(k, float(invariants.get(k, 0.0)) * p)
-
-    return out
-
-
-## bernoulli edge densification (analytical)
-def _densify_estimate(
-    invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
-    n_edges: int,
-    intensity: float,
-    ) -> Dict[str, float]:
-    """
-    Desc:
-        Estimates invariants after adding random edges uniformly among
-        non-edges. The `intensity` fraction of existing edges is the
-        *expected number of new edges* to add, drawn from the complement
-        graph via independent Bernoulli trials.
-
-    Args:
-        invariants: Observed invariant dict.
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
-        intensity: Perturbation strength in [0, 1] as a fraction of |E|.
-
-    Returns:
-        Dict of estimated invariants.
-    """
-    x = _clip_unit_interval(float(intensity))
-    keys = list(invariants.keys())
-
-    if x <= 0.0:
-        return dict(invariants)
-
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-
-    ## number of edges to add and complement size
-    n_add = float(n_edges) * x
-    max_edges = float(n_nodes * (n_nodes - 1)) / 2.0
-    n_complement = max(max_edges - float(n_edges), 1.0)
-
-    ## per non-edge addition probability
-    q = min(n_add / n_complement, 1.0)
-
-    ## densified degree sequence: each node gains non-neighbour edges
-    degree_q = degree + (float(n_nodes - 1) - degree) * q
-    n_edge_q = float(n_edges) + n_add
-
-    out = _degree_invariants(degree_q, n_nodes, n_edge_q, keys)
-
-    ## overrides for structural invariants
-    out["n_articulation_points"] = float(
-        invariants.get("n_articulation_points", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    out["n_bridges"] = float(
-        invariants.get("n_bridges", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    ## clustering increases with densification: added edges create
-    ## new triangles; approximate via ER triangle probability
-    base_clustering = float(invariants.get("global_clustering", 0.0))
-    out["global_clustering"] = min(base_clustering + (1.0 - base_clustering) * q, 1.0)
-
-    out["degree_assortativity"] = float(
-        invariants.get("degree_assortativity", 0.0)
-    ) * max(1.0 - q, 0.0)
-
-    for k in keys:
-        out.setdefault(k, float(invariants.get(k, 0.0)))
-
-    return out
-
 ## ----------------------------------------------------------------------------
 ## analytical perturbation
 ## ----------------------------------------------------------------------------
-def analytical_perturb(
+def _weighted_degree_moments(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    ) -> tuple[float, float]:
+
+    """Compute bias-corrected skewness and kurtosis from weighted degrees."""
+
+    n_nodes = int(np.sum(counts))
+    if n_nodes < 2:
+        return 0.0, 0.0
+    mean = float(np.sum(counts * degree) / n_nodes)
+    centered = degree - mean
+    moment_2 = float(np.sum(counts * centered**2) / n_nodes)
+    if moment_2 <= 1e-18:
+        return 0.0, 0.0
+
+    skewness = 0.0
+    if n_nodes >= 3:
+        moment_3 = float(np.sum(counts * centered**3) / n_nodes)
+        biased_skewness = moment_3 / moment_2**1.5
+        skewness = np.sqrt(n_nodes * (n_nodes - 1)) / (n_nodes - 2) * biased_skewness
+
+    kurtosis = 0.0
+    if n_nodes >= 4:
+        moment_4 = float(np.sum(counts * centered**4) / n_nodes)
+        biased_kurtosis = moment_4 / moment_2**2 - 3.0
+        kurtosis = (
+            (n_nodes - 1) / ((n_nodes - 2) * (n_nodes - 3))
+            * ((n_nodes + 1) * biased_kurtosis + 6.0)
+        )
+    return float(skewness), float(kurtosis)
+
+
+def _weighted_degree_entropy(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    stub_weighted: bool = False,
+    ) -> float:
+
+    """Compute entropy from a compact degree-value/count representation."""
+
+    rounded = np.rint(degree).astype(np.int64)
+    unique, inverse = np.unique(rounded, return_inverse = True)
+    grouped_counts = np.bincount(inverse, weights = counts).astype(float)
+    weights = unique.astype(float) * grouped_counts if stub_weighted else grouped_counts
+    weights = weights[weights > 0]
+    if weights.size == 0:
+        return 0.0
+    probabilities = weights / weights.sum()
+    entropy = -float(np.sum(probabilities * np.log(probabilities + 1e-16)))
+    return 2.0 * entropy if stub_weighted else entropy
+
+
+def _degree_model_invariants(
+    degree: np.ndarray,
+    counts: np.ndarray,
+    n_edges: float,
+    keys: Sequence[str],
+    ) -> Dict[str, float]:
+
+    """Estimate graph invariants from a compact expected degree distribution."""
+
+    n_nodes = int(np.sum(counts))
+    if n_nodes <= 0 or n_edges <= 0.0:
+        return {key: 0.0 for key in keys}
+
+    sum_degree = float(np.sum(counts * degree))
+    sum_degree_sq = float(np.sum(counts * degree**2))
+    maximum_degree = float(np.max(degree))
+    mean_degree = sum_degree / n_nodes
+    mean_excess = sum_degree_sq / max(sum_degree, 1.0) - 1.0
+    diameter = (
+        max(2.0, float(np.log(max(n_nodes, 2))) / float(np.log(mean_excess)))
+        if mean_excess > 1.0
+        else float(n_nodes)
+    )
+    inverse_degree = 1.0 / np.maximum(degree, 1.0)
+    mean_inverse_degree = float(np.sum(counts * inverse_degree) / n_nodes)
+    skewness, kurtosis = _weighted_degree_moments(
+        degree = degree,
+        counts = counts,
+    )
+
+    features = {
+        "n_nodes": float(n_nodes),
+        "n_edges": float(n_edges),
+        "diameter": diameter,
+        "radius": 0.5 * diameter,
+        "degeneracy": min(maximum_degree, float(np.sqrt(2.0 * n_edges))),
+        "maximum_degree": maximum_degree,
+        "degree_variance": float(np.sum(counts * (degree - mean_degree)**2) / n_nodes),
+        "degree_entropy": _weighted_degree_entropy(degree = degree, counts = counts),
+        "joint_degree_entropy": _weighted_degree_entropy(
+            degree = degree,
+            counts = counts,
+            stub_weighted = True,
+        ),
+        "degree_skewness": skewness,
+        "normalized_laplacian_second_moment": _force_finite(
+            1.0 + (2.0 * n_edges * (n_nodes / max(sum_degree, 1.0))**2) / n_nodes,
+            0.0,
+        ),
+        "normalized_laplacian_third_moment": _force_finite(
+            1.0 + ((sum_degree_sq - sum_degree)**3 / max(sum_degree**3 * n_nodes, 1.0)),
+            0.0,
+        ),
+        "random_walk_triangle_weight": _force_finite(
+            6.0
+            * ((sum_degree_sq - sum_degree)**2 / max(6.0 * sum_degree, 1.0))
+            * mean_inverse_degree
+            / max(sum_degree, 1.0),
+            0.0,
+        ),
+        "random_walk_fourth_moment": _force_finite(
+            float(np.sum(
+                counts
+                * (
+                    degree * sum_degree_sq / max(sum_degree**2, 1.0)
+                    + max(mean_excess, 0.0) * inverse_degree
+                )
+            )) / n_nodes,
+            0.0,
+        ),
+        "adjacency_fourth_moment_per_node": _force_finite(
+            (
+                sum_degree
+                + (sum_degree_sq - sum_degree)
+                + sum_degree_sq**2 / max(2.0 * sum_degree, 1.0)
+            ) / n_nodes,
+            0.0,
+        ),
+        "degree_kurtosis": kurtosis,
+    }
+    features["k_core_size"] = float(np.sum(counts[degree >= features["degeneracy"]]))
+    for key in keys:
+        features.setdefault(key, 0.0)
+    return features
+
+
+def _rewire_estimate(
     invariants: Dict[str, float],
-    degrees: np.ndarray,
-    n_nodes: int,
+    degree: np.ndarray,
+    counts: np.ndarray,
     n_edges: int,
-    method: Literal["degree_preserving_rewire", "uniform_node_sampling", "bernoulli_edge_densification"] = "degree_preserving_rewire",
+    intensity: float,
+    ) -> Dict[str, float]:
+
+    """Interpolate toward a degree-preserving configuration-model estimate."""
+
+    if intensity <= 0.0 or n_edges <= 0:
+        return dict(invariants)
+    alpha = 1.0 - (1.0 - intensity)**2
+    model = _degree_model_invariants(
+        degree = degree,
+        counts = counts,
+        n_edges = float(n_edges),
+        keys = list(invariants),
+    )
+    return {
+        key: (1.0 - alpha) * float(value) + alpha * float(model[key])
+        for key, value in invariants.items()
+    }
+
+
+def _densify_estimate(
+    invariants: Dict[str, float],
+    dimensions: tuple[int, int],
+    intensity: float,
+    ) -> Dict[str, float]:
+
+    """Estimate uniform edge addition over a complete bipartite complement."""
+
+    m, n = dimensions
+    n_nodes = m + n
+    n_edges = m * n
+    n_complement = m * (m - 1) // 2 + n * (n - 1) // 2
+    n_add = min(int(n_edges * intensity), n_complement)
+    if n_add <= 0 or n_complement <= 0:
+        return dict(invariants)
+
+    probability = n_add / n_complement
+    degree = np.array([
+        n + probability * (m - 1),
+        m + probability * (n - 1),
+    ], dtype = float)
+    counts = np.array([m, n], dtype = float)
+    output = _degree_model_invariants(
+        degree = degree,
+        counts = counts,
+        n_edges = float(n_edges + n_add),
+        keys = list(invariants),
+    )
+    attenuation = 1.0 - probability
+    output["n_articulation_points"] = float(invariants["n_articulation_points"]) * attenuation
+    output["n_bridges"] = float(invariants["n_bridges"]) * attenuation
+    output["global_clustering"] = min(
+        float(invariants["global_clustering"])
+        + (1.0 - float(invariants["global_clustering"])) * probability,
+        1.0,
+    )
+    output["degree_assortativity"] = float(invariants["degree_assortativity"]) * attenuation
+    return output
+
+
+def analytical_perturb(
+    dimensions: tuple[int, int],
+    partition_types: Sequence[bool] | None = None,
+    method: Literal[
+        "degree_preserving_rewire",
+        "uniform_node_sampling",
+        "bernoulli_edge_densification",
+    ] = "uniform_node_sampling",
     intensity: float = 0.1,
+    random_state: int = 42,
     ) -> Dict[str, float]:
     
     """
     Desc:
-        Estimates graph invariants after a topological perturbation without
-        constructing the perturbed graph. Returns the same key set as
-        invariants.
+        Compute exact node-sampling invariants or approximate rewiring and
+        densification invariants for a complete bipartite graph without
+        constructing its vertices or edges.
 
     Args:
-        invariants: Dict returned by GraphInvariants(graph).all().
-        degrees: 1-d array of vertex degrees.
-        n_nodes: Number of vertices.
-        n_edges: Number of edges.
+        dimensions: Ordered partition sizes for the complete bipartite graph.
+        partition_types: Optional vertex-aligned partition indicators.
         method: Analytical perturbation model.
         intensity: Perturbation strength in [0, 1].
+        random_state: Seed used by the explicit node-removal operation.
 
     Returns:
-        Dict of estimated invariants (finite floats).
+        Canonical 21-coordinate invariant dictionary.
 
     Raises:
-        ValueError: If perturbation model is unsupported.
+        ValueError: If the method or partition representation is invalid.
     """
 
-    degree = np.asarray(degrees).reshape(-1).astype(float)
-    x = _clip_unit_interval(float(intensity))
+    m, n = (int(dimensions[0]), int(dimensions[1]))
+    n_nodes = m + n
+    if m < 0 or n < 0:
+        raise ValueError("complete bipartite dimensions must be non-negative")
+    intensity = _clip_unit_interval(float(intensity))
+    invariants = BipartiteInvariants(m = m, n = n).all()
+    degree = np.array([n, m], dtype = float)
+    counts = np.array([m, n], dtype = float)
 
     if method == "degree_preserving_rewire":
-        out = _rewire_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
+        output = _rewire_estimate(
+            invariants = invariants,
+            degree = degree,
+            counts = counts,
+            n_edges = m * n,
+            intensity = intensity,
+        )
+    elif method == "bernoulli_edge_densification":
+        output = _densify_estimate(
+            invariants = invariants,
+            dimensions = (m, n),
+            intensity = intensity,
+        )
+    elif method == "uniform_node_sampling":
+        n_remove = int(n_nodes * intensity)
+        if n_remove <= 0:
+            output = invariants
+        elif n_remove >= n_nodes:
+            output = BipartiteInvariants(m = 0, n = 0).all()
+        else:
+            removed = np.random.default_rng(random_state).choice(
+                n_nodes,
+                n_remove,
+                replace = False,
+            )
+            if partition_types is None:
+                removed_m = int(np.count_nonzero(removed < m))
+            else:
+                types = np.asarray(partition_types, dtype = bool)
+                if len(types) != n_nodes or int(np.count_nonzero(~types)) != m:
+                    raise ValueError("partition types do not match complete bipartite dimensions")
+                removed_m = int(np.count_nonzero(~types[removed]))
+            removed_n = n_remove - removed_m
+            output = BipartiteInvariants(m = m - removed_m, n = n - removed_n).all()
+    else:
+        raise ValueError(f"unsupported analytical perturbation method: {method}")
 
-    if method == "uniform_node_sampling":
-        out = _sample_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
-
-    if method == "bernoulli_edge_densification":
-        out = _densify_estimate(invariants, degree, n_nodes, n_edges, x)
-        return _force_finite_dict(out)
-
-    raise ValueError(f"unsupported perturbation model: {method}")
+    finite = _force_finite_dict(output)
+    return {key: finite[key] for key in FEAT_X}
 
 ## ----------------------------------------------------------------------------
 ## network perturbation
@@ -401,7 +403,7 @@ def network_perturb(
     ## node sampling (remove nodes)
     elif method == "sample":
         n_remove = int(n_nodes * intensity)
-        if n_remove > 0 and n_remove < n_nodes:
+        if n_remove > 0:
             nodes_to_remove = rng.choice(n_nodes, n_remove, replace = False).tolist()
             G.delete_vertices(nodes_to_remove)
 
@@ -410,16 +412,31 @@ def network_perturb(
         n_add = int(n_edges * intensity)
         if n_add > 0:
             existing = set(tuple(sorted(e.tuple)) for e in G.es)
-            complement = [
-                (u, v) for u in range(n_nodes)
-                for v in range(u + 1, n_nodes)
-                if (u, v) not in existing
-            ]
-            if len(complement) > 0:
-                n_add = min(n_add, len(complement))
+            n_missing = n_nodes * (n_nodes - 1) // 2 - len(existing)
+            n_add = min(n_add, n_missing)
+            if n_add > 0 and (n_nodes <= 2_000 or n_missing <= 10 * n_add):
+                complement = [
+                    (u, v) for u in range(n_nodes)
+                    for v in range(u + 1, n_nodes)
+                    if (u, v) not in existing
+                ]
                 chosen = rng.choice(len(complement), size = n_add, replace = False)
-                for idx in chosen:
-                    G.add_edge(*complement[idx])
+                G.add_edges([complement[idx] for idx in chosen])
+            elif n_add > 0:
+                added = set()
+                while len(added) < n_add:
+                    batch_size = max(256, 2 * (n_add - len(added)))
+                    sources = rng.integers(0, n_nodes, size = batch_size)
+                    targets = rng.integers(0, n_nodes, size = batch_size)
+                    for source, target_node in zip(sources, targets):
+                        if source == target_node:
+                            continue
+                        edge = tuple(sorted((int(source), int(target_node))))
+                        if edge not in existing and edge not in added:
+                            added.add(edge)
+                            if len(added) == n_add:
+                                break
+                G.add_edges(list(added))
 
     else:
         raise ValueError(f"unknown network perturbation method: {method}")
@@ -436,6 +453,7 @@ def feature_perturb(
     noise: float = 0.05,
     subset: float = 0.8,
     random_state: int = 42,
+    scale: pd.Series | dict[str, float] | None = None,
     ) -> pd.DataFrame:
     
     """
@@ -447,6 +465,8 @@ def feature_perturb(
         method: Perturbation method ('noise', 'jitter', 'subset').
         noise: Standard deviation of noise (relative to feature std).
         subset: Fraction of features to keep (for subset ablation).
+        scale: Optional corpus-wide feature standard deviations. Required for
+            one-row noise perturbations.
 
     Returns:
         Perturbed feature matrix.
@@ -463,9 +483,12 @@ def feature_perturb(
     ## additive gaussian noise scaled by feature standard deviation
     if method == "noise":
         for col in X_new.columns:
-            std = X_new[col].std()
-            if not (std > 0):
-                std = float(np.mean(np.abs(X_new[col])))
+            if scale is not None:
+                std = float(scale.get(col, 0.0))
+            elif len(X_new) > 1:
+                std = float(X_new[col].std())
+            else:
+                raise ValueError("scale is required for one-row noise perturbations")
             if std > 0:
                 X_new[col] += rng.normal(0, std * noise, size = len(X_new))
 
@@ -617,115 +640,15 @@ def process_perturb(
 ## ----------------------------------------------------------------------------
 ## temporal perturbation
 ## ----------------------------------------------------------------------------
-def temporal_perturb(
-    event_times: Sequence[float],
-    scale: str = "1D",
-    start_time: Optional[pd.Timestamp] = None,
-    end_time: Optional[pd.Timestamp] = None,
-    ) -> Tuple[float, dict]:
-    
-    """
-    Desc:
-        Modifies aggregation target temporal resolution.
-        Recomputes y(Delta_t) and S(Delta_t).
-
-    Args:
-        event_times: List/Array of raw event timestamps **or day offsets
-                     (integers / floats)**.
-        scale: Pandas offset alias (e.g., '1D', '1H', '15min').
-        start_time: Start of observation window.
-        end_time: End of observation window.
-
-    Returns:
-        Tuple of (max_rate_y, signatures_dict).
-
-    Notes:
-        If `event_times` are numeric the function assumes they represent
-        days since some arbitrary origin.  In that case `scale` is expected
-        to be a days‑based alias (e.g. '2D', '7D') and `y` is reported per
-        day rather than per second.
-    """
-
-    if len(event_times) == 0:
-        return 0.0, {}
-
-    arr = np.asarray(event_times)
-
-    # ---------- numeric branch ---------- #
-    if np.issubdtype(arr.dtype, np.integer) or np.issubdtype(arr.dtype, np.floating):
-
-        # heuristic: if values look like Unix epoch timestamps (> 1e8),
-        # convert to proper datetimes and fall through to the timestamp branch
-        if float(np.median(arr)) > 1e8:
-            try:
-                ts = pd.to_datetime(arr, unit='s')
-            except Exception:
-                ts = pd.to_datetime(arr, unit='ms')
-        else:
-            # treat values as day indices
-            days = arr.astype(int)
-            lo, hi = int(days.min()), int(days.max())
-            full_idx = np.arange(lo, hi + 1)
-            counts = pd.Series(1, index=days)
-            daily_counts = counts.groupby(level=0).sum().reindex(full_idx, fill_value=0)
-            daily_counts = daily_counts.sort_index()
-
-            # parse scale duration in days ('7D' -> 7, '14D' -> 14)
-            if scale.endswith("D"):
-                try:
-                    bin_width = int(scale[:-1]) if scale[:-1] else 1
-                except Exception:
-                    bin_width = 1
-            else:
-                bin_width = 1
-            bin_width = max(bin_width, 1)
-
-            # re-aggregate daily counts into multi-day windows
-            if bin_width > 1:
-                day_vals = daily_counts.index.values
-                bin_labels = (day_vals - lo) // bin_width
-                counts_binned = daily_counts.groupby(bin_labels).sum()
-            else:
-                counts_binned = daily_counts
-
-            y_count = float(counts_binned.max())
-            y_val = y_count / float(bin_width)
-
-            data_temp = pd.DataFrame({"counts": counts_binned.values, "idx": range(len(counts_binned))})
-            sigs = ProcessSignatures(data_temp, sort_by=["idx"], target="counts")
-            return y_val, sigs.all()
-    else:
-        # ---------- parse to datetime ---------- #
-        ts = pd.to_datetime(event_times)
-
-    # ---------- timestamp branch ---------- #
-    if start_time is None:
-        start_time = ts.min()
-    if end_time is None:
-        end_time = ts.max()
-
-    full_range = pd.date_range(start=start_time, end=end_time, freq=scale)
-
-    df = pd.DataFrame({"t": ts}).set_index("t")
-    counts_binned = (
-        df.assign(count=1)
-        .resample(scale)
-        .sum()
-        .reindex(full_range, fill_value=0)
-    )["count"]
-
-    y_count = float(counts_binned.max())
-    if len(counts_binned) >= 2:
-        duration = float((counts_binned.index[1] - counts_binned.index[0]).total_seconds())
-    else:
-        duration = float(pd.Timedelta(scale).total_seconds())
-
-    duration = max(duration, 1.0)
-    y_val = y_count / duration
-
-    data_temp = pd.DataFrame({"counts": counts_binned.values, "idx": range(len(counts_binned))})
-    sigs = ProcessSignatures(data_temp, sort_by=["idx"], target="counts")
-    return y_val, sigs.all()
+# def temporal_perturb(
+#     event_times: Sequence[float],
+#     scale: str = "1D",
+#     start_time: Optional[pd.Timestamp] = None,
+#     end_time: Optional[pd.Timestamp] = None,
+#     ) -> Tuple[float, dict]:
+#
+#     """Recompute y(Delta_t) and signatures at a new temporal resolution."""
+#     ...  # implementation omitted (dead code)
 
 
 ## ----------------------------------------------------------------------------
@@ -738,7 +661,8 @@ FEAT_MAP = {
     "invariants": "x",
     "process":    "z",
     "signatures":  "z",
-    "temporal":   "z",
+    ## temporal channel excluded from the reported analysis; dead code
+    # "temporal":   "z",
 }
 
 ## json key to perturbation type
@@ -747,8 +671,31 @@ KEY_TO_TYPE = {
     "invariants_perturbed": "invariants",
     "process_perturbed":    "process",
     "signatures_perturbed": "signatures",
-    "temporal_perturbed":   "temporal",
+    ## temporal channel excluded from the reported analysis; dead code
+    # "temporal_perturbed":   "temporal",
 }
+
+def _iter_perturbation_realizations(data: pd.DataFrame):
+    """Yield one dataset table per stochastic perturbation realization."""
+    if "realization" not in data.columns:
+        yield 0, data
+        return
+    realizations = sorted(int(value) for value in data["realization"].unique())
+    dataset_counts = data.groupby("dataset")["realization"].nunique()
+    deterministic_datasets = dataset_counts[dataset_counts == 1].index
+    deterministic = data.loc[data["dataset"].isin(deterministic_datasets)]
+    stochastic = data.loc[~data["dataset"].isin(deterministic_datasets)]
+
+    if len(realizations) == 1:
+        yield realizations[0], data.drop(columns = "realization").reset_index(drop = True)
+        return
+
+    for realization in realizations:
+        frame = pd.concat([
+            stochastic.loc[stochastic["realization"] == realization],
+            deterministic,
+        ], ignore_index = True)
+        yield realization, frame.drop(columns = "realization").reset_index(drop = True)
 
 ## worker for a single perturbation setting
 def _run_perturbation(
@@ -757,6 +704,7 @@ def _run_perturbation(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -765,6 +713,7 @@ def _run_perturbation(
     group: str,
     target: str,
     random_state: int,
+    n_repeats: int,
     ) -> dict | None:
 
     """
@@ -806,7 +755,7 @@ def _run_perturbation(
     if len(data_mod) < 2:
         return None
 
-    key = (model_name, pert_type, method, intensity)
+    key = (model_name, pert_type, method, intensity, realization)
 
     ## frozen manifold: train on clean, evaluate on perturbed
     frontier_fr, _, _ = logo_cross_valid_frozen(
@@ -819,12 +768,14 @@ def _run_perturbation(
         target = target,
         group = group,
         random_state = random_state,
+        n_repeats = n_repeats,
         n_jobs = 1,
     )
     frontier_fr["model"] = model_name
     frontier_fr["perturbation"] = pert_type
     frontier_fr["method"] = method
     frontier_fr["intensity"] = intensity
+    frontier_fr["realization"] = realization
 
     ## retrain manifold: train on perturbed, evaluate on perturbed
     frontier_rt, _ = logo_cross_valid(
@@ -836,12 +787,14 @@ def _run_perturbation(
         target = target,
         group = group,
         random_state = random_state,
+        n_repeats = n_repeats,
         n_jobs = 1,
     )
     frontier_rt["model"] = model_name
     frontier_rt["perturbation"] = pert_type
     frontier_rt["method"] = method
     frontier_rt["intensity"] = intensity
+    frontier_rt["realization"] = realization
 
     return {"key": key, "frozen": frontier_fr, "retrain": frontier_rt}
 
@@ -862,7 +815,12 @@ def _aggregate_frontier(results_dict: dict, track: str) -> pd.DataFrame:
     """
 
     rows = []
-    for (model_name, pert_type, method, intensity), frontier in results_dict.items():
+    for key, frontier in results_dict.items():
+        if len(key) == 4:
+            model_name, pert_type, method, intensity = key
+            realization = 0
+        else:
+            model_name, pert_type, method, intensity, realization = key
         for _, frow in frontier.iterrows():
             row = {
                 "track": track,
@@ -870,6 +828,7 @@ def _aggregate_frontier(results_dict: dict, track: str) -> pd.DataFrame:
                 "perturbation": pert_type,
                 "method": method,
                 "intensity": intensity,
+                "realization": realization,
                 "group": frow["group"],
             }
             for col in FRONTIER_METRICS:
@@ -888,6 +847,7 @@ def train_perturbed_transfer(
     feat_z: Sequence[str],
     group: str = "domain",
     target: str = "target",
+    n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1
     ) -> dict[str, dict]:
@@ -929,11 +889,12 @@ def train_perturbed_transfer(
             target = target,
             group = group,
             random_state = random_state,
+            n_repeats = n_repeats,
             n_jobs = 1,
         )
         frontier_base["model"] = model_name
-        results_frozen[(model_name, "baseline", None, None)] = frontier_base
-        results_retrain[(model_name, "baseline", None, None)] = frontier_base
+        results_frozen[(model_name, "baseline", None, None, -1)] = frontier_base
+        results_retrain[(model_name, "baseline", None, None, -1)] = frontier_base
 
     ## build job list
     jobs = []
@@ -944,12 +905,16 @@ def train_perturbed_transfer(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name, model in models.items():
-                    jobs.append((
-                        model_name, model, pert_type, method, intensity,
-                        pert_df, data, feat_cols, feat_x, feat_z, group, target,
-                        random_state,
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                cv_repeats = 1 if len(realization_frames) > 1 else n_repeats
+                for realization, realization_df in realization_frames:
+                    for model_name, model in models.items():
+                        jobs.append((
+                            model_name, model, pert_type, method, intensity,
+                            realization, realization_df, data, feat_cols, feat_x,
+                            feat_z, group, target, random_state + realization,
+                            cv_repeats,
+                        ))
 
     ## parallel execution
     if jobs:
@@ -1011,9 +976,18 @@ def compile_perturbed_transfer(
     if missing_tracks:
         raise ValueError(f"Missing perturbation transfer tracks: {missing_tracks}")
 
-    ## aggregate frontier metrics across groups for both tracks
-    agg_frozen = _aggregate_frontier(results_dict = results["frozen"], track = "frozen")
-    agg_retrain = _aggregate_frontier(results_dict = results["retrain"], track = "retrain")
+    ## average draw-level metrics before model-domain pairing
+    agg_frozen_raw = _aggregate_frontier(results_dict = results["frozen"], track = "frozen")
+    agg_retrain_raw = _aggregate_frontier(results_dict = results["retrain"], track = "retrain")
+    group_cols = ["track", "model", "perturbation", "method", "intensity", "group"]
+
+    def _average_realizations(frame: pd.DataFrame) -> pd.DataFrame:
+        averaged = frame.groupby(group_cols, dropna = False, as_index = False)[FRONTIER_METRICS].mean()
+        counts = frame.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
+        return averaged.merge(counts, on = group_cols, how = "left")
+
+    agg_frozen = _average_realizations(agg_frozen_raw)
+    agg_retrain = _average_realizations(agg_retrain_raw)
     results_data = pd.concat([agg_frozen, agg_retrain], ignore_index = True)
 
     if results_data.empty:
@@ -1227,7 +1201,7 @@ def stat_perturbed_tost(
             valid = np.isfinite(x) & np.isfinite(y)
             x, y = x[valid], y[valid]
             n = len(x)
-            d = y - x
+            d = _clean_differences(y - x)
             med_d = float(np.median(d)) if n else np.nan
 
             if n < 2:
@@ -1244,19 +1218,14 @@ def stat_perturbed_tost(
                 ## tost p = worst-case one-sided p-value
                 p_tost = max(p_upper, p_lower)
 
-            ## paired rank-biserial effect size from wilcoxon
-            if n >= 2:
-                w_plus, _ = wilcoxon(d, alternative = "greater")
-                t_sum = n * (n + 1) / 2
-                r_rb = (2 * w_plus / t_sum) - 1
-            else:
-                r_rb = np.nan
+            ## descriptive effect uses raw perturbed-minus-original differences
+            r_rb = paired_rank_biserial(diff = d)
 
             row = dict(zip(feat_group, group_key))
             tag = metric.upper()
-            row[f"Median Δ {tag}"] = round(med_d, decimals)
-            row["Rank-biserial r"] = round(r_rb, decimals) if np.isfinite(r_rb) else np.nan
-            row["TOST p"] = round(p_tost, decimals) if np.isfinite(p_tost) else np.nan
+            row[f"Median Δ {tag}"] = med_d
+            row["Rank-biserial r"] = r_rb
+            row["TOST p"] = p_tost
             rows.append(row)
 
     summary = pd.DataFrame(rows)
@@ -1297,10 +1266,14 @@ def stat_perturbed_tost(
     )
 
     ## fixed decimal formatting for display
-    num_cols = [c for c in summary.columns if c.startswith("Median") or c in ["Rank-biserial r", "TOST p", "Holm-adj. p"]]
+    num_cols = [c for c in summary.columns if c.startswith("Median") or c == "Rank-biserial r"]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
+        )
+    for col in ["TOST p", "Holm-adj. p"]:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
         )
 
     ## final display cleanup
@@ -1322,7 +1295,7 @@ def stat_perturbed_tost(
     print(
         f"Median Δ {metric_label}: Median of paired differences (perturbed - original), not the difference of marginal medians"
     )
-    print(f"Rank-biserial r: Paired effect size, positive values favor perturbed > original; equivalence is determined by TOST")
+    print("Rank-biserial r: Raw paired effect size; positive values indicate perturbed > original, independent of TOST")
     print(f"TOST p: max(Upper p, Lower p)")
     print(f"Holm-adj. p: Holm-Bonferroni adjusted TOST p-value")
     print("Significance codes reflect Holm-adj. p")
@@ -1333,6 +1306,17 @@ def stat_perturbed_tost(
 ## ----------------------------------------------------------------------------
 ## maximum-intensity selector for perturbation results
 ## ----------------------------------------------------------------------------
+def _perturbation_severity(method: pd.Series, intensity: pd.Series) -> pd.Series:
+    severity = intensity.copy()
+    subset = method.eq("subset")
+    scaling = method.eq("scaling")
+    bootstrapping = method.eq("bootstrapping")
+    severity.loc[subset] = 1.0 - intensity.loc[subset]
+    severity.loc[scaling] = np.abs(np.log(intensity.loc[scaling]))
+    severity.loc[bootstrapping] = 1.0 - intensity.loc[bootstrapping]
+    return severity
+
+
 def find_perturbed_max(
     results: pd.DataFrame,
     intensity_col: str = "intensity",
@@ -1345,11 +1329,11 @@ def find_perturbed_max(
     """
     Desc:
         Keep baseline rows and the strongest shared perturbation
-        setting for each perturbation family and method. This is a
-        single-pass filter: it computes the maximum intensity per
-        group directly from the data, then retains only those rows.
-        group directly from the data, then retains only those rows. Perturbation
-        families are filtered according to `pert_order`.
+        setting for each perturbation family and method. Severity is
+        one minus retention for subset masking, absolute log-distance
+        from identity for power scaling, and the numeric intensity for
+        all other methods. Perturbation families are filtered according
+        to `pert_order`.
     
     Args:
         results: Full eval_perturbed output including baseline rows,
@@ -1384,17 +1368,21 @@ def find_perturbed_max(
         perturbed[intensity_col],
         errors = "coerce",
     )
+    perturbed["__severity__"] = _perturbation_severity(
+        method = perturbed["method"],
+        intensity = perturbed[intensity_col],
+    )
 
-    max_int = (
+    max_severity = (
         perturbed
-        .groupby(feat_group, as_index = False)[intensity_col]
+        .groupby(feat_group, as_index = False)["__severity__"]
         .max()
     )
     strongest = perturbed.merge(
-        max_int,
-        on = feat_group + [intensity_col],
+        max_severity,
+        on = feat_group + ["__severity__"],
         how = "inner",
-    )
+    ).drop(columns = "__severity__")
 
     return pd.concat(
         [baseline, strongest],
@@ -1470,6 +1458,7 @@ def _run_perturbation_recovery(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -1546,6 +1535,7 @@ def _run_perturbation_recovery(
             "perturbation": pert_type,
             "method": method,
             "intensity": intensity,
+            "realization": realization,
             "y_true": y_true,
             "y_pred": y_pred_mean,
             "groups": groups_eval,
@@ -1553,7 +1543,7 @@ def _run_perturbation_recovery(
     }
 
 ## ----------------------------------------------------------------------------
-## structural agreement perturbation pipeline
+## prediction consensus perturbation pipeline
 ## ----------------------------------------------------------------------------
 def train_perturbed_recovery(
     data: pd.DataFrame,
@@ -1570,7 +1560,7 @@ def train_perturbed_recovery(
 
     """
     Desc:
-        Run raw structural agreement perturbation jobs under the frozen protocol.
+        Run raw prediction consensus perturbation jobs under the frozen protocol.
         Post-processing is handled separately by compile_perturbed_recovery.
 
     Args:
@@ -1630,6 +1620,7 @@ def train_perturbed_recovery(
             "perturbation": "baseline",
             "method": None,
             "intensity": None,
+            "realization": -1,
             "y_true": y_true_proc,
             "y_pred": y_pred,
             "groups": groups_proc,
@@ -1645,12 +1636,16 @@ def train_perturbed_recovery(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name, model in models.items():
-                    jobs.append((
-                        model_name, model, pert_type, method, intensity,
-                        pert_df, data, feat_cols, feat_x, feat_z, group, target,
-                        random_state, n_repeats,
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                cv_repeats = 1 if len(realization_frames) > 1 else n_repeats
+                for realization, realization_df in realization_frames:
+                    for model_name, model in models.items():
+                        jobs.append((
+                            model_name, model, pert_type, method, intensity,
+                            realization, realization_df, data, feat_cols, feat_x,
+                            feat_z, group, target, random_state + realization,
+                            cv_repeats,
+                        ))
 
     if jobs:
         with warnings.catch_warnings():
@@ -1678,12 +1673,12 @@ def train_perturbed_recovery(
     }
 
 
-## compile structural agreement perturbation results
+## compile prediction consensus perturbation results
 def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
 
     """
     Desc:
-        Compile raw structural agreement perturbation predictions into consensus
+        Compile raw perturbation predictions into prediction consensus
         metrics per model, perturbation setting, and group.
     Args:
         results: dictionary returned by train_perturbed_recovery.
@@ -1707,7 +1702,7 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
             )
             if int(np.sum(mask)) < 2:
                 continue
-            mvals = consensus_metrics(
+            mvals = frontier_consensus(
                 y_true = y_true[mask],
                 y_pred = y_pred[mask],
             )
@@ -1717,6 +1712,7 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
                 "perturbation": record["perturbation"],
                 "method": record["method"],
                 "intensity": record["intensity"],
+                "realization": record.get("realization", 0),
                 "group": group_name,
                 **mvals,
             })
@@ -1729,13 +1725,18 @@ def compile_perturbed_recovery(results: dict[str, Any]) -> pd.DataFrame:
             "method",
             "intensity",
             "group",
+            "n_realizations",
             *CONSENSUS_METRICS,
         ])
 
-    return pd.DataFrame(rows)
+    data_rows = pd.DataFrame(rows)
+    group_cols = ["track", "model", "perturbation", "method", "intensity", "group"]
+    averaged = data_rows.groupby(group_cols, dropna = False, as_index = False)[CONSENSUS_METRICS].mean()
+    counts = data_rows.groupby(group_cols, dropna = False).size().rename("n_realizations").reset_index()
+    return averaged.merge(counts, on = group_cols, how = "left")
 
 
-## structural agreement perturbation evaluation wrapper
+## prediction consensus perturbation evaluation wrapper
 def eval_perturbed_recovery(
     data: pd.DataFrame,
     models: Dict[str, Any],
@@ -1751,7 +1752,7 @@ def eval_perturbed_recovery(
 
     """
     Desc:
-        Convenience wrapper that runs structural agreement perturbation training
+        Convenience wrapper that runs prediction consensus perturbation training
         and then compiles raw predictions into an analysis-ready dataframe.
     Args:
         data: clean baseline dataframe with features, target, and group columns.
@@ -1792,6 +1793,7 @@ def _run_perturbation_consensus(
     pert_type: str,
     method: str,
     intensity: str,
+    realization: int,
     pert_df: pd.DataFrame,
     data: pd.DataFrame,
     feat_cols: Sequence[str],
@@ -1844,6 +1846,7 @@ def _run_perturbation_consensus(
         "pert_type": pert_type,
         "method": method,
         "intensity": intensity,
+        "realization": realization,
         "y_pred": np.asarray(fit_pert["y_pred"], dtype = float),
         "n_rows": len(data_mod),
     }
@@ -1912,6 +1915,15 @@ def train_perturbed_consensus(
     }
     fit_real = dict(zip(model_names, real_results))
 
+    def _select_fit_realization(fit_result: dict[str, Any], realization: int) -> dict[str, Any]:
+        bundle = dict(fit_result["fit_result"])
+        n_fits = len(bundle["models_c"])
+        fit_index = realization % n_fits
+        bundle["models_c"] = [bundle["models_c"][fit_index]]
+        bundle["models_r"] = [bundle["models_r"][fit_index]]
+        bundle["r_train_means"] = [bundle["r_train_means"][fit_index]]
+        return {"fit_result": bundle}
+
     ## perturbation jobs: per (model, perturbation, method, intensity)
     jobs = list()
     for json_key, methods in data_pert.items():
@@ -1921,11 +1933,19 @@ def train_perturbed_consensus(
         feat_cols = feat_lookup[FEAT_MAP[pert_type]]
         for method, intensities in methods.items():
             for intensity, pert_df in intensities.items():
-                for model_name in model_names:
-                    jobs.append((
-                        model_name, pert_type, method, intensity,
-                        pert_df, data, feat_cols, target, fit_real[model_name],
-                    ))
+                realization_frames = list(_iter_perturbation_realizations(pert_df))
+                stochastic = len(realization_frames) > 1
+                for realization, realization_df in realization_frames:
+                    for model_name in model_names:
+                        fit_result = (
+                            _select_fit_realization(fit_real[model_name], realization)
+                            if stochastic
+                            else fit_real[model_name]
+                        )
+                        jobs.append((
+                            model_name, pert_type, method, intensity, realization,
+                            realization_df, data, feat_cols, target, fit_result,
+                        ))
 
     if jobs:
         with warnings.catch_warnings():
@@ -1979,7 +1999,7 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
         valid = np.isfinite(y_i) & np.isfinite(y_j)
         if int(np.sum(valid)) < 2:
             continue
-        mvals = consensus_metrics(
+        mvals = frontier_consensus(
             y_true = y_i[valid],
             y_pred = y_j[valid],
         )
@@ -1994,30 +2014,40 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
             **mvals,
         })
 
-    ## index perturbed predictions by (pert_type, method, intensity, model)
+    ## index perturbed predictions by setting, realization, and model
     pred_pert = dict()
     for r in results["perturbed"]:
-        key = (r["pert_type"], r["method"], r["intensity"], r["model"])
+        key = (
+            r["pert_type"], r["method"], r["intensity"],
+            r.get("realization", 0), r["model"],
+        )
         pred_pert[key] = r["y_pred"]
 
-    ## aggregate pairwise consensus per perturbation setting
+    ## average prediction vectors across realizations before consensus scoring
     setting_keys = list(dict.fromkeys(
-        (p, m, i) for (p, m, i, _) in pred_pert.keys()
+        (p, m, i) for (p, m, i, _, _) in pred_pert.keys()
     ))
     for (pert_type, method, intensity) in setting_keys:
         for model_i, model_j in combinations(model_names, 2):
-            key_i = (pert_type, method, intensity, model_i)
-            key_j = (pert_type, method, intensity, model_j)
-            if key_i not in pred_pert or key_j not in pred_pert:
+            realization_keys = sorted({
+                realization
+                for p, m, i, realization, model in pred_pert
+                if (p, m, i) == (pert_type, method, intensity)
+                and model == model_i
+                and (p, m, i, realization, model_j) in pred_pert
+            })
+            if not realization_keys:
                 continue
-            y_i = pred_pert[key_i]
-            y_j = pred_pert[key_j]
-            if len(y_i) != len(y_j):
+            y_i_all = [pred_pert[(pert_type, method, intensity, realization, model_i)] for realization in realization_keys]
+            y_j_all = [pred_pert[(pert_type, method, intensity, realization, model_j)] for realization in realization_keys]
+            if len({len(values) for values in [*y_i_all, *y_j_all]}) != 1:
                 continue
+            y_i = np.mean(np.stack(y_i_all), axis = 0)
+            y_j = np.mean(np.stack(y_j_all), axis = 0)
             valid = np.isfinite(y_i) & np.isfinite(y_j)
             if int(np.sum(valid)) < 2:
                 continue
-            mvals = consensus_metrics(
+            mvals = frontier_consensus(
                 y_true = y_i[valid],
                 y_pred = y_j[valid],
             )
@@ -2029,6 +2059,7 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
                 "model_i": model_i,
                 "model_j": model_j,
                 "group": "all",
+                "n_realizations": len(realization_keys),
                 **mvals,
             })
 
@@ -2041,10 +2072,48 @@ def compile_perturbed_consensus(results: dict[str, Any]) -> pd.DataFrame:
             "model_i",
             "model_j",
             "group",
+            "n_realizations",
             *CONSENSUS_METRICS,
         ])
 
-    return pd.DataFrame(rows)
+    data_rows = pd.DataFrame(rows)
+    return data_rows
+
+## full-corpus perturbed evaluation
+def compile_perturbed_full(
+    results: dict[str, Any],
+    data: pd.DataFrame,
+    target: str = "target",
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score full-corpus perturbation predictions after averaging realizations.
+    Args:
+        results: Raw output of train_perturbed_consensus.
+        data: Original corpus aligned to the full-corpus prediction vectors.
+        target: Untransformed target column.
+    Returns:
+        Full-corpus model-observation consensus by perturbation setting.
+    """
+
+    y_true = _log_transformer(data[target]).to_numpy(dtype = float)
+    baseline = compile_corpus_full(predictions = results["baseline"], y_true = y_true)
+    frames = [baseline.assign(track = "frozen", perturbation = "baseline", method = None, intensity = None)]
+    settings = {}
+    for record in results["perturbed"]:
+        setting = (record["pert_type"], record["method"], record["intensity"])
+        settings.setdefault(setting, {}).setdefault(record["model"], []).append(record["y_pred"])
+    for (perturbation, method, intensity), model_predictions in settings.items():
+        predictions = {
+            model_name: np.mean(a = np.stack(arrays = realizations), axis = 0)
+            for model_name, realizations in model_predictions.items()
+        }
+        agreement = compile_corpus_full(predictions = predictions, y_true = y_true)
+        frames.append(agreement.assign(
+            track = "frozen", perturbation = perturbation, method = method, intensity = intensity,
+        ))
+    return pd.concat(objs = frames, ignore_index = True)
 
 
 ## pairwise consensus perturbation evaluation wrapper

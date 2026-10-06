@@ -23,16 +23,13 @@ from src.data.helpers import (
 )
 
 ## process windmill dataset into daily event aggregates
-def _process_events_wind(data: DynamicGraphTemporalSignal, hours: int = 24, thres: float = 1e-6) -> pd.DataFrame:
+def _process_events_wind(data: np.ndarray, hours: int = 24, thres: float = 1e-6) -> pd.DataFrame:
 
-    ## build node × time matrix
-    y = np.column_stack([snap.y.numpy() for snap in data])
-
-    ## binarize production
-    on = (y > thres).astype(np.int8)
+    ## binarize raw production
+    on = (data > thres).astype(np.int8)
 
     ## transitions per hour across all nodes
-    events = np.abs(np.diff(on, axis = 1)).sum(axis = 0)
+    events = np.abs(np.diff(on, axis = 0)).sum(axis = 1)
     events = np.concatenate([np.zeros(1, dtype = np.int32), events]).astype(np.int32)
 
     ## trim to full days and reshape
@@ -50,6 +47,7 @@ class WindmillProcessor:
     def __init__(self, raw_data_dir: str):
         self.raw_data_dir = raw_data_dir
         self.dataset: Optional[DynamicGraphTemporalSignal] = None
+        self.production: Optional[np.ndarray] = None
         self.graph: Optional[ig.Graph] = None
         self.invariants: Optional[Dict[str, Any]] = None
         self.signatures: Optional[Dict[str, Any]] = None
@@ -58,7 +56,8 @@ class WindmillProcessor:
     def load_data(self):
         """ Loads the raw data from source. """
         loader = WindmillOutputLargeDatasetLoader(raw_data_dir = self.raw_data_dir)
-        self.dataset = _load_network_pygt(loader=loader)
+        self.dataset = _load_network_pygt(loader = loader)
+        self.production = np.asarray(loader._dataset["block"], dtype = float)
         return self
 
     def process_network(self):
@@ -83,9 +82,9 @@ class WindmillProcessor:
 
     def process_events(self):
         """ Processes the event data. """
-        if self.dataset is None:
+        if self.dataset is None or self.production is None:
             self.load_data()
-        self.events = _process_events_wind(data = self.dataset)
+        self.events = _process_events_wind(data = self.production)
         return self
 
     def run(self):

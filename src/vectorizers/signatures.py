@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 ## process signatures class
 class ProcessSignatures:
+    
     """
     Desc:
         Computes seven universal process signatures for an ordered sequence
@@ -37,6 +38,7 @@ class ProcessSignatures:
                     If target is an invalid column.
                     If there are fewer than two observations.
     """
+    
     def __init__(self, data, sort_by, target):
         ## validate input dataframe
         if not isinstance(data, pd.DataFrame):
@@ -73,7 +75,7 @@ class ProcessSignatures:
         x_center = x - x.mean()
         num = np.sum(x_center[:-1] * x_center[1:])
         den = np.sum(x_center**2)
-        val = num / den if den > 1e-12 else 0.0
+        val = num / den if den > 1e-10 else 0.0
         return _force_finite(val, 0.0)
 
     ## compute coefficient of variation (scale-free dispersion)
@@ -82,7 +84,7 @@ class ProcessSignatures:
         if m <= 0:
             return 0.0
         sd = float(np.std(self.counts, ddof = 1))
-        cv = sd / (m + 1e-12)
+        cv = sd / (m + 1e-10)
         return _force_finite(cv, 0.0)
 
     ## compute overdispersion relative to mean (fano factor)
@@ -91,7 +93,7 @@ class ProcessSignatures:
         if m <= 0:
             return 0.0
         var = float(np.var(self.counts, ddof = 1))
-        fano = var / (m + 1e-12)
+        fano = var / (m + 1e-10)
         return _force_finite(fano, 0.0)
 
     ## compute normalized mean absolute successive difference (local roughness)
@@ -102,7 +104,7 @@ class ProcessSignatures:
         diffs = np.abs(np.diff(self.counts))
         if len(diffs) == 0:
             return 0.0
-        b = float(np.mean(diffs)) / (m + 1e-12)
+        b = float(np.mean(diffs)) / (m + 1e-10)
         return _force_finite(b, 0.0)
 
     ## hurst exponent via rescaled range
@@ -118,7 +120,7 @@ class ProcessSignatures:
         s = np.std(x_center, ddof = 1)
 
         ## degenerate fallback
-        if s <= 1e-12 or r <= 1e-12:
+        if s <= 1e-10 or r <= 1e-10:
             return 0.5
 
         rs = r / s
@@ -138,7 +140,7 @@ class ProcessSignatures:
         num = np.sum(xc * tc)
         den = np.sqrt(np.sum(xc**2) * np.sum(tc**2))
 
-        beta = num / den if den > 1e-12 else 0.0
+        beta = num / den if den > 1e-10 else 0.0
         return _force_finite(float(beta), 0.0)
 
     ## compute skewness of counts distribution
@@ -150,7 +152,7 @@ class ProcessSignatures:
         m = float(np.mean(x))
         sd = float(np.std(x, ddof = 1))
         
-        if sd <= 1e-12:
+        if sd <= 1e-10:
             return 0.0
         
         ## standardized third moment
@@ -177,51 +179,3 @@ class ProcessSignatures:
                 raise ValueError(f"process feature '{k}' is non-finite ({v})")
 
         return signatures
-
-"""
-Process Signatures
-------------------
-These statistics characterize temporal dependence, dispersion, burstiness,
-non-stationarity, and higher-order distributional structure of the process.
-They are designed to be scale-aware, interpretable, and broadly applicable
-across domains.
------------
-lag1_autocorr : float
-    Lag-1 autocorrelation of the event counts. Measures short-term temporal
-    dependence by quantifying linear correlation between counts at time t
-    and t-1. Captures immediate memory and clustering effects beyond Poisson
-    independence.
-
-coef_variation : float
-    Coefficient of variation (standard deviation divided by mean) of the
-    event counts. Provides a scale-free measure of relative dispersion and
-    temporal intensity heterogeneity.
-
-fano_factor : float
-    Variance-to-mean ratio of the event counts. Indicates deviation from
-    Poisson statistics: values greater than 1 imply over-dispersion and
-    burstiness, values near 1 indicate Poisson-like behavior, and values
-    below 1 indicate under-dispersion or regularity.
-
-norm_succ_diff : float
-    Normalized successive difference statistic. Measures local temporal
-    volatility by averaging absolute differences between consecutive counts
-    and normalizing by the mean level, emphasizing high-frequency roughness
-    independent of scale.
-
-hurst_exponent : float
-    Estimated Hurst exponent of the count process. Characterizes long-range
-    dependence: values greater than 0.5 indicate persistence, values near
-    0.5 indicate memoryless behavior, and values below 0.5 indicate
-    anti-persistence.
-
-trend_coeff : float
-    Linear trend coefficient obtained by regressing counts on time. Captures
-    systematic non-stationarity in the mean event rate, distinguishing secular
-    growth or decay from stochastic fluctuations.
-
-count_skewness : float
-    Skewness of the event count distribution over time. Measures asymmetry
-    in the distribution, highlighting the presence of rare extreme bursts
-    versus symmetric or light-tailed temporal behavior.
-"""

@@ -3,7 +3,7 @@ import os
 import sys
 import pandas as pd
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterator, Optional
 
 ## path
 root = Path(__file__).resolve().parents[3]
@@ -19,34 +19,66 @@ from src.data.helpers import (
     _load_env_var,
 )
 
-## load faers drug–reaction reporting network data
-def _load_network_faers(id: str, url: str, key: str | None = None) -> pd.DataFrame:
-    q = f'patient.drug.medicinalproduct.exact:"{id.upper()}"'
-    limit, skip = 1000, 0
-    
-    obs = []
-    while True:
-        params = {
-            "search": q,
-            "limit": limit,
-            "skip": skip,
-        }
+## iterate over all faers reports with pagination validation
+def _iter_reports_faers(id: str, url: str, key: str | None = None) -> Iterator[dict]:
+    query = f'patient.drug.medicinalproduct.exact:"{id.upper()}"'
+    limit = 1000
+    skip = 0
+    total = None
+
+    while total is None or skip < total:
+        params = {"search": query, "limit": limit, "skip": skip}
         if key:
             params["api_key"] = key
-        try:
-            response = _request_with_retry(
-                url = url,
-                params = params
-            )
-        except RuntimeError as e:
-            if "404" in str(e):
-                break
-            raise e
-        results = (response.json() or {}).get("results", [])
+        response = _request_with_retry(url = url, params = params, timeout = 60)
+        payload = response.json() or {}
+        results = payload.get("results", [])
+        page_total = payload.get("meta", {}).get("results", {}).get("total")
+
+        if page_total is not None:
+            page_total = int(page_total)
+            if total is not None and page_total != total:
+                raise RuntimeError(f"FAERS result total changed from {total} to {page_total}")
+            total = page_total
+
         if not results:
+            if total is None or skip < total:
+                raise RuntimeError(f"incomplete FAERS pagination: fetched {skip} of {total}")
             break
 
-        for rec in results:
+        yield from results
+        skip += len(results)
+
+        if len(results) < limit:
+            if total is not None and skip < total:
+                raise RuntimeError(f"incomplete FAERS pagination: fetched {skip} of {total}")
+            break
+
+## parse report receipt date
+def _receipt_date_faers(rec: dict) -> pd.Timestamp | None:
+
+    """Return the report receipt date, or None when missing or unparseable."""
+
+    date_str = rec.get("receiptdate") or rec.get("receivedate")
+    if not date_str:
+        return None
+    dt = pd.to_datetime(date_str, format = "%Y%m%d", errors = "coerce")
+    return None if pd.isna(dt) else dt
+
+## fixed observation window check
+def _within_window_faers(rec: dict, end_date: str) -> bool:
+
+    """Keep reports without dates; drop reports received after the stated end date."""
+
+    dt = _receipt_date_faers(rec = rec)
+    return dt is None or dt.normalize() <= pd.Timestamp(end_date)
+
+## load faers drug–reaction reporting network data
+def _load_network_faers(id: str, url: str, key: str | None = None, end_date: str = "2025-12-31") -> pd.DataFrame:
+    obs = []
+    for rec in _iter_reports_faers(id = id, url = url, key = key):
+            if not _within_window_faers(rec = rec, end_date = end_date):
+                continue
             reactions = []
             for rx in (rec.get("patient", {}) or {}).get("reaction", []) or []:
                 term = (rx.get("reactionmeddrapt") or "").strip().upper()
@@ -60,7 +92,6 @@ def _load_network_faers(id: str, url: str, key: str | None = None) -> pd.DataFra
             for lbl in drugs:
                 for term in reactions:
                     obs.append({"drug": lbl, "reaction": term})
-        skip += limit
 
     if not obs:
         raise RuntimeError(f"no drug–reaction data found for {id}")
@@ -83,48 +114,16 @@ def _build_network_faers(data: pd.DataFrame) -> tuple[list[str], list[tuple]]:
     return nodes, edges
 
 ## load faers adverse event reports
-def _load_events_faers(id: str, url: str, key: str | None = None) -> pd.DataFrame:
-    q = f'patient.drug.medicinalproduct.exact:"{id.upper()}"'
-    limit, skip = 1000, 0
+def _load_events_faers(id: str, url: str, key: str | None = None, end_date: str = "2025-12-31") -> pd.DataFrame:
     obs = []
+    end = pd.Timestamp(end_date)
 
-    while True:
-        params = {
-            "search": q,
-            "limit": limit,
-            "skip": skip,
-        }
-        if key:
-            params["api_key"] = key
-        try:
-            response = _request_with_retry(
-                url = url, 
-                params = params, 
-                timeout = 60,
-            )
-        except RuntimeError as e:
-            if "404" in str(e):
-                break
-            raise e
-        results = (response.json() or {}).get("results", [])
-        if not results:
-            break
-        for rec in results:
-            date_str = rec.get("receiptdate") or rec.get("receivedate")
-            if not date_str:
+    for page_index, rec in enumerate(_iter_reports_faers(id = id, url = url, key = key)):
+            dt = _receipt_date_faers(rec = rec)
+            if dt is None or dt.normalize() > end:
                 continue
-            dt = pd.to_datetime(date_str, format = "%Y%m%d", errors = "coerce")
-            if pd.isna(dt):
-                continue
-            for rx in (rec.get("patient", {}) or {}).get("reaction", []) or []:
-                term = (rx.get("reactionmeddrapt") or "").strip().upper()
-                if not term:
-                    continue
-                for d in (rec.get("patient", {}) or {}).get("drug", []) or []:
-                    lbl = (d.get("medicinalproduct") or "").strip().upper()
-                    if lbl:
-                        obs.append({"drug": lbl, "reaction": term, "date": dt.normalize()})
-        skip += limit
+            report_id = rec.get("safetyreportid") or f"missing-{page_index}"
+            obs.append({"report_id": str(report_id), "date": dt.normalize()})
 
     if not obs:
         raise RuntimeError(f"no event data found for {id}")
@@ -134,15 +133,17 @@ def _load_events_faers(id: str, url: str, key: str | None = None) -> pd.DataFram
 def _process_events_faers(data: pd.DataFrame) -> pd.DataFrame:
     if data.empty:
         return pd.DataFrame(columns = ["date", "target"])
+    data = data.drop_duplicates(subset = "report_id").copy()
     data["date"] = pd.to_datetime(arg = data["date"]).dt.date
     return data.groupby("date").size().reset_index(name = "target")
 
 ## faers adverse event network
 class FaersProcessor:
-    def __init__(self, id: str, url: str, key: str | None = None):
+    def __init__(self, id: str, url: str, key: str | None = None, end_date: str = "2025-12-31"):
         self.id = id
         self.url = url
         self.key = key or _load_env_var("FDA_API_KEY", os.path.join(root, ".env"))
+        self.end_date = end_date
         self.data_network: Optional[pd.DataFrame] = None
         self.data_events: Optional[pd.DataFrame] = None
         self.graph: Optional[Any] = None
@@ -152,8 +153,8 @@ class FaersProcessor:
 
     def load_data(self):
         """ Loads the raw data from source. """
-        self.data_network = _load_network_faers(id = self.id, url = self.url, key = self.key)
-        self.data_events = _load_events_faers(id = self.id, url = self.url, key = self.key)
+        self.data_network = _load_network_faers(id = self.id, url = self.url, key = self.key, end_date = self.end_date)
+        self.data_events = _load_events_faers(id = self.id, url = self.url, key = self.key, end_date = self.end_date)
         return self
 
     def process_network(self):

@@ -10,8 +10,11 @@ from sklearn.base import BaseEstimator, clone
 from sklearn.model_selection import LeaveOneGroupOut, KFold, RepeatedKFold
 
 ## modules
-from src.evaluators.metrics import frontier_metrics
-from src.vectorizers.scalers import _log_transformer, _standardizer
+from src.evaluators.metrics import frontier_efficiency
+from src.vectorizers.scalers import (
+    _log_transformer,
+    _standardizer
+)
 
 ## ----------------------------------------------------------------------------
 ## fold-local helpers
@@ -171,7 +174,7 @@ def _run_retrain_fold(
 
     ## compute frontier metrics for this fold
     kept_indices = test_idx[kept_test]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": group_name,
@@ -310,7 +313,7 @@ def _run_frozen_fold(
 
     ## compute frontier metrics for this fold
     kept_global = test_mask_indices[kept_test]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": held_out_group,
@@ -330,7 +333,7 @@ def logo_cross_valid(
     estimator_r: BaseEstimator,
     target: str = "target",
     group: str = "domain",
-    n_repeats: int = 10,
+    n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1,
     ) -> tuple[pd.DataFrame, np.ndarray]:
@@ -454,7 +457,7 @@ def logo_cross_valid_frozen(
     estimator_r: BaseEstimator,
     target: str = "target",
     group: str = "domain",
-    n_repeats: int = 10,
+    n_repeats: int = 30,
     random_state: int = 42,
     n_jobs: int = -1,
     ) -> tuple[pd.DataFrame, np.ndarray, dict]:

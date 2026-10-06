@@ -4,14 +4,54 @@ import pandas as pd
 from collections.abc import Mapping
 
 ## modules
-from src.evaluators.metrics import consensus_metrics
+from src.evaluators.metrics import frontier_consensus
 from src.vectorizers.scalers import _log_transformer
+
+## constants
 from src.evaluators.config import CONSENSUS_METRICS
 
+## full-corpus agreement evaluation
+def compile_corpus_full(
+    predictions: Mapping[str, np.ndarray],
+    y_true: np.ndarray,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score seed-averaged full-corpus predictions against aligned targets.
+    Args:
+        predictions: Full-corpus prediction vectors indexed by model name.
+        y_true: Log-transformed targets in the same system order.
+    Returns:
+        One model-observation consensus row per model, tagged full_corpus.
+    Raises:
+        ValueError: If target and prediction vectors are not aligned.
+    """
+
+    y_true = np.asarray(a = y_true, dtype = float)
+    if y_true.ndim != 1:
+        raise ValueError("Full-corpus targets must be a one-dimensional vector")
+    rows = []
+    for model_name, prediction in predictions.items():
+        y_pred = np.asarray(a = prediction, dtype = float)
+        if y_pred.shape != y_true.shape:
+            raise ValueError(f"Full-corpus predictions for {model_name} do not match the target shape")
+        valid = np.isfinite(y_true) & np.isfinite(y_pred)
+        if int(np.sum(a = valid)) < 2:
+            continue
+        rows.append({
+            "model": model_name,
+            "group": "all",
+            **frontier_consensus(y_true = y_true[valid], y_pred = y_pred[valid]),
+            "evaluation": "full_corpus",
+        })
+    return pd.DataFrame(data = rows, columns = ["model", "group", *CONSENSUS_METRICS, "evaluation"])
+
+
 ## ----------------------------------------------------------------------------
-## structural agreement compilation
+## prediction consensus compilation
 ## ----------------------------------------------------------------------------
-def compile_structural_agreement(
+def compile_prediction_consensus(
     predictions: Mapping[str, np.ndarray],
     data: pd.DataFrame,
     target: str = "target",
@@ -51,7 +91,7 @@ def compile_structural_agreement(
             if int(np.sum(a = valid)) < 2:
                 continue
 
-            metrics = consensus_metrics(
+            metrics = frontier_consensus(
                 y_true = y_true_full[valid],
                 y_pred = y_pred[valid],
             )
@@ -69,7 +109,7 @@ def compile_structural_agreement(
     return result[columns].sort_values(by = ["model", "group"]).reset_index(drop = True)
 
 
-def results_structural_agreement(
+def results_prediction_consensus(
     results: pd.DataFrame,
     group_col: str = "group",
     index_name: str = "Domain",
@@ -82,11 +122,11 @@ def results_structural_agreement(
 
     """
     Desc:
-        Builds a display table summarizing structural agreement metrics across
+        Builds a display table summarizing prediction consensus across
         fitted learners within each held-out group.
 
     Args:
-        results: Structural agreement result table from compile_structural_agreement.
+        results: Consensus table from compile_prediction_consensus.
         group_col: Column containing held-out group labels.
         index_name: Name assigned to the output table index.
         group_label: Human-readable group label used in printed notes.
@@ -110,7 +150,7 @@ def results_structural_agreement(
     metric_labels = {
         "rho": "ρ",
         "rbo": "RBO",
-        "dcr": "DCR",
+        "dcr": "dCor",
     }
 
     grouped = results.groupby(by = group_col, observed = True)

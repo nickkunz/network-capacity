@@ -34,85 +34,733 @@
     },
     "events": [
       {
-        "day": 0,
+        "date": "2017-01-01",
+        "target": 6
+      },
+      {
+        "date": "2017-01-02",
+        "target": 62
+      },
+      {
+        "date": "2017-01-03",
+        "target": 267
+      },
+      {
+        "date": "2017-01-04",
+        "target": 236
+      },
+      {
+        "date": "2017-01-05",
+        "target": 221
+      },
+      {
+        "date": "2017-01-06",
+        "target": 141
+      },
+      {
+        "date": "2017-01-07",
+        "target": 34
+      },
+      {
+        "date": "2017-01-08",
+        "target": 33
+      },
+      {
+        "date": "2017-01-09",
+        "target": 212
+      },
+      {
+        "date": "2017-01-10",
+        "target": 570
+      },
+      {
+        "date": "2017-01-11",
+        "target": 419
+      },
+      {
+        "date": "2017-01-12",
+        "target": 511
+      },
+      {
+        "date": "2017-01-13",
+        "target": 289
+      },
+      {
+        "date": "2017-01-14",
+        "target": 37
+      },
+      {
+        "date": "2017-01-15",
+        "target": 2
+      },
+      {
+        "date": "2017-01-16",
+        "target": 24
+      },
+      {
+        "date": "2017-01-17",
+        "target": 452
+      },
+      {
+        "date": "2017-01-18",
+        "target": 589
+      },
+      {
+        "date": "2017-01-19",
+        "target": 402
+      },
+      {
+        "date": "2017-01-20",
+        "target": 336
+      },
+      {
+        "date": "2017-01-21",
+        "target": 20
+      },
+      {
+        "date": "2017-01-22",
+        "target": 26
+      },
+      {
+        "date": "2017-01-23",
+        "target": 400
+      },
+      {
+        "date": "2017-01-24",
+        "target": 566
+      },
+      {
+        "date": "2017-01-25",
+        "target": 378
+      },
+      {
+        "date": "2017-01-26",
+        "target": 425
+      },
+      {
+        "date": "2017-01-27",
+        "target": 347
+      },
+      {
+        "date": "2017-01-28",
+        "target": 64
+      },
+      {
+        "date": "2017-01-29",
+        "target": 7
+      },
+      {
+        "date": "2017-01-30",
+        "target": 285
+      },
+      {
+        "date": "2017-01-31",
+        "target": 458
+      },
+      {
+        "date": "2017-02-01",
+        "target": 412
+      },
+      {
+        "date": "2017-02-02",
+        "target": 453
+      },
+      {
+        "date": "2017-02-03",
+        "target": 292
+      },
+      {
+        "date": "2017-02-04",
+        "target": 30
+      },
+      {
+        "date": "2017-02-05",
         "target": 4
       },
       {
-        "day": 1,
-        "target": 8
+        "date": "2017-02-06",
+        "target": 305
       },
       {
-        "day": 2,
-        "target": 3
+        "date": "2017-02-07",
+        "target": 435
       },
       {
-        "day": 3,
-        "target": 1
+        "date": "2017-02-08",
+        "target": 255
       },
       {
-        "day": 5,
-        "target": 1
+        "date": "2017-02-09",
+        "target": 423
       },
       {
-        "day": 7,
-        "target": 3
+        "date": "2017-02-10",
+        "target": 157
       },
       {
-        "day": 8,
-        "target": 2
+        "date": "2017-02-11",
+        "target": 42
       },
       {
-        "day": 9,
-        "target": 1
+        "date": "2017-02-12",
+        "target": 15
       },
       {
-        "day": 10,
-        "target": 2
+        "date": "2017-02-13",
+        "target": 245
       },
       {
-        "day": 14,
-        "target": 3
+        "date": "2017-02-14",
+        "target": 474
       },
       {
-        "day": 15,
-        "target": 2
+        "date": "2017-02-15",
+        "target": 313
       },
       {
-        "day": 16,
-        "target": 1
+        "date": "2017-02-16",
+        "target": 181
       },
       {
-        "day": 17,
-        "target": 1
+        "date": "2017-02-17",
+        "target": 415
       },
       {
-        "day": 20,
-        "target": 1
+        "date": "2017-02-18",
+        "target": 21
       },
       {
-        "day": 30,
-        "target": 3
+        "date": "2017-02-19",
+        "target": 4
       },
       {
-        "day": 31,
-        "target": 1
+        "date": "2017-02-20",
+        "target": 140
       },
       {
-        "day": 32,
-        "target": 1
+        "date": "2017-02-21",
+        "target": 163
       },
       {
-        "day": 33,
-        "target": 1
+        "date": "2017-02-22",
+        "target": 210
+      },
+      {
+        "date": "2017-02-23",
+        "target": 164
+      },
+      {
+        "date": "2017-02-24",
+        "target": 94
+      },
+      {
+        "date": "2017-02-25",
+        "target": 39
+      },
+      {
+        "date": "2017-02-26",
+        "target": 33
+      },
+      {
+        "date": "2017-02-27",
+        "target": 245
+      },
+      {
+        "date": "2017-02-28",
+        "target": 440
+      },
+      {
+        "date": "2017-03-01",
+        "target": 634
+      },
+      {
+        "date": "2017-03-02",
+        "target": 571
+      },
+      {
+        "date": "2017-03-03",
+        "target": 191
+      },
+      {
+        "date": "2017-03-04",
+        "target": 22
+      },
+      {
+        "date": "2017-03-05",
+        "target": 29
+      },
+      {
+        "date": "2017-03-06",
+        "target": 268
+      },
+      {
+        "date": "2017-03-07",
+        "target": 280
+      },
+      {
+        "date": "2017-03-08",
+        "target": 452
+      },
+      {
+        "date": "2017-03-09",
+        "target": 365
+      },
+      {
+        "date": "2017-03-10",
+        "target": 176
+      },
+      {
+        "date": "2017-03-11",
+        "target": 42
+      },
+      {
+        "date": "2017-03-12",
+        "target": 28
+      },
+      {
+        "date": "2017-03-13",
+        "target": 147
+      },
+      {
+        "date": "2017-03-14",
+        "target": 258
+      },
+      {
+        "date": "2017-03-15",
+        "target": 241
+      },
+      {
+        "date": "2017-03-16",
+        "target": 253
+      },
+      {
+        "date": "2017-03-17",
+        "target": 141
+      },
+      {
+        "date": "2017-03-18",
+        "target": 34
+      },
+      {
+        "date": "2017-03-19",
+        "target": 5
+      },
+      {
+        "date": "2017-03-20",
+        "target": 341
+      },
+      {
+        "date": "2017-03-21",
+        "target": 388
+      },
+      {
+        "date": "2017-03-22",
+        "target": 327
+      },
+      {
+        "date": "2017-03-23",
+        "target": 265
+      },
+      {
+        "date": "2017-03-24",
+        "target": 181
+      },
+      {
+        "date": "2017-03-25",
+        "target": 30
+      },
+      {
+        "date": "2017-03-26",
+        "target": 16
+      },
+      {
+        "date": "2017-03-27",
+        "target": 145
+      },
+      {
+        "date": "2017-03-28",
+        "target": 257
+      },
+      {
+        "date": "2017-03-29",
+        "target": 302
+      },
+      {
+        "date": "2017-03-30",
+        "target": 270
+      },
+      {
+        "date": "2017-03-31",
+        "target": 137
+      },
+      {
+        "date": "2017-04-01",
+        "target": 42
+      },
+      {
+        "date": "2017-04-02",
+        "target": 21
+      },
+      {
+        "date": "2017-04-03",
+        "target": 159
+      },
+      {
+        "date": "2017-04-04",
+        "target": 194
+      },
+      {
+        "date": "2017-04-05",
+        "target": 125
+      },
+      {
+        "date": "2017-04-06",
+        "target": 267
+      },
+      {
+        "date": "2017-04-07",
+        "target": 75
+      },
+      {
+        "date": "2017-04-08",
+        "target": 22
+      },
+      {
+        "date": "2017-04-09",
+        "target": 17
+      },
+      {
+        "date": "2017-04-10",
+        "target": 105
+      },
+      {
+        "date": "2017-04-11",
+        "target": 97
+      },
+      {
+        "date": "2017-04-12",
+        "target": 202
+      },
+      {
+        "date": "2017-04-13",
+        "target": 93
+      },
+      {
+        "date": "2017-04-14",
+        "target": 45
+      },
+      {
+        "date": "2017-04-15",
+        "target": 14
+      },
+      {
+        "date": "2017-04-16",
+        "target": 32
+      },
+      {
+        "date": "2017-04-17",
+        "target": 229
+      },
+      {
+        "date": "2017-04-18",
+        "target": 288
+      },
+      {
+        "date": "2017-04-19",
+        "target": 362
+      },
+      {
+        "date": "2017-04-20",
+        "target": 265
+      },
+      {
+        "date": "2017-04-21",
+        "target": 119
+      },
+      {
+        "date": "2017-04-22",
+        "target": 27
+      },
+      {
+        "date": "2017-04-23",
+        "target": 24
+      },
+      {
+        "date": "2017-04-24",
+        "target": 198
+      },
+      {
+        "date": "2017-04-25",
+        "target": 332
+      },
+      {
+        "date": "2017-04-26",
+        "target": 275
+      },
+      {
+        "date": "2017-04-27",
+        "target": 474
+      },
+      {
+        "date": "2017-04-28",
+        "target": 201
+      },
+      {
+        "date": "2017-04-29",
+        "target": 21
+      },
+      {
+        "date": "2017-04-30",
+        "target": 19
+      },
+      {
+        "date": "2017-05-01",
+        "target": 395
+      },
+      {
+        "date": "2017-05-02",
+        "target": 500
+      },
+      {
+        "date": "2017-05-03",
+        "target": 509
+      },
+      {
+        "date": "2017-05-04",
+        "target": 531
+      },
+      {
+        "date": "2017-05-05",
+        "target": 325
+      },
+      {
+        "date": "2017-05-06",
+        "target": 27
+      },
+      {
+        "date": "2017-05-07",
+        "target": 14
+      },
+      {
+        "date": "2017-05-08",
+        "target": 272
+      },
+      {
+        "date": "2017-05-09",
+        "target": 567
+      },
+      {
+        "date": "2017-05-10",
+        "target": 492
+      },
+      {
+        "date": "2017-05-11",
+        "target": 308
+      },
+      {
+        "date": "2017-05-12",
+        "target": 216
+      },
+      {
+        "date": "2017-05-13",
+        "target": 30
+      },
+      {
+        "date": "2017-05-14",
+        "target": 29
+      },
+      {
+        "date": "2017-05-15",
+        "target": 298
+      },
+      {
+        "date": "2017-05-16",
+        "target": 334
+      },
+      {
+        "date": "2017-05-17",
+        "target": 349
+      },
+      {
+        "date": "2017-05-18",
+        "target": 418
+      },
+      {
+        "date": "2017-05-19",
+        "target": 198
+      },
+      {
+        "date": "2017-05-20",
+        "target": 27
+      },
+      {
+        "date": "2017-05-21",
+        "target": 23
+      },
+      {
+        "date": "2017-05-22",
+        "target": 361
+      },
+      {
+        "date": "2017-05-23",
+        "target": 444
+      },
+      {
+        "date": "2017-05-24",
+        "target": 345
+      },
+      {
+        "date": "2017-05-25",
+        "target": 559
+      },
+      {
+        "date": "2017-05-26",
+        "target": 123
+      },
+      {
+        "date": "2017-05-27",
+        "target": 25
+      },
+      {
+        "date": "2017-05-28",
+        "target": 25
+      },
+      {
+        "date": "2017-05-29",
+        "target": 4
+      },
+      {
+        "date": "2017-05-30",
+        "target": 269
+      },
+      {
+        "date": "2017-05-31",
+        "target": 377
+      },
+      {
+        "date": "2017-06-01",
+        "target": 359
+      },
+      {
+        "date": "2017-06-02",
+        "target": 161
+      },
+      {
+        "date": "2017-06-03",
+        "target": 38
+      },
+      {
+        "date": "2017-06-04",
+        "target": 29
+      },
+      {
+        "date": "2017-06-05",
+        "target": 368
+      },
+      {
+        "date": "2017-06-06",
+        "target": 388
+      },
+      {
+        "date": "2017-06-07",
+        "target": 460
+      },
+      {
+        "date": "2017-06-08",
+        "target": 173
+      },
+      {
+        "date": "2017-06-09",
+        "target": 177
+      },
+      {
+        "date": "2017-06-10",
+        "target": 29
+      },
+      {
+        "date": "2017-06-11",
+        "target": 16
+      },
+      {
+        "date": "2017-06-12",
+        "target": 257
+      },
+      {
+        "date": "2017-06-13",
+        "target": 418
+      },
+      {
+        "date": "2017-06-14",
+        "target": 541
+      },
+      {
+        "date": "2017-06-15",
+        "target": 439
+      },
+      {
+        "date": "2017-06-16",
+        "target": 165
+      },
+      {
+        "date": "2017-06-17",
+        "target": 41
+      },
+      {
+        "date": "2017-06-18",
+        "target": 39
+      },
+      {
+        "date": "2017-06-19",
+        "target": 294
+      },
+      {
+        "date": "2017-06-20",
+        "target": 460
+      },
+      {
+        "date": "2017-06-21",
+        "target": 472
+      },
+      {
+        "date": "2017-06-22",
+        "target": 432
+      },
+      {
+        "date": "2017-06-23",
+        "target": 261
+      },
+      {
+        "date": "2017-06-24",
+        "target": 26
+      },
+      {
+        "date": "2017-06-25",
+        "target": 26
+      },
+      {
+        "date": "2017-06-26",
+        "target": 202
+      },
+      {
+        "date": "2017-06-27",
+        "target": 329
+      },
+      {
+        "date": "2017-06-28",
+        "target": 395
+      },
+      {
+        "date": "2017-06-29",
+        "target": 318
       }
     ]
   },
   "random_generate": {
     "invariants": {
-      "n_nodes": 2452282.636266228,
+      "n_nodes": 9750177.023641074,
       "n_edges": 2787848764.5104966,
-      "n_articulation_points": 48245.03797001373,
-      "n_bridges": 188458.69498021618,
+      "n_articulation_points": 1499125.668820787,
+      "n_bridges": 5601169.030615258,
       "diameter": 131.00531350009283,
       "radius": 24.02795189055493,
       "degeneracy": 280.55817582098155,
@@ -120,25 +768,25 @@
       "maximum_degree": 245740.22281290678,
       "degree_variance": 4910647451.651388,
       "global_clustering": 0.07118864846022899,
-      "degree_assortativity": -0.4650817633240469,
+      "degree_assortativity": -0.49934368485215025,
       "degree_entropy": 3.983239314523253,
-      "joint_degree_entropy": 0.22479616067225885,
-      "degree_skewness": 24.3306475679424,
-      "degree_kurtosis": 261.7475498339113,
-      "normalized_laplacian_second_moment": 0.17981604203295518,
-      "normalized_laplacian_third_moment": 1.7872822937602124,
-      "random_walk_triangle_weight": 0.11792678377122826,
-      "random_walk_fourth_moment": 0.3528963532663148,
-      "adjacency_fourth_moment_per_node": 29425632875661.77
+      "joint_degree_entropy": 0.2247941438807555,
+      "degree_skewness": 260.6927872639314,
+      "normalized_laplacian_second_moment": 1.047180163577585,
+      "normalized_laplacian_third_moment": 1.0856741867409705,
+      "random_walk_triangle_weight": 0.13063821850577825,
+      "random_walk_fourth_moment": 0.2529446906780262,
+      "adjacency_fourth_moment_per_node": 35126086854269.71,
+      "degree_kurtosis": 189962.07945783235
     },
     "signatures": {
-      "lag1_autocorr": 0.7496653961757539,
-      "coef_variation": 1.160841177369509,
-      "fano_factor": 5362.546209586192,
-      "norm_succ_diff": 1.1840839289420815,
+      "lag1_autocorr": 0.7848226873871518,
+      "coef_variation": 0.5675381414485965,
+      "fano_factor": 5362.468093496137,
+      "norm_succ_diff": 1.0359232779214906,
       "hurst_exponent": 0.8134310875434853,
-      "trend_coeff": 0.8418499219801552,
-      "count_skewness": 2.47023516697723
+      "trend_coeff": 0.8260829963560887,
+      "count_skewness": 2.2024827712569963
     },
     "events": [
       {
@@ -269,36 +917,36 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 270943.1952470295,
-      "n_edges": 2039775362.085671,
-      "n_articulation_points": -17388.90944585417,
-      "n_bridges": -42037.43946611084,
-      "diameter": 54.59024764712327,
-      "radius": -36.54057377948606,
-      "degeneracy": 278.82727465312666,
-      "k_core_size": 807991.8861842949,
-      "maximum_degree": -303005.9581810394,
-      "degree_variance": 828894399.0519559,
-      "global_clustering": -0.19777845324934593,
-      "degree_assortativity": -0.463597602556314,
-      "degree_entropy": 1.6766571957087097,
-      "joint_degree_entropy": -5.100067704556067,
-      "degree_skewness": 15.21807374522342,
-      "degree_kurtosis": -103.65903113717151,
-      "normalized_laplacian_second_moment": 0.33521651893182713,
-      "normalized_laplacian_third_moment": 2.717328416008493,
-      "random_walk_triangle_weight": -0.05120113472201874,
-      "random_walk_fourth_moment": -0.13759600431427432,
-      "adjacency_fourth_moment_per_node": -17956382741172.96
+      "n_nodes": 1097432.8047331877,
+      "n_edges": 2039476378.4975617,
+      "n_articulation_points": -540962.363131607,
+      "n_bridges": -1251789.6849628524,
+      "diameter": 54.59896933321656,
+      "radius": -36.551141579364376,
+      "degeneracy": 275.80700488408576,
+      "k_core_size": 807979.9185318316,
+      "maximum_degree": -302809.0018097854,
+      "degree_variance": 828896094.912381,
+      "global_clustering": -0.1977784532466349,
+      "degree_assortativity": -0.44831141960686227,
+      "degree_entropy": 1.639633151290294,
+      "joint_degree_entropy": -5.282828865337356,
+      "degree_skewness": 111.26808919205553,
+      "normalized_laplacian_second_moment": 0.9951920138045842,
+      "normalized_laplacian_third_moment": -0.21940014264804608,
+      "random_walk_triangle_weight": 0.06263914171202493,
+      "random_walk_fourth_moment": -0.14531761556647282,
+      "adjacency_fourth_moment_per_node": -12656294721948.715,
+      "degree_kurtosis": -115442.75365883863
     },
     "signatures": {
-      "lag1_autocorr": 1.1412158471571114,
-      "coef_variation": 4.277043834506124,
-      "fano_factor": 6726.363218390225,
-      "norm_succ_diff": 0.2752124055714458,
-      "hurst_exponent": 0.6624524167843635,
-      "trend_coeff": -0.1847994910367518,
-      "count_skewness": 3.0142361933567114
+      "lag1_autocorr": 1.1198160288847616,
+      "coef_variation": 1.545839532018995,
+      "fano_factor": 6830.549029554549,
+      "norm_succ_diff": 0.49643489211478276,
+      "hurst_exponent": 0.8018797572473284,
+      "trend_coeff": -0.19955171929277282,
+      "count_skewness": 3.93211006997546
     },
     "events": [
       {

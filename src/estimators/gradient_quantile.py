@@ -3,9 +3,11 @@ from typing import Any
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import GradientBoostingRegressor
 
-## modules
-from src.estimators.config import ASYMMETRY_C, ASYMMETRY_R
-
+## constants
+from src.estimators.config import (
+    ASYMMETRY_C, 
+    ASYMMETRY_R
+)
 ## gradient boosting sklearn regressors
 class BoostingQuantile(BaseEstimator):
     def __init__(

@@ -3,7 +3,7 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 
-## modules
+## constants
 from src.estimators.config import (
     ASYMMETRY_C,
     ASYMMETRY_R,
@@ -65,16 +65,16 @@ class BaseLAWS(BaseEstimator, RegressorMixin):
 
         n, p = X.shape
 
-        ## add intercept
+        ## add intercept and initialize parameters
         if self.fit_intercept:
             X_ = np.c_[np.ones(n), X]
             p_ = p + 1
+            beta = np.zeros(p_, dtype = np.float64)
+            beta[0] = np.mean(y)
         else:
             X_ = X
             p_ = p
-
-        ## initialize via OLS
-        beta = np.linalg.lstsq(X_, y, rcond = None)[0]
+            beta = np.zeros(p_, dtype = np.float64)
 
         for outer in range(self.max_iter):
 
@@ -96,7 +96,7 @@ class BaseLAWS(BaseEstimator, RegressorMixin):
                 num = np.mean(w * X_[:, j] * r_j)
                 den = np.mean(w * X_[:, j] ** 2)
 
-                if den < 1e-12:
+                if den < 1e-10:
                     beta[j] = 0.0
                     continue
 
@@ -108,11 +108,9 @@ class BaseLAWS(BaseEstimator, RegressorMixin):
                 else:
                     beta[j] = num / den
 
-            ## convergence check (absolute + relative)
+            ## convergence check
             delta = np.max(np.abs(beta - beta_old))
-            rel = delta / (np.max(np.abs(beta_old)) + 1e-12)
-
-            if delta < self.tol or rel < self.tol:
+            if delta < self.tol:
                 break
 
         ## store parameters

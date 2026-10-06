@@ -1,12 +1,7 @@
 ## libraries
-import math
 import dcor
 import warnings
 import numpy as np
-import pandas as pd
-# from itertools import combinations
-# from sklearn.decomposition import PCA
-from typing import Literal, Sequence
 from scipy.stats import ConstantInputWarning, spearmanr
 
 ## violation rate
@@ -43,22 +38,11 @@ def _mean_slack(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     s = np.maximum(0.0, y_pred - y_true)
     return float(s.mean())
 
-# ## excess area
-# def _excess_area(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> float:
-#     
-#     """ EA total slack normalized by total observed magnitude. 
-#     High excess area means the frontier is much higher than the data. """
-#     
-#     ## compute slack: frontier above true
-#     s = np.maximum(0.0, y_pred - y_true)
-#     denom = np.sum(np.abs(y_true)) + eps
-#     return float(np.sum(s) / denom)
-
-## efficiency index
+## efficiency index (ei)
 def _efficiency_index(
     y_true: np.ndarray,
     y_pred: np.ndarray,
-    eps: float = 1e-12,
+    eps: float = 1e-10,
     ) -> float:
 
     """ EI efficiency index that combines violation rate, mean violation,
@@ -85,10 +69,10 @@ def _efficiency_index(
     log_ei = (np.log(vr_score) + np.log(mv_score) + np.log(ms_score)) / 3.0
     return float(np.exp(log_ei))
 
-## joint frontier metrics
-def frontier_metrics(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12) -> dict:
+## frontier efficiency metrics
+def frontier_efficiency(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-10) -> dict:
 
-    """ Compute all frontier metrics and return as a dictionary. """
+    """ Compute all frontier efficiency metrics and return as a dictionary. """
     
     metrics = {
         key: func(y_true, y_pred)
@@ -104,23 +88,6 @@ def frontier_metrics(y_true: np.ndarray, y_pred: np.ndarray, eps: float = 1e-12)
         eps = eps
     )
     return metrics
-
-# ## pearson correlation
-# def _pearson_r(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-
-#     """ Linear correlation of predicted capacities with true capacities. """
-
-#     y_true = np.asarray(y_true, dtype = float)
-#     y_pred = np.asarray(y_pred, dtype = float)
-#     if y_true.size < 2 or y_pred.size < 2:
-#         return 0.0
-#     if np.std(y_true) == 0.0 or np.std(y_pred) == 0.0:
-#         return 0.0
-
-#     with warnings.catch_warnings():
-#         warnings.simplefilter("ignore", category = ConstantInputWarning)
-#         r, _ = pearsonr(y_true, y_pred)
-#     return float(r) if not np.isnan(r) else 0.0
 
 ## spearman rank correlation
 def _spearman_rho(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -138,25 +105,6 @@ def _spearman_rho(y_true: np.ndarray, y_pred: np.ndarray) -> float:
         warnings.simplefilter("ignore", category = ConstantInputWarning)
         rho, _ = spearmanr(y_true, y_pred)
     return float(rho) if not np.isnan(rho) else 0.0
-
-
-# ## kendall rank correlation
-# def _kendall_tau(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-
-#     """ Pairwise ordering stability (probability of concordant pairs). """
-
-#     y_true = np.asarray(y_true, dtype = float)
-#     y_pred = np.asarray(y_pred, dtype = float)
-#     if y_true.size < 2 or y_pred.size < 2:
-#         return 0.0
-#     if np.std(y_true) == 0.0 or np.std(y_pred) == 0.0:
-#         return 0.0
-
-#     with warnings.catch_warnings():
-#         warnings.simplefilter("ignore", category = ConstantInputWarning)
-#         tau, _ = kendalltau(y_true, y_pred)
-#     return float(tau) if not np.isnan(tau) else 0.0
-
 
 ## distance correlation
 def _distance_corr(y_true: np.ndarray, y_pred: np.ndarray) -> float:
@@ -218,45 +166,30 @@ def _rank_biased_overlap(y_true: np.ndarray, y_pred: np.ndarray, p: float) -> fl
     tail = weight * last_agreement
     return float((1.0 - p) * score + tail)
 
-
-## consensus index
+## consensus index (ci)
 def consensus_index(
     rho: float,
     rbo: float,
     dcr: float,
-    eps: float = 1e-12,
     ) -> float:
 
-    """ CI geometric mean over comparable agreement-scale metrics. """
+    """ CI geometric mean over comparable agreement-scale metrics.
+    Components are clipped to their theoretical [0, 1] bounds to correct
+    floating-point error; exact zeros are retained so CI = 0 when any
+    factor is zero. """
 
     rho_agree = (rho + 1.0) / 2.0
-    ci_vals = np.array([rho_agree, rbo, dcr], dtype = float)
-    ci_vals = np.clip(ci_vals, a_min = eps, a_max = 1.0)
-    log_ci = float(np.mean(np.log(ci_vals)))
-    return float(np.exp(log_ci))
-
-
-def _consensus_index(
-    rho: float,
-    rbo: float,
-    dcr: float,
-    eps: float = 1e-12,
-    ) -> float:
-
-    """ CI geometric mean over comparable agreement-scale metrics. """
-
-    return consensus_index(
-        rho = rho,
-        rbo = rbo,
-        dcr = dcr,
-        eps = eps,
+    ci_vals = np.clip(
+        np.array([rho_agree, rbo, dcr], dtype = float),
+        a_min = 0.0,
+        a_max = 1.0,
     )
+    return float(np.prod(ci_vals) ** (1.0 / 3.0))
 
+## frontier consensus metrics
+def frontier_consensus(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict:
 
-## joint consensus metrics
-def consensus_metrics(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) -> dict:
-
-    """ Compute all consensus metrics and return as a dictionary. """
+    """ Compute all frontier consensus metrics and return as a dictionary. """
 
     rho = _spearman_rho(y_true, y_pred)
     rbo = _rank_biased_overlap(y_true, y_pred, p = p)
@@ -267,206 +200,9 @@ def consensus_metrics(y_true: np.ndarray, y_pred: np.ndarray, p: float = 0.9) ->
         "rbo": rbo,
         "dcr": dcr,
     }
-    metrics["ci"] = _consensus_index(
+    metrics["ci"] = consensus_index(
         rho = metrics["rho"],
         rbo = metrics["rbo"],
         dcr = metrics["dcr"],
     )
     return metrics
-
-## empirical margin from reference variability
-def spec_marginal_delta(
-    results: pd.DataFrame,
-    feat_value: Sequence[str],
-    track: str | Sequence[str] | None = None,
-    label_ref: str | None = None,
-    value_ref: str | None = None,
-    label_pert: str | None = None,
-    label_base: str = "baseline",
-    method: Literal["mad", "iqr", "max"] = "iqr",
-    scale: float = 1.0,  ## iqr range for natural variability
-    decimals: int = 2,
-    ) -> float:
-
-    """
-    Desc:
-        Compute a data-driven margin from the natural variability of reference
-        metric values. Delta is anchored entirely to the reference condition and
-        is independent of any test contrast.
-
-    Args:
-        results: Results table containing reference rows and metric columns.
-        feat_value: Metric columns used to derive the margin.
-        track: Optional track value or values to restrict before estimating.
-        label_ref: Column identifying the reference rows. Defaults to
-            label_pert for perturbation compatibility.
-        value_ref: Value identifying the reference rows. Defaults to
-            label_base for perturbation compatibility.
-        label_pert: Perturbation label column used by the default reference.
-        label_base: Baseline value used by the default reference.
-        method: Dispersion estimator ("mad", "iqr", or "max").
-        scale: Multiplier applied to the dispersion estimate.
-        decimals: Number of decimal places to round the resulting margin.
-
-    Returns:
-        Scalar empirical margin delta.
-
-    Raises:
-        ValueError: If reference labels are unspecified, required columns are
-            missing, fewer than two finite reference values exist, or method is
-            unknown.
-    """
-
-    data = results.copy()
-    feat_value = list(feat_value)
-    label_ref = label_ref or label_pert
-    value_ref = label_base if value_ref is None else value_ref
-
-    if label_ref is None:
-        raise ValueError("label_ref or label_pert must be specified to derive delta")
-
-    required = {label_ref, *feat_value}
-    missing = sorted(required - set(data.columns))
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-
-    if track is not None and "track" in data.columns:
-        track_vals = [track] if isinstance(track, str) else list(track)
-        data = data.loc[data["track"].isin(track_vals)]
-
-    reference = data.loc[data[label_ref] == value_ref]
-    vals = np.concatenate([
-        reference[metric].to_numpy(dtype = float) for metric in feat_value
-    ])
-    vals = vals[np.isfinite(vals)]
-
-    if len(vals) < 2:
-        raise ValueError(
-            "At least two finite reference values are required to derive delta"
-        )
-
-    if method == "mad":
-        dispersion = float(np.median(np.abs(vals - np.median(vals))))
-    elif method == "iqr":
-        dispersion = float(np.percentile(vals, 75) - np.percentile(vals, 25))
-    elif method == "max":
-        dispersion = float(np.max(vals) - np.min(vals))
-    else:
-        raise ValueError(f"unknown method: {method}")
-
-    return math.ceil(max(float(scale * dispersion), 1e-6) * 10 ** decimals) / 10 ** decimals
-
-# ## compute structural index via pca
-# def compute_kappa(K_vect: np.ndarray, y_pred: np.ndarray | None = None) -> np.ndarray:
-#
-#     """ Compute the structural index kappa via PCA on the standardized graph invariants.
-#     If y_pred is provided, the sign of kappa is adjusted to match the correlation. """
-#
-#     pca = PCA(n_components = 1)
-#     kappa = pca.fit_transform(K_vect).flatten()
-#
-#     ## safely fix sign indeterminacy
-#     if y_pred is not None:
-#         y_pred = np.asarray(y_pred)
-#         if np.std(kappa) > 0 and np.std(y_pred) > 0:
-#             corr = np.corrcoef(kappa, y_pred)[0,1]
-#             if not np.isnan(corr) and corr < 0:
-#                 kappa = -kappa
-#
-#     return kappa
-#
-# ## monotonic index for joint frontier
-# def monotonic_index(kappa: np.ndarray, y_pred: np.ndarray) -> float:
-#
-#     """ Monotonicity index that evaluates the agreement of the predicted frontier 
-#     with the structural ordering. Higher is better. """
-#
-#     kappa = np.asarray(kappa)
-#     y_pred = np.asarray(y_pred)
-#
-#     n = len(kappa)
-#     if n < 2:
-#         return np.nan
-#
-#     total = 0
-#     agree = 0
-#     for i, j in combinations(range(n), 2):
-#         if kappa[i] == kappa[j]:
-#             continue
-#         total += 1
-#         if (kappa[i] - kappa[j]) * (y_pred[i] - y_pred[j]) >= 0:
-#             agree += 1
-#
-#     return float(agree / total) if total > 0 else np.nan
-#
-# ## structural violation magnitude
-# def violation_magnitude(kappa: np.ndarray, y_pred: np.ndarray) -> float:
-#
-#     """ Structural violation magnitude that evaluates the degree of violation 
-#     of the predicted frontier with the structural ordering. Lower is better. """
-#     
-#     kappa = np.asarray(kappa)
-#     y_pred = np.asarray(y_pred)
-#
-#     n = len(kappa)
-#     if n < 2:
-#         return np.nan
-#
-#     total = 0
-#     violation = 0.0
-#     for i, j in combinations(range(n), 2):
-#         dk = kappa[i] - kappa[j]
-#         dy = y_pred[i] - y_pred[j]
-#         total += abs(dk * dy)
-#         if dk * dy < 0:
-#             violation += abs(dk * dy)
-#
-#     return float(violation / total) if total > 0 else np.nan
-#
-# ## structural association 
-# def structural_association(kappa: np.ndarray, y_pred: np.ndarray) -> dict:
-#
-#     """ Structural association metrics between structural index and frontier.
-#     Returns Spearman (monotonicity), Kendall (ordering), and Rank R^2 (strength). """
-#
-#     kappa = np.asarray(kappa)
-#     y_pred = np.asarray(y_pred)
-#
-#     if len(kappa) < 2:
-#         return {
-#             "spearman_rho": np.nan,
-#             "kendall_tau": np.nan,
-#             "rank_r2": np.nan
-#         }
-#
-#     rho, _ = spearmanr(kappa, y_pred)
-#     tau, _ = kendalltau(kappa, y_pred)
-#     
-#     ## rank r2 is effectively rho^2
-#     r2 = rho**2 if not np.isnan(rho) else np.nan
-#
-#     return {
-#         "spearman_rho": float(rho) if not np.isnan(rho) else np.nan,
-#         "kendall_tau": float(tau) if not np.isnan(tau) else np.nan,
-#         "rank_r2": float(r2) if not np.isnan(r2) else np.nan
-#     }
-#
-# ## joint structural ordering metrics
-# def structural_ordering(kappa: np.ndarray, y_pred: np.ndarray) -> dict:
-#
-#     """ Compute all structural ordering metrics and return as a dictionary. """
-#
-#     ## handle list or array input
-#     kappa = np.asarray(kappa)
-#     y_pred = np.asarray(y_pred)
-#
-#     ## compute base metrics
-#     results = {
-#         "monotonic_index": monotonic_index(kappa, y_pred),
-#         "violation_magnitude": violation_magnitude(kappa, y_pred)
-#     }
-#
-#     ## add association metrics (spearman, kendall, rank_r2)
-#     results.update(structural_association(kappa, y_pred))
-#
-#     return results

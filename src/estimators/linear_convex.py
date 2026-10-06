@@ -4,7 +4,7 @@ from numpy.typing import ArrayLike, NDArray
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.linear_model import QuantileRegressor
 
-## modules
+## constants
 from src.estimators.config import (
     ASYMMETRY_C,
     ASYMMETRY_R,

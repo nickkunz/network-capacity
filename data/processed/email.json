@@ -12,15 +12,15 @@
     "degree_variance": 8195.390985300182,
     "global_clustering": 0.0,
     "degree_assortativity": -1.0,
-    "degree_entropy": 0.6879692351151987,
+    "degree_entropy": 0.6879692351151985,
     "joint_degree_entropy": 0.0,
-    "degree_skewness": 0.2044113027818991,
-    "degree_kurtosis": -1.9582160192950058,
+    "degree_skewness": 0.20458278078841843,
     "normalized_laplacian_second_moment": 1.0011173184357542,
     "normalized_laplacian_third_moment": 1.0033519553072625,
     "random_walk_triangle_weight": 0.0,
-    "random_walk_fourth_moment": 0.0022813228834692675,
-    "adjacency_fourth_moment_per_node": 702171005.0681565
+    "random_walk_fourth_moment": 0.0011173184357541898,
+    "adjacency_fourth_moment_per_node": 702171005.0681565,
+    "degree_kurtosis": -1.9603374574534416
   },
   "signatures": {
     "lag1_autocorr": 0.4624327588425018,

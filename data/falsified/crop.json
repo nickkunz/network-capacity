@@ -1,166 +1,2958 @@
 {
   "target_remap": {
     "invariants": {
-      "n_nodes": 2964,
-      "n_edges": 9371,
-      "n_articulation_points": 38,
-      "n_bridges": 1699,
-      "diameter": 8.0,
-      "radius": 4.0,
-      "degeneracy": 13,
-      "k_core_size": 55,
-      "maximum_degree": 1139,
-      "degree_variance": 1932.9744814517348,
+      "n_nodes": 240,
+      "n_edges": 355,
+      "n_articulation_points": 10,
+      "n_bridges": 163,
+      "diameter": 6.0,
+      "radius": 3.0,
+      "degeneracy": 4,
+      "k_core_size": 10,
+      "maximum_degree": 113,
+      "degree_variance": 87.93159722222224,
       "global_clustering": 0.0,
-      "degree_assortativity": -0.6007474371857727,
-      "degree_entropy": 1.7394038649818697,
-      "joint_degree_entropy": 5.101561207886473,
-      "degree_skewness": 18.317783008325748,
-      "degree_kurtosis": 375.9167626523419,
-      "normalized_laplacian_second_moment": 1.0138185788792222,
-      "normalized_laplacian_third_moment": 1.0414557366376667,
+      "degree_assortativity": -0.5806165140941476,
+      "degree_entropy": 1.1804123967985478,
+      "joint_degree_entropy": 3.1546429464284946,
+      "degree_skewness": 8.684403603269462,
+      "normalized_laplacian_second_moment": 1.049335559538357,
+      "normalized_laplacian_third_moment": 1.148006678615071,
       "random_walk_triangle_weight": 0.0,
-      "random_walk_fourth_moment": 0.009430404406801601,
-      "adjacency_fourth_moment_per_node": 18478.31241565452
+      "random_walk_fourth_moment": 0.0352554338844423,
+      "adjacency_fourth_moment_per_node": 256.175,
+      "degree_kurtosis": 87.63503319964839
     },
     "signatures": {
-      "lag1_autocorr": 0.17793108151453657,
-      "coef_variation": 3.4635220803040707,
-      "fano_factor": 7709.991059741658,
-      "norm_succ_diff": 1.483868843282044,
-      "hurst_exponent": 0.5253369800752574,
-      "trend_coeff": 0.3497665305329729,
-      "count_skewness": 4.545405356882332
+      "lag1_autocorr": 0.5052021131875026,
+      "coef_variation": 1.1689977383005206,
+      "fano_factor": 217.47304042452006,
+      "norm_succ_diff": 0.6869953784889625,
+      "hurst_exponent": 0.6804122558584242,
+      "trend_coeff": -0.26469827243197386,
+      "count_skewness": 2.919705340682203
     },
     "events": [
       {
         "day": 0,
-        "target": 188
+        "target": 0
       },
       {
         "day": 1,
-        "target": 206
+        "target": 0
       },
       {
         "day": 2,
-        "target": 116
+        "target": 0
       },
       {
         "day": 3,
-        "target": 52
+        "target": 0
       },
       {
         "day": 4,
-        "target": 168
+        "target": 0
       },
       {
         "day": 5,
-        "target": 256
+        "target": 0
       },
       {
         "day": 6,
-        "target": 197
+        "target": 0
       },
       {
         "day": 7,
-        "target": 209
+        "target": 0
       },
       {
         "day": 8,
-        "target": 240
+        "target": 2
       },
       {
         "day": 9,
-        "target": 138
+        "target": 0
       },
       {
         "day": 10,
-        "target": 54
+        "target": 0
       },
       {
         "day": 11,
-        "target": 104
+        "target": 2
       },
       {
         "day": 12,
-        "target": 217
+        "target": 0
       },
       {
         "day": 13,
-        "target": 206
+        "target": 0
       },
       {
         "day": 14,
-        "target": 184
+        "target": 4
       },
       {
         "day": 15,
-        "target": 232
+        "target": 4
       },
       {
         "day": 16,
-        "target": 108
+        "target": 2
       },
       {
         "day": 17,
-        "target": 64
+        "target": 0
       },
       {
         "day": 18,
-        "target": 193
+        "target": 0
       },
       {
         "day": 19,
-        "target": 145
+        "target": 0
       },
       {
         "day": 20,
-        "target": 209
+        "target": 0
       },
       {
         "day": 21,
-        "target": 121
+        "target": 0
       },
       {
         "day": 22,
-        "target": 217
+        "target": 0
       },
       {
         "day": 23,
-        "target": 116
+        "target": 0
       },
       {
         "day": 24,
-        "target": 46
+        "target": 0
       },
       {
         "day": 25,
-        "target": 166
+        "target": 0
       },
       {
         "day": 26,
-        "target": 181
+        "target": 0
       },
       {
         "day": 27,
-        "target": 174
+        "target": 0
       },
       {
         "day": 28,
-        "target": 194
+        "target": 0
       },
       {
         "day": 29,
-        "target": 190
+        "target": 0
+      },
+      {
+        "day": 30,
+        "target": 2
+      },
+      {
+        "day": 31,
+        "target": 2
+      },
+      {
+        "day": 32,
+        "target": 0
+      },
+      {
+        "day": 33,
+        "target": 2
+      },
+      {
+        "day": 34,
+        "target": 2
+      },
+      {
+        "day": 35,
+        "target": 4
+      },
+      {
+        "day": 36,
+        "target": 0
+      },
+      {
+        "day": 37,
+        "target": 0
+      },
+      {
+        "day": 38,
+        "target": 4
+      },
+      {
+        "day": 39,
+        "target": 0
+      },
+      {
+        "day": 40,
+        "target": 0
+      },
+      {
+        "day": 41,
+        "target": 2
+      },
+      {
+        "day": 42,
+        "target": 0
+      },
+      {
+        "day": 43,
+        "target": 2
+      },
+      {
+        "day": 44,
+        "target": 0
+      },
+      {
+        "day": 45,
+        "target": 2
+      },
+      {
+        "day": 46,
+        "target": 0
+      },
+      {
+        "day": 47,
+        "target": 0
+      },
+      {
+        "day": 48,
+        "target": 0
+      },
+      {
+        "day": 49,
+        "target": 0
+      },
+      {
+        "day": 50,
+        "target": 2
+      },
+      {
+        "day": 51,
+        "target": 0
+      },
+      {
+        "day": 52,
+        "target": 0
+      },
+      {
+        "day": 53,
+        "target": 0
+      },
+      {
+        "day": 54,
+        "target": 0
+      },
+      {
+        "day": 55,
+        "target": 2
+      },
+      {
+        "day": 56,
+        "target": 2
+      },
+      {
+        "day": 57,
+        "target": 0
+      },
+      {
+        "day": 58,
+        "target": 2
+      },
+      {
+        "day": 59,
+        "target": 0
+      },
+      {
+        "day": 60,
+        "target": 0
+      },
+      {
+        "day": 61,
+        "target": 2
+      },
+      {
+        "day": 62,
+        "target": 0
+      },
+      {
+        "day": 63,
+        "target": 0
+      },
+      {
+        "day": 64,
+        "target": 4
+      },
+      {
+        "day": 65,
+        "target": 4
+      },
+      {
+        "day": 66,
+        "target": 2
+      },
+      {
+        "day": 67,
+        "target": 2
+      },
+      {
+        "day": 68,
+        "target": 2
+      },
+      {
+        "day": 69,
+        "target": 0
+      },
+      {
+        "day": 70,
+        "target": 2
+      },
+      {
+        "day": 71,
+        "target": 0
+      },
+      {
+        "day": 72,
+        "target": 6
+      },
+      {
+        "day": 73,
+        "target": 2
+      },
+      {
+        "day": 74,
+        "target": 0
+      },
+      {
+        "day": 75,
+        "target": 0
+      },
+      {
+        "day": 76,
+        "target": 0
+      },
+      {
+        "day": 77,
+        "target": 4
+      },
+      {
+        "day": 78,
+        "target": 2
+      },
+      {
+        "day": 79,
+        "target": 2
+      },
+      {
+        "day": 80,
+        "target": 2
+      },
+      {
+        "day": 81,
+        "target": 0
+      },
+      {
+        "day": 82,
+        "target": 0
+      },
+      {
+        "day": 83,
+        "target": 0
+      },
+      {
+        "day": 84,
+        "target": 2
+      },
+      {
+        "day": 85,
+        "target": 0
+      },
+      {
+        "day": 86,
+        "target": 2
+      },
+      {
+        "day": 87,
+        "target": 2
+      },
+      {
+        "day": 88,
+        "target": 0
+      },
+      {
+        "day": 89,
+        "target": 2
+      },
+      {
+        "day": 90,
+        "target": 0
+      },
+      {
+        "day": 91,
+        "target": 0
+      },
+      {
+        "day": 92,
+        "target": 0
+      },
+      {
+        "day": 93,
+        "target": 2
+      },
+      {
+        "day": 94,
+        "target": 0
+      },
+      {
+        "day": 95,
+        "target": 0
+      },
+      {
+        "day": 96,
+        "target": 2
+      },
+      {
+        "day": 97,
+        "target": 0
+      },
+      {
+        "day": 98,
+        "target": 2
+      },
+      {
+        "day": 99,
+        "target": 0
+      },
+      {
+        "day": 100,
+        "target": 2
+      },
+      {
+        "day": 101,
+        "target": 0
+      },
+      {
+        "day": 102,
+        "target": 0
+      },
+      {
+        "day": 103,
+        "target": 0
+      },
+      {
+        "day": 104,
+        "target": 2
+      },
+      {
+        "day": 105,
+        "target": 0
+      },
+      {
+        "day": 106,
+        "target": 0
+      },
+      {
+        "day": 107,
+        "target": 0
+      },
+      {
+        "day": 108,
+        "target": 0
+      },
+      {
+        "day": 109,
+        "target": 0
+      },
+      {
+        "day": 110,
+        "target": 0
+      },
+      {
+        "day": 111,
+        "target": 0
+      },
+      {
+        "day": 112,
+        "target": 0
+      },
+      {
+        "day": 113,
+        "target": 2
+      },
+      {
+        "day": 114,
+        "target": 0
+      },
+      {
+        "day": 115,
+        "target": 4
+      },
+      {
+        "day": 116,
+        "target": 4
+      },
+      {
+        "day": 117,
+        "target": 2
+      },
+      {
+        "day": 118,
+        "target": 2
+      },
+      {
+        "day": 119,
+        "target": 0
+      },
+      {
+        "day": 120,
+        "target": 1
+      },
+      {
+        "day": 121,
+        "target": 1
+      },
+      {
+        "day": 122,
+        "target": 2
+      },
+      {
+        "day": 123,
+        "target": 0
+      },
+      {
+        "day": 124,
+        "target": 3
+      },
+      {
+        "day": 125,
+        "target": 2
+      },
+      {
+        "day": 126,
+        "target": 3
+      },
+      {
+        "day": 127,
+        "target": 0
+      },
+      {
+        "day": 128,
+        "target": 0
+      },
+      {
+        "day": 129,
+        "target": 0
+      },
+      {
+        "day": 130,
+        "target": 0
+      },
+      {
+        "day": 131,
+        "target": 0
+      },
+      {
+        "day": 132,
+        "target": 0
+      },
+      {
+        "day": 133,
+        "target": 0
+      },
+      {
+        "day": 134,
+        "target": 2
+      },
+      {
+        "day": 135,
+        "target": 0
+      },
+      {
+        "day": 136,
+        "target": 0
+      },
+      {
+        "day": 137,
+        "target": 2
+      },
+      {
+        "day": 138,
+        "target": 0
+      },
+      {
+        "day": 139,
+        "target": 0
+      },
+      {
+        "day": 140,
+        "target": 2
+      },
+      {
+        "day": 141,
+        "target": 0
+      },
+      {
+        "day": 142,
+        "target": 2
+      },
+      {
+        "day": 143,
+        "target": 0
+      },
+      {
+        "day": 144,
+        "target": 0
+      },
+      {
+        "day": 145,
+        "target": 0
+      },
+      {
+        "day": 146,
+        "target": 0
+      },
+      {
+        "day": 147,
+        "target": 0
+      },
+      {
+        "day": 148,
+        "target": 0
+      },
+      {
+        "day": 149,
+        "target": 0
+      },
+      {
+        "day": 150,
+        "target": 0
+      },
+      {
+        "day": 151,
+        "target": 0
+      },
+      {
+        "day": 152,
+        "target": 0
+      },
+      {
+        "day": 153,
+        "target": 2
+      },
+      {
+        "day": 154,
+        "target": 0
+      },
+      {
+        "day": 155,
+        "target": 0
+      },
+      {
+        "day": 156,
+        "target": 0
+      },
+      {
+        "day": 157,
+        "target": 0
+      },
+      {
+        "day": 158,
+        "target": 0
+      },
+      {
+        "day": 159,
+        "target": 0
+      },
+      {
+        "day": 160,
+        "target": 0
+      },
+      {
+        "day": 161,
+        "target": 2
+      },
+      {
+        "day": 162,
+        "target": 2
+      },
+      {
+        "day": 163,
+        "target": 0
+      },
+      {
+        "day": 164,
+        "target": 0
+      },
+      {
+        "day": 165,
+        "target": 2
+      },
+      {
+        "day": 166,
+        "target": 4
+      },
+      {
+        "day": 167,
+        "target": 0
+      },
+      {
+        "day": 168,
+        "target": 0
+      },
+      {
+        "day": 169,
+        "target": 0
+      },
+      {
+        "day": 170,
+        "target": 2
+      },
+      {
+        "day": 171,
+        "target": 0
+      },
+      {
+        "day": 172,
+        "target": 0
+      },
+      {
+        "day": 173,
+        "target": 0
+      },
+      {
+        "day": 174,
+        "target": 2
+      },
+      {
+        "day": 175,
+        "target": 0
+      },
+      {
+        "day": 176,
+        "target": 0
+      },
+      {
+        "day": 177,
+        "target": 0
+      },
+      {
+        "day": 178,
+        "target": 6
+      },
+      {
+        "day": 179,
+        "target": 0
+      },
+      {
+        "day": 180,
+        "target": 0
+      },
+      {
+        "day": 181,
+        "target": 0
+      },
+      {
+        "day": 182,
+        "target": 4
+      },
+      {
+        "day": 183,
+        "target": 2
+      },
+      {
+        "day": 184,
+        "target": 0
+      },
+      {
+        "day": 185,
+        "target": 2
+      },
+      {
+        "day": 186,
+        "target": 0
+      },
+      {
+        "day": 187,
+        "target": 2
+      },
+      {
+        "day": 188,
+        "target": 2
+      },
+      {
+        "day": 189,
+        "target": 0
+      },
+      {
+        "day": 190,
+        "target": 0
+      },
+      {
+        "day": 191,
+        "target": 0
+      },
+      {
+        "day": 192,
+        "target": 0
+      },
+      {
+        "day": 193,
+        "target": 2
+      },
+      {
+        "day": 194,
+        "target": 0
+      },
+      {
+        "day": 195,
+        "target": 0
+      },
+      {
+        "day": 196,
+        "target": 0
+      },
+      {
+        "day": 197,
+        "target": 0
+      },
+      {
+        "day": 198,
+        "target": 0
+      },
+      {
+        "day": 199,
+        "target": 4
+      },
+      {
+        "day": 200,
+        "target": 0
+      },
+      {
+        "day": 201,
+        "target": 2
+      },
+      {
+        "day": 202,
+        "target": 2
+      },
+      {
+        "day": 203,
+        "target": 2
+      },
+      {
+        "day": 204,
+        "target": 0
+      },
+      {
+        "day": 205,
+        "target": 0
+      },
+      {
+        "day": 206,
+        "target": 0
+      },
+      {
+        "day": 207,
+        "target": 2
+      },
+      {
+        "day": 208,
+        "target": 0
+      },
+      {
+        "day": 209,
+        "target": 2
+      },
+      {
+        "day": 210,
+        "target": 0
+      },
+      {
+        "day": 211,
+        "target": 1
+      },
+      {
+        "day": 212,
+        "target": 1
+      },
+      {
+        "day": 213,
+        "target": 1
+      },
+      {
+        "day": 214,
+        "target": 3
+      },
+      {
+        "day": 215,
+        "target": 0
+      },
+      {
+        "day": 216,
+        "target": 6
+      },
+      {
+        "day": 217,
+        "target": 0
+      },
+      {
+        "day": 218,
+        "target": 0
+      },
+      {
+        "day": 219,
+        "target": 0
+      },
+      {
+        "day": 220,
+        "target": 0
+      },
+      {
+        "day": 221,
+        "target": 0
+      },
+      {
+        "day": 222,
+        "target": 0
+      },
+      {
+        "day": 223,
+        "target": 0
+      },
+      {
+        "day": 224,
+        "target": 2
+      },
+      {
+        "day": 225,
+        "target": 0
+      },
+      {
+        "day": 226,
+        "target": 2
+      },
+      {
+        "day": 227,
+        "target": 2
+      },
+      {
+        "day": 228,
+        "target": 0
+      },
+      {
+        "day": 229,
+        "target": 2
+      },
+      {
+        "day": 230,
+        "target": 0
+      },
+      {
+        "day": 231,
+        "target": 0
+      },
+      {
+        "day": 232,
+        "target": 2
+      },
+      {
+        "day": 233,
+        "target": 0
+      },
+      {
+        "day": 234,
+        "target": 2
+      },
+      {
+        "day": 235,
+        "target": 0
+      },
+      {
+        "day": 236,
+        "target": 0
+      },
+      {
+        "day": 237,
+        "target": 0
+      },
+      {
+        "day": 238,
+        "target": 0
+      },
+      {
+        "day": 239,
+        "target": 0
+      },
+      {
+        "day": 240,
+        "target": 0
+      },
+      {
+        "day": 241,
+        "target": 3
+      },
+      {
+        "day": 242,
+        "target": 1
+      },
+      {
+        "day": 243,
+        "target": 0
+      },
+      {
+        "day": 244,
+        "target": 2
+      },
+      {
+        "day": 245,
+        "target": 2
+      },
+      {
+        "day": 246,
+        "target": 0
+      },
+      {
+        "day": 247,
+        "target": 0
+      },
+      {
+        "day": 248,
+        "target": 4
+      },
+      {
+        "day": 249,
+        "target": 0
+      },
+      {
+        "day": 250,
+        "target": 4
+      },
+      {
+        "day": 251,
+        "target": 0
+      },
+      {
+        "day": 252,
+        "target": 2
+      },
+      {
+        "day": 253,
+        "target": 0
+      },
+      {
+        "day": 254,
+        "target": 0
+      },
+      {
+        "day": 255,
+        "target": 0
+      },
+      {
+        "day": 256,
+        "target": 2
+      },
+      {
+        "day": 257,
+        "target": 0
+      },
+      {
+        "day": 258,
+        "target": 2
+      },
+      {
+        "day": 259,
+        "target": 2
+      },
+      {
+        "day": 260,
+        "target": 0
+      },
+      {
+        "day": 261,
+        "target": 0
+      },
+      {
+        "day": 262,
+        "target": 2
+      },
+      {
+        "day": 263,
+        "target": 0
+      },
+      {
+        "day": 264,
+        "target": 0
+      },
+      {
+        "day": 265,
+        "target": 2
+      },
+      {
+        "day": 266,
+        "target": 0
+      },
+      {
+        "day": 267,
+        "target": 0
+      },
+      {
+        "day": 268,
+        "target": 0
+      },
+      {
+        "day": 269,
+        "target": 2
+      },
+      {
+        "day": 270,
+        "target": 0
+      },
+      {
+        "day": 271,
+        "target": 2
+      },
+      {
+        "day": 272,
+        "target": 2
+      },
+      {
+        "day": 273,
+        "target": 0
+      },
+      {
+        "day": 274,
+        "target": 0
+      },
+      {
+        "day": 275,
+        "target": 0
+      },
+      {
+        "day": 276,
+        "target": 2
+      },
+      {
+        "day": 277,
+        "target": 0
+      },
+      {
+        "day": 278,
+        "target": 2
+      },
+      {
+        "day": 279,
+        "target": 0
+      },
+      {
+        "day": 280,
+        "target": 2
+      },
+      {
+        "day": 281,
+        "target": 2
+      },
+      {
+        "day": 282,
+        "target": 0
+      },
+      {
+        "day": 283,
+        "target": 0
+      },
+      {
+        "day": 284,
+        "target": 2
+      },
+      {
+        "day": 285,
+        "target": 0
+      },
+      {
+        "day": 286,
+        "target": 0
+      },
+      {
+        "day": 287,
+        "target": 2
+      },
+      {
+        "day": 288,
+        "target": 0
+      },
+      {
+        "day": 289,
+        "target": 1
+      },
+      {
+        "day": 290,
+        "target": 1
+      },
+      {
+        "day": 291,
+        "target": 0
+      },
+      {
+        "day": 292,
+        "target": 2
+      },
+      {
+        "day": 293,
+        "target": 3
+      },
+      {
+        "day": 294,
+        "target": 2
+      },
+      {
+        "day": 295,
+        "target": 3
+      },
+      {
+        "day": 296,
+        "target": 6
+      },
+      {
+        "day": 297,
+        "target": 0
+      },
+      {
+        "day": 298,
+        "target": 2
+      },
+      {
+        "day": 299,
+        "target": 2
+      },
+      {
+        "day": 300,
+        "target": 0
+      },
+      {
+        "day": 301,
+        "target": 0
+      },
+      {
+        "day": 302,
+        "target": 2
+      },
+      {
+        "day": 303,
+        "target": 0
+      },
+      {
+        "day": 304,
+        "target": 0
+      },
+      {
+        "day": 305,
+        "target": 4
+      },
+      {
+        "day": 306,
+        "target": 4
+      },
+      {
+        "day": 307,
+        "target": 0
+      },
+      {
+        "day": 308,
+        "target": 0
+      },
+      {
+        "day": 309,
+        "target": 0
+      },
+      {
+        "day": 310,
+        "target": 2
+      },
+      {
+        "day": 311,
+        "target": 4
+      },
+      {
+        "day": 312,
+        "target": 2
+      },
+      {
+        "day": 313,
+        "target": 0
+      },
+      {
+        "day": 314,
+        "target": 2
+      },
+      {
+        "day": 315,
+        "target": 0
+      },
+      {
+        "day": 316,
+        "target": 0
+      },
+      {
+        "day": 317,
+        "target": 0
+      },
+      {
+        "day": 318,
+        "target": 4
+      },
+      {
+        "day": 319,
+        "target": 0
+      },
+      {
+        "day": 320,
+        "target": 0
+      },
+      {
+        "day": 321,
+        "target": 0
+      },
+      {
+        "day": 322,
+        "target": 2
+      },
+      {
+        "day": 323,
+        "target": 0
+      },
+      {
+        "day": 324,
+        "target": 0
+      },
+      {
+        "day": 325,
+        "target": 2
+      },
+      {
+        "day": 326,
+        "target": 0
+      },
+      {
+        "day": 327,
+        "target": 0
+      },
+      {
+        "day": 328,
+        "target": 0
+      },
+      {
+        "day": 329,
+        "target": 0
+      },
+      {
+        "day": 330,
+        "target": 2
+      },
+      {
+        "day": 331,
+        "target": 2
+      },
+      {
+        "day": 332,
+        "target": 2
+      },
+      {
+        "day": 333,
+        "target": 4
+      },
+      {
+        "day": 334,
+        "target": 4
+      },
+      {
+        "day": 335,
+        "target": 0
+      },
+      {
+        "day": 336,
+        "target": 2
+      },
+      {
+        "day": 337,
+        "target": 0
+      },
+      {
+        "day": 338,
+        "target": 0
+      },
+      {
+        "day": 339,
+        "target": 0
+      },
+      {
+        "day": 340,
+        "target": 3
+      },
+      {
+        "day": 341,
+        "target": 1
+      },
+      {
+        "day": 342,
+        "target": 0
+      },
+      {
+        "day": 343,
+        "target": 2
+      },
+      {
+        "day": 344,
+        "target": 2
+      },
+      {
+        "day": 345,
+        "target": 0
+      },
+      {
+        "day": 346,
+        "target": 2
+      },
+      {
+        "day": 347,
+        "target": 0
+      },
+      {
+        "day": 348,
+        "target": 0
+      },
+      {
+        "day": 349,
+        "target": 2
+      },
+      {
+        "day": 350,
+        "target": 2
+      },
+      {
+        "day": 351,
+        "target": 2
+      },
+      {
+        "day": 352,
+        "target": 3
+      },
+      {
+        "day": 353,
+        "target": 1
+      },
+      {
+        "day": 354,
+        "target": 0
+      },
+      {
+        "day": 355,
+        "target": 0
+      },
+      {
+        "day": 356,
+        "target": 0
+      },
+      {
+        "day": 357,
+        "target": 0
+      },
+      {
+        "day": 358,
+        "target": 0
+      },
+      {
+        "day": 359,
+        "target": 0
+      },
+      {
+        "day": 360,
+        "target": 0
+      },
+      {
+        "day": 361,
+        "target": 2
+      },
+      {
+        "day": 362,
+        "target": 0
+      },
+      {
+        "day": 363,
+        "target": 0
+      },
+      {
+        "day": 364,
+        "target": 0
+      },
+      {
+        "day": 365,
+        "target": 2
+      },
+      {
+        "day": 366,
+        "target": 2
+      },
+      {
+        "day": 367,
+        "target": 0
+      },
+      {
+        "day": 368,
+        "target": 2
+      },
+      {
+        "day": 369,
+        "target": 2
+      },
+      {
+        "day": 370,
+        "target": 0
+      },
+      {
+        "day": 371,
+        "target": 4
+      },
+      {
+        "day": 372,
+        "target": 2
+      },
+      {
+        "day": 373,
+        "target": 0
+      },
+      {
+        "day": 374,
+        "target": 2
+      },
+      {
+        "day": 375,
+        "target": 2
+      },
+      {
+        "day": 376,
+        "target": 4
+      },
+      {
+        "day": 377,
+        "target": 0
+      },
+      {
+        "day": 378,
+        "target": 0
+      },
+      {
+        "day": 379,
+        "target": 2
+      },
+      {
+        "day": 380,
+        "target": 0
+      },
+      {
+        "day": 381,
+        "target": 0
+      },
+      {
+        "day": 382,
+        "target": 0
+      },
+      {
+        "day": 383,
+        "target": 2
+      },
+      {
+        "day": 384,
+        "target": 0
+      },
+      {
+        "day": 385,
+        "target": 4
+      },
+      {
+        "day": 386,
+        "target": 0
+      },
+      {
+        "day": 387,
+        "target": 2
+      },
+      {
+        "day": 388,
+        "target": 2
+      },
+      {
+        "day": 389,
+        "target": 0
+      },
+      {
+        "day": 390,
+        "target": 4
+      },
+      {
+        "day": 391,
+        "target": 0
+      },
+      {
+        "day": 392,
+        "target": 2
+      },
+      {
+        "day": 393,
+        "target": 4
+      },
+      {
+        "day": 394,
+        "target": 0
+      },
+      {
+        "day": 395,
+        "target": 0
+      },
+      {
+        "day": 396,
+        "target": 2
+      },
+      {
+        "day": 397,
+        "target": 0
+      },
+      {
+        "day": 398,
+        "target": 0
+      },
+      {
+        "day": 399,
+        "target": 0
+      },
+      {
+        "day": 400,
+        "target": 2
+      },
+      {
+        "day": 401,
+        "target": 2
+      },
+      {
+        "day": 402,
+        "target": 0
+      },
+      {
+        "day": 403,
+        "target": 4
+      },
+      {
+        "day": 404,
+        "target": 0
+      },
+      {
+        "day": 405,
+        "target": 0
+      },
+      {
+        "day": 406,
+        "target": 2
+      },
+      {
+        "day": 407,
+        "target": 2
+      },
+      {
+        "day": 408,
+        "target": 0
+      },
+      {
+        "day": 409,
+        "target": 0
+      },
+      {
+        "day": 410,
+        "target": 0
+      },
+      {
+        "day": 411,
+        "target": 0
+      },
+      {
+        "day": 412,
+        "target": 0
+      },
+      {
+        "day": 413,
+        "target": 2
+      },
+      {
+        "day": 414,
+        "target": 2
+      },
+      {
+        "day": 415,
+        "target": 0
+      },
+      {
+        "day": 416,
+        "target": 0
+      },
+      {
+        "day": 417,
+        "target": 0
+      },
+      {
+        "day": 418,
+        "target": 0
+      },
+      {
+        "day": 419,
+        "target": 0
+      },
+      {
+        "day": 420,
+        "target": 0
+      },
+      {
+        "day": 421,
+        "target": 2
+      },
+      {
+        "day": 422,
+        "target": 2
+      },
+      {
+        "day": 423,
+        "target": 0
+      },
+      {
+        "day": 424,
+        "target": 0
+      },
+      {
+        "day": 425,
+        "target": 0
+      },
+      {
+        "day": 426,
+        "target": 0
+      },
+      {
+        "day": 427,
+        "target": 0
+      },
+      {
+        "day": 428,
+        "target": 0
+      },
+      {
+        "day": 429,
+        "target": 0
+      },
+      {
+        "day": 430,
+        "target": 0
+      },
+      {
+        "day": 431,
+        "target": 2
+      },
+      {
+        "day": 432,
+        "target": 2
+      },
+      {
+        "day": 433,
+        "target": 2
+      },
+      {
+        "day": 434,
+        "target": 0
+      },
+      {
+        "day": 435,
+        "target": 0
+      },
+      {
+        "day": 436,
+        "target": 0
+      },
+      {
+        "day": 437,
+        "target": 0
+      },
+      {
+        "day": 438,
+        "target": 2
+      },
+      {
+        "day": 439,
+        "target": 0
+      },
+      {
+        "day": 440,
+        "target": 2
+      },
+      {
+        "day": 441,
+        "target": 2
+      },
+      {
+        "day": 442,
+        "target": 3
+      },
+      {
+        "day": 443,
+        "target": 3
+      },
+      {
+        "day": 444,
+        "target": 0
+      },
+      {
+        "day": 445,
+        "target": 2
+      },
+      {
+        "day": 446,
+        "target": 2
+      },
+      {
+        "day": 447,
+        "target": 2
+      },
+      {
+        "day": 448,
+        "target": 0
+      },
+      {
+        "day": 449,
+        "target": 0
+      },
+      {
+        "day": 450,
+        "target": 0
+      },
+      {
+        "day": 451,
+        "target": 0
+      },
+      {
+        "day": 452,
+        "target": 0
+      },
+      {
+        "day": 453,
+        "target": 0
+      },
+      {
+        "day": 454,
+        "target": 6
+      },
+      {
+        "day": 455,
+        "target": 0
+      },
+      {
+        "day": 456,
+        "target": 2
+      },
+      {
+        "day": 457,
+        "target": 0
+      },
+      {
+        "day": 458,
+        "target": 0
+      },
+      {
+        "day": 459,
+        "target": 0
+      },
+      {
+        "day": 460,
+        "target": 4
+      },
+      {
+        "day": 461,
+        "target": 0
+      },
+      {
+        "day": 462,
+        "target": 0
+      },
+      {
+        "day": 463,
+        "target": 2
+      },
+      {
+        "day": 464,
+        "target": 0
+      },
+      {
+        "day": 465,
+        "target": 2
+      },
+      {
+        "day": 466,
+        "target": 2
+      },
+      {
+        "day": 467,
+        "target": 2
+      },
+      {
+        "day": 468,
+        "target": 4
+      },
+      {
+        "day": 469,
+        "target": 0
+      },
+      {
+        "day": 470,
+        "target": 1
+      },
+      {
+        "day": 471,
+        "target": 1
+      },
+      {
+        "day": 472,
+        "target": 0
+      },
+      {
+        "day": 473,
+        "target": 0
+      },
+      {
+        "day": 474,
+        "target": 0
+      },
+      {
+        "day": 475,
+        "target": 2
+      },
+      {
+        "day": 476,
+        "target": 0
+      },
+      {
+        "day": 477,
+        "target": 0
+      },
+      {
+        "day": 478,
+        "target": 0
+      },
+      {
+        "day": 479,
+        "target": 0
+      },
+      {
+        "day": 480,
+        "target": 0
+      },
+      {
+        "day": 481,
+        "target": 2
+      },
+      {
+        "day": 482,
+        "target": 0
+      },
+      {
+        "day": 483,
+        "target": 0
+      },
+      {
+        "day": 484,
+        "target": 0
+      },
+      {
+        "day": 485,
+        "target": 0
+      },
+      {
+        "day": 486,
+        "target": 0
+      },
+      {
+        "day": 487,
+        "target": 0
+      },
+      {
+        "day": 488,
+        "target": 2
+      },
+      {
+        "day": 489,
+        "target": 0
+      },
+      {
+        "day": 490,
+        "target": 0
+      },
+      {
+        "day": 491,
+        "target": 0
+      },
+      {
+        "day": 492,
+        "target": 0
+      },
+      {
+        "day": 493,
+        "target": 0
+      },
+      {
+        "day": 494,
+        "target": 0
+      },
+      {
+        "day": 495,
+        "target": 0
+      },
+      {
+        "day": 496,
+        "target": 0
+      },
+      {
+        "day": 497,
+        "target": 2
+      },
+      {
+        "day": 498,
+        "target": 0
+      },
+      {
+        "day": 499,
+        "target": 2
+      },
+      {
+        "day": 500,
+        "target": 0
+      },
+      {
+        "day": 501,
+        "target": 0
+      },
+      {
+        "day": 502,
+        "target": 0
+      },
+      {
+        "day": 503,
+        "target": 0
+      },
+      {
+        "day": 504,
+        "target": 0
+      },
+      {
+        "day": 505,
+        "target": 0
+      },
+      {
+        "day": 506,
+        "target": 0
+      },
+      {
+        "day": 507,
+        "target": 0
+      },
+      {
+        "day": 508,
+        "target": 2
+      },
+      {
+        "day": 509,
+        "target": 7
+      },
+      {
+        "day": 510,
+        "target": 3
+      },
+      {
+        "day": 511,
+        "target": 0
+      },
+      {
+        "day": 512,
+        "target": 2
+      },
+      {
+        "day": 513,
+        "target": 0
+      },
+      {
+        "day": 514,
+        "target": 0
+      },
+      {
+        "day": 515,
+        "target": 0
+      },
+      {
+        "day": 516,
+        "target": 0
+      },
+      {
+        "day": 517,
+        "target": 2
+      },
+      {
+        "day": 518,
+        "target": 0
+      },
+      {
+        "day": 519,
+        "target": 1
+      },
+      {
+        "day": 520,
+        "target": 1
+      },
+      {
+        "day": 521,
+        "target": 0
+      },
+      {
+        "day": 522,
+        "target": 0
+      },
+      {
+        "day": 523,
+        "target": 0
+      },
+      {
+        "day": 524,
+        "target": 2
+      },
+      {
+        "day": 525,
+        "target": 0
+      },
+      {
+        "day": 526,
+        "target": 0
+      },
+      {
+        "day": 527,
+        "target": 0
+      },
+      {
+        "day": 528,
+        "target": 2
+      },
+      {
+        "day": 529,
+        "target": 0
+      },
+      {
+        "day": 530,
+        "target": 0
+      },
+      {
+        "day": 531,
+        "target": 0
+      },
+      {
+        "day": 532,
+        "target": 0
+      },
+      {
+        "day": 533,
+        "target": 0
+      },
+      {
+        "day": 534,
+        "target": 0
+      },
+      {
+        "day": 535,
+        "target": 2
+      },
+      {
+        "day": 536,
+        "target": 0
+      },
+      {
+        "day": 537,
+        "target": 0
+      },
+      {
+        "day": 538,
+        "target": 2
+      },
+      {
+        "day": 539,
+        "target": 0
+      },
+      {
+        "day": 540,
+        "target": 0
+      },
+      {
+        "day": 541,
+        "target": 4
+      },
+      {
+        "day": 542,
+        "target": 0
+      },
+      {
+        "day": 543,
+        "target": 0
+      },
+      {
+        "day": 544,
+        "target": 2
+      },
+      {
+        "day": 545,
+        "target": 0
+      },
+      {
+        "day": 546,
+        "target": 2
+      },
+      {
+        "day": 547,
+        "target": 0
+      },
+      {
+        "day": 548,
+        "target": 2
+      },
+      {
+        "day": 549,
+        "target": 0
+      },
+      {
+        "day": 550,
+        "target": 0
+      },
+      {
+        "day": 551,
+        "target": 0
+      },
+      {
+        "day": 552,
+        "target": 0
+      },
+      {
+        "day": 553,
+        "target": 0
+      },
+      {
+        "day": 554,
+        "target": 2
+      },
+      {
+        "day": 555,
+        "target": 4
+      },
+      {
+        "day": 556,
+        "target": 0
+      },
+      {
+        "day": 557,
+        "target": 0
+      },
+      {
+        "day": 558,
+        "target": 4
+      },
+      {
+        "day": 559,
+        "target": 0
+      },
+      {
+        "day": 560,
+        "target": 0
+      },
+      {
+        "day": 561,
+        "target": 2
+      },
+      {
+        "day": 562,
+        "target": 0
+      },
+      {
+        "day": 563,
+        "target": 0
+      },
+      {
+        "day": 564,
+        "target": 0
+      },
+      {
+        "day": 565,
+        "target": 0
+      },
+      {
+        "day": 566,
+        "target": 4
+      },
+      {
+        "day": 567,
+        "target": 2
+      },
+      {
+        "day": 568,
+        "target": 0
+      },
+      {
+        "day": 569,
+        "target": 0
+      },
+      {
+        "day": 570,
+        "target": 2
+      },
+      {
+        "day": 571,
+        "target": 0
+      },
+      {
+        "day": 572,
+        "target": 0
+      },
+      {
+        "day": 573,
+        "target": 0
+      },
+      {
+        "day": 574,
+        "target": 0
+      },
+      {
+        "day": 575,
+        "target": 2
+      },
+      {
+        "day": 576,
+        "target": 0
+      },
+      {
+        "day": 577,
+        "target": 2
+      },
+      {
+        "day": 578,
+        "target": 2
+      },
+      {
+        "day": 579,
+        "target": 0
+      },
+      {
+        "day": 580,
+        "target": 0
+      },
+      {
+        "day": 581,
+        "target": 0
+      },
+      {
+        "day": 582,
+        "target": 0
+      },
+      {
+        "day": 583,
+        "target": 0
+      },
+      {
+        "day": 584,
+        "target": 0
+      },
+      {
+        "day": 585,
+        "target": 0
+      },
+      {
+        "day": 586,
+        "target": 0
+      },
+      {
+        "day": 587,
+        "target": 2
+      },
+      {
+        "day": 588,
+        "target": 2
+      },
+      {
+        "day": 589,
+        "target": 2
+      },
+      {
+        "day": 590,
+        "target": 0
+      },
+      {
+        "day": 591,
+        "target": 0
+      },
+      {
+        "day": 592,
+        "target": 2
+      },
+      {
+        "day": 593,
+        "target": 0
+      },
+      {
+        "day": 594,
+        "target": 0
+      },
+      {
+        "day": 595,
+        "target": 4
+      },
+      {
+        "day": 596,
+        "target": 2
+      },
+      {
+        "day": 597,
+        "target": 2
+      },
+      {
+        "day": 598,
+        "target": 2
+      },
+      {
+        "day": 599,
+        "target": 2
+      },
+      {
+        "day": 600,
+        "target": 0
+      },
+      {
+        "day": 601,
+        "target": 4
+      },
+      {
+        "day": 602,
+        "target": 2
+      },
+      {
+        "day": 603,
+        "target": 0
+      },
+      {
+        "day": 604,
+        "target": 2
+      },
+      {
+        "day": 605,
+        "target": 2
+      },
+      {
+        "day": 606,
+        "target": 0
+      },
+      {
+        "day": 607,
+        "target": 4
+      },
+      {
+        "day": 608,
+        "target": 0
+      },
+      {
+        "day": 609,
+        "target": 2
+      },
+      {
+        "day": 610,
+        "target": 2
+      },
+      {
+        "day": 611,
+        "target": 2
+      },
+      {
+        "day": 612,
+        "target": 0
+      },
+      {
+        "day": 613,
+        "target": 0
+      },
+      {
+        "day": 614,
+        "target": 0
+      },
+      {
+        "day": 615,
+        "target": 2
+      },
+      {
+        "day": 616,
+        "target": 2
+      },
+      {
+        "day": 617,
+        "target": 0
+      },
+      {
+        "day": 618,
+        "target": 0
+      },
+      {
+        "day": 619,
+        "target": 2
+      },
+      {
+        "day": 620,
+        "target": 2
+      },
+      {
+        "day": 621,
+        "target": 0
+      },
+      {
+        "day": 622,
+        "target": 0
+      },
+      {
+        "day": 623,
+        "target": 4
+      },
+      {
+        "day": 624,
+        "target": 0
+      },
+      {
+        "day": 625,
+        "target": 0
+      },
+      {
+        "day": 626,
+        "target": 0
+      },
+      {
+        "day": 627,
+        "target": 0
+      },
+      {
+        "day": 628,
+        "target": 0
+      },
+      {
+        "day": 629,
+        "target": 0
+      },
+      {
+        "day": 630,
+        "target": 0
+      },
+      {
+        "day": 631,
+        "target": 0
+      },
+      {
+        "day": 632,
+        "target": 0
+      },
+      {
+        "day": 633,
+        "target": 0
+      },
+      {
+        "day": 634,
+        "target": 2
+      },
+      {
+        "day": 635,
+        "target": 6
+      },
+      {
+        "day": 636,
+        "target": 0
+      },
+      {
+        "day": 637,
+        "target": 0
+      },
+      {
+        "day": 638,
+        "target": 0
+      },
+      {
+        "day": 639,
+        "target": 0
+      },
+      {
+        "day": 640,
+        "target": 2
+      },
+      {
+        "day": 641,
+        "target": 0
+      },
+      {
+        "day": 642,
+        "target": 0
+      },
+      {
+        "day": 643,
+        "target": 0
+      },
+      {
+        "day": 644,
+        "target": 0
+      },
+      {
+        "day": 645,
+        "target": 0
+      },
+      {
+        "day": 646,
+        "target": 0
+      },
+      {
+        "day": 647,
+        "target": 0
+      },
+      {
+        "day": 648,
+        "target": 0
+      },
+      {
+        "day": 649,
+        "target": 2
+      },
+      {
+        "day": 650,
+        "target": 0
+      },
+      {
+        "day": 651,
+        "target": 0
+      },
+      {
+        "day": 652,
+        "target": 0
+      },
+      {
+        "day": 653,
+        "target": 0
+      },
+      {
+        "day": 654,
+        "target": 0
+      },
+      {
+        "day": 655,
+        "target": 2
+      },
+      {
+        "day": 656,
+        "target": 0
+      },
+      {
+        "day": 657,
+        "target": 2
+      },
+      {
+        "day": 658,
+        "target": 0
+      },
+      {
+        "day": 659,
+        "target": 2
+      },
+      {
+        "day": 660,
+        "target": 0
+      },
+      {
+        "day": 661,
+        "target": 0
+      },
+      {
+        "day": 662,
+        "target": 2
+      },
+      {
+        "day": 663,
+        "target": 2
+      },
+      {
+        "day": 664,
+        "target": 0
+      },
+      {
+        "day": 665,
+        "target": 0
+      },
+      {
+        "day": 666,
+        "target": 0
+      },
+      {
+        "day": 667,
+        "target": 0
+      },
+      {
+        "day": 668,
+        "target": 2
+      },
+      {
+        "day": 669,
+        "target": 0
+      },
+      {
+        "day": 670,
+        "target": 0
+      },
+      {
+        "day": 671,
+        "target": 2
+      },
+      {
+        "day": 672,
+        "target": 0
+      },
+      {
+        "day": 673,
+        "target": 0
+      },
+      {
+        "day": 674,
+        "target": 0
+      },
+      {
+        "day": 675,
+        "target": 0
+      },
+      {
+        "day": 676,
+        "target": 1
+      },
+      {
+        "day": 677,
+        "target": 1
+      },
+      {
+        "day": 678,
+        "target": 0
+      },
+      {
+        "day": 679,
+        "target": 0
+      },
+      {
+        "day": 680,
+        "target": 0
+      },
+      {
+        "day": 681,
+        "target": 2
+      },
+      {
+        "day": 682,
+        "target": 0
+      },
+      {
+        "day": 683,
+        "target": 2
+      },
+      {
+        "day": 684,
+        "target": 2
+      },
+      {
+        "day": 685,
+        "target": 0
+      },
+      {
+        "day": 686,
+        "target": 0
+      },
+      {
+        "day": 687,
+        "target": 2
+      },
+      {
+        "day": 688,
+        "target": 2
+      },
+      {
+        "day": 689,
+        "target": 2
+      },
+      {
+        "day": 690,
+        "target": 3
+      },
+      {
+        "day": 691,
+        "target": 3
+      },
+      {
+        "day": 692,
+        "target": 0
+      },
+      {
+        "day": 693,
+        "target": 2
+      },
+      {
+        "day": 694,
+        "target": 0
+      },
+      {
+        "day": 695,
+        "target": 0
+      },
+      {
+        "day": 696,
+        "target": 0
+      },
+      {
+        "day": 697,
+        "target": 2
+      },
+      {
+        "day": 698,
+        "target": 0
+      },
+      {
+        "day": 699,
+        "target": 0
+      },
+      {
+        "day": 700,
+        "target": 2
+      },
+      {
+        "day": 701,
+        "target": 0
+      },
+      {
+        "day": 702,
+        "target": 0
+      },
+      {
+        "day": 703,
+        "target": 0
+      },
+      {
+        "day": 704,
+        "target": 0
+      },
+      {
+        "day": 705,
+        "target": 0
+      },
+      {
+        "day": 706,
+        "target": 0
+      },
+      {
+        "day": 707,
+        "target": 0
+      },
+      {
+        "day": 708,
+        "target": 0
+      },
+      {
+        "day": 709,
+        "target": 0
+      },
+      {
+        "day": 710,
+        "target": 4
+      },
+      {
+        "day": 711,
+        "target": 0
+      },
+      {
+        "day": 712,
+        "target": 0
+      },
+      {
+        "day": 713,
+        "target": 0
+      },
+      {
+        "day": 714,
+        "target": 0
+      },
+      {
+        "day": 715,
+        "target": 0
+      },
+      {
+        "day": 716,
+        "target": 4
+      },
+      {
+        "day": 717,
+        "target": 0
+      },
+      {
+        "day": 718,
+        "target": 2
+      },
+      {
+        "day": 719,
+        "target": 0
+      },
+      {
+        "day": 720,
+        "target": 0
+      },
+      {
+        "day": 721,
+        "target": 0
+      },
+      {
+        "day": 722,
+        "target": 2
+      },
+      {
+        "day": 723,
+        "target": 0
+      },
+      {
+        "day": 724,
+        "target": 0
+      },
+      {
+        "day": 725,
+        "target": 0
+      },
+      {
+        "day": 726,
+        "target": 4
+      },
+      {
+        "day": 727,
+        "target": 0
       }
     ]
   },
   "random_generate": {
     "invariants": {
-      "n_nodes": 106213.92763934664,
+      "n_nodes": 422288.0643706337,
       "n_edges": 4266534331.286831,
-      "n_articulation_points": 34008.98801394968,
-      "n_bridges": 3452.9390574514646,
+      "n_articulation_points": 1056766.644769125,
+      "n_bridges": 102624.58474112477,
       "diameter": 341.0297907107226,
       "radius": 76.1965973657154,
       "degeneracy": 1790.709320595814,
@@ -168,286 +2960,1094 @@
       "maximum_degree": 1797804.7210991639,
       "degree_variance": 2780530174.35679,
       "global_clustering": 0.9367299887367345,
-      "degree_assortativity": -0.7693790560713386,
+      "degree_assortativity": -0.7841505036344688,
       "degree_entropy": 1.6079874517880137,
-      "joint_degree_entropy": 1.096101854285273,
-      "degree_skewness": 28.04840948407592,
-      "degree_kurtosis": 818.8880736435011,
-      "normalized_laplacian_second_moment": 0.3925198682621933,
-      "normalized_laplacian_third_moment": 1.6930025528702852,
-      "random_walk_triangle_weight": 0.15322916253772798,
-      "random_walk_fourth_moment": 0.22328728292587072,
-      "adjacency_fourth_moment_per_node": 21202445127528.406
+      "joint_degree_entropy": 1.096092020447809,
+      "degree_skewness": 296.3983418041166,
+      "normalized_laplacian_second_moment": 1.4406835059053704,
+      "normalized_laplacian_third_moment": 1.3201917260858658,
+      "random_walk_triangle_weight": 0.12374700863140857,
+      "random_walk_fourth_moment": 0.32866559042272964,
+      "adjacency_fourth_moment_per_node": 22225246650791.652,
+      "degree_kurtosis": 136875.37198644003
     },
     "signatures": {
-      "lag1_autocorr": 0.18487714873328245,
-      "coef_variation": 0.4764446085897855,
-      "fano_factor": 27114.24371706672,
-      "norm_succ_diff": 1.404545182922769,
+      "lag1_autocorr": 0.2512091731163396,
+      "coef_variation": 0.28058863856357885,
+      "fano_factor": 27114.233955956708,
+      "norm_succ_diff": 1.2268154950257681,
       "hurst_exponent": 0.7312907577235698,
-      "trend_coeff": -0.09815186924117761,
-      "count_skewness": 1.9381172915024383
+      "trend_coeff": -0.10354856762581256,
+      "count_skewness": 1.7227641793378945
     },
     "events": [
       {
-        "date": "2005-07-01",
-        "target": 83
+        "date": "2004-05-07",
+        "target": 270
       },
       {
-        "date": "2006-06-01",
-        "target": 137
+        "date": "2004-05-08",
+        "target": 213
       },
       {
-        "date": "2006-10-01",
-        "target": 18
+        "date": "2004-05-09",
+        "target": 313
       },
       {
-        "date": "2008-07-01",
-        "target": 88
+        "date": "2004-05-10",
+        "target": 250
       },
       {
-        "date": "2009-06-01",
-        "target": 16
+        "date": "2004-05-16",
+        "target": 201
       },
       {
-        "date": "2009-07-01",
-        "target": 104
+        "date": "2004-05-17",
+        "target": 246
       },
       {
-        "date": "2009-08-01",
-        "target": 16
+        "date": "2004-05-18",
+        "target": 258
       },
       {
-        "date": "2011-04-01",
-        "target": 91
+        "date": "2004-05-19",
+        "target": 287
       },
       {
-        "date": "2011-05-01",
-        "target": 98
-      },
-      {
-        "date": "2011-09-01",
-        "target": 85
-      },
-      {
-        "date": "2012-05-01",
-        "target": 63
-      },
-      {
-        "date": "2012-06-01",
-        "target": 237
-      },
-      {
-        "date": "2013-06-01",
-        "target": 143
-      },
-      {
-        "date": "2013-07-01",
-        "target": 191
-      },
-      {
-        "date": "2014-06-01",
-        "target": 421
-      },
-      {
-        "date": "2014-07-01",
-        "target": 193
-      },
-      {
-        "date": "2015-04-01",
-        "target": 42
-      },
-      {
-        "date": "2015-09-01",
-        "target": 230
-      },
-      {
-        "date": "2015-10-01",
-        "target": 32
-      },
-      {
-        "date": "2016-09-01",
-        "target": 327
-      },
-      {
-        "date": "2017-04-01",
-        "target": 57
-      },
-      {
-        "date": "2017-05-01",
+        "date": "2004-05-20",
         "target": 37
       },
       {
-        "date": "2017-06-01",
-        "target": 35
+        "date": "2004-06-23",
+        "target": 159
       },
       {
-        "date": "2017-08-01",
+        "date": "2004-06-24",
+        "target": 214
+      },
+      {
+        "date": "2004-06-28",
+        "target": 782
+      },
+      {
+        "date": "2004-06-29",
+        "target": 182
+      },
+      {
+        "date": "2004-07-04",
+        "target": 412
+      },
+      {
+        "date": "2004-07-05",
+        "target": 894
+      },
+      {
+        "date": "2004-07-14",
+        "target": 348
+      },
+      {
+        "date": "2004-07-15",
+        "target": 491
+      },
+      {
+        "date": "2005-07-08",
+        "target": 1266
+      },
+      {
+        "date": "2005-07-12",
+        "target": 379
+      },
+      {
+        "date": "2005-07-17",
+        "target": 748
+      },
+      {
+        "date": "2005-07-18",
+        "target": 354
+      },
+      {
+        "date": "2005-07-25",
+        "target": 225
+      },
+      {
+        "date": "2005-07-26",
+        "target": 152
+      },
+      {
+        "date": "2005-07-31",
+        "target": 216
+      },
+      {
+        "date": "2006-06-06",
+        "target": 25
+      },
+      {
+        "date": "2006-06-07",
+        "target": 11
+      },
+      {
+        "date": "2006-06-08",
+        "target": 45
+      },
+      {
+        "date": "2006-06-09",
         "target": 92
       },
       {
-        "date": "2018-05-01",
-        "target": 1278
+        "date": "2006-06-12",
+        "target": 10
       },
       {
-        "date": "2019-04-01",
-        "target": 11847
+        "date": "2006-06-13",
+        "target": 23
       },
       {
-        "date": "2019-05-01",
-        "target": 1620
+        "date": "2006-06-14",
+        "target": 3
       },
       {
-        "date": "2019-06-01",
-        "target": 415
+        "date": "2006-06-15",
+        "target": 6
+      },
+      {
+        "date": "2006-06-17",
+        "target": 57
+      },
+      {
+        "date": "2006-06-18",
+        "target": 9
+      },
+      {
+        "date": "2006-06-19",
+        "target": 14
+      },
+      {
+        "date": "2006-06-20",
+        "target": 13
+      },
+      {
+        "date": "2006-06-21",
+        "target": 9
+      },
+      {
+        "date": "2006-06-23",
+        "target": 18
+      },
+      {
+        "date": "2006-06-24",
+        "target": 16
+      },
+      {
+        "date": "2006-07-04",
+        "target": 46
+      },
+      {
+        "date": "2006-07-21",
+        "target": 15
+      },
+      {
+        "date": "2006-07-22",
+        "target": 1
+      },
+      {
+        "date": "2009-05-06",
+        "target": 6
+      },
+      {
+        "date": "2009-05-10",
+        "target": 10
+      },
+      {
+        "date": "2009-05-11",
+        "target": 15
+      },
+      {
+        "date": "2009-05-21",
+        "target": 21
+      },
+      {
+        "date": "2009-05-29",
+        "target": 17
+      },
+      {
+        "date": "2009-06-05",
+        "target": 201
+      },
+      {
+        "date": "2009-06-06",
+        "target": 92
+      },
+      {
+        "date": "2009-06-08",
+        "target": 249
+      },
+      {
+        "date": "2009-06-09",
+        "target": 191
+      },
+      {
+        "date": "2009-06-10",
+        "target": 101
+      },
+      {
+        "date": "2009-06-11",
+        "target": 51
+      },
+      {
+        "date": "2009-06-12",
+        "target": 145
+      },
+      {
+        "date": "2009-06-13",
+        "target": 48
+      },
+      {
+        "date": "2009-06-14",
+        "target": 92
+      },
+      {
+        "date": "2009-06-15",
+        "target": 125
+      },
+      {
+        "date": "2009-06-16",
+        "target": 134
+      },
+      {
+        "date": "2009-06-17",
+        "target": 193
+      },
+      {
+        "date": "2009-06-18",
+        "target": 106
+      },
+      {
+        "date": "2009-06-19",
+        "target": 195
+      },
+      {
+        "date": "2009-06-22",
+        "target": 170
+      },
+      {
+        "date": "2009-06-23",
+        "target": 156
+      },
+      {
+        "date": "2010-04-23",
+        "target": 69
+      },
+      {
+        "date": "2010-04-24",
+        "target": 36
+      },
+      {
+        "date": "2010-04-25",
+        "target": 24
+      },
+      {
+        "date": "2010-04-28",
+        "target": 107
+      },
+      {
+        "date": "2010-04-29",
+        "target": 293
+      },
+      {
+        "date": "2010-05-04",
+        "target": 155
+      },
+      {
+        "date": "2010-05-05",
+        "target": 60
+      },
+      {
+        "date": "2010-05-06",
+        "target": 121
+      },
+      {
+        "date": "2010-05-08",
+        "target": 70
+      },
+      {
+        "date": "2011-04-08",
+        "target": 202
+      },
+      {
+        "date": "2011-04-10",
+        "target": 111
+      },
+      {
+        "date": "2011-04-11",
+        "target": 243
+      },
+      {
+        "date": "2011-04-18",
+        "target": 665
+      },
+      {
+        "date": "2011-04-19",
+        "target": 635
+      },
+      {
+        "date": "2011-04-20",
+        "target": 115
+      },
+      {
+        "date": "2011-04-29",
+        "target": 26
+      },
+      {
+        "date": "2011-04-30",
+        "target": 5
+      },
+      {
+        "date": "2011-05-02",
+        "target": 44
+      },
+      {
+        "date": "2011-05-03",
+        "target": 39
+      },
+      {
+        "date": "2011-05-04",
+        "target": 14
+      },
+      {
+        "date": "2011-05-06",
+        "target": 124
+      },
+      {
+        "date": "2011-05-09",
+        "target": 101
+      },
+      {
+        "date": "2011-05-10",
+        "target": 287
+      },
+      {
+        "date": "2011-05-11",
+        "target": 95
+      },
+      {
+        "date": "2011-05-12",
+        "target": 245
+      },
+      {
+        "date": "2011-05-13",
+        "target": 124
+      },
+      {
+        "date": "2011-05-14",
+        "target": 7
+      },
+      {
+        "date": "2011-05-16",
+        "target": 142
+      },
+      {
+        "date": "2011-05-18",
+        "target": 159
+      },
+      {
+        "date": "2011-05-19",
+        "target": 136
+      },
+      {
+        "date": "2011-05-20",
+        "target": 358
+      },
+      {
+        "date": "2011-05-21",
+        "target": 274
+      },
+      {
+        "date": "2011-05-23",
+        "target": 131
+      },
+      {
+        "date": "2011-05-25",
+        "target": 173
+      },
+      {
+        "date": "2011-05-26",
+        "target": 260
+      },
+      {
+        "date": "2011-05-28",
+        "target": 141
+      },
+      {
+        "date": "2011-05-30",
+        "target": 295
+      },
+      {
+        "date": "2011-05-31",
+        "target": 73
+      },
+      {
+        "date": "2011-06-01",
+        "target": 25
+      },
+      {
+        "date": "2011-06-02",
+        "target": 113
+      },
+      {
+        "date": "2011-06-03",
+        "target": 147
+      },
+      {
+        "date": "2011-06-04",
+        "target": 81
+      },
+      {
+        "date": "2011-06-05",
+        "target": 44
+      },
+      {
+        "date": "2012-04-27",
+        "target": 52
+      },
+      {
+        "date": "2012-05-01",
+        "target": 96
+      },
+      {
+        "date": "2012-05-02",
+        "target": 107
+      },
+      {
+        "date": "2012-05-03",
+        "target": 63
+      },
+      {
+        "date": "2012-05-04",
+        "target": 1
+      },
+      {
+        "date": "2012-05-05",
+        "target": 12
+      },
+      {
+        "date": "2012-05-07",
+        "target": 172
+      },
+      {
+        "date": "2012-05-08",
+        "target": 198
+      },
+      {
+        "date": "2012-05-09",
+        "target": 96
+      },
+      {
+        "date": "2012-05-11",
+        "target": 127
+      },
+      {
+        "date": "2012-05-14",
+        "target": 81
+      },
+      {
+        "date": "2012-05-15",
+        "target": 138
+      },
+      {
+        "date": "2012-05-19",
+        "target": 36
+      },
+      {
+        "date": "2012-05-20",
+        "target": 202
+      },
+      {
+        "date": "2012-05-21",
+        "target": 148
+      },
+      {
+        "date": "2012-05-22",
+        "target": 113
+      },
+      {
+        "date": "2012-05-23",
+        "target": 177
+      },
+      {
+        "date": "2012-05-24",
+        "target": 143
+      },
+      {
+        "date": "2012-05-25",
+        "target": 198
+      },
+      {
+        "date": "2012-05-26",
+        "target": 18
+      },
+      {
+        "date": "2012-05-27",
+        "target": 102
+      },
+      {
+        "date": "2012-05-28",
+        "target": 32
+      },
+      {
+        "date": "2012-05-29",
+        "target": 20
       }
     ]
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": 162702.46743443992,
-      "n_edges": -2281137668.777921,
-      "n_articulation_points": -12385.528185084655,
-      "n_bridges": 37624.368838246744,
-      "diameter": -95.1124811494223,
-      "radius": 128.93224911033832,
-      "degeneracy": -357.9976526245106,
-      "k_core_size": -653011.1994440675,
-      "maximum_degree": 226321.28015644403,
-      "degree_variance": 1091374106.078215,
-      "global_clustering": 0.009150154596299611,
-      "degree_assortativity": -1.081405348076389,
-      "degree_entropy": 0.31126685161379214,
-      "joint_degree_entropy": 5.192238515970238,
-      "degree_skewness": 18.70484901071097,
-      "degree_kurtosis": 196.61411640615054,
-      "normalized_laplacian_second_moment": 1.379121827899737,
-      "normalized_laplacian_third_moment": 3.400152212086806,
-      "random_walk_triangle_weight": 0.05504326828867485,
-      "random_walk_fourth_moment": 0.27386787629858345,
-      "adjacency_fourth_moment_per_node": 31916707577784.375
+      "n_nodes": 658416.0942690795,
+      "n_edges": -2280860372.6314454,
+      "n_articulation_points": -385309.07395310764,
+      "n_bridges": 1112923.8977813446,
+      "diameter": -97.13098928091848,
+      "radius": 128.96590635603854,
+      "degeneracy": -392.47544599930063,
+      "k_core_size": -653001.5055613797,
+      "maximum_degree": 226188.4317757098,
+      "degree_variance": 1091374097.296041,
+      "global_clustering": 0.009150154596391477,
+      "degree_assortativity": -1.0403329830779362,
+      "degree_entropy": 0.3226672088551652,
+      "joint_degree_entropy": 5.058665415675673,
+      "degree_skewness": 18.78366702247754,
+      "normalized_laplacian_second_moment": 1.140914421889954,
+      "normalized_laplacian_third_moment": 2.145505553108399,
+      "random_walk_triangle_weight": 0.06567099721356515,
+      "random_walk_fourth_moment": 0.1579793711856356,
+      "adjacency_fourth_moment_per_node": 4168532748281.378,
+      "degree_kurtosis": -51409.16401676912
     },
     "signatures": {
-      "lag1_autocorr": 0.35971811012211324,
-      "coef_variation": 0.6147931259857757,
-      "fano_factor": 3887.686897154314,
-      "norm_succ_diff": 0.3087619182685133,
-      "hurst_exponent": 0.6417638651067975,
-      "trend_coeff": 0.0007333364227395112,
-      "count_skewness": 0.4966768882814969
+      "lag1_autocorr": 0.5975562209810936,
+      "coef_variation": 0.6706795641448685,
+      "fano_factor": 13507.38545859222,
+      "norm_succ_diff": 0.3550913946978532,
+      "hurst_exponent": 0.6386829670560896,
+      "trend_coeff": 0.13366129933370852,
+      "count_skewness": 0.6475467103860718
     },
     "events": [
       {
-        "date": "2005-07-01",
-        "target": 83
+        "date": "2004-05-07",
+        "target": 270
       },
       {
-        "date": "2006-06-01",
-        "target": 137
+        "date": "2004-05-08",
+        "target": 213
       },
       {
-        "date": "2006-10-01",
-        "target": 18
+        "date": "2004-05-09",
+        "target": 313
       },
       {
-        "date": "2008-07-01",
-        "target": 88
+        "date": "2004-05-10",
+        "target": 250
       },
       {
-        "date": "2009-06-01",
-        "target": 16
+        "date": "2004-05-16",
+        "target": 201
       },
       {
-        "date": "2009-07-01",
-        "target": 104
+        "date": "2004-05-17",
+        "target": 246
       },
       {
-        "date": "2009-08-01",
-        "target": 16
+        "date": "2004-05-18",
+        "target": 258
       },
       {
-        "date": "2011-04-01",
-        "target": 91
+        "date": "2004-05-19",
+        "target": 287
       },
       {
-        "date": "2011-05-01",
-        "target": 98
-      },
-      {
-        "date": "2011-09-01",
-        "target": 85
-      },
-      {
-        "date": "2012-05-01",
-        "target": 63
-      },
-      {
-        "date": "2012-06-01",
-        "target": 237
-      },
-      {
-        "date": "2013-06-01",
-        "target": 143
-      },
-      {
-        "date": "2013-07-01",
-        "target": 191
-      },
-      {
-        "date": "2014-06-01",
-        "target": 421
-      },
-      {
-        "date": "2014-07-01",
-        "target": 193
-      },
-      {
-        "date": "2015-04-01",
-        "target": 42
-      },
-      {
-        "date": "2015-09-01",
-        "target": 230
-      },
-      {
-        "date": "2015-10-01",
-        "target": 32
-      },
-      {
-        "date": "2016-09-01",
-        "target": 327
-      },
-      {
-        "date": "2017-04-01",
-        "target": 57
-      },
-      {
-        "date": "2017-05-01",
+        "date": "2004-05-20",
         "target": 37
       },
       {
-        "date": "2017-06-01",
-        "target": 35
+        "date": "2004-06-23",
+        "target": 159
       },
       {
-        "date": "2017-08-01",
+        "date": "2004-06-24",
+        "target": 214
+      },
+      {
+        "date": "2004-06-28",
+        "target": 782
+      },
+      {
+        "date": "2004-06-29",
+        "target": 182
+      },
+      {
+        "date": "2004-07-04",
+        "target": 412
+      },
+      {
+        "date": "2004-07-05",
+        "target": 894
+      },
+      {
+        "date": "2004-07-14",
+        "target": 348
+      },
+      {
+        "date": "2004-07-15",
+        "target": 491
+      },
+      {
+        "date": "2005-07-08",
+        "target": 1266
+      },
+      {
+        "date": "2005-07-12",
+        "target": 379
+      },
+      {
+        "date": "2005-07-17",
+        "target": 748
+      },
+      {
+        "date": "2005-07-18",
+        "target": 354
+      },
+      {
+        "date": "2005-07-25",
+        "target": 225
+      },
+      {
+        "date": "2005-07-26",
+        "target": 152
+      },
+      {
+        "date": "2005-07-31",
+        "target": 216
+      },
+      {
+        "date": "2006-06-06",
+        "target": 25
+      },
+      {
+        "date": "2006-06-07",
+        "target": 11
+      },
+      {
+        "date": "2006-06-08",
+        "target": 45
+      },
+      {
+        "date": "2006-06-09",
         "target": 92
       },
       {
-        "date": "2018-05-01",
-        "target": 1278
+        "date": "2006-06-12",
+        "target": 10
       },
       {
-        "date": "2019-04-01",
-        "target": 11847
+        "date": "2006-06-13",
+        "target": 23
       },
       {
-        "date": "2019-05-01",
-        "target": 1620
+        "date": "2006-06-14",
+        "target": 3
       },
       {
-        "date": "2019-06-01",
-        "target": 415
+        "date": "2006-06-15",
+        "target": 6
+      },
+      {
+        "date": "2006-06-17",
+        "target": 57
+      },
+      {
+        "date": "2006-06-18",
+        "target": 9
+      },
+      {
+        "date": "2006-06-19",
+        "target": 14
+      },
+      {
+        "date": "2006-06-20",
+        "target": 13
+      },
+      {
+        "date": "2006-06-21",
+        "target": 9
+      },
+      {
+        "date": "2006-06-23",
+        "target": 18
+      },
+      {
+        "date": "2006-06-24",
+        "target": 16
+      },
+      {
+        "date": "2006-07-04",
+        "target": 46
+      },
+      {
+        "date": "2006-07-21",
+        "target": 15
+      },
+      {
+        "date": "2006-07-22",
+        "target": 1
+      },
+      {
+        "date": "2009-05-06",
+        "target": 6
+      },
+      {
+        "date": "2009-05-10",
+        "target": 10
+      },
+      {
+        "date": "2009-05-11",
+        "target": 15
+      },
+      {
+        "date": "2009-05-21",
+        "target": 21
+      },
+      {
+        "date": "2009-05-29",
+        "target": 17
+      },
+      {
+        "date": "2009-06-05",
+        "target": 201
+      },
+      {
+        "date": "2009-06-06",
+        "target": 92
+      },
+      {
+        "date": "2009-06-08",
+        "target": 249
+      },
+      {
+        "date": "2009-06-09",
+        "target": 191
+      },
+      {
+        "date": "2009-06-10",
+        "target": 101
+      },
+      {
+        "date": "2009-06-11",
+        "target": 51
+      },
+      {
+        "date": "2009-06-12",
+        "target": 145
+      },
+      {
+        "date": "2009-06-13",
+        "target": 48
+      },
+      {
+        "date": "2009-06-14",
+        "target": 92
+      },
+      {
+        "date": "2009-06-15",
+        "target": 125
+      },
+      {
+        "date": "2009-06-16",
+        "target": 134
+      },
+      {
+        "date": "2009-06-17",
+        "target": 193
+      },
+      {
+        "date": "2009-06-18",
+        "target": 106
+      },
+      {
+        "date": "2009-06-19",
+        "target": 195
+      },
+      {
+        "date": "2009-06-22",
+        "target": 170
+      },
+      {
+        "date": "2009-06-23",
+        "target": 156
+      },
+      {
+        "date": "2010-04-23",
+        "target": 69
+      },
+      {
+        "date": "2010-04-24",
+        "target": 36
+      },
+      {
+        "date": "2010-04-25",
+        "target": 24
+      },
+      {
+        "date": "2010-04-28",
+        "target": 107
+      },
+      {
+        "date": "2010-04-29",
+        "target": 293
+      },
+      {
+        "date": "2010-05-04",
+        "target": 155
+      },
+      {
+        "date": "2010-05-05",
+        "target": 60
+      },
+      {
+        "date": "2010-05-06",
+        "target": 121
+      },
+      {
+        "date": "2010-05-08",
+        "target": 70
+      },
+      {
+        "date": "2011-04-08",
+        "target": 202
+      },
+      {
+        "date": "2011-04-10",
+        "target": 111
+      },
+      {
+        "date": "2011-04-11",
+        "target": 243
+      },
+      {
+        "date": "2011-04-18",
+        "target": 665
+      },
+      {
+        "date": "2011-04-19",
+        "target": 635
+      },
+      {
+        "date": "2011-04-20",
+        "target": 115
+      },
+      {
+        "date": "2011-04-29",
+        "target": 26
+      },
+      {
+        "date": "2011-04-30",
+        "target": 5
+      },
+      {
+        "date": "2011-05-02",
+        "target": 44
+      },
+      {
+        "date": "2011-05-03",
+        "target": 39
+      },
+      {
+        "date": "2011-05-04",
+        "target": 14
+      },
+      {
+        "date": "2011-05-06",
+        "target": 124
+      },
+      {
+        "date": "2011-05-09",
+        "target": 101
+      },
+      {
+        "date": "2011-05-10",
+        "target": 287
+      },
+      {
+        "date": "2011-05-11",
+        "target": 95
+      },
+      {
+        "date": "2011-05-12",
+        "target": 245
+      },
+      {
+        "date": "2011-05-13",
+        "target": 124
+      },
+      {
+        "date": "2011-05-14",
+        "target": 7
+      },
+      {
+        "date": "2011-05-16",
+        "target": 142
+      },
+      {
+        "date": "2011-05-18",
+        "target": 159
+      },
+      {
+        "date": "2011-05-19",
+        "target": 136
+      },
+      {
+        "date": "2011-05-20",
+        "target": 358
+      },
+      {
+        "date": "2011-05-21",
+        "target": 274
+      },
+      {
+        "date": "2011-05-23",
+        "target": 131
+      },
+      {
+        "date": "2011-05-25",
+        "target": 173
+      },
+      {
+        "date": "2011-05-26",
+        "target": 260
+      },
+      {
+        "date": "2011-05-28",
+        "target": 141
+      },
+      {
+        "date": "2011-05-30",
+        "target": 295
+      },
+      {
+        "date": "2011-05-31",
+        "target": 73
+      },
+      {
+        "date": "2011-06-01",
+        "target": 25
+      },
+      {
+        "date": "2011-06-02",
+        "target": 113
+      },
+      {
+        "date": "2011-06-03",
+        "target": 147
+      },
+      {
+        "date": "2011-06-04",
+        "target": 81
+      },
+      {
+        "date": "2011-06-05",
+        "target": 44
+      },
+      {
+        "date": "2012-04-27",
+        "target": 52
+      },
+      {
+        "date": "2012-05-01",
+        "target": 96
+      },
+      {
+        "date": "2012-05-02",
+        "target": 107
+      },
+      {
+        "date": "2012-05-03",
+        "target": 63
+      },
+      {
+        "date": "2012-05-04",
+        "target": 1
+      },
+      {
+        "date": "2012-05-05",
+        "target": 12
+      },
+      {
+        "date": "2012-05-07",
+        "target": 172
+      },
+      {
+        "date": "2012-05-08",
+        "target": 198
+      },
+      {
+        "date": "2012-05-09",
+        "target": 96
+      },
+      {
+        "date": "2012-05-11",
+        "target": 127
+      },
+      {
+        "date": "2012-05-14",
+        "target": 81
+      },
+      {
+        "date": "2012-05-15",
+        "target": 138
+      },
+      {
+        "date": "2012-05-19",
+        "target": 36
+      },
+      {
+        "date": "2012-05-20",
+        "target": 202
+      },
+      {
+        "date": "2012-05-21",
+        "target": 148
+      },
+      {
+        "date": "2012-05-22",
+        "target": 113
+      },
+      {
+        "date": "2012-05-23",
+        "target": 177
+      },
+      {
+        "date": "2012-05-24",
+        "target": 143
+      },
+      {
+        "date": "2012-05-25",
+        "target": 198
+      },
+      {
+        "date": "2012-05-26",
+        "target": 18
+      },
+      {
+        "date": "2012-05-27",
+        "target": 102
+      },
+      {
+        "date": "2012-05-28",
+        "target": 32
+      },
+      {
+        "date": "2012-05-29",
+        "target": 20
       }
     ]
   }

@@ -1,3 +1,4 @@
+# Python 3.11.9
 aiohappyeyeballs==2.6.1
 aiohttp==3.13.2
 aiosignal==1.4.0
@@ -13,17 +14,21 @@ geopandas==1.1.1
 gwosc==0.8.1
 idna==3.11
 igraph==1.0.0
+ipykernel==7.1.0
+ipython==9.7.0
 Jinja2==3.1.6
+joblib==1.5.2
 MarkupSafe==3.0.3
 matplotlib==3.9.2
 meteostat==1.7.6
 mpmath==1.3.0
 multidict==6.7.0
 networkx==3.5
-numpy==2.3.4
+numpy==2.3.5
 osmnx==2.0.6
 packaging==25.0
-pandas==2.3.3
+pandas==3.0.0
+Pillow==12.0.0
 propcache==0.4.1
 psutil==7.1.3
 pyogrio==0.11.1
@@ -33,11 +38,11 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 requests==2.32.5
 scipy==1.16.3
-scikit-learn==1.5.2
+scikit-learn==1.8.0
+sklearn-quantile==0.1.1
 shapely==2.1.2
 six==1.17.0
 sympy==1.14.0
-statsmodels==0.14.4
 texttable==1.7.0
 torch==2.9.0
 torch-geometric==2.7.0
@@ -52,3 +57,4 @@ xxhash==3.6.0
 yarl==1.22.0
 dcor==0.7
 numba==0.63.1
+xgboost==3.1.1

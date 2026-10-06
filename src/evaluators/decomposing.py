@@ -2,28 +2,37 @@
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from joblib import parallel
-from contextlib import contextmanager
 from itertools import combinations
 from joblib.parallel import BatchCompletionCallBack
+from joblib import parallel, Parallel, delayed
+from contextlib import contextmanager
+from scipy.stats import wilcoxon
+from sklearn.base import clone
+from sklearn.model_selection import LeaveOneGroupOut
 from typing import Sequence, Dict, Any, Iterator
-from scipy.stats import rankdata, wilcoxon
 
 ## modules
+from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.training import fit_predict_frontier
+from src.evaluators.helpers import _clean_differences, paired_rank_biserial
+from src.evaluators.metrics import (
+    frontier_efficiency,
+    frontier_consensus,
+)
+from src.evaluators.resampling import (
+    logo_cross_valid, 
+    _drop_nan_rows
+)
+from src.vectorizers.scalers import (
+    _log_transformer, 
+    _standardizer
+)
+
+## constants
 from src.evaluators.config import (
     FRONTIER_METRICS,
     CONSENSUS_METRICS
 )
-
-
-SPECIFICATION_ORDER = [
-    "additive",
-    "interaction",
-    "interaction_joint",
-    "joint",
-    "capacity_only",
-    "dynamics_only",
-]
 
 ## significance code helper
 def _sig_code(p_value: float) -> str:
@@ -115,10 +124,6 @@ def _run_single_stage_fold(
         or none if the fold is skipped due to insufficient data.
     """
 
-    from sklearn.base import clone
-    from src.vectorizers.scalers import _standardizer
-    from src.evaluators.metrics import frontier_metrics
-
     ## split
     F_tr = F.iloc[train_idx]
     y_tr = y_star.iloc[train_idx].values.astype(float)
@@ -151,7 +156,7 @@ def _run_single_stage_fold(
 
     ## frontier metrics
     kept_indices = test_idx[mask_te.values]
-    frontier = frontier_metrics(y_true = y_true, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_true, y_pred = y_pred)
 
     return {
         "group_name": group_name,
@@ -190,10 +195,6 @@ def _single_stage_logo_cv(
     Returns:
         tuple of (frontier results dataframe, predicted values array).
     """
-
-    from sklearn.model_selection import LeaveOneGroupOut
-    from joblib import Parallel, delayed
-    from src.vectorizers.scalers import _log_transformer
 
     if n_repeats < 1:
         raise ValueError("n_repeats must be >= 1")
@@ -292,8 +293,6 @@ def _eval_separation_model(
         tuple of (frontier rows, prediction rows).
     """
 
-    from src.evaluators.resampling import logo_cross_valid
-
     frontier_a, y_pred_a = logo_cross_valid(
         data = data,
         feat_x = feat_x,
@@ -320,6 +319,7 @@ def _eval_separation_model(
         n_jobs = 1,
     )
 
+    ## joint single-stage fit (x' and z' concatenated)
     feat_joint = feat_x + feat_z
     frontier_c, y_pred_c = _single_stage_logo_cv(
         data = data,
@@ -332,17 +332,17 @@ def _eval_separation_model(
         n_jobs = 1,
     )
 
-    feat_int_joint = feat_x + feat_z + interaction_cols
-    frontier_d, y_pred_d = _single_stage_logo_cv(
-        data = data_aug,
-        feats = feat_int_joint,
-        estimator = model.estimator_c,
-        target = target,
-        group = group,
-        n_repeats = n_repeats,
-        random_state = random_state,
-        n_jobs = 1,
-    )
+    # feat_int_joint = feat_x + feat_z + interaction_cols
+    # frontier_d, y_pred_d = _single_stage_logo_cv(
+    #     data = data_aug,
+    #     feats = feat_int_joint,
+    #     estimator = model.estimator_c,
+    #     target = target,
+    #     group = group,
+    #     n_repeats = n_repeats,
+    #     random_state = random_state,
+    #     n_jobs = 1,
+    # )
 
     frontier_f, y_pred_f = _single_stage_logo_cv(
         data = data,
@@ -371,8 +371,8 @@ def _eval_separation_model(
 
     for spec, frontier in [
         ("additive", frontier_a), ("interaction", frontier_b),
-        ("joint", frontier_c), ("interaction_joint", frontier_d),
-        ("capacity_only", frontier_f), ("dynamics_only", frontier_g),
+        ("joint", frontier_c),
+        ("invariants", frontier_f), ("signatures", frontier_g),
     ]:
         for _, frow in frontier.iterrows():
             row = {"model": model_name, "specification": spec, "group": frow["group"]}
@@ -382,8 +382,8 @@ def _eval_separation_model(
 
     for spec, y_pred_spec in [
         ("additive", y_pred_a), ("interaction", y_pred_b),
-        ("joint", y_pred_c), ("interaction_joint", y_pred_d),
-        ("capacity_only", y_pred_f), ("dynamics_only", y_pred_g),
+        ("joint", y_pred_c),
+        ("invariants", y_pred_f), ("signatures", y_pred_g),
     ]:
         for i in range(len(data)):
             if np.isfinite(y_pred_spec[i]) and np.isfinite(y_star_all[i]):
@@ -433,10 +433,6 @@ def _run_capacity_fold(
         or none if the fold is skipped.
     """
 
-    from sklearn.base import clone
-    from src.evaluators.resampling import _drop_nan_rows
-    from src.vectorizers.scalers import _standardizer
-
     X_tr, Z_tr, y_tr, _ = _drop_nan_rows(
         X = X.iloc[train_idx], Z = Z.iloc[train_idx],
         y = y_star.iloc[train_idx].values.astype(float),
@@ -469,6 +465,88 @@ def _run_capacity_fold(
         "c_hat": c_hat,
         "slack": y_te - c_hat,
     }
+
+
+## --------------------------------------------------------------------------
+## nested capacity targets (attribution step 1)
+## --------------------------------------------------------------------------
+def _build_nested_capacity_targets(
+    train_idx: np.ndarray,
+    test_idx: np.ndarray,
+    X: pd.DataFrame,
+    Z: pd.DataFrame,
+    y_star: pd.Series,
+    feat_x: list[str],
+    feat_z: list[str],
+    estimator_c,
+    groups: np.ndarray,
+    random_state: int = 42,
+    ) -> tuple[np.ndarray, np.ndarray] | None:
+
+    """
+    Desc: Build leakage-controlled capacity residuals within one outer LOGO split.
+    Args:
+        train_idx: outer training indices.
+        test_idx: outer test indices.
+        X: graph invariant features.
+        Z: process signature features.
+        y_star: log-transformed target series.
+        feat_x: graph invariant column names.
+        feat_z: process signature column names.
+        estimator_c: capacity estimator cloned within each fold.
+        groups: group labels array.
+        random_state: random seed forwarded to the estimator when supported.
+    Returns:
+        Tuple containing nested slack targets and outer-test capacity predictions,
+        or none when the split cannot be evaluated.
+    """
+
+    outer_result = _run_capacity_fold(
+        train_idx = train_idx,
+        test_idx = test_idx,
+        X = X,
+        Z = Z,
+        y_star = y_star,
+        feat_x = feat_x,
+        feat_z = feat_z,
+        estimator_c = estimator_c,
+        random_state = random_state,
+    )
+    if outer_result is None:
+        return None
+
+    train_groups = groups[train_idx]
+    if len(np.unique(train_groups)) < 2:
+        return None
+
+    slack_nested = np.full(shape = len(X), fill_value = np.nan)
+    c_hat_outer = np.full(shape = len(X), fill_value = np.nan)
+    slack_nested[outer_result["kept_indices"]] = outer_result["slack"]
+    c_hat_outer[outer_result["kept_indices"]] = outer_result["c_hat"]
+
+    inner_logo = LeaveOneGroupOut()
+    inner_splits = inner_logo.split(
+        X = X.iloc[train_idx].values,
+        y = y_star.iloc[train_idx].values,
+        groups = train_groups,
+    )
+    for inner_train_rel, inner_test_rel in inner_splits:
+        inner_result = _run_capacity_fold(
+            train_idx = train_idx[inner_train_rel],
+            test_idx = train_idx[inner_test_rel],
+            X = X,
+            Z = Z,
+            y_star = y_star,
+            feat_x = feat_x,
+            feat_z = feat_z,
+            estimator_c = estimator_c,
+            random_state = random_state,
+        )
+        if inner_result is None:
+            continue
+        slack_nested[inner_result["kept_indices"]] = inner_result["slack"]
+
+    return slack_nested, c_hat_outer
 
 
 ## --------------------------------------------------------------------------
@@ -505,10 +583,6 @@ def _run_slack_fold(
         dict with group name, r_squared, frontier metrics, predictions,
         and index mapping, or none if the fold is skipped.
     """
-
-    from sklearn.base import clone
-    from src.vectorizers.scalers import _standardizer
-    from src.evaluators.metrics import frontier_metrics
 
     group_name = groups[test_idx][0]
 
@@ -562,7 +636,7 @@ def _run_slack_fold(
     y_pred = (c_te + s_pred).astype(float)
 
     kept_indices = test_idx[mask_te.values]
-    frontier = frontier_metrics(y_true = y_te, y_pred = y_pred)
+    frontier = frontier_efficiency(y_true = y_te, y_pred = y_pred)
 
     return {
         "group_name": group_name,
@@ -605,9 +679,6 @@ def train_decomposed_separation(
     Returns:
         Dictionary with raw model outputs from the separation evaluation.
     """
-
-    from joblib import Parallel, delayed
-    from src.vectorizers.scalers import _log_transformer
 
     feat_x = list(feat_x)
     feat_z = list(feat_z)
@@ -686,8 +757,6 @@ def compile_decomposed_separation(
         Tuple of (frontier results dataframe, per-dataset predictions dataframe).
     """
 
-    from src.evaluators.metrics import consensus_metrics
-
     model_outputs = results.get("model_outputs", list())
     frontier_rows = []
     prediction_rows = []
@@ -708,7 +777,7 @@ def compile_decomposed_separation(
             y_pred = grp_df["y_pred"].to_numpy(dtype = float)
             valid = np.isfinite(y_true) & np.isfinite(y_pred)
             if valid.sum() >= 2:
-                cm = consensus_metrics(y_true[valid], y_pred[valid])
+                cm = frontier_consensus(y_true[valid], y_pred[valid])
             else:
                 cm = {k: np.nan for k in ["r", "rho", "tau", "rbo", "dcr", "ci"]}
             consensus_rows.append({"model": model, "specification": spec, "group": grp, **cm})
@@ -722,6 +791,122 @@ def compile_decomposed_separation(
             )
 
     return frontier_df, prediction_df
+
+## train decomposed consensus models
+def train_decomposed_consensus(
+    data: pd.DataFrame,
+    models: Dict[str, Any],
+    feat_x: Sequence[str],
+    feat_z: Sequence[str],
+    target: str = "target",
+    n_repeats: int = 30,
+    random_state: int = 42,
+    n_jobs: int = -1,
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Fit every decomposition specification on the full corpus and average
+        predictions across seeds for descriptive consensus evaluation.
+    Args:
+        data: Corpus containing named systems, features, and targets.
+        models: Estimator bundles with structural and residual stages.
+        feat_x: Graph invariant columns.
+        feat_z: Process signature columns.
+        target: Untransformed target column.
+        n_repeats: Number of full-corpus fits per specification and model.
+        random_state: Base seed, incremented for each fit.
+        n_jobs: Number of parallel model workers.
+    Returns:
+        Per-system, seed-averaged predictions with full-corpus provenance.
+    Raises:
+        ValueError: If n_repeats is less than one.
+    """
+
+    if n_repeats < 1:
+        raise ValueError("n_repeats must be >= 1")
+
+    feat_x = list(feat_x)
+    feat_z = list(feat_z)
+    interactions = {
+        f"{x_column}_x_{z_column}": (
+            pd.to_numeric(arg = data[x_column], errors = "coerce")
+            * pd.to_numeric(arg = data[z_column], errors = "coerce")
+        )
+        for x_column in feat_x
+        for z_column in feat_z
+    }
+    data_augmented = pd.concat(
+        objs = [data, pd.DataFrame(data = interactions, index = data.index)],
+        axis = 1,
+    )
+    y_star = _log_transformer(data[target]).astype(float)
+    indices = np.arange(len(data))
+    datasets = data["name"].to_numpy() if "name" in data.columns else indices
+    single_stage_features = {
+        "joint": feat_x + feat_z,
+        "invariants": feat_x,
+        "signatures": feat_z,
+    }
+
+    def fit_model(model_name: str, model: Any) -> pd.DataFrame:
+        frames = []
+        for specification in ("additive", "interaction", *single_stage_features):
+            if specification in ("additive", "interaction"):
+                fit_result = fit_predict_frontier(
+                    data = data_augmented,
+                    feat_x = feat_x,
+                    feat_z = feat_z + list(interactions) if specification == "interaction" else feat_z,
+                    estimator_c = model.estimator_c,
+                    estimator_r = model.estimator_r,
+                    target = target,
+                    n_repeat = n_repeats,
+                    random_state = random_state,
+                )
+                prediction = fit_result["y_pred"]
+            else:
+                features = single_stage_features[specification]
+                feature_data = data[features].apply(pd.to_numeric, errors = "coerce")
+                repeat_predictions = np.full(
+                    shape = (n_repeats, len(data)), fill_value = np.nan, dtype = float,
+                )
+                for repeat_index in range(n_repeats):
+                    fit_result = _run_single_stage_fold(
+                        train_idx = indices,
+                        test_idx = indices,
+                        F = feature_data,
+                        y_star = y_star,
+                        feats = features,
+                        estimator = model.estimator_c,
+                        random_state = random_state + repeat_index,
+                        group_name = "all",
+                    )
+                    if fit_result is not None:
+                        repeat_predictions[repeat_index, fit_result["kept_indices"]] = fit_result["y_pred"]
+                prediction = np.full(shape = len(data), fill_value = np.nan, dtype = float)
+                valid = np.any(a = np.isfinite(repeat_predictions), axis = 0)
+                prediction[valid] = np.nanmean(a = repeat_predictions[:, valid], axis = 0)
+
+            frames.append(pd.DataFrame(data = {
+                "model": model_name,
+                "specification": specification,
+                "dataset": datasets,
+                "group": "all",
+                "y_true": y_star.to_numpy(),
+                "y_pred": prediction,
+                "evaluation": "full_corpus",
+            }))
+        return pd.concat(objs = frames, ignore_index = True)
+
+    model_frames = Parallel(n_jobs = n_jobs)(
+        delayed(fit_model)(model_name = model_name, model = model)
+        for model_name, model in models.items()
+    )
+    if not model_frames:
+        return pd.DataFrame(columns = [
+            "model", "specification", "dataset", "group", "y_true", "y_pred", "evaluation",
+        ])
+    return pd.concat(objs = model_frames, ignore_index = True)
 
 
 ## --------------------------------------------------------------------------
@@ -738,8 +923,8 @@ def compile_decomposed_consensus(
         Compile decomposed prediction rows into pairwise model consensus
         metrics for paradigm-level heatmaps.
     Args:
-        predictions: Per-dataset prediction table returned by
-            compile_decomposed_separation.
+        predictions: Per-dataset prediction table from train_decomposed_consensus
+            or compile_decomposed_separation. Full-corpus provenance is retained.
         specifications: Optional decomposition specifications to retain, in
             reporting order.
         min_obs: Minimum number of overlapping finite predictions required for
@@ -749,8 +934,6 @@ def compile_decomposed_consensus(
     Raises:
         ValueError: If required columns are missing or min_obs is less than two.
     """
-
-    from src.evaluators.metrics import consensus_metrics
 
     if min_obs < 2:
         raise ValueError("min_obs must be >= 2")
@@ -792,7 +975,7 @@ def compile_decomposed_consensus(
             if len(pair_values) < min_obs:
                 continue
 
-            metrics = consensus_metrics(
+            metrics = frontier_consensus(
                 y_true = pair_values[model_i].to_numpy(dtype = float),
                 y_pred = pair_values[model_j].to_numpy(dtype = float),
             )
@@ -816,7 +999,37 @@ def compile_decomposed_consensus(
     if not rows:
         return pd.DataFrame(columns = columns)
 
-    return pd.DataFrame(rows).reindex(columns = columns)
+    compiled = pd.DataFrame(rows).reindex(columns = columns)
+    if "evaluation" in predictions.columns and predictions["evaluation"].eq("full_corpus").all():
+        compiled["evaluation"] = "full_corpus"
+    return compiled
+
+## full-corpus decomposed evaluation
+def compile_decomposed_full(predictions: pd.DataFrame) -> pd.DataFrame:
+
+    """
+    Desc:
+        Compile full-corpus model-observation consensus for each specification.
+    Args:
+        predictions: Output of train_decomposed_consensus.
+    Returns:
+        Full-corpus agreement rows indexed by model and specification.
+    Raises:
+        ValueError: If predictions do not have full-corpus provenance.
+    """
+
+    if "evaluation" not in predictions.columns or not predictions["evaluation"].eq("full_corpus").all():
+        raise ValueError("Full-corpus decomposition predictions are required")
+    frames = []
+    for specification, frame in predictions.groupby(by = "specification", sort = False, observed = True):
+        table = frame.pivot(index = "dataset", columns = "model", values = "y_pred")
+        targets = frame.groupby(by = "dataset", observed = True)["y_true"].first().reindex(index = table.index)
+        agreement = compile_corpus_full(
+            predictions = {model_name: table[model_name].to_numpy() for model_name in table.columns},
+            y_true = targets.to_numpy(),
+        )
+        frames.append(agreement.assign(specification = specification))
+    return pd.concat(objs = frames, ignore_index = True) if frames else pd.DataFrame()
 
 
 ## --------------------------------------------------------------------------
@@ -941,9 +1154,6 @@ def _eval_attribution_model(
         tuple of (frontier rows, prediction rows).
     """
 
-    from sklearn.model_selection import LeaveOneGroupOut
-    from src.vectorizers.scalers import _log_transformer
-
     X = data[feat_x].apply(pd.to_numeric, errors = "coerce")
     Z = data[feat_z].apply(pd.to_numeric, errors = "coerce")
     y_star = _log_transformer(data[target]).astype(float)
@@ -969,11 +1179,8 @@ def _eval_attribution_model(
 
     for repeat_idx in range(n_repeats):
         seed = int(random_state) + repeat_idx
-        slack_oof = np.full(len(data), np.nan)
-        c_hat_oof = np.full(len(data), np.nan)
-
         for train_idx, test_idx in fold_splits:
-            result = _run_capacity_fold(
+            capacity_targets = _build_nested_capacity_targets(
                 train_idx = train_idx,
                 test_idx = test_idx,
                 X = X,
@@ -982,22 +1189,20 @@ def _eval_attribution_model(
                 feat_x = feat_x,
                 feat_z = feat_z,
                 estimator_c = model.estimator_c,
+                groups = groups,
                 random_state = seed,
             )
-            if result is None:
+            if capacity_targets is None:
                 continue
-            slack_oof[result["kept_indices"]] = result["slack"]
-            c_hat_oof[result["kept_indices"]] = result["c_hat"]
-
-        for feat_label, feats, feat_df in conditions:
-            for train_idx, test_idx in fold_splits:
+            slack_nested, c_hat_outer = capacity_targets
+            for feat_label, feats, feat_df in conditions:
                 result = _run_slack_fold(
                     train_idx = train_idx,
                     test_idx = test_idx,
                     feat_df = feat_df,
                     feats = feats,
-                    slack_oof = slack_oof,
-                    c_hat_oof = c_hat_oof,
+                    slack_oof = slack_nested,
+                    c_hat_oof = c_hat_outer,
                     y_star = y_star,
                     estimator_r = model.estimator_r,
                     groups = groups,
@@ -1080,8 +1285,6 @@ def train_decomposed_attribution(
     Returns:
         Dictionary with raw model outputs from the residual attribution evaluation.
     """
-
-    from joblib import Parallel, delayed
 
     feat_x = list(feat_x)
     feat_z = list(feat_z)
@@ -1234,7 +1437,7 @@ def eval_attribution(
 def stat_decomposed_summary(
     results: pd.DataFrame,
     metric: str | None = None,
-    spec_order: Sequence[str] = SPECIFICATION_ORDER,
+    spec_order: Sequence[str] | None = None,
     metrics: Sequence[str] = ("ei", "vr", "mv", "ms"),
     decimals: int = 4,
     ) -> pd.DataFrame:
@@ -1246,7 +1449,7 @@ def stat_decomposed_summary(
         metric: Shorthand for metric group. "ei" uses frontier metrics (ei, vr,
             mv, ms); "ci" uses consensus metrics (ci, rho, rbo, dcr). Overrides
             the metrics argument when provided.
-        spec_order: Specification order for table display.
+        spec_order: Optional display order. None preserves first appearance in results.
         metrics: Frontier metric columns to summarize.
         decimals: Number of decimals to round.
     Returns:
@@ -1275,9 +1478,12 @@ def stat_decomposed_summary(
         if iqr_metric is not None else metrics
     )
     observed_specs = results["specification"].dropna().drop_duplicates().tolist()
-    present_specs = set(observed_specs)
-    spec_index = [spec for spec in spec_order if spec in present_specs]
-    spec_index.extend([spec for spec in observed_specs if spec not in spec_index])
+    if spec_order is None:
+        spec_index = observed_specs
+    else:
+        present_specs = set(observed_specs)
+        spec_index = [spec for spec in spec_order if spec in present_specs]
+        spec_index.extend([spec for spec in observed_specs if spec not in spec_index])
     grouped = results.groupby(by = "specification", observed = True)[metrics_ordered]
     table = grouped.median().reindex(index = spec_index)
     q1 = grouped.quantile(q = 0.25).reindex(index = spec_index)
@@ -1312,12 +1518,7 @@ def stat_decomposed_summary(
     }
     table = table.reindex(columns = metrics_ordered).rename(columns = rename_map)
 
-    simple_specs = {"capacity_only", "dynamics_only"}
-
-    def _format_specification(specification: str) -> str:
-        if str(specification) == "additive":
-            return "Original"
-        return str(specification).replace("_", " ").title()
+    simple_specs = {"invariants", "signatures"}
 
     def _format_family(specification: str) -> str:
         if str(specification) == "additive":
@@ -1328,10 +1529,14 @@ def stat_decomposed_summary(
 
     table.index = pd.MultiIndex.from_tuples(
         tuples = [
-            (_format_family(specification = specification), _format_specification(specification = specification))
+            (
+                _format_family(specification = specification),
+                "Original" if specification == "additive"
+                else specification.replace("_", " ").title(),
+            )
             for specification in table.index
         ],
-        names = ["Specification", "Method"],
+        names = ["Ablation", "Method"],
     )
 
     if decimals is not None:
@@ -1385,26 +1590,22 @@ def stat_decomposed_attribution(
     )
 
     delta = (x_slack_err - z_slack_err).dropna()
+    delta = pd.Series(_clean_differences(delta.to_numpy()), index = delta.index)
     n = len(delta)
     p_label = "One-sided p"
     tail_cols = ["Rank-biserial r", p_label, "Holm-adj. p", "Sig.", "Diff."]
 
     if n < 2 or int((delta != 0).sum()) < 2:
         p_value = np.nan
-        r_effect = np.nan
     else:
         _, p_value = wilcoxon(x = delta.values, alternative = "greater")
-        delta_nonzero = delta[delta != 0]
-        ranks = rankdata(np.abs(delta_nonzero), method = "average")
-        pos_rank_sum = float(np.sum(ranks[delta_nonzero > 0]))
-        neg_rank_sum = float(np.sum(ranks[delta_nonzero < 0]))
-        r_effect = (pos_rank_sum - neg_rank_sum) / float(np.sum(ranks))
+        r_effect = paired_rank_biserial(diff = delta.values)
 
     print(f"Paired One-Sided Test (Wilcoxon Signed-Rank): n = {n}")
     print("H₀: Δ MAE ≤ 0")
     print("H₁: Δ MAE > 0")
     print("Median Δ MAE: Median of paired differences, not the difference of marginal medians")
-    print("Rank-biserial r: Paired effect size, positive values favor Z -> slack")
+    print("Rank-biserial r: Raw paired effect size; positive values indicate lower error for Z -> slack")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Diff.: Yes if Holm-adj. p < 0.05 and Median Δ MAE > 0")
@@ -1414,7 +1615,7 @@ def stat_decomposed_attribution(
     holm = _holm_adjust([p_value])[0]
     summary = pd.DataFrame([{
         "Property": "Residual Attribution",
-        "Comparison": "Topology vs Dynamics",
+        "Comparison": "Structure vs Dynamics",
         "Median Δ MAE": delta.median(),
         "Rank-biserial r": r_effect,
         p_label: p_value,
@@ -1431,11 +1632,15 @@ def stat_decomposed_attribution(
 
     num_cols = [
         c for c in summary.columns
-        if c.startswith("Median") or c in ["Rank-biserial r", p_label, "Holm-adj. p"]
+        if c.startswith("Median") or c == "Rank-biserial r"
     ]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
+        )
+    for col in [p_label, "Holm-adj. p"]:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
         )
 
     label_cols = ["Property", "Comparison"]
@@ -1453,10 +1658,9 @@ def stat_decomposed_test(
     metric: str = "ei",
     specs: Sequence[str] = (
         "interaction",
-        "interaction_joint",
         "joint",
-        "capacity_only",
-        "dynamics_only",
+        "invariants",
+        "signatures",
     ),
     direction: str = "noninferiority",
     decimals: int = 4,
@@ -1511,6 +1715,7 @@ def stat_decomposed_test(
             .set_index(keys = ["model", "group"])[metric]
         )
         gap = (spec_vals - additive_vals).dropna()
+        gap = pd.Series(_clean_differences(gap.to_numpy()), index = gap.index)
         n = len(gap)
 
         if direction == "noninferiority":
@@ -1520,17 +1725,15 @@ def stat_decomposed_test(
 
         if n < 2 or int((margin_gap != 0).sum()) < 2:
             p_w = np.nan
-            r_effect = np.nan
         else:
             _, p_w = wilcoxon(x = margin_gap.values, alternative = "less")
-            margin_nonzero = margin_gap[margin_gap != 0]
-            ranks = rankdata(np.abs(margin_nonzero), method = "average")
-            pos_rank_sum = float(np.sum(ranks[margin_nonzero > 0]))
-            neg_rank_sum = float(np.sum(ranks[margin_nonzero < 0]))
-            r_effect = (neg_rank_sum - pos_rank_sum) / float(np.sum(ranks))
+        r_effect = paired_rank_biserial(diff = gap.values)
 
         rows.append({
-            "Specification": spec.replace("_", " ").title(),
+            "Ablation": (
+                "Original" if spec == "additive"
+                else spec.replace("_", " ").title()
+            ),
             median_col: gap.median(),
             "Rank-biserial r": r_effect,
             p_label: p_w,
@@ -1581,25 +1784,29 @@ def stat_decomposed_test(
         print(f"H₁: Δ {metric_label} < -δ")
         print(f"Inf.: Yes if Holm-adj. p < 0.05 and Median Δ {metric_label} < -δ")
     print(f"Median Δ {metric_label}: Median of paired differences (Test - Original)")
-    print("Rank-biserial r: Paired effect size, positive values favor the tested direction")
+    print("Rank-biserial r: Raw paired effect size, positive values indicate specification > additive")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Significance codes reflect Holm-adj. p")
     print("*** p < 0.001, ** p < 0.01, * p < 0.05")
 
-    summary = summary[["Specification", median_col, *tail_cols]]
+    summary = summary[["Ablation", median_col, *tail_cols]]
 
     num_cols = [
         c for c in summary.columns
-        if c.startswith("Median") or c in ["Rank-biserial r", p_label, "Holm-adj. p"]
+        if c.startswith("Median") or c == "Rank-biserial r"
     ]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
         )
+    for col in [p_label, "Holm-adj. p"]:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
+        )
 
     if index:
-        summary = summary.set_index("Specification")
+        summary = summary.set_index("Ablation")
     return summary.astype(object).where(pd.notna(summary), "-")
 
 
@@ -1640,7 +1847,11 @@ def stat_decomposed_additive(
     sufficiency_table = sufficiency.reset_index(drop = False)
     p_col = "Holm-adj. p" if "Holm-adj. p" in sufficiency_table.columns else "HOLM-ADJ. P"
     gap_col = "Median Δ EI" if "Median Δ EI" in sufficiency_table.columns else "MEAN Δ EI"
-    n_sig = int((pd.to_numeric(sufficiency_table[p_col], errors = "coerce") < 0.05).sum())
+    p_values = pd.to_numeric(
+        sufficiency_table[p_col].astype(str).str.removeprefix("<"),
+        errors = "coerce",
+    )
+    n_sig = int((p_values < 0.05).sum())
     n_total = len(sufficiency_table)
 
     table = pd.DataFrame([{
@@ -1649,7 +1860,7 @@ def stat_decomposed_additive(
         "MAX MEDIAN Δ EI": pd.to_numeric(sufficiency_table[gap_col], errors = "coerce").max(),
         "MARGIN Δ": delta,
         "NON-INFERIOR": f"{n_sig}/{n_total}",
-        "WORST ADJ. P": pd.to_numeric(sufficiency_table[p_col], errors = "coerce").max(),
+        "WORST ADJ. P": p_values.max(),
     }])
 
     numeric_cols = list(table.select_dtypes(include = [np.number]).columns)

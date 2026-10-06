@@ -7,7 +7,7 @@ from pathlib import Path
 from itertools import combinations
 from typing import Dict, Any, Sequence
 from joblib import Parallel, delayed
-from scipy.stats import rankdata, wilcoxon
+from scipy.stats import wilcoxon
 
 ## path
 root = Path(__file__).resolve().parents[2]
@@ -17,9 +17,22 @@ if str(root) not in sys.path:
 ## modules
 from src.vectorizers.scalers import _log_transformer
 from src.evaluators.training import fit_predict_frontier
-from src.evaluators.resampling import logo_cross_valid, logo_cross_valid_frozen
-from src.evaluators.metrics import consensus_metrics, frontier_metrics
-from src.evaluators.config import FRONTIER_METRICS, CONSENSUS_METRICS
+from src.evaluators.predicting import compile_corpus_full
+from src.evaluators.helpers import _clean_differences, paired_rank_biserial
+from src.evaluators.resampling import (
+    logo_cross_valid,
+    logo_cross_valid_frozen,
+)
+from src.evaluators.metrics import (
+    frontier_consensus,
+    frontier_efficiency,
+)
+
+## constants
+from src.evaluators.config import (
+    FRONTIER_METRICS, 
+    CONSENSUS_METRICS
+)
 
 ## ----------------------------------------------------------------------------
 ## transfer falsifiability test
@@ -81,6 +94,7 @@ def train_falsified_transfer(
                 target = target,
                 group = group,
                 random_state = None if random_state is None else int(random_state) + repeat_idx,
+                n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                 n_jobs = 1,
             )
             for name in model_names
@@ -112,7 +126,7 @@ def train_falsified_transfer(
                 continue
             frontier_rows.append({
                 "group": group_name,
-                **frontier_metrics(y_true = y_true_proc[mask], y_pred = y_pred_mean[mask]),
+                **frontier_efficiency(y_true = y_true_proc[mask], y_pred = y_pred_mean[mask]),
             })
 
         real_cv[model_name] = (pd.DataFrame(frontier_rows), y_pred_mean)
@@ -138,6 +152,7 @@ def train_falsified_transfer(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,  ## avoid over-subscription of parallel jobs
                     )
                     for model_name, _, data in false_jobs
@@ -160,6 +175,7 @@ def train_falsified_transfer(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,  ## avoid over-subscription of parallel jobs
                     )
                     for model_name, _, data_test in false_jobs
@@ -195,7 +211,7 @@ def train_falsified_transfer(
                     continue
                 frontier_rows.append({
                     "group": group_name,
-                    **frontier_metrics(y_true = y_true_eval[mask], y_pred = y_pred_mean[mask]),
+                    **frontier_efficiency(y_true = y_true_eval[mask], y_pred = y_pred_mean[mask]),
                 })
 
             false_results_mean.append((pd.DataFrame(frontier_rows), y_pred_mean))
@@ -318,7 +334,7 @@ compile_falsified_frontier = compile_falsified_transfer
 eval_falsified_frontier = eval_falsified_transfer
 
 ## ----------------------------------------------------------------------------
-## structural agreement falsifiability test
+## prediction consensus falsifiability test
 ## ----------------------------------------------------------------------------
 def train_falsified_agreement(
     data_proc: pd.DataFrame,
@@ -335,7 +351,7 @@ def train_falsified_agreement(
 
     """
     Desc:
-        Run raw structural agreement falsification jobs under frozen and retrain
+        Run raw prediction consensus falsification jobs under frozen and retrain
         protocols. Post-processing is handled separately by
         compile_falsified_agreement.
     Args:
@@ -373,6 +389,7 @@ def train_falsified_agreement(
                 target = target,
                 group = group,
                 random_state = None if random_state is None else int(random_state) + repeat_idx,
+                n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                 n_jobs = 1,
             )
             for name in model_names
@@ -415,6 +432,7 @@ def train_falsified_agreement(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,
                     )
                     for model_name, _, data_false in false_jobs
@@ -437,6 +455,7 @@ def train_falsified_agreement(
                         target = target,
                         group = group,
                         random_state = None if random_state is None else int(random_state) + repeat_idx,
+                        n_repeats = 1,  ## outer loop supplies repeats; keep inner cv 1 to avoid multiplying them
                         n_jobs = 1,
                     )
                     for model_name, _, data_false in false_jobs
@@ -475,12 +494,12 @@ def train_falsified_agreement(
     }
 
 
-## compile structural agreement falsification results
+## compile prediction consensus falsification results
 def compile_falsified_agreement(results: dict[str, Any]) -> pd.DataFrame:
 
     """
     Desc:
-        Compile raw structural agreement falsification predictions into consensus
+        Compile raw falsification predictions into prediction consensus
         metrics per model, Method, condition, group, and Falsification.
     Args:
         results: dictionary returned by train_falsified_agreement.
@@ -518,7 +537,7 @@ def compile_falsified_agreement(results: dict[str, Any]) -> pd.DataFrame:
                         if int(np.sum(mask)) < 2:
                             continue
 
-                        mvals = consensus_metrics(
+                        mvals = frontier_consensus(
                             y_true = y_true[mask],
                             y_pred = y_pred[mask],
                         )
@@ -548,7 +567,7 @@ def compile_falsified_agreement(results: dict[str, Any]) -> pd.DataFrame:
     return pd.concat(frames, ignore_index = True)
 
 
-## structural agreement falsification evaluation wrapper
+## prediction consensus falsification evaluation wrapper
 def eval_falsified_agreement(
     data_proc: pd.DataFrame,
     data_fals: dict[str, pd.DataFrame],
@@ -564,7 +583,7 @@ def eval_falsified_agreement(
 
     """
     Desc:
-        Convenience wrapper that runs structural agreement falsification training
+        Convenience wrapper that runs prediction consensus falsification training
         and then compiles raw predictions into an analysis-ready dataframe.
     Args:
         data_proc: clean evaluation dataframe used for original model training.
@@ -749,7 +768,7 @@ def compile_falsified_consensus(results: dict[str, Any]) -> pd.DataFrame:
                     valid = np.isfinite(y_i) & np.isfinite(y_j)
                     if int(np.sum(valid)) == 0:
                         continue
-                    mvals = consensus_metrics(
+                    mvals = frontier_consensus(
                         y_true = y_i[valid],
                         y_pred = y_j[valid],
                     )
@@ -778,6 +797,43 @@ def compile_falsified_consensus(results: dict[str, Any]) -> pd.DataFrame:
         ])
 
     return pd.concat(frames, ignore_index = True)
+
+## full-corpus consensus falsification evaluation
+def compile_falsified_full(
+    results: dict[str, Any],
+    data_proc: pd.DataFrame,
+    data_fals: dict[str, pd.DataFrame],
+    target: str = "target",
+    ) -> pd.DataFrame:
+
+    """
+    Desc:
+        Score full-corpus original and falsified predictions against their targets.
+    Args:
+        results: Raw output of train_falsified_consensus.
+        data_proc: Original corpus in prediction order.
+        data_fals: Falsified corpora in their respective prediction order.
+        target: Untransformed target column.
+    Returns:
+        Full-corpus model-observation consensus for each method and track.
+    """
+
+    original = compile_corpus_full(
+        predictions = results["original"],
+        y_true = _log_transformer(data_proc[target]).to_numpy(dtype = float),
+    )
+    frames = []
+    for track, methods in results["falsified"].items():
+        for method, predictions in methods.items():
+            agreement = compile_corpus_full(
+                predictions = predictions,
+                y_true = _log_transformer(data_fals[method][target]).to_numpy(dtype = float),
+            )
+            frames.extend([
+                original.assign(Falsification = track, Method = method, condition = "original"),
+                agreement.assign(Falsification = track, Method = method, condition = "falsified"),
+            ])
+    return pd.concat(objs = frames, ignore_index = True) if frames else pd.DataFrame()
 
 
 ## pairwise consensus falsification evaluation wrapper
@@ -825,7 +881,6 @@ def eval_falsified_consensus(
     )
     return compile_falsified_consensus(results = results)
 
-## ----------------------------------------------------------------------------
 ## summarize falsification tests
 ## ----------------------------------------------------------------------------
 def stat_falsified_test(
@@ -912,7 +967,7 @@ def stat_falsified_test(
     print(f"H₀: Δ {metric_label} ≥ 0")
     print(f"H₁: Δ {metric_label} < 0")
     print(f"Median Δ {metric_label}: Median of paired differences (falsified - original), not the difference of marginal medians")
-    print("Rank-biserial r: Paired effect size, negative values favor original > falsified")
+    print("Rank-biserial r: Raw paired effect size; negative values indicate falsified < original")
     print("One-sided p: Wilcoxon signed-rank p-value for H₁")
     print("Holm-adj. p: Holm-Bonferroni adjusted one-sided p-value")
     print("Diff.: Yes if Holm-adj. p < 0.05 and Median Δ < 0")
@@ -931,24 +986,19 @@ def stat_falsified_test(
             valid = np.isfinite(x) & np.isfinite(y)
             x, y = x[valid], y[valid]
             n = len(x)
-            d = y - x
+            d = _clean_differences(y - x)
             med_d = float(np.median(d)) if n else np.nan
 
             n_eff = int(np.sum(d != 0))
             if n < 2 or n_eff < 2:
-                r_eff, p_val = np.nan, np.nan
+                p_val = np.nan
             else:
 
                 ## strict one-sided test for falsified - original < 0
-                _, p_val = wilcoxon(y, x, alternative = "less")
+                _, p_val = wilcoxon(d, alternative = "less")
 
-                ## rank-biserial r from signed differences (kerby 2014)
-                ## r < 0 means original > falsified, independent of scipy convention
-                d_nz = d[d != 0]
-                ranks = rankdata(np.abs(d_nz), method = "average")
-                pos_rank_sum = float(np.sum(ranks[d_nz > 0]))
-                neg_rank_sum = float(np.sum(ranks[d_nz < 0]))
-                r_eff = (pos_rank_sum - neg_rank_sum) / float(np.sum(ranks))
+            ## descriptive effect uses raw falsified-minus-original differences
+            r_eff = paired_rank_biserial(diff = d)
 
             rows.append((*group_key, metric, med_d, r_eff, float(p_val)))
 
@@ -1020,7 +1070,11 @@ def stat_falsified_test(
         if c in summary.columns and isinstance(summary[c].dtype, pd.CategoricalDtype):
             summary[c] = summary[c].astype(object)
 
-    round_cols = list(summary.select_dtypes(include = [np.number]).columns)
+    p_cols = [p_label, "Holm-adj. p"]
+    round_cols = [
+        col for col in summary.select_dtypes(include = [np.number]).columns
+        if col not in p_cols
+    ]
     if round_cols:
         summary[round_cols] = summary[round_cols].round(decimals)
 
@@ -1032,10 +1086,14 @@ def stat_falsified_test(
         value_cols_order = [med_d, *tail_cols]
 
     ## fixed decimal formatting for display
-    num_cols = [c for c in summary.columns if c.startswith("Median") or c in ["Rank-biserial r", p_label, "Holm-adj. p"]]
+    num_cols = [c for c in summary.columns if c.startswith("Median") or c == "Rank-biserial r"]
     for col in num_cols:
         summary[col] = summary[col].apply(
             lambda v: f"{float(v):.{decimals}f}" if pd.notna(v) and np.isfinite(float(v)) else v
+        )
+    for col in p_cols:
+        summary[col] = summary[col].apply(
+            lambda v: "-" if not (pd.notna(v) and np.isfinite(float(v))) else "<0.001" if float(v) < 0.001 else f"{float(v):.3f}"
         )
 
     ## final display formatting - note: columns have been renamed already

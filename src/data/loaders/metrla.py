@@ -24,22 +24,21 @@ from src.data.helpers import (
 )
 
 ## process metr-la dataset into daily event aggregates
-def _process_events_metrla(data: DynamicGraphTemporalSignal, sample_rate_minutes: int = 5, thres_percentile: int = 1, thres_min: float = 1e-6) -> pd.DataFrame:
+def _process_events_metrla(data: np.ndarray, sample_rate_minutes: int = 5, thres_percentile: int = 1) -> pd.DataFrame:
     
     ## calculate samples per day
     samples_per_day = (24 * 60) // sample_rate_minutes
 
-    ## collect speeds [nodes × time]
-    speed = np.stack([snap.y.numpy().flatten() for snap in data], axis=1)
+    ## derive binary congestion via per-node threshold (zeros encode missing readings)
+    threshold = np.nanpercentile(
+        np.where(data > 0, data, np.nan), thres_percentile, axis = 0
+    )[None, :]
+    congested = (data <= threshold) & (data > 0)
 
-    ## derive binary congestion via per-node threshold
-    threshold = np.maximum(np.percentile(speed, thres_percentile, axis=1), thres_min)[:, None]
-    congested = speed <= threshold
-
-    ## detect congestion stop events (transition from not congested to congested)
+    ## detect congestion onset events
     stop_events = np.zeros_like(congested, dtype=np.int32)
-    stop_events[:, 1:] = (~congested[:, 1:] & congested[:, :-1]).astype(np.int32)
-    events_per_sample = stop_events.sum(axis=0)
+    stop_events[1:, :] = (congested[1:, :] & ~congested[:-1, :]).astype(np.int32)
+    events_per_sample = stop_events.sum(axis = 1)
 
     ## trim to full days and reshape for daily aggregation
     num_days = events_per_sample.size // samples_per_day
@@ -66,6 +65,7 @@ class MetrLaProcessor:
     def __init__(self, raw_data_dir: str):
         self.raw_data_dir = raw_data_dir
         self.dataset: Optional[DynamicGraphTemporalSignal] = None
+        self.speed: Optional[np.ndarray] = None
         self.graph: Optional[ig.Graph] = None
         self.invariants: Optional[Dict[str, Any]] = None
         self.signatures: Optional[Dict[str, Any]] = None
@@ -75,6 +75,8 @@ class MetrLaProcessor:
         """ Loads the raw data from source. """
         loader = METRLADatasetLoader(raw_data_dir = self.raw_data_dir)
         self.dataset = _load_network_pygt(loader = loader)
+        raw = np.load(Path(self.raw_data_dir) / "node_values.npy")
+        self.speed = np.asarray(raw[:, :, 0], dtype = float)
         return self
 
     def process_network(self):
@@ -88,9 +90,9 @@ class MetrLaProcessor:
 
     def process_events(self):
         """ Processes the event data. """
-        if self.dataset is None:
+        if self.speed is None:
             self.load_data()
-        self.events = _process_events_metrla(data = self.dataset)
+        self.events = _process_events_metrla(data = self.speed)
         return self
 
     def process_signatures(self):

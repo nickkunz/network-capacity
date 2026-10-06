@@ -1,11 +1,15 @@
 ## libraries
+import io
 import os
 import sys
 import certifi
+import logging
+import configparser
 import pandas as pd
 import numpy as np
+import igraph as ig
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 
 ## path
 root = Path(__file__).resolve().parents[3]
@@ -16,184 +20,346 @@ if str(root) not in sys.path:
 from src.vectorizers.invariants import GraphInvariants
 from src.vectorizers.signatures import ProcessSignatures
 from src.data.helpers import (
-    _aggregate_by_day, 
-    _create_igraph_object
+    _create_igraph_object,
+    _request_with_retry
 )
 
-## helper to load network data
-def _load_network_data(url: str, cols: list[str], error_msg: str, dtype: dict[str, str] | None = None) -> pd.DataFrame:
-    os.environ['SSL_CERT_FILE'] = certifi.where()
-    data = pd.read_csv(filepath_or_buffer = url, usecols = cols, dtype = dtype)
-    if data.empty:
-        raise RuntimeError(error_msg)
-    return data
+## logging
+logger = logging.getLogger(__name__)
 
-## load croppol network data
-def _load_network_croppol(url_sampling: str, url_field: str) -> pd.DataFrame:
+## configs
+config = configparser.ConfigParser()
+config.read(filenames = os.path.join(root, 'conf', 'settings.ini'))
+
+## default url for rader 2016 database
+DEFAULT_URL_CROP = config['urls'].get(
+    'URL_CROP',
+    fallback = 'https://raw.githubusercontent.com/ibartomeus/CropPol/master/Processing_files/Datasets_Processing/RADER%202016%20DATABASE/Individual%20CSV/'
+).strip('"')
+
+## list of primary study files in rader et al. 2016 database
+RADER_STUDY_FILES: list[str] = [
+    "Bommarco_Rundlof_2009.csv",
+    "Brittain_Klein_2008.csv",
+    "Cunningham_2001.csv",
+    "Cunningham_2006.csv",
+    "Hipolito_2005.csv",
+    "Jauker_2006.csv",
+    "Lindstrom_2011.csv",
+    "Lindstrom_2012.csv",
+    "Reemer_Kleijn_2010.csv",
+    "Reemer_Kleijn_2010_Apple.csv",
+    "Reemer_Kleijn_2011.csv",
+    "Reemer_Kleijn_2011_Apple.csv",
+    "Rundlof_2011.csv",
+    "Rundlof_2012.csv",
+    "Scheper_2011.csv",
+    "Scheper_2012.csv",
+    "Schueep_NA.csv",
+    "Szentgyorgyi_NA.csv",
+    "Vergara_2004.csv",
+    "Winfree_griffin_2008.csv",
+    "Winfree_griffin_2010.csv",
+    "Winfree_griffin_2011.csv",
+    "Winfree_griffin_2012.csv",
+    "mayfield_NA.csv",
+    "pisanty_mandelik_2009.csv",
+    "pisanty_mandelik_2010.csv",
+    "pisanty_mandelik_2011.csv",
+    "stanley_stout_2dataset_2009.csv",
+]
+
+## extract calendar dates from study records
+def _extract_calendar_dates(data: pd.DataFrame) -> pd.Series:
+    """
+    Desc:
+        Extract calendar dates from year, month, day columns or convert
+        Excel serial dates where explicit date components are missing.
+
+    Args:
+        data: DataFrame containing study records.
+
+    Returns:
+        pd.Series: Series of extracted datetime.date objects or NaT values.
+
+    Raises:
+        None
+    """
+    dates_ymd = pd.to_datetime(
+        arg = pd.DataFrame(
+            data = {
+                "year": pd.to_numeric(arg = data["Year_of_study"], errors = "coerce"),
+                "month": pd.to_numeric(arg = data["month_of_study"], errors = "coerce"),
+                "day": pd.to_numeric(arg = data["day_of_study"], errors = "coerce")
+            }
+        ),
+        errors = "coerce"
+    )
+
+    if "date_round1" in data.columns:
+        serial_nums = pd.to_numeric(arg = data["date_round1"], errors = "coerce")
+        serial_dates = pd.to_datetime(
+            arg = serial_nums,
+            unit = "D",
+            origin = "1899-12-30",
+            errors = "coerce"
+        )
+        dates = dates_ymd.fillna(value = serial_dates)
+    else:
+        dates = dates_ymd
+
+    return dates.dt.date
+
+## load individual rader study
+def _load_rader_study(base_url: str, fname: str) -> pd.DataFrame:
+    """
+    Desc:
+        Load an individual study CSV from the Rader 2016 database subset.
+
+    Args:
+        base_url: Base URL directory containing the individual CSV files.
+        fname: Name of the CSV file to retrieve.
+
+    Returns:
+        pd.DataFrame: Loaded DataFrame for the study.
+
+    Raises:
+        RuntimeError: If the file cannot be retrieved or read.
+    """
+    os.environ['SSL_CERT_FILE'] = certifi.where()
+    url = f"{base_url.rstrip('/')}/{fname}"
     try:
-        data_left = _load_network_data(
-            url = url_sampling,
-            cols = ["study_id", "site_id", "pollinator", "abundance"],
-            error_msg = "No croppol sampling data found."
+        response = _request_with_retry(
+            url = url,
+            timeout = 30,
+            use_cache = True,
+            cache_namespace = "crop"
         )
-        data_right = _load_network_data(
-            url = url_field,
-            cols = ["site_id", "crop"],
-            error_msg = "No croppol field data found."
-        )
-        data = pd.merge(
-            left = data_left, 
-            right = data_right, 
-            on = "site_id"
+        data = pd.read_csv(
+            filepath_or_buffer = io.StringIO(initial_value = response.text),
+            low_memory = False
         )
         if data.empty:
-            raise RuntimeError("Merged CropPol data is empty.")
+            raise RuntimeError(f"Empty data retrieved for {fname}.")
         return data
     except Exception as e:
-        raise RuntimeError(f"Error loading and merging CropPol data: {e}")
-
-## process croppol network data
-def _process_network_croppol(data: pd.DataFrame) -> pd.DataFrame:
-    return (
-        data.rename(columns = str.lower)
-        .dropna(subset = ["site_id", "pollinator", "abundance", "crop"])
-        .assign(abundance = lambda d: pd.to_numeric(d["abundance"], errors = "coerce"))
-        .dropna(subset = ["abundance"])
-        .reset_index(drop = True)
-    )
+        raise RuntimeError(f"Error loading Rader study {fname} from {url}: {e}")
 
 ## build croppol network data
-def build_network_croppol(data: pd.DataFrame) -> tuple[list[str], list[tuple]]:
-    
-    ## extract unique nodes (crops and pollinators)
-    crops = data["crop"].dropna().unique().tolist()
-    polls = data["pollinator"].dropna().unique().tolist()
-    nodes = list(set(crops + polls))
+def build_network_croppol(data: list[pd.DataFrame] | pd.DataFrame) -> tuple[list[str], list[tuple[str, str]]]:
+    """
+    Desc:
+        Construct undirected bipartite crop-pollinator interaction graph nodes
+        and edges from primary census tables.
 
-    ## extract unique edges (crop-pollinator pairs)
-    edges = data[["crop", "pollinator"]].dropna().drop_duplicates()
-    edges = [tuple(x) for x in edges.to_numpy()]
-    return nodes, edges
+    Args:
+        data: List of DataFrames or single DataFrame containing study observations.
 
-## load croppol events
-def _load_events_croppol(url_sampling: str, url_field: str) -> pd.DataFrame:
-    try:
-        data_left = _load_network_data(
-            url = url_sampling,
-            cols = ["site_id", "pollinator", "abundance", "total_sampled_time"],
-            error_msg = "No croppol sampling data found."
-        )
-        data_right = _load_network_data(
-            url = url_field,
-            cols = ['site_id', 'crop', 'sampling_year', 'sampling_start_month', 'sampling_end_month', 'use_visits_or_abundance'],
-            error_msg = "No croppol field data found.",
-            dtype = {
-                'sampling_start_month': 'Int64', 
-                'sampling_end_month': 'Int64'
-            }
-        )
-        data = pd.merge(
-            left = data_left, 
-            right = data_right, 
-            on = "site_id"
-        )
-        if data.empty:
-            raise RuntimeError("Merged CropPol data is empty.")
-        return data
-    except Exception as e:
-        raise RuntimeError(f"Error loading and merging CropPol data: {e}")
+    Returns:
+        tuple[list[str], list[tuple[str, str]]]: Unique nodes and unique edges.
+
+    Raises:
+        None
+    """
+    studies = [data] if isinstance(data, pd.DataFrame) else data
+    nodes = set()
+    edges = set()
+
+    for df in studies:
+        if df.empty or "crop" not in df.columns:
+            continue
+
+        cols_list = df.columns.tolist()
+        meta_end = cols_list.index("final_fruitset") + 1 if "final_fruitset" in cols_list else 29
+        species_cols = [c for c in df.columns[meta_end:] if c != "calendar_date"]
+        species_df = df[species_cols].apply(
+            func = pd.to_numeric, 
+            errors = "coerce"
+        ).fillna(value = 0)
+
+        for crop_name, sub in df.groupby(by = "crop"):
+            sub_species = species_df.loc[sub.index]
+            species_totals = sub_species.sum(axis = 0)
+            active_pollinators = species_totals[species_totals > 0].index.tolist()
+
+            nodes.add(str(crop_name))
+            for poll in active_pollinators:
+                nodes.add(str(poll))
+                edges.add((str(crop_name), str(poll)))
+
+    return sorted(list(nodes)), sorted(list(edges))
 
 ## process croppol events
-def _process_events_croppol(data: pd.DataFrame) -> pd.DataFrame:
-    """Clean CropPol event data using a chained pandas pipeline and return raw daily rows.
-
-    This version stops before day-level aggregation so that aggregation can be performed
-    externally. Each returned row represents the first day of the sampled month with its
-    discrete abundance count (as `target`). Duplicate days may exist and should be
-    aggregated downstream if desired.
-
-    Logic preserved from prior implementation:
-    - keep only complete temporal observations
-    - restrict to daily windows (<= 24 hours)
-    - require same start/end month and a clean numeric year
-    - keep discrete counts (non-rate), non-negative integer abundance
-    - construct day as first day of (year, month)
+def _process_events_croppol(data: list[pd.DataFrame] | pd.DataFrame) -> pd.DataFrame:
     """
+    Desc:
+        Extract row-level pollinator interaction counts across insect species
+        columns for records with confirmed calendar dates and aggregate to
+        daily counts.
 
-    return (
-        data.copy()
-        ## compute helper columns and coerce types once
-        .assign(
-            sampling_hours=lambda d: pd.to_numeric(d['total_sampled_time'], errors='coerce') / 60,
-            sampling_year=lambda d: pd.to_numeric(d['sampling_year'], errors='coerce'),
-            sampling_start_month=lambda d: pd.to_numeric(d['sampling_start_month'], errors='coerce'),
-            sampling_end_month=lambda d: pd.to_numeric(d['sampling_end_month'], errors='coerce'),
-            abundance=lambda d: pd.to_numeric(d['abundance'], errors='coerce'),
-            use_visits_or_abundance=lambda d: d['use_visits_or_abundance'].astype(str)
+    Args:
+        data: List of DataFrames or single DataFrame containing study observations.
+
+    Returns:
+        pd.DataFrame: Daily event count series with date and target columns.
+
+    Raises:
+        ValueError: If no valid daily observations are found across studies.
+    """
+    studies = [data] if isinstance(data, pd.DataFrame) else data
+    all_events = list()
+
+    for df in studies:
+        if df.empty or "crop" not in df.columns:
+            continue
+
+        dates = _extract_calendar_dates(data = df)
+        valid_mask = dates.notna()
+        if not valid_mask.any():
+            continue
+
+        cols_list = df.columns.tolist()
+        meta_end = cols_list.index("final_fruitset") + 1 if "final_fruitset" in cols_list else 29
+        species_cols = [c for c in df.columns[meta_end:] if c != "calendar_date"]
+        species_df = df.loc[valid_mask, species_cols].apply(
+            func = pd.to_numeric, 
+            errors = "coerce"
+        ).fillna(value = 0)
+
+        sub_dates = dates.loc[valid_mask]
+        row_counts = species_df.sum(axis = 1).astype(dtype = int)
+
+        events_slice = pd.DataFrame(
+            data = {
+                "date": sub_dates.values,
+                "target": row_counts.values
+            }
         )
-        ## omit incomplete temporal observations
-        .dropna(subset=['sampling_start_month', 'sampling_end_month', 'total_sampled_time'])
-        ## filter for daily events only (<= 24 hours)
-        .query('sampling_hours <= 24')
-        ## restrict to same-month intervals and clean year data (non-numeric years become NaN)
-        .query('sampling_start_month == sampling_end_month')
-        .dropna(subset=['sampling_year'])
-        ## keep discrete, non-negative integer abundance and explicit abundance usage
-        .pipe(lambda d: d[
-            d['abundance'].notna()
-            & np.isclose(d['abundance'], np.rint(d['abundance']), atol=1e-9)
-            & (d['abundance'] >= 0)
-            & d['use_visits_or_abundance'].str.contains('abundance', case=False, na=False)
-        ])
-        ## construct day as first of month
-        .assign(
-            day=lambda d: pd.to_datetime(
-                dict(
-                    year=d['sampling_year'].astype(int),
-                    month=d['sampling_start_month'].astype(int),
-                    day=1
-                )
-            ).dt.date
-        )
-        ## keep only required columns
-        .loc[:, ['day', 'abundance']]
-        .rename(columns={'abundance': 'target'})
-        .astype({'target': 'int'})
+        all_events.append(events_slice[events_slice["target"] > 0])
+
+    if not all_events:
+        raise ValueError("No valid daily events found in CropPol Rader studies.")
+
+    combined = (
+        pd.concat(objs = all_events, ignore_index = True)
+        .groupby(by = "date", as_index = False)["target"]
+        .sum()
+        .sort_values(by = "date")
+        .reset_index(drop = True)
     )
+    combined["date"] = combined["date"].astype(dtype = str)
+    return combined
 
 ## crop pollinator network
 class CropProcessor:
-    def __init__(self, url_sampling: str, url_field: str):
+    def __init__(
+        self, 
+        url: Optional[str] = None,
+        url_sampling: Optional[str] = None, 
+        url_field: Optional[str] = None
+    ) -> None:
+        self.url = url or DEFAULT_URL_CROP
         self.url_sampling = url_sampling
         self.url_field = url_field
-        self.data_network: Optional[pd.DataFrame] = None
-        self.data_events: Optional[pd.DataFrame] = None
-        self.graph: Optional[Any] = None
-        self.invariants: Optional[Dict[str, Any]] = None
+        self.data_raw: Optional[list[pd.DataFrame]] = None
+        self.graph: Optional[ig.Graph] = None
+        self.invariants: Optional[dict[str, Any]] = None
         self.events: Optional[pd.DataFrame] = None
-        self.signatures: Optional[Dict[str, Any]] = None
+        self.signatures: Optional[dict[str, Any]] = None
 
-    def load_data(self):
-        """Loads the raw data from source."""
-        if self.data_network is None:
-            self.data_network = _load_network_croppol(self.url_sampling, self.url_field)
-            self.data_events = _load_events_croppol(self.url_sampling, self.url_field)
+    def load_data(self) -> 'CropProcessor':
+        """
+        Desc:
+            Load raw study tables from the Rader 2016 database.
+
+        Args:
+            None
+
+        Returns:
+            CropProcessor: Self instance with loaded data_raw.
+
+        Raises:
+            RuntimeError: If data loading fails.
+        """
+        if self.data_raw is None:
+            self.data_raw = list()
+            for fname in RADER_STUDY_FILES:
+                try:
+                    df = _load_rader_study(
+                        base_url = self.url,
+                        fname = fname
+                    )
+                    self.data_raw.append(df)
+                except Exception as e:
+                    logger.warning(f"Could not load Rader study {fname}: {e}")
+            if not self.data_raw:
+                raise RuntimeError("Failed to load any Rader 2016 study datasets.")
         return self
 
-    def process_network(self):
-        """Cleans raw data, builds an undirected crop–pollinator interaction graph, and computes general graph invariants."""
-        if self.data_network is None:
+    def process_network(self) -> 'CropProcessor':
+        """
+        Desc:
+            Build undirected bipartite crop-pollinator interaction graph and
+            compute 21 graph-theoretic invariants.
+
+        Args:
+            None
+
+        Returns:
+            CropProcessor: Self instance with graph and invariants populated.
+
+        Raises:
+            None
+        """
+        if self.data_raw is None:
             self.load_data()
-        data_network = _process_network_croppol(data = self.data_network)
-        nodes, edges = build_network_croppol(data = data_network)
+        if self.data_raw is None:
+            raise RuntimeError("Data failed to load.")
+        nodes, edges = build_network_croppol(data = self.data_raw)
         self.graph = _create_igraph_object(nodes = nodes, edges = edges)
-        self.invariants = GraphInvariants(self.graph).all()
+        self.invariants = GraphInvariants(graph = self.graph).all()
         return self
 
-    def process_signatures(self):
-        """Computes process signatures over the daily event counts."""
+    def process_events(self) -> 'CropProcessor':
+        """
+        Desc:
+            Extract and aggregate discrete daily event counts across confirmed
+            calendar observation dates.
+
+        Args:
+            None
+
+        Returns:
+            CropProcessor: Self instance with events populated.
+
+        Raises:
+            None
+        """
+        if self.data_raw is None:
+            self.load_data()
+        if self.data_raw is None:
+            raise RuntimeError("Data failed to load.")
+        self.events = _process_events_croppol(data = self.data_raw)
+        return self
+
+    def process_signatures(self) -> 'CropProcessor':
+        """
+        Desc:
+            Compute universal process signatures from the ordered daily event counts.
+
+        Args:
+            None
+
+        Returns:
+            CropProcessor: Self instance with signatures populated.
+
+        Raises:
+            None
+        """
         if self.events is None:
             self.process_events()
+        if self.events is None:
+            raise RuntimeError("Events failed to process.")
 
         self.signatures = ProcessSignatures(
             data = self.events.copy(),
@@ -202,23 +368,25 @@ class CropProcessor:
         ).all()
         return self
 
-    def process_events(self):
-        """Processes the event data."""
-        if self.data_network is None:
-            self.load_data()
-        self.events = _process_events_croppol(data = self.data_events)
-        self.events = _aggregate_by_day(
-            data = self.events,
-            datetime = 'day',
-            label = 'date'
-        )
-        return self
+    def run(self) -> dict[str, Any]:
+        """
+        Desc:
+            Execute the complete data pipeline for the crop pollinator system.
 
-    def run(self):
-        """Executes the pipeline and returns the final result."""
+        Args:
+            None
+
+        Returns:
+            dict[str, Any]: Dictionary containing invariants, signatures, and events.
+
+        Raises:
+            None
+        """
         self.process_network()
-        self.process_signatures()
         self.process_events()
+        self.process_signatures()
+        if self.invariants is None or self.signatures is None or self.events is None:
+            raise RuntimeError("Pipeline failed to produce all outputs.")
         return {
             "invariants": self.invariants,
             "signatures": self.signatures,

@@ -20,7 +20,7 @@ from src.data.helpers import (
 )
 
 ## load world bank project data
-def load_network_worldbank(url: str, start_year: int, end_year: int) -> pd.DataFrame:
+def load_network_worldbank(url: str, start_year: int, end_year: int, rows: int = 1000) -> pd.DataFrame:
 
     ## base query params
     base = {
@@ -30,34 +30,43 @@ def load_network_worldbank(url: str, start_year: int, end_year: int) -> pd.DataF
         "fl": "lendinginstr, totalamt, countryshortname, boardapprovaldate",
     }
 
-    ## paginate until all records fetched   
-    data = list()
-    offset, rows = 0, 2000
-    while True:
+    ## paginate by the number of projects returned because the api caps rows per response
+    data = dict()
+    offset, total = 0, None
+    while total is None or offset < total:
         params = {**base, "rows": rows, "os": offset}
         response  = _request_with_retry(url = url, params = params)
         payload = response.json()
         projects = payload.get("projects", {})
         if not projects:
             break
-            
-        ## accumulate results
-        data.extend(projects.values())
+
+        ## accumulate results keyed by project id
+        data.update(projects)
         total = int(payload.get("total", 0))
-        offset += rows
-        if offset >= total:
-            break
+        offset += len(projects)
     if not data:
         raise RuntimeError("no projects returned for the specified window")
-    return pd.DataFrame(data)
+    if len(data) != total:
+        raise RuntimeError(f"incomplete world bank projects: fetched {len(data)} of {total}")
+    return pd.DataFrame(list(data.values()))
 
-## load world bank country metadata
-def load_metadata_worldbank(url: str, timeout: int = 60) -> pd.DataFrame:
-    response = _request_with_retry(url = url, params = {"format": "json"}, timeout = timeout)
-    json = response.json()
-    if not isinstance(json, list) or len(json) < 2:
-        raise RuntimeError("unexpected response structure from world bank country api")
-    records = json[1]
+## load world bank country metadata across all pages
+def load_metadata_worldbank(url: str, timeout: int = 60, per_page: int = 500) -> pd.DataFrame:
+    records = list()
+    page, pages = 1, 1
+    while page <= pages:
+        response = _request_with_retry(
+            url = url,
+            params = {"format": "json", "per_page": per_page, "page": page},
+            timeout = timeout
+        )
+        json = response.json()
+        if not isinstance(json, list) or len(json) < 2:
+            raise RuntimeError("unexpected response structure from world bank country api")
+        pages = int(json[0].get("pages", 1))
+        records.extend(json[1])
+        page += 1
     return pd.json_normalize(records)
 
 ## process world bank project data

@@ -1,39 +1,263 @@
 {
   "invariants": {
-    "n_nodes": 54,
-    "n_edges": 52,
+    "n_nodes": 82,
+    "n_edges": 78,
     "n_articulation_points": 6,
-    "n_bridges": 52,
+    "n_bridges": 78,
     "diameter": 6.0,
     "radius": 3.0,
     "degeneracy": 1,
-    "k_core_size": 54,
-    "maximum_degree": 41,
-    "degree_variance": 29.290809327846357,
+    "k_core_size": 82,
+    "maximum_degree": 60,
+    "degree_variance": 42.47828673408688,
     "global_clustering": 0.0,
-    "degree_assortativity": -0.6961241019812886,
-    "degree_entropy": 0.486882465275698,
-    "joint_degree_entropy": 0.9636369214826723,
-    "degree_skewness": 7.169779316641512,
-    "degree_kurtosis": 52.13065560530422,
-    "normalized_laplacian_second_moment": 1.1342818428184283,
-    "normalized_laplacian_third_moment": 1.402845528455285,
+    "degree_assortativity": -0.6707089185255123,
+    "degree_entropy": 0.3590567767276557,
+    "joint_degree_entropy": 0.9525931161677129,
+    "degree_skewness": 8.808214324481265,
+    "degree_kurtosis": 78.8048362079573,
+    "normalized_laplacian_second_moment": 1.1413617886178862,
+    "normalized_laplacian_third_moment": 1.4240853658536587,
     "random_walk_triangle_weight": 0.0,
-    "random_walk_fourth_moment": 0.12343892524291099,
-    "adjacency_fourth_moment_per_node": 64.07407407407408
+    "random_walk_fourth_moment": 0.1369414803523035,
+    "adjacency_fourth_moment_per_node": 90.29268292682927
   },
   "signatures": {
-    "lag1_autocorr": 0.10466895889574626,
-    "coef_variation": 0.749571940177883,
-    "fano_factor": 0.8025578303097275,
-    "norm_succ_diff": 0.478250322265984,
-    "hurst_exponent": 0.5673587160841956,
-    "trend_coeff": 0.1026765137799323,
-    "count_skewness": 6.4215330843788285
+    "lag1_autocorr": 0.1089162925441081,
+    "coef_variation": 0.7331121786792157,
+    "fano_factor": 0.7503632980222007,
+    "norm_succ_diff": 0.455242012374821,
+    "hurst_exponent": 0.6183611166474506,
+    "trend_coeff": 0.13301624109206975,
+    "count_skewness": 6.646366292995938
   },
   "events": [
     {
+      "date": "2011-01-19",
+      "target": 1
+    },
+    {
+      "date": "2011-01-25",
+      "target": 1
+    },
+    {
+      "date": "2011-02-01",
+      "target": 1
+    },
+    {
+      "date": "2011-02-03",
+      "target": 1
+    },
+    {
+      "date": "2011-02-08",
+      "target": 1
+    },
+    {
+      "date": "2011-02-17",
+      "target": 1
+    },
+    {
+      "date": "2011-03-04",
+      "target": 1
+    },
+    {
+      "date": "2011-03-07",
+      "target": 2
+    },
+    {
+      "date": "2011-03-16",
+      "target": 1
+    },
+    {
+      "date": "2011-03-18",
+      "target": 1
+    },
+    {
+      "date": "2011-03-21",
+      "target": 1
+    },
+    {
+      "date": "2011-03-24",
+      "target": 1
+    },
+    {
+      "date": "2011-04-01",
+      "target": 1
+    },
+    {
+      "date": "2011-04-04",
+      "target": 4
+    },
+    {
+      "date": "2011-04-05",
+      "target": 1
+    },
+    {
+      "date": "2011-04-06",
+      "target": 2
+    },
+    {
+      "date": "2011-04-08",
+      "target": 1
+    },
+    {
+      "date": "2011-04-12",
+      "target": 1
+    },
+    {
+      "date": "2011-04-21",
+      "target": 1
+    },
+    {
+      "date": "2011-04-22",
+      "target": 1
+    },
+    {
+      "date": "2011-04-30",
+      "target": 1
+    },
+    {
+      "date": "2011-05-01",
+      "target": 2
+    },
+    {
+      "date": "2011-05-04",
+      "target": 1
+    },
+    {
+      "date": "2011-06-01",
+      "target": 1
+    },
+    {
+      "date": "2011-06-28",
+      "target": 2
+    },
+    {
+      "date": "2011-07-26",
+      "target": 2
+    },
+    {
+      "date": "2011-07-27",
+      "target": 1
+    },
+    {
+      "date": "2011-07-28",
+      "target": 1
+    },
+    {
+      "date": "2011-08-01",
+      "target": 2
+    },
+    {
+      "date": "2011-08-03",
+      "target": 1
+    },
+    {
+      "date": "2011-08-04",
+      "target": 1
+    },
+    {
+      "date": "2011-08-05",
+      "target": 1
+    },
+    {
+      "date": "2011-08-10",
+      "target": 1
+    },
+    {
+      "date": "2011-08-17",
+      "target": 1
+    },
+    {
+      "date": "2011-08-30",
+      "target": 1
+    },
+    {
+      "date": "2011-08-31",
+      "target": 1
+    },
+    {
+      "date": "2011-09-02",
+      "target": 1
+    },
+    {
+      "date": "2011-09-06",
+      "target": 1
+    },
+    {
+      "date": "2011-09-07",
+      "target": 1
+    },
+    {
+      "date": "2011-09-13",
+      "target": 1
+    },
+    {
+      "date": "2011-09-15",
+      "target": 1
+    },
+    {
+      "date": "2011-09-20",
+      "target": 1
+    },
+    {
+      "date": "2011-09-21",
+      "target": 1
+    },
+    {
       "date": "2011-09-23",
+      "target": 1
+    },
+    {
+      "date": "2011-09-27",
+      "target": 1
+    },
+    {
+      "date": "2011-09-28",
+      "target": 1
+    },
+    {
+      "date": "2011-10-05",
+      "target": 1
+    },
+    {
+      "date": "2011-10-06",
+      "target": 1
+    },
+    {
+      "date": "2011-10-11",
+      "target": 1
+    },
+    {
+      "date": "2011-10-25",
+      "target": 1
+    },
+    {
+      "date": "2011-11-08",
+      "target": 1
+    },
+    {
+      "date": "2011-11-11",
+      "target": 1
+    },
+    {
+      "date": "2011-12-14",
+      "target": 1
+    },
+    {
+      "date": "2011-12-19",
+      "target": 1
+    },
+    {
+      "date": "2011-12-20",
+      "target": 1
+    },
+    {
+      "date": "2011-12-27",
+      "target": 1
+    },
+    {
+      "date": "2012-01-01",
       "target": 1
     },
     {
@@ -41,7 +265,175 @@
       "target": 1
     },
     {
+      "date": "2012-01-12",
+      "target": 1
+    },
+    {
+      "date": "2012-02-23",
+      "target": 1
+    },
+    {
+      "date": "2012-03-07",
+      "target": 2
+    },
+    {
+      "date": "2012-03-08",
+      "target": 1
+    },
+    {
+      "date": "2012-04-10",
+      "target": 1
+    },
+    {
+      "date": "2012-04-13",
+      "target": 1
+    },
+    {
+      "date": "2012-04-19",
+      "target": 1
+    },
+    {
+      "date": "2012-04-25",
+      "target": 1
+    },
+    {
+      "date": "2012-05-01",
+      "target": 2
+    },
+    {
+      "date": "2012-05-08",
+      "target": 1
+    },
+    {
+      "date": "2012-05-10",
+      "target": 1
+    },
+    {
+      "date": "2012-05-14",
+      "target": 1
+    },
+    {
+      "date": "2012-05-31",
+      "target": 1
+    },
+    {
+      "date": "2012-07-24",
+      "target": 1
+    },
+    {
+      "date": "2012-08-13",
+      "target": 2
+    },
+    {
+      "date": "2012-08-14",
+      "target": 1
+    },
+    {
+      "date": "2012-08-21",
+      "target": 1
+    },
+    {
+      "date": "2012-08-24",
+      "target": 1
+    },
+    {
+      "date": "2012-09-04",
+      "target": 1
+    },
+    {
+      "date": "2012-09-10",
+      "target": 1
+    },
+    {
+      "date": "2012-09-14",
+      "target": 1
+    },
+    {
+      "date": "2012-09-20",
+      "target": 1
+    },
+    {
+      "date": "2012-09-24",
+      "target": 1
+    },
+    {
       "date": "2012-10-22",
+      "target": 1
+    },
+    {
+      "date": "2012-10-25",
+      "target": 1
+    },
+    {
+      "date": "2012-11-05",
+      "target": 1
+    },
+    {
+      "date": "2012-11-13",
+      "target": 1
+    },
+    {
+      "date": "2012-11-15",
+      "target": 1
+    },
+    {
+      "date": "2012-11-16",
+      "target": 1
+    },
+    {
+      "date": "2012-11-22",
+      "target": 1
+    },
+    {
+      "date": "2012-11-23",
+      "target": 1
+    },
+    {
+      "date": "2012-12-07",
+      "target": 1
+    },
+    {
+      "date": "2012-12-14",
+      "target": 1
+    },
+    {
+      "date": "2012-12-21",
+      "target": 1
+    },
+    {
+      "date": "2012-12-24",
+      "target": 1
+    },
+    {
+      "date": "2012-12-31",
+      "target": 1
+    },
+    {
+      "date": "2013-01-01",
+      "target": 1
+    },
+    {
+      "date": "2013-01-02",
+      "target": 1
+    },
+    {
+      "date": "2013-01-07",
+      "target": 1
+    },
+    {
+      "date": "2013-01-08",
+      "target": 2
+    },
+    {
+      "date": "2013-01-29",
+      "target": 1
+    },
+    {
+      "date": "2013-02-28",
+      "target": 1
+    },
+    {
+      "date": "2013-04-08",
       "target": 1
     },
     {
@@ -49,7 +441,19 @@
       "target": 1
     },
     {
+      "date": "2013-05-28",
+      "target": 1
+    },
+    {
       "date": "2013-05-29",
+      "target": 1
+    },
+    {
+      "date": "2013-05-30",
+      "target": 1
+    },
+    {
+      "date": "2013-06-14",
       "target": 1
     },
     {
@@ -57,7 +461,15 @@
       "target": 1
     },
     {
+      "date": "2013-08-22",
+      "target": 1
+    },
+    {
       "date": "2013-09-10",
+      "target": 2
+    },
+    {
+      "date": "2013-09-23",
       "target": 1
     },
     {

@@ -2,7 +2,7 @@
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import QuantileRegressor
 
-## modules
+## constants
 from src.estimators.config import (
     ASYMMETRY_C,
     ASYMMETRY_R,

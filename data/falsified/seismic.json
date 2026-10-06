@@ -34,449 +34,529 @@
     },
     "events": [
       {
-        "date": "2014-11-12",
-        "target": 1
+        "date": "2004-05-07",
+        "target": 270
       },
       {
-        "date": "2015-07-02",
-        "target": 2
+        "date": "2004-05-08",
+        "target": 213
       },
       {
-        "date": "2015-07-03",
+        "date": "2004-05-09",
+        "target": 313
+      },
+      {
+        "date": "2004-05-10",
+        "target": 250
+      },
+      {
+        "date": "2004-05-16",
+        "target": 201
+      },
+      {
+        "date": "2004-05-17",
+        "target": 246
+      },
+      {
+        "date": "2004-05-18",
+        "target": 258
+      },
+      {
+        "date": "2004-05-19",
+        "target": 287
+      },
+      {
+        "date": "2004-05-20",
+        "target": 37
+      },
+      {
+        "date": "2004-06-23",
+        "target": 159
+      },
+      {
+        "date": "2004-06-24",
+        "target": 214
+      },
+      {
+        "date": "2004-06-28",
+        "target": 782
+      },
+      {
+        "date": "2004-06-29",
+        "target": 182
+      },
+      {
+        "date": "2004-07-04",
+        "target": 412
+      },
+      {
+        "date": "2004-07-05",
+        "target": 894
+      },
+      {
+        "date": "2004-07-14",
+        "target": 348
+      },
+      {
+        "date": "2004-07-15",
+        "target": 491
+      },
+      {
+        "date": "2005-07-08",
+        "target": 1266
+      },
+      {
+        "date": "2005-07-12",
+        "target": 379
+      },
+      {
+        "date": "2005-07-17",
+        "target": 748
+      },
+      {
+        "date": "2005-07-18",
+        "target": 354
+      },
+      {
+        "date": "2005-07-25",
+        "target": 225
+      },
+      {
+        "date": "2005-07-26",
+        "target": 152
+      },
+      {
+        "date": "2005-07-31",
+        "target": 216
+      },
+      {
+        "date": "2006-06-06",
+        "target": 25
+      },
+      {
+        "date": "2006-06-07",
+        "target": 11
+      },
+      {
+        "date": "2006-06-08",
+        "target": 45
+      },
+      {
+        "date": "2006-06-09",
+        "target": 92
+      },
+      {
+        "date": "2006-06-12",
+        "target": 10
+      },
+      {
+        "date": "2006-06-13",
+        "target": 23
+      },
+      {
+        "date": "2006-06-14",
         "target": 3
       },
       {
-        "date": "2015-07-06",
-        "target": 2
+        "date": "2006-06-15",
+        "target": 6
       },
       {
-        "date": "2015-07-07",
-        "target": 2
+        "date": "2006-06-17",
+        "target": 57
       },
       {
-        "date": "2015-07-08",
-        "target": 1
-      },
-      {
-        "date": "2015-07-09",
-        "target": 1
-      },
-      {
-        "date": "2015-07-10",
-        "target": 1
-      },
-      {
-        "date": "2015-07-11",
-        "target": 1
-      },
-      {
-        "date": "2015-07-12",
-        "target": 2
-      },
-      {
-        "date": "2015-07-14",
-        "target": 1
-      },
-      {
-        "date": "2015-07-15",
-        "target": 2
-      },
-      {
-        "date": "2015-07-16",
-        "target": 1
-      },
-      {
-        "date": "2015-07-17",
-        "target": 1
-      },
-      {
-        "date": "2015-07-18",
-        "target": 1
-      },
-      {
-        "date": "2015-07-19",
-        "target": 2
-      },
-      {
-        "date": "2015-07-21",
-        "target": 1
-      },
-      {
-        "date": "2015-07-22",
-        "target": 2
-      },
-      {
-        "date": "2015-07-23",
-        "target": 1
-      },
-      {
-        "date": "2015-07-24",
-        "target": 1
-      },
-      {
-        "date": "2015-07-25",
-        "target": 1
-      },
-      {
-        "date": "2015-07-26",
-        "target": 2
-      },
-      {
-        "date": "2015-07-28",
-        "target": 1
-      },
-      {
-        "date": "2015-07-29",
-        "target": 1
-      },
-      {
-        "date": "2015-07-30",
-        "target": 1
-      },
-      {
-        "date": "2015-07-31",
-        "target": 3
-      },
-      {
-        "date": "2015-08-01",
-        "target": 2
-      },
-      {
-        "date": "2016-07-02",
-        "target": 1
-      },
-      {
-        "date": "2016-07-07",
-        "target": 1
-      },
-      {
-        "date": "2016-07-08",
-        "target": 1
-      },
-      {
-        "date": "2016-07-13",
-        "target": 1
-      },
-      {
-        "date": "2016-07-26",
-        "target": 2
-      },
-      {
-        "date": "2016-08-06",
-        "target": 1
-      },
-      {
-        "date": "2016-11-09",
-        "target": 1
-      },
-      {
-        "date": "2016-12-28",
-        "target": 1
-      },
-      {
-        "date": "2018-07-12",
-        "target": 2
-      },
-      {
-        "date": "2018-07-17",
-        "target": 1
-      },
-      {
-        "date": "2018-07-18",
-        "target": 2
-      },
-      {
-        "date": "2018-07-19",
-        "target": 1
-      },
-      {
-        "date": "2018-07-20",
-        "target": 1
-      },
-      {
-        "date": "2018-07-21",
-        "target": 1
-      },
-      {
-        "date": "2018-08-21",
-        "target": 1
-      },
-      {
-        "date": "2018-11-07",
-        "target": 1
-      },
-      {
-        "date": "2019-07-27",
-        "target": 1
-      },
-      {
-        "date": "2019-08-30",
-        "target": 2
-      },
-      {
-        "date": "2020-08-18",
-        "target": 1
-      },
-      {
-        "date": "2020-08-19",
-        "target": 1
-      },
-      {
-        "date": "2021-03-24",
-        "target": 1
-      },
-      {
-        "date": "2021-03-25",
+        "date": "2006-06-18",
         "target": 9
       },
       {
-        "date": "2021-03-26",
+        "date": "2006-06-19",
+        "target": 14
+      },
+      {
+        "date": "2006-06-20",
+        "target": 13
+      },
+      {
+        "date": "2006-06-21",
+        "target": 9
+      },
+      {
+        "date": "2006-06-23",
+        "target": 18
+      },
+      {
+        "date": "2006-06-24",
+        "target": 16
+      },
+      {
+        "date": "2006-07-04",
+        "target": 46
+      },
+      {
+        "date": "2006-07-21",
+        "target": 15
+      },
+      {
+        "date": "2006-07-22",
         "target": 1
       },
       {
-        "date": "2022-08-16",
-        "target": 1
-      },
-      {
-        "date": "2023-04-08",
-        "target": 1
-      },
-      {
-        "date": "2023-04-25",
-        "target": 1
-      },
-      {
-        "date": "2023-06-03",
-        "target": 4
-      },
-      {
-        "date": "2023-06-04",
-        "target": 3
-      },
-      {
-        "date": "2023-06-05",
-        "target": 8
-      },
-      {
-        "date": "2023-06-06",
-        "target": 3
-      },
-      {
-        "date": "2023-06-07",
-        "target": 2
-      },
-      {
-        "date": "2023-06-08",
+        "date": "2009-05-06",
         "target": 6
       },
       {
-        "date": "2023-06-09",
-        "target": 2
+        "date": "2009-05-10",
+        "target": 10
       },
       {
-        "date": "2023-06-10",
+        "date": "2009-05-11",
+        "target": 15
+      },
+      {
+        "date": "2009-05-21",
+        "target": 21
+      },
+      {
+        "date": "2009-05-29",
+        "target": 17
+      },
+      {
+        "date": "2009-06-05",
+        "target": 201
+      },
+      {
+        "date": "2009-06-06",
+        "target": 92
+      },
+      {
+        "date": "2009-06-08",
+        "target": 249
+      },
+      {
+        "date": "2009-06-09",
+        "target": 191
+      },
+      {
+        "date": "2009-06-10",
+        "target": 101
+      },
+      {
+        "date": "2009-06-11",
+        "target": 51
+      },
+      {
+        "date": "2009-06-12",
+        "target": 145
+      },
+      {
+        "date": "2009-06-13",
+        "target": 48
+      },
+      {
+        "date": "2009-06-14",
+        "target": 92
+      },
+      {
+        "date": "2009-06-15",
+        "target": 125
+      },
+      {
+        "date": "2009-06-16",
+        "target": 134
+      },
+      {
+        "date": "2009-06-17",
+        "target": 193
+      },
+      {
+        "date": "2009-06-18",
+        "target": 106
+      },
+      {
+        "date": "2009-06-19",
+        "target": 195
+      },
+      {
+        "date": "2009-06-22",
+        "target": 170
+      },
+      {
+        "date": "2009-06-23",
+        "target": 156
+      },
+      {
+        "date": "2010-04-23",
+        "target": 69
+      },
+      {
+        "date": "2010-04-24",
+        "target": 36
+      },
+      {
+        "date": "2010-04-25",
+        "target": 24
+      },
+      {
+        "date": "2010-04-28",
+        "target": 107
+      },
+      {
+        "date": "2010-04-29",
+        "target": 293
+      },
+      {
+        "date": "2010-05-04",
+        "target": 155
+      },
+      {
+        "date": "2010-05-05",
+        "target": 60
+      },
+      {
+        "date": "2010-05-06",
+        "target": 121
+      },
+      {
+        "date": "2010-05-08",
+        "target": 70
+      },
+      {
+        "date": "2011-04-08",
+        "target": 202
+      },
+      {
+        "date": "2011-04-10",
+        "target": 111
+      },
+      {
+        "date": "2011-04-11",
+        "target": 243
+      },
+      {
+        "date": "2011-04-18",
+        "target": 665
+      },
+      {
+        "date": "2011-04-19",
+        "target": 635
+      },
+      {
+        "date": "2011-04-20",
+        "target": 115
+      },
+      {
+        "date": "2011-04-29",
+        "target": 26
+      },
+      {
+        "date": "2011-04-30",
+        "target": 5
+      },
+      {
+        "date": "2011-05-02",
+        "target": 44
+      },
+      {
+        "date": "2011-05-03",
+        "target": 39
+      },
+      {
+        "date": "2011-05-04",
+        "target": 14
+      },
+      {
+        "date": "2011-05-06",
+        "target": 124
+      },
+      {
+        "date": "2011-05-09",
+        "target": 101
+      },
+      {
+        "date": "2011-05-10",
+        "target": 287
+      },
+      {
+        "date": "2011-05-11",
+        "target": 95
+      },
+      {
+        "date": "2011-05-12",
+        "target": 245
+      },
+      {
+        "date": "2011-05-13",
+        "target": 124
+      },
+      {
+        "date": "2011-05-14",
         "target": 7
       },
       {
-        "date": "2023-06-11",
-        "target": 3
+        "date": "2011-05-16",
+        "target": 142
       },
       {
-        "date": "2023-06-12",
-        "target": 2
+        "date": "2011-05-18",
+        "target": 159
       },
       {
-        "date": "2023-06-13",
-        "target": 5
+        "date": "2011-05-19",
+        "target": 136
       },
       {
-        "date": "2023-06-14",
-        "target": 4
+        "date": "2011-05-20",
+        "target": 358
       },
       {
-        "date": "2023-06-15",
-        "target": 5
+        "date": "2011-05-21",
+        "target": 274
       },
       {
-        "date": "2023-06-16",
-        "target": 7
+        "date": "2011-05-23",
+        "target": 131
       },
       {
-        "date": "2023-06-17",
-        "target": 3
+        "date": "2011-05-25",
+        "target": 173
       },
       {
-        "date": "2023-06-22",
-        "target": 3
+        "date": "2011-05-26",
+        "target": 260
       },
       {
-        "date": "2023-06-23",
-        "target": 3
+        "date": "2011-05-28",
+        "target": 141
       },
       {
-        "date": "2023-06-24",
-        "target": 4
+        "date": "2011-05-30",
+        "target": 295
       },
       {
-        "date": "2023-06-25",
-        "target": 5
+        "date": "2011-05-31",
+        "target": 73
       },
       {
-        "date": "2023-06-26",
+        "date": "2011-06-01",
+        "target": 25
+      },
+      {
+        "date": "2011-06-02",
+        "target": 113
+      },
+      {
+        "date": "2011-06-03",
+        "target": 147
+      },
+      {
+        "date": "2011-06-04",
+        "target": 81
+      },
+      {
+        "date": "2011-06-05",
+        "target": 44
+      },
+      {
+        "date": "2012-04-27",
+        "target": 52
+      },
+      {
+        "date": "2012-05-01",
+        "target": 96
+      },
+      {
+        "date": "2012-05-02",
+        "target": 107
+      },
+      {
+        "date": "2012-05-03",
+        "target": 63
+      },
+      {
+        "date": "2012-05-04",
         "target": 1
       },
       {
-        "date": "2023-06-27",
-        "target": 6
+        "date": "2012-05-05",
+        "target": 12
       },
       {
-        "date": "2023-06-28",
-        "target": 7
+        "date": "2012-05-07",
+        "target": 172
       },
       {
-        "date": "2023-06-29",
-        "target": 3
+        "date": "2012-05-08",
+        "target": 198
       },
       {
-        "date": "2023-06-30",
-        "target": 4
+        "date": "2012-05-09",
+        "target": 96
       },
       {
-        "date": "2023-07-01",
-        "target": 5
+        "date": "2012-05-11",
+        "target": 127
       },
       {
-        "date": "2023-07-02",
-        "target": 2
+        "date": "2012-05-14",
+        "target": 81
       },
       {
-        "date": "2023-07-03",
-        "target": 4
+        "date": "2012-05-15",
+        "target": 138
       },
       {
-        "date": "2023-07-04",
-        "target": 1
+        "date": "2012-05-19",
+        "target": 36
       },
       {
-        "date": "2023-07-05",
-        "target": 4
+        "date": "2012-05-20",
+        "target": 202
       },
       {
-        "date": "2023-07-06",
-        "target": 3
+        "date": "2012-05-21",
+        "target": 148
       },
       {
-        "date": "2023-07-07",
-        "target": 6
+        "date": "2012-05-22",
+        "target": 113
       },
       {
-        "date": "2023-07-08",
-        "target": 4
+        "date": "2012-05-23",
+        "target": 177
       },
       {
-        "date": "2023-07-09",
-        "target": 4
+        "date": "2012-05-24",
+        "target": 143
       },
       {
-        "date": "2023-07-10",
-        "target": 3
+        "date": "2012-05-25",
+        "target": 198
       },
       {
-        "date": "2023-07-11",
-        "target": 3
+        "date": "2012-05-26",
+        "target": 18
       },
       {
-        "date": "2023-07-12",
-        "target": 4
+        "date": "2012-05-27",
+        "target": 102
       },
       {
-        "date": "2023-07-13",
-        "target": 2
+        "date": "2012-05-28",
+        "target": 32
       },
       {
-        "date": "2023-07-14",
-        "target": 2
-      },
-      {
-        "date": "2023-07-15",
-        "target": 1
-      },
-      {
-        "date": "2023-07-16",
-        "target": 3
-      },
-      {
-        "date": "2023-07-17",
-        "target": 2
-      },
-      {
-        "date": "2023-07-18",
-        "target": 2
-      },
-      {
-        "date": "2023-07-19",
-        "target": 1
-      },
-      {
-        "date": "2023-07-20",
-        "target": 7
-      },
-      {
-        "date": "2023-07-21",
-        "target": 1
-      },
-      {
-        "date": "2023-07-22",
-        "target": 2
-      },
-      {
-        "date": "2023-07-23",
-        "target": 4
-      },
-      {
-        "date": "2023-07-24",
-        "target": 3
-      },
-      {
-        "date": "2023-07-25",
-        "target": 3
-      },
-      {
-        "date": "2023-07-26",
-        "target": 3
-      },
-      {
-        "date": "2023-07-27",
-        "target": 4
-      },
-      {
-        "date": "2023-07-28",
-        "target": 4
-      },
-      {
-        "date": "2023-07-29",
-        "target": 3
-      },
-      {
-        "date": "2023-07-30",
-        "target": 1
-      },
-      {
-        "date": "2023-07-31",
-        "target": 5
-      },
-      {
-        "date": "2023-08-01",
-        "target": 6
+        "date": "2012-05-29",
+        "target": 20
       }
     ]
   },
   "random_generate": {
     "invariants": {
-      "n_nodes": 333532.0148877409,
+      "n_nodes": 1326097.00589469,
       "n_edges": 1096811306.9317567,
-      "n_articulation_points": 6968.152276791843,
-      "n_bridges": 133405.12775298196,
+      "n_articulation_points": 216522.49395851576,
+      "n_bridges": 3964925.41866384,
       "diameter": 121.76837604103217,
       "radius": 115.76153806352258,
       "degeneracy": 2488.691049079277,
@@ -484,25 +564,25 @@
       "maximum_degree": 1736970.5466882498,
       "degree_variance": 1238936668.4499032,
       "global_clustering": 0.19228901880867078,
-      "degree_assortativity": -0.9314638296081811,
+      "degree_assortativity": -0.9358536236566942,
       "degree_entropy": 0.7964592835105812,
-      "joint_degree_entropy": 2.6910541231152463,
-      "degree_skewness": 2.829952155482257,
-      "degree_kurtosis": 81.03264200796379,
-      "normalized_laplacian_second_moment": 0.18357632558787082,
-      "normalized_laplacian_third_moment": 1.1819977093013398,
-      "random_walk_triangle_weight": 0.038687572201086096,
-      "random_walk_fourth_moment": 0.1464998354215086,
-      "adjacency_fourth_moment_per_node": 20152299455011.65
+      "joint_degree_entropy": 2.691029979931153,
+      "degree_skewness": 54.199130591072034,
+      "normalized_laplacian_second_moment": 0.919542849113862,
+      "normalized_laplacian_third_moment": 1.0898201039168445,
+      "random_walk_triangle_weight": 0.08639601900613608,
+      "random_walk_fourth_moment": 0.08298264832279965,
+      "adjacency_fourth_moment_per_node": 14582088750772.248,
+      "degree_kurtosis": 130095.9115354853
     },
     "signatures": {
-      "lag1_autocorr": 0.6359430951207081,
-      "coef_variation": 0.2815905909863053,
-      "fano_factor": 24158.557570943707,
-      "norm_succ_diff": 1.003488700641462,
+      "lag1_autocorr": 0.6773775395963818,
+      "coef_variation": 0.1988914676000244,
+      "fano_factor": 24158.538521553204,
+      "norm_succ_diff": 0.879550115262358,
       "hurst_exponent": 0.47061848963493114,
-      "trend_coeff": 0.6731388017498546,
-      "count_skewness": 6.735485409897253
+      "trend_coeff": 0.6592331200839875,
+      "count_skewness": 6.047720706348942
     },
     "events": [
       {
@@ -1965,36 +2045,36 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": -189351.02574988495,
-      "n_edges": -1179392175.9935093,
-      "n_articulation_points": 4108.450098024766,
-      "n_bridges": 16300.428629570542,
-      "diameter": 93.4295430529874,
-      "radius": -121.89766472565937,
-      "degeneracy": 367.16231611406783,
-      "k_core_size": 1103721.4780264713,
-      "maximum_degree": 135890.02598020958,
-      "degree_variance": -565495285.2149659,
-      "global_clustering": 0.16195590825242365,
-      "degree_assortativity": 0.8207955335846872,
-      "degree_entropy": 1.165799142077574,
-      "joint_degree_entropy": 0.579795788454919,
-      "degree_skewness": 1.126374744772699,
-      "degree_kurtosis": 499.18852533701335,
-      "normalized_laplacian_second_moment": 0.8737104286631695,
-      "normalized_laplacian_third_moment": 1.0774024552044377,
-      "random_walk_triangle_weight": -0.02364097926451654,
-      "random_walk_fourth_moment": 0.253341508215387,
-      "adjacency_fourth_moment_per_node": 8916017553965.986
+      "n_nodes": -767052.0501168907,
+      "n_edges": -1179257823.441194,
+      "n_articulation_points": 127812.32087936645,
+      "n_bridges": 485393.70328250265,
+      "diameter": 91.44487719293689,
+      "radius": -121.93077819875953,
+      "degeneracy": 363.1677253771488,
+      "k_core_size": 1103739.0939228698,
+      "maximum_degree": 135810.2304784408,
+      "degree_variance": -565495281.3584074,
+      "global_clustering": 0.16195590825287393,
+      "degree_assortativity": 0.5991676136963947,
+      "degree_entropy": 1.1859501494882863,
+      "joint_degree_entropy": 0.6005727972031483,
+      "degree_skewness": 8.332352560019887,
+      "normalized_laplacian_second_moment": 1.025271356510342,
+      "normalized_laplacian_third_moment": 0.7700843375465136,
+      "random_walk_triangle_weight": 0.0052988047520362664,
+      "random_walk_fourth_moment": -0.027300632959121822,
+      "adjacency_fourth_moment_per_node": 2959013966547.475,
+      "degree_kurtosis": 57602.09672979366
     },
     "signatures": {
-      "lag1_autocorr": -0.032271018815640984,
-      "coef_variation": -1.2947287092539588,
-      "fano_factor": -2502.73773136185,
-      "norm_succ_diff": 0.6485738696755619,
-      "hurst_exponent": 0.5813615986280557,
-      "trend_coeff": 0.3737753539146039,
-      "count_skewness": 3.7333539853606807
+      "lag1_autocorr": -0.021197059600968446,
+      "coef_variation": -0.48397440497741395,
+      "fano_factor": -2541.5787352486536,
+      "norm_succ_diff": 0.5248851921385247,
+      "hurst_exponent": 0.630765957383607,
+      "trend_coeff": 0.36672338308531793,
+      "count_skewness": 3.4881277769745545
     },
     "events": [
       {

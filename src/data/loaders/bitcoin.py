@@ -1,7 +1,6 @@
 ## libraries
 import os
 import sys
-import torch
 import pandas as pd
 import igraph
 from pathlib import Path
@@ -23,19 +22,15 @@ from src.data.helpers import (
 )
 
 ## build tripartite user–rating–user network
-def build_network_bitcoin(data: BitcoinOTC, index: int = 10) -> tuple[list[str], list[tuple[str, str]]]:
-    
-    ## single graph object
-    data_idx = data[index]
-
+def build_network_bitcoin(data: pd.DataFrame) -> tuple[list[str], list[tuple[str, str]]]:
     ## extract users
-    users = torch.unique(data_idx.edge_index).cpu().numpy()
+    users = pd.unique(data[["src", "dst"]].values.ravel("K"))
     user_nodes = [f"user_{u}" for u in users]
 
     ## extract directed edges
-    src_users = data_idx.edge_index[0].cpu().numpy()
-    dst_users = data_idx.edge_index[1].cpu().numpy()
-    ratings = data_idx.edge_attr.cpu().numpy().astype(int).flatten()
+    src_users = data["src"].to_numpy()
+    dst_users = data["dst"].to_numpy()
+    ratings = data["rating"].to_numpy(dtype = int)
 
     ## only create rating nodes that actually appear in the data
     unique_ratings = set(ratings)
@@ -53,10 +48,10 @@ def build_network_bitcoin(data: BitcoinOTC, index: int = 10) -> tuple[list[str],
     return nodes, edges
 
 ## load event counts from bitcoin-otc dataset
-def load_events_bitcoin(data: BitcoinOTC, index: int = 10) -> pd.DataFrame:
+def load_events_bitcoin(data: BitcoinOTC) -> pd.DataFrame:
     
     ## ensure data is downloaded
-    _ = data[index]  ## snapshot at given index
+    _ = data[0]
     data_raw = data.raw_paths[0]  ## ./BitcoinOTC/raw/soc-sign-bitcoinotc.csv
 
     ## read raw columns: src, dst, rating, timestamp
@@ -73,15 +68,15 @@ def load_events_bitcoin(data: BitcoinOTC, index: int = 10) -> pd.DataFrame:
         unit = "s",  ## seconds since epoch
         utc = True
     )
-    return data[["datetime"]]
+    return data
 
 ## bitcoin user–rating–user network
 class BitcoinProcessor:
-    def __init__(self, root_path: str, name: str, index: int = 10):  ## strictly the 11th snapshot
+    def __init__(self, root_path: str, name: str):
         self.root_path: str = root_path
         self.name: str = name
-        self.index: int = index
         self.data_raw: Optional[BitcoinOTC] = None
+        self.data_history: Optional[pd.DataFrame] = None
         self.graph: Optional[igraph.Graph] = None
         self.invariants: Optional[Dict[str, Any]] = None
         self.signatures: Optional[Dict[str, Any]] = None
@@ -93,22 +88,23 @@ class BitcoinProcessor:
             dataset = "BitcoinOTC",
             root = os.path.join(self.root_path, self.name)
         )
+        self.data_history = load_events_bitcoin(data = self.data_raw)
         return self
 
     def process_network(self):
         """ Builds the network and computes invariants. """
-        if self.data_raw is None:
+        if self.data_history is None:
             self.load_data()
-        nodes, edges = build_network_bitcoin(data = self.data_raw, index = self.index)
+        nodes, edges = build_network_bitcoin(data = self.data_history)
         self.graph = _create_igraph_object(nodes = nodes, edges = edges)
         self.invariants = GraphInvariants(graph = self.graph).all()
         return self
 
     def process_events(self):
         """ Processes the event data. """
-        if self.data_raw is None:
+        if self.data_history is None:
             self.load_data()
-        events = load_events_bitcoin(data = self.data_raw, index = self.index)
+        events = self.data_history[["datetime"]].copy()
         self.events = _aggregate_by_day(
             data = events, 
             datetime = 'datetime',

@@ -1,27 +1,27 @@
 {
   "target_remap": {
     "invariants": {
-      "n_nodes": 222,
-      "n_edges": 1514,
-      "n_articulation_points": 8,
-      "n_bridges": 12,
-      "diameter": 5.0,
-      "radius": 3.0,
-      "degeneracy": 52,
-      "k_core_size": 5,
-      "maximum_degree": 914,
-      "degree_variance": 4282.392662933204,
+      "n_nodes": 5901,
+      "n_edges": 14436,
+      "n_articulation_points": 17,
+      "n_bridges": 2665,
+      "diameter": 4.0,
+      "radius": 2.0,
+      "degeneracy": 13,
+      "k_core_size": 39,
+      "maximum_degree": 4882,
+      "degree_variance": 5984.923080514991,
       "global_clustering": 0.0,
-      "degree_assortativity": -0.5891432394981481,
-      "degree_entropy": 2.562967849921751,
-      "joint_degree_entropy": 4.242388172509357,
-      "degree_skewness": 12.264853527653058,
-      "degree_kurtosis": 164.01304945841002,
-      "normalized_laplacian_second_moment": 1.0127076148398881,
-      "normalized_laplacian_third_moment": 1.0836141998100903,
+      "degree_assortativity": -0.47036707888537604,
+      "degree_entropy": 1.6727659214269686,
+      "joint_degree_entropy": 4.351045811087442,
+      "degree_skewness": 49.46551189515195,
+      "degree_kurtosis": 2851.912441198378,
+      "normalized_laplacian_second_moment": 1.0017565573690135,
+      "normalized_laplacian_third_moment": 1.0052696721070402,
       "random_walk_triangle_weight": 0.0,
-      "random_walk_fourth_moment": 0.01387892849679577,
-      "adjacency_fourth_moment_per_node": 1949046.7207207207
+      "random_walk_fourth_moment": 0.0006963132410003652,
+      "adjacency_fourth_moment_per_node": 21062.800881206575
     },
     "signatures": {
       "lag1_autocorr": 0.7119421732492771,
@@ -34,1469 +34,817 @@
     },
     "events": [
       {
-        "date": "2023-01-01",
-        "target": 334
+        "date": "2015-09-14",
+        "target": 1
       },
       {
-        "date": "2023-01-02",
-        "target": 446
+        "date": "2015-10-08",
+        "target": 1
       },
       {
-        "date": "2023-01-03",
-        "target": 465
+        "date": "2015-10-12",
+        "target": 2
       },
       {
-        "date": "2023-01-04",
-        "target": 341
+        "date": "2015-11-16",
+        "target": 1
       },
       {
-        "date": "2023-01-05",
-        "target": 356
+        "date": "2015-12-26",
+        "target": 1
       },
       {
-        "date": "2023-01-06",
-        "target": 356
+        "date": "2016-12-02",
+        "target": 1
       },
       {
-        "date": "2023-01-07",
-        "target": 405
+        "date": "2016-12-17",
+        "target": 1
       },
       {
-        "date": "2023-01-08",
-        "target": 347
+        "date": "2017-01-04",
+        "target": 1
       },
       {
-        "date": "2023-01-09",
-        "target": 353
+        "date": "2017-02-08",
+        "target": 1
       },
       {
-        "date": "2023-01-10",
-        "target": 387
+        "date": "2017-02-19",
+        "target": 1
       },
       {
-        "date": "2023-01-11",
-        "target": 341
+        "date": "2017-04-05",
+        "target": 1
       },
       {
-        "date": "2023-01-12",
-        "target": 334
+        "date": "2017-04-12",
+        "target": 1
       },
       {
-        "date": "2023-01-13",
-        "target": 298
+        "date": "2017-04-23",
+        "target": 1
       },
       {
-        "date": "2023-01-14",
-        "target": 376
+        "date": "2017-06-08",
+        "target": 1
       },
       {
-        "date": "2023-01-15",
-        "target": 349
+        "date": "2017-06-16",
+        "target": 1
       },
       {
-        "date": "2023-01-16",
-        "target": 338
+        "date": "2017-06-30",
+        "target": 1
       },
       {
-        "date": "2023-01-17",
-        "target": 296
+        "date": "2017-07-05",
+        "target": 1
       },
       {
-        "date": "2023-01-18",
-        "target": 368
+        "date": "2017-07-20",
+        "target": 1
       },
       {
-        "date": "2023-01-19",
-        "target": 402
+        "date": "2017-07-29",
+        "target": 1
       },
       {
-        "date": "2023-01-20",
-        "target": 326
+        "date": "2017-08-09",
+        "target": 1
       },
       {
-        "date": "2023-01-21",
-        "target": 381
+        "date": "2017-08-14",
+        "target": 1
       },
       {
-        "date": "2023-01-22",
-        "target": 317
+        "date": "2017-08-17",
+        "target": 1
       },
       {
-        "date": "2023-01-23",
-        "target": 292
+        "date": "2017-08-18",
+        "target": 1
       },
       {
-        "date": "2023-01-24",
-        "target": 383
+        "date": "2017-08-23",
+        "target": 1
       },
       {
-        "date": "2023-01-25",
-        "target": 321
+        "date": "2019-04-03",
+        "target": 1
       },
       {
-        "date": "2023-01-26",
-        "target": 357
+        "date": "2019-04-08",
+        "target": 1
       },
       {
-        "date": "2023-01-27",
-        "target": 377
+        "date": "2019-04-12",
+        "target": 1
       },
       {
-        "date": "2023-01-28",
-        "target": 359
+        "date": "2019-04-13",
+        "target": 2
       },
       {
-        "date": "2023-01-29",
-        "target": 332
+        "date": "2019-04-21",
+        "target": 1
       },
       {
-        "date": "2023-01-30",
-        "target": 351
+        "date": "2019-04-24",
+        "target": 1
       },
       {
-        "date": "2023-01-31",
-        "target": 382
+        "date": "2019-04-25",
+        "target": 1
       },
       {
-        "date": "2023-02-01",
-        "target": 345
+        "date": "2019-04-26",
+        "target": 2
       },
       {
-        "date": "2023-02-02",
-        "target": 430
+        "date": "2019-05-03",
+        "target": 1
       },
       {
-        "date": "2023-02-03",
-        "target": 453
+        "date": "2019-05-12",
+        "target": 1
       },
       {
-        "date": "2023-02-04",
-        "target": 342
+        "date": "2019-05-13",
+        "target": 1
       },
       {
-        "date": "2023-02-05",
-        "target": 329
+        "date": "2019-05-14",
+        "target": 1
       },
       {
-        "date": "2023-02-06",
-        "target": 473
+        "date": "2019-05-17",
+        "target": 1
       },
       {
-        "date": "2023-02-07",
-        "target": 422
+        "date": "2019-05-19",
+        "target": 1
       },
       {
-        "date": "2023-02-08",
-        "target": 425
+        "date": "2019-05-21",
+        "target": 2
       },
       {
-        "date": "2023-02-09",
-        "target": 425
+        "date": "2019-05-27",
+        "target": 1
       },
       {
-        "date": "2023-02-10",
-        "target": 334
+        "date": "2019-05-31",
+        "target": 1
       },
       {
-        "date": "2023-02-11",
-        "target": 349
+        "date": "2019-06-02",
+        "target": 1
       },
       {
-        "date": "2023-02-12",
-        "target": 346
+        "date": "2019-06-20",
+        "target": 1
       },
       {
-        "date": "2023-02-13",
-        "target": 327
+        "date": "2019-06-30",
+        "target": 1
       },
       {
-        "date": "2023-02-14",
-        "target": 325
+        "date": "2019-07-01",
+        "target": 1
       },
       {
-        "date": "2023-02-15",
-        "target": 313
+        "date": "2019-07-06",
+        "target": 1
       },
       {
-        "date": "2023-02-16",
-        "target": 371
+        "date": "2019-07-07",
+        "target": 1
       },
       {
-        "date": "2023-02-17",
-        "target": 496
+        "date": "2019-07-08",
+        "target": 1
       },
       {
-        "date": "2023-02-18",
-        "target": 384
+        "date": "2019-07-19",
+        "target": 1
       },
       {
-        "date": "2023-02-19",
-        "target": 412
+        "date": "2019-07-20",
+        "target": 1
       },
       {
-        "date": "2023-02-20",
-        "target": 370
+        "date": "2019-07-25",
+        "target": 1
       },
       {
-        "date": "2023-02-21",
-        "target": 382
+        "date": "2019-07-27",
+        "target": 1
       },
       {
-        "date": "2023-02-22",
-        "target": 398
+        "date": "2019-07-28",
+        "target": 1
       },
       {
-        "date": "2023-02-23",
-        "target": 321
+        "date": "2019-07-31",
+        "target": 1
       },
       {
-        "date": "2023-02-24",
-        "target": 420
+        "date": "2019-08-03",
+        "target": 1
       },
       {
-        "date": "2023-02-25",
-        "target": 383
+        "date": "2019-08-05",
+        "target": 1
       },
       {
-        "date": "2023-02-26",
-        "target": 318
+        "date": "2019-08-14",
+        "target": 1
       },
       {
-        "date": "2023-02-27",
-        "target": 337
+        "date": "2019-08-28",
+        "target": 2
       },
       {
-        "date": "2023-02-28",
-        "target": 422
+        "date": "2019-09-09",
+        "target": 1
       },
       {
-        "date": "2023-03-01",
-        "target": 426
+        "date": "2019-09-10",
+        "target": 1
       },
       {
-        "date": "2023-03-02",
-        "target": 308
+        "date": "2019-09-15",
+        "target": 1
       },
       {
-        "date": "2023-03-03",
-        "target": 318
+        "date": "2019-09-16",
+        "target": 1
       },
       {
-        "date": "2023-03-04",
-        "target": 339
+        "date": "2019-09-17",
+        "target": 1
       },
       {
-        "date": "2023-03-05",
-        "target": 322
+        "date": "2019-09-24",
+        "target": 1
       },
       {
-        "date": "2023-03-06",
-        "target": 330
+        "date": "2019-09-25",
+        "target": 1
       },
       {
-        "date": "2023-03-07",
-        "target": 370
+        "date": "2019-09-26",
+        "target": 1
       },
       {
-        "date": "2023-03-08",
-        "target": 740
+        "date": "2019-09-29",
+        "target": 1
       },
       {
-        "date": "2023-03-09",
-        "target": 1129
+        "date": "2019-09-30",
+        "target": 1
       },
       {
-        "date": "2023-03-10",
-        "target": 975
+        "date": "2019-11-03",
+        "target": 1
       },
       {
-        "date": "2023-03-11",
-        "target": 766
+        "date": "2019-11-05",
+        "target": 1
       },
       {
-        "date": "2023-03-12",
-        "target": 671
+        "date": "2019-11-09",
+        "target": 1
       },
       {
-        "date": "2023-03-13",
-        "target": 608
+        "date": "2019-11-13",
+        "target": 1
       },
       {
-        "date": "2023-03-14",
-        "target": 534
+        "date": "2019-11-18",
+        "target": 1
       },
       {
-        "date": "2023-03-15",
-        "target": 402
+        "date": "2019-11-26",
+        "target": 1
       },
       {
-        "date": "2023-03-16",
-        "target": 393
+        "date": "2019-11-27",
+        "target": 1
       },
       {
-        "date": "2023-03-17",
-        "target": 454
+        "date": "2019-11-29",
+        "target": 1
       },
       {
-        "date": "2023-03-18",
-        "target": 410
+        "date": "2019-12-04",
+        "target": 2
       },
       {
-        "date": "2023-03-19",
-        "target": 384
+        "date": "2019-12-15",
+        "target": 1
       },
       {
-        "date": "2023-03-20",
-        "target": 345
+        "date": "2019-12-16",
+        "target": 1
       },
       {
-        "date": "2023-03-21",
-        "target": 365
+        "date": "2019-12-19",
+        "target": 1
       },
       {
-        "date": "2023-03-22",
-        "target": 297
+        "date": "2019-12-22",
+        "target": 1
       },
       {
-        "date": "2023-03-23",
-        "target": 381
+        "date": "2019-12-30",
+        "target": 1
       },
       {
-        "date": "2023-03-24",
-        "target": 438
+        "date": "2020-01-05",
+        "target": 1
       },
       {
-        "date": "2023-03-25",
-        "target": 337
+        "date": "2020-01-12",
+        "target": 1
       },
       {
-        "date": "2023-03-26",
-        "target": 354
+        "date": "2020-01-15",
+        "target": 1
       },
       {
-        "date": "2023-03-27",
-        "target": 455
+        "date": "2020-01-21",
+        "target": 1
       },
       {
-        "date": "2023-03-28",
-        "target": 407
+        "date": "2020-01-28",
+        "target": 1
       },
       {
-        "date": "2023-03-29",
-        "target": 516
+        "date": "2020-01-29",
+        "target": 1
       },
       {
-        "date": "2023-03-30",
-        "target": 391
+        "date": "2020-02-01",
+        "target": 1
       },
       {
-        "date": "2023-03-31",
-        "target": 420
+        "date": "2020-02-02",
+        "target": 1
       },
       {
-        "date": "2023-04-01",
-        "target": 362
+        "date": "2020-02-08",
+        "target": 2
       },
       {
-        "date": "2023-04-02",
-        "target": 442
+        "date": "2020-02-09",
+        "target": 1
       },
       {
-        "date": "2023-04-03",
-        "target": 341
+        "date": "2020-02-10",
+        "target": 1
       },
       {
-        "date": "2023-04-04",
-        "target": 398
+        "date": "2020-02-14",
+        "target": 1
       },
       {
-        "date": "2023-04-05",
-        "target": 519
+        "date": "2020-02-16",
+        "target": 1
       },
       {
-        "date": "2023-04-06",
-        "target": 416
+        "date": "2020-02-19",
+        "target": 2
       },
       {
-        "date": "2023-04-07",
-        "target": 366
+        "date": "2020-02-20",
+        "target": 2
       },
       {
-        "date": "2023-04-08",
-        "target": 336
+        "date": "2020-02-24",
+        "target": 1
       },
       {
-        "date": "2023-04-09",
-        "target": 390
+        "date": "2020-02-25",
+        "target": 1
       },
       {
-        "date": "2023-04-10",
-        "target": 471
+        "date": "2020-03-02",
+        "target": 1
       },
       {
-        "date": "2023-04-11",
-        "target": 398
+        "date": "2020-03-06",
+        "target": 1
       },
       {
-        "date": "2023-04-12",
-        "target": 524
+        "date": "2020-03-08",
+        "target": 1
       },
       {
-        "date": "2023-04-13",
-        "target": 424
+        "date": "2020-03-11",
+        "target": 2
       },
       {
-        "date": "2023-04-14",
-        "target": 351
+        "date": "2020-03-16",
+        "target": 1
       },
       {
-        "date": "2023-04-15",
-        "target": 386
-      },
-      {
-        "date": "2023-04-16",
-        "target": 355
-      },
-      {
-        "date": "2023-04-17",
-        "target": 400
-      },
-      {
-        "date": "2023-04-18",
-        "target": 292
-      },
-      {
-        "date": "2023-04-19",
-        "target": 348
-      },
-      {
-        "date": "2023-04-20",
-        "target": 412
-      },
-      {
-        "date": "2023-04-21",
-        "target": 378
-      },
-      {
-        "date": "2023-04-22",
-        "target": 365
-      },
-      {
-        "date": "2023-04-23",
-        "target": 386
-      },
-      {
-        "date": "2023-04-24",
-        "target": 364
-      },
-      {
-        "date": "2023-04-25",
-        "target": 372
-      },
-      {
-        "date": "2023-04-26",
-        "target": 392
-      },
-      {
-        "date": "2023-04-27",
-        "target": 418
-      },
-      {
-        "date": "2023-04-28",
-        "target": 458
-      },
-      {
-        "date": "2023-04-29",
-        "target": 570
-      },
-      {
-        "date": "2023-04-30",
-        "target": 431
-      },
-      {
-        "date": "2023-05-01",
-        "target": 307
-      },
-      {
-        "date": "2023-05-02",
-        "target": 293
-      },
-      {
-        "date": "2023-05-03",
-        "target": 415
-      },
-      {
-        "date": "2023-05-04",
-        "target": 362
-      },
-      {
-        "date": "2023-05-05",
-        "target": 434
-      },
-      {
-        "date": "2023-05-06",
-        "target": 390
-      },
-      {
-        "date": "2023-05-07",
-        "target": 439
-      },
-      {
-        "date": "2023-05-08",
-        "target": 360
-      },
-      {
-        "date": "2023-05-09",
-        "target": 410
-      },
-      {
-        "date": "2023-05-10",
-        "target": 382
-      },
-      {
-        "date": "2023-05-11",
-        "target": 375
-      },
-      {
-        "date": "2023-05-12",
-        "target": 440
-      },
-      {
-        "date": "2023-05-13",
-        "target": 287
-      },
-      {
-        "date": "2023-05-14",
-        "target": 312
-      },
-      {
-        "date": "2023-05-15",
-        "target": 328
-      },
-      {
-        "date": "2023-05-16",
-        "target": 265
-      },
-      {
-        "date": "2023-05-17",
-        "target": 335
+        "date": "2020-03-22",
+        "target": 1
       },
       {
         "date": "2023-05-18",
-        "target": 370
-      },
-      {
-        "date": "2023-05-19",
-        "target": 476
-      },
-      {
-        "date": "2023-05-20",
-        "target": 389
-      },
-      {
-        "date": "2023-05-21",
-        "target": 452
-      },
-      {
-        "date": "2023-05-22",
-        "target": 392
-      },
-      {
-        "date": "2023-05-23",
-        "target": 393
-      },
-      {
-        "date": "2023-05-24",
-        "target": 362
-      },
-      {
-        "date": "2023-05-25",
-        "target": 362
-      },
-      {
-        "date": "2023-05-26",
-        "target": 392
-      },
-      {
-        "date": "2023-05-27",
-        "target": 321
-      },
-      {
-        "date": "2023-05-28",
-        "target": 317
+        "target": 1
       },
       {
         "date": "2023-05-29",
-        "target": 322
-      },
-      {
-        "date": "2023-05-30",
-        "target": 402
+        "target": 1
       },
       {
         "date": "2023-05-31",
-        "target": 441
+        "target": 1
       },
       {
         "date": "2023-06-01",
-        "target": 399
-      },
-      {
-        "date": "2023-06-02",
-        "target": 489
+        "target": 1
       },
       {
         "date": "2023-06-03",
-        "target": 494
-      },
-      {
-        "date": "2023-06-04",
-        "target": 326
+        "target": 1
       },
       {
         "date": "2023-06-05",
-        "target": 417
+        "target": 1
       },
       {
         "date": "2023-06-06",
-        "target": 436
-      },
-      {
-        "date": "2023-06-07",
-        "target": 469
+        "target": 2
       },
       {
         "date": "2023-06-08",
-        "target": 444
+        "target": 1
       },
       {
         "date": "2023-06-09",
-        "target": 378
-      },
-      {
-        "date": "2023-06-10",
-        "target": 422
-      },
-      {
-        "date": "2023-06-11",
-        "target": 305
-      },
-      {
-        "date": "2023-06-12",
-        "target": 343
-      },
-      {
-        "date": "2023-06-13",
-        "target": 453
-      },
-      {
-        "date": "2023-06-14",
-        "target": 378
+        "target": 2
       },
       {
         "date": "2023-06-15",
-        "target": 258
-      },
-      {
-        "date": "2023-06-16",
-        "target": 360
-      },
-      {
-        "date": "2023-06-17",
-        "target": 347
+        "target": 1
       },
       {
         "date": "2023-06-18",
-        "target": 347
-      },
-      {
-        "date": "2023-06-19",
-        "target": 379
-      },
-      {
-        "date": "2023-06-20",
-        "target": 339
-      },
-      {
-        "date": "2023-06-21",
-        "target": 380
-      },
-      {
-        "date": "2023-06-22",
-        "target": 360
-      },
-      {
-        "date": "2023-06-23",
-        "target": 391
+        "target": 1
       },
       {
         "date": "2023-06-24",
-        "target": 349
+        "target": 2
       },
       {
         "date": "2023-06-25",
-        "target": 358
-      },
-      {
-        "date": "2023-06-26",
-        "target": 363
+        "target": 1
       },
       {
         "date": "2023-06-27",
-        "target": 331
+        "target": 1
       },
       {
         "date": "2023-06-28",
-        "target": 326
-      },
-      {
-        "date": "2023-06-29",
-        "target": 470
+        "target": 1
       },
       {
         "date": "2023-06-30",
-        "target": 422
-      },
-      {
-        "date": "2023-07-01",
-        "target": 365
+        "target": 3
       },
       {
         "date": "2023-07-02",
-        "target": 413
-      },
-      {
-        "date": "2023-07-03",
-        "target": 390
+        "target": 2
       },
       {
         "date": "2023-07-04",
-        "target": 300
-      },
-      {
-        "date": "2023-07-05",
-        "target": 358
+        "target": 2
       },
       {
         "date": "2023-07-06",
-        "target": 398
+        "target": 1
       },
       {
         "date": "2023-07-07",
-        "target": 384
+        "target": 1
       },
       {
         "date": "2023-07-08",
-        "target": 330
+        "target": 3
       },
       {
         "date": "2023-07-09",
-        "target": 359
-      },
-      {
-        "date": "2023-07-10",
-        "target": 378
-      },
-      {
-        "date": "2023-07-11",
-        "target": 462
+        "target": 2
       },
       {
         "date": "2023-07-12",
-        "target": 409
-      },
-      {
-        "date": "2023-07-13",
-        "target": 436
-      },
-      {
-        "date": "2023-07-14",
-        "target": 388
-      },
-      {
-        "date": "2023-07-15",
-        "target": 363
-      },
-      {
-        "date": "2023-07-16",
-        "target": 532
+        "target": 1
       },
       {
         "date": "2023-07-17",
-        "target": 438
-      },
-      {
-        "date": "2023-07-18",
-        "target": 353
-      },
-      {
-        "date": "2023-07-19",
-        "target": 425
-      },
-      {
-        "date": "2023-07-20",
-        "target": 386
+        "target": 1
       },
       {
         "date": "2023-07-21",
-        "target": 372
-      },
-      {
-        "date": "2023-07-22",
-        "target": 399
+        "target": 1
       },
       {
         "date": "2023-07-23",
-        "target": 374
-      },
-      {
-        "date": "2023-07-24",
-        "target": 368
-      },
-      {
-        "date": "2023-07-25",
-        "target": 368
+        "target": 2
       },
       {
         "date": "2023-07-26",
-        "target": 421
-      },
-      {
-        "date": "2023-07-27",
-        "target": 379
+        "target": 1
       },
       {
         "date": "2023-07-28",
-        "target": 375
+        "target": 1
       },
       {
         "date": "2023-07-29",
-        "target": 376
-      },
-      {
-        "date": "2023-07-30",
-        "target": 359
+        "target": 1
       },
       {
         "date": "2023-07-31",
-        "target": 403
-      },
-      {
-        "date": "2023-08-01",
-        "target": 451
-      },
-      {
-        "date": "2023-08-02",
-        "target": 389
+        "target": 1
       },
       {
         "date": "2023-08-03",
-        "target": 337
-      },
-      {
-        "date": "2023-08-04",
-        "target": 341
+        "target": 1
       },
       {
         "date": "2023-08-05",
-        "target": 307
+        "target": 1
       },
       {
         "date": "2023-08-06",
-        "target": 350
+        "target": 1
       },
       {
         "date": "2023-08-07",
-        "target": 368
-      },
-      {
-        "date": "2023-08-08",
-        "target": 406
-      },
-      {
-        "date": "2023-08-09",
-        "target": 333
-      },
-      {
-        "date": "2023-08-10",
-        "target": 348
+        "target": 1
       },
       {
         "date": "2023-08-11",
-        "target": 378
-      },
-      {
-        "date": "2023-08-12",
-        "target": 342
-      },
-      {
-        "date": "2023-08-13",
-        "target": 358
+        "target": 1
       },
       {
         "date": "2023-08-14",
-        "target": 393
-      },
-      {
-        "date": "2023-08-15",
-        "target": 582
-      },
-      {
-        "date": "2023-08-16",
-        "target": 460
+        "target": 2
       },
       {
         "date": "2023-08-17",
-        "target": 353
-      },
-      {
-        "date": "2023-08-18",
-        "target": 380
+        "target": 1
       },
       {
         "date": "2023-08-19",
-        "target": 356
+        "target": 1
       },
       {
         "date": "2023-08-20",
-        "target": 424
-      },
-      {
-        "date": "2023-08-21",
-        "target": 443
+        "target": 1
       },
       {
         "date": "2023-08-22",
-        "target": 508
+        "target": 1
       },
       {
         "date": "2023-08-23",
-        "target": 476
+        "target": 1
       },
       {
         "date": "2023-08-24",
-        "target": 377
+        "target": 2
       },
       {
         "date": "2023-08-25",
-        "target": 378
-      },
-      {
-        "date": "2023-08-26",
-        "target": 314
-      },
-      {
-        "date": "2023-08-27",
-        "target": 375
-      },
-      {
-        "date": "2023-08-28",
-        "target": 366
-      },
-      {
-        "date": "2023-08-29",
-        "target": 330
+        "target": 1
       },
       {
         "date": "2023-08-30",
-        "target": 354
+        "target": 1
       },
       {
         "date": "2023-08-31",
-        "target": 368
-      },
-      {
-        "date": "2023-09-01",
-        "target": 295
+        "target": 2
       },
       {
         "date": "2023-09-02",
-        "target": 277
-      },
-      {
-        "date": "2023-09-03",
-        "target": 350
+        "target": 3
       },
       {
         "date": "2023-09-04",
-        "target": 393
-      },
-      {
-        "date": "2023-09-05",
-        "target": 386
-      },
-      {
-        "date": "2023-09-06",
-        "target": 349
-      },
-      {
-        "date": "2023-09-07",
-        "target": 334
-      },
-      {
-        "date": "2023-09-08",
-        "target": 405
-      },
-      {
-        "date": "2023-09-09",
-        "target": 329
-      },
-      {
-        "date": "2023-09-10",
-        "target": 344
+        "target": 2
       },
       {
         "date": "2023-09-11",
-        "target": 390
-      },
-      {
-        "date": "2023-09-12",
-        "target": 308
-      },
-      {
-        "date": "2023-09-13",
-        "target": 344
+        "target": 1
       },
       {
         "date": "2023-09-14",
-        "target": 350
-      },
-      {
-        "date": "2023-09-15",
-        "target": 364
-      },
-      {
-        "date": "2023-09-16",
-        "target": 307
-      },
-      {
-        "date": "2023-09-17",
-        "target": 265
-      },
-      {
-        "date": "2023-09-18",
-        "target": 354
+        "target": 1
       },
       {
         "date": "2023-09-19",
-        "target": 363
+        "target": 1
       },
       {
         "date": "2023-09-20",
-        "target": 338
-      },
-      {
-        "date": "2023-09-21",
-        "target": 355
+        "target": 2
       },
       {
         "date": "2023-09-22",
-        "target": 370
-      },
-      {
-        "date": "2023-09-23",
-        "target": 410
+        "target": 2
       },
       {
         "date": "2023-09-24",
-        "target": 356
+        "target": 1
       },
       {
         "date": "2023-09-25",
-        "target": 357
-      },
-      {
-        "date": "2023-09-26",
-        "target": 332
+        "target": 1
       },
       {
         "date": "2023-09-27",
-        "target": 315
+        "target": 2
       },
       {
         "date": "2023-09-28",
-        "target": 401
-      },
-      {
-        "date": "2023-09-29",
-        "target": 336
+        "target": 1
       },
       {
         "date": "2023-09-30",
-        "target": 295
+        "target": 1
       },
       {
         "date": "2023-10-01",
-        "target": 333
+        "target": 1
       },
       {
         "date": "2023-10-02",
-        "target": 355
-      },
-      {
-        "date": "2023-10-03",
-        "target": 358
+        "target": 1
       },
       {
         "date": "2023-10-04",
-        "target": 370
+        "target": 1
       },
       {
         "date": "2023-10-05",
-        "target": 372
-      },
-      {
-        "date": "2023-10-06",
-        "target": 354
-      },
-      {
-        "date": "2023-10-07",
-        "target": 377
+        "target": 3
       },
       {
         "date": "2023-10-08",
-        "target": 384
-      },
-      {
-        "date": "2023-10-09",
-        "target": 354
-      },
-      {
-        "date": "2023-10-10",
-        "target": 330
-      },
-      {
-        "date": "2023-10-11",
-        "target": 340
-      },
-      {
-        "date": "2023-10-12",
-        "target": 295
+        "target": 1
       },
       {
         "date": "2023-10-13",
-        "target": 322
+        "target": 1
       },
       {
         "date": "2023-10-14",
-        "target": 321
-      },
-      {
-        "date": "2023-10-15",
-        "target": 303
-      },
-      {
-        "date": "2023-10-16",
-        "target": 311
-      },
-      {
-        "date": "2023-10-17",
-        "target": 287
+        "target": 1
       },
       {
         "date": "2023-10-18",
-        "target": 282
-      },
-      {
-        "date": "2023-10-19",
-        "target": 334
+        "target": 1
       },
       {
         "date": "2023-10-20",
-        "target": 338
-      },
-      {
-        "date": "2023-10-21",
-        "target": 334
-      },
-      {
-        "date": "2023-10-22",
-        "target": 375
-      },
-      {
-        "date": "2023-10-23",
-        "target": 398
-      },
-      {
-        "date": "2023-10-24",
-        "target": 362
-      },
-      {
-        "date": "2023-10-25",
-        "target": 345
+        "target": 1
       },
       {
         "date": "2023-10-26",
-        "target": 396
-      },
-      {
-        "date": "2023-10-27",
-        "target": 411
+        "target": 1
       },
       {
         "date": "2023-10-28",
-        "target": 453
+        "target": 1
       },
       {
         "date": "2023-10-29",
-        "target": 367
-      },
-      {
-        "date": "2023-10-30",
-        "target": 339
-      },
-      {
-        "date": "2023-10-31",
-        "target": 384
-      },
-      {
-        "date": "2023-11-01",
-        "target": 394
+        "target": 1
       },
       {
         "date": "2023-11-02",
-        "target": 376
-      },
-      {
-        "date": "2023-11-03",
-        "target": 383
+        "target": 3
       },
       {
         "date": "2023-11-04",
-        "target": 345
-      },
-      {
-        "date": "2023-11-05",
-        "target": 335
-      },
-      {
-        "date": "2023-11-06",
-        "target": 327
-      },
-      {
-        "date": "2023-11-07",
-        "target": 310
+        "target": 1
       },
       {
         "date": "2023-11-08",
-        "target": 424
-      },
-      {
-        "date": "2023-11-09",
-        "target": 336
+        "target": 1
       },
       {
         "date": "2023-11-10",
-        "target": 421
-      },
-      {
-        "date": "2023-11-11",
-        "target": 322
-      },
-      {
-        "date": "2023-11-12",
-        "target": 360
+        "target": 1
       },
       {
         "date": "2023-11-13",
-        "target": 332
+        "target": 3
       },
       {
         "date": "2023-11-14",
-        "target": 336
-      },
-      {
-        "date": "2023-11-15",
-        "target": 261
-      },
-      {
-        "date": "2023-11-16",
-        "target": 300
-      },
-      {
-        "date": "2023-11-17",
-        "target": 301
+        "target": 1
       },
       {
         "date": "2023-11-18",
-        "target": 322
+        "target": 3
       },
       {
         "date": "2023-11-19",
-        "target": 302
+        "target": 1
       },
       {
         "date": "2023-11-20",
-        "target": 333
-      },
-      {
-        "date": "2023-11-21",
-        "target": 314
-      },
-      {
-        "date": "2023-11-22",
-        "target": 399
+        "target": 1
       },
       {
         "date": "2023-11-23",
-        "target": 258
-      },
-      {
-        "date": "2023-11-24",
-        "target": 399
-      },
-      {
-        "date": "2023-11-25",
-        "target": 380
+        "target": 1
       },
       {
         "date": "2023-11-26",
-        "target": 347
+        "target": 1
       },
       {
         "date": "2023-11-27",
-        "target": 365
-      },
-      {
-        "date": "2023-11-28",
-        "target": 321
+        "target": 1
       },
       {
         "date": "2023-11-29",
-        "target": 331
-      },
-      {
-        "date": "2023-11-30",
-        "target": 327
-      },
-      {
-        "date": "2023-12-01",
-        "target": 369
-      },
-      {
-        "date": "2023-12-02",
-        "target": 507
-      },
-      {
-        "date": "2023-12-03",
-        "target": 505
+        "target": 1
       },
       {
         "date": "2023-12-04",
-        "target": 403
-      },
-      {
-        "date": "2023-12-05",
-        "target": 419
+        "target": 1
       },
       {
         "date": "2023-12-06",
-        "target": 316
-      },
-      {
-        "date": "2023-12-07",
-        "target": 368
-      },
-      {
-        "date": "2023-12-08",
-        "target": 409
-      },
-      {
-        "date": "2023-12-09",
-        "target": 439
-      },
-      {
-        "date": "2023-12-10",
-        "target": 322
-      },
-      {
-        "date": "2023-12-11",
-        "target": 332
-      },
-      {
-        "date": "2023-12-12",
-        "target": 408
+        "target": 3
       },
       {
         "date": "2023-12-13",
-        "target": 341
-      },
-      {
-        "date": "2023-12-14",
-        "target": 373
-      },
-      {
-        "date": "2023-12-15",
-        "target": 323
-      },
-      {
-        "date": "2023-12-16",
-        "target": 304
-      },
-      {
-        "date": "2023-12-17",
-        "target": 319
-      },
-      {
-        "date": "2023-12-18",
-        "target": 346
-      },
-      {
-        "date": "2023-12-19",
-        "target": 318
+        "target": 1
       },
       {
         "date": "2023-12-20",
-        "target": 345
+        "target": 1
       },
       {
         "date": "2023-12-21",
-        "target": 347
-      },
-      {
-        "date": "2023-12-22",
-        "target": 329
+        "target": 1
       },
       {
         "date": "2023-12-23",
-        "target": 313
+        "target": 3
       },
       {
         "date": "2023-12-24",
-        "target": 305
-      },
-      {
-        "date": "2023-12-25",
-        "target": 344
+        "target": 1
       },
       {
         "date": "2023-12-26",
-        "target": 329
-      },
-      {
-        "date": "2023-12-27",
-        "target": 305
-      },
-      {
-        "date": "2023-12-28",
-        "target": 369
-      },
-      {
-        "date": "2023-12-29",
-        "target": 380
+        "target": 1
       },
       {
         "date": "2023-12-30",
-        "target": 457
+        "target": 1
+      },
+      {
+        "date": "2023-12-31",
+        "target": 2
+      },
+      {
+        "date": "2024-01-04",
+        "target": 1
+      },
+      {
+        "date": "2024-01-05",
+        "target": 1
+      },
+      {
+        "date": "2024-01-07",
+        "target": 1
+      },
+      {
+        "date": "2024-01-09",
+        "target": 1
       }
     ]
   },
   "random_generate": {
     "invariants": {
-      "n_nodes": 230505.57924223115,
+      "n_nodes": 916467.4208629683,
       "n_edges": 1415091556.6745362,
-      "n_articulation_points": 2270.0933122866372,
-      "n_bridges": 67721.08698201187,
+      "n_articulation_points": 70538.96728576525,
+      "n_bridges": 2012734.170546318,
       "diameter": 259.0817203538161,
       "radius": 91.08787854893345,
       "degeneracy": 2299.917850387452,
@@ -1504,25 +852,25 @@
       "maximum_degree": 730986.5708438226,
       "degree_variance": 3901848768.5738974,
       "global_clustering": 0.14092422497476265,
-      "degree_assortativity": 0.34527454030433236,
+      "degree_assortativity": 0.2591086787325121,
       "degree_entropy": 0.35147559760923536,
-      "joint_degree_entropy": 9.532872421260592,
-      "degree_skewness": 22.906492249342545,
-      "degree_kurtosis": 183.9618948893823,
-      "normalized_laplacian_second_moment": 0.008403221709829739,
-      "normalized_laplacian_third_moment": 2.0918358382102267,
-      "random_walk_triangle_weight": 0.1325357519714282,
-      "random_walk_fourth_moment": 0.2931876654077884,
-      "adjacency_fourth_moment_per_node": 30874727362434.082
+      "joint_degree_entropy": 9.532786895706934,
+      "degree_skewness": 247.0151348082178,
+      "normalized_laplacian_second_moment": 0.9922408549153255,
+      "normalized_laplacian_third_moment": 0.8966822276070345,
+      "random_walk_triangle_weight": 0.1528990178352814,
+      "random_walk_fourth_moment": 0.28427980902168404,
+      "adjacency_fourth_moment_per_node": 29182889832650.207,
+      "degree_kurtosis": 199317.04707792
     },
     "signatures": {
-      "lag1_autocorr": 0.01612545808011927,
-      "coef_variation": 1.4377094418775265,
-      "fano_factor": 3501.881015984805,
-      "norm_succ_diff": 1.3496303038629913,
+      "lag1_autocorr": 0.09177210427445029,
+      "coef_variation": 0.6836217317080673,
+      "fano_factor": 3501.7970527312295,
+      "norm_succ_diff": 1.1792659922153899,
       "hurst_exponent": 0.7266557863070275,
-      "trend_coeff": -0.10988504499205111,
-      "count_skewness": -0.45905463298239896
+      "trend_coeff": -0.11515230139060362,
+      "count_skewness": -0.43835085401029106
     },
     "events": [
       {
@@ -8605,36 +7953,36 @@
   },
   "vector_generate": {
     "invariants": {
-      "n_nodes": -112292.8805464614,
-      "n_edges": 505297380.5478354,
-      "n_articulation_points": -7752.800122320662,
-      "n_bridges": 31974.845421467817,
-      "diameter": 78.64938575149091,
-      "radius": 77.82199995613784,
-      "degeneracy": 773.7117639618597,
-      "k_core_size": 89593.23159456054,
-      "maximum_degree": -130467.40067916326,
-      "degree_variance": 649435727.7923697,
-      "global_clustering": -0.012317513336599528,
-      "degree_assortativity": -1.5252303005441015,
-      "degree_entropy": -0.9792295537579139,
-      "joint_degree_entropy": 15.831397738262897,
-      "degree_skewness": -7.391072889276861,
-      "degree_kurtosis": -212.5887875209179,
-      "normalized_laplacian_second_moment": 0.7316901877343649,
-      "normalized_laplacian_third_moment": 1.8511084563700624,
-      "random_walk_triangle_weight": 0.11107857300957089,
-      "random_walk_fourth_moment": -0.12651578732678975,
-      "adjacency_fourth_moment_per_node": -3465272211219.398
+      "n_nodes": -454978.99055094644,
+      "n_edges": 505235958.72505796,
+      "n_articulation_points": -241186.66487492205,
+      "n_bridges": 901716.2697388979,
+      "diameter": 78.66116946041333,
+      "radius": 77.8422645007643,
+      "degeneracy": 765.2219698954576,
+      "k_core_size": 89695.9019853727,
+      "maximum_degree": -131416.11827501297,
+      "degree_variance": 649436090.1235753,
+      "global_clustering": -0.012317513330223573,
+      "degree_assortativity": -1.5023469159636422,
+      "degree_entropy": -0.92010133145265,
+      "joint_degree_entropy": 18.351384264784762,
+      "degree_skewness": -56.42483131933065,
+      "normalized_laplacian_second_moment": 0.8621477079262473,
+      "normalized_laplacian_third_moment": 0.5108170355848707,
+      "random_walk_triangle_weight": 0.05820928188018248,
+      "random_walk_fourth_moment": 0.21738535747014012,
+      "adjacency_fourth_moment_per_node": -8272775998374.966,
+      "degree_kurtosis": -22285.52709922385
     },
     "signatures": {
-      "lag1_autocorr": 0.9220681840432933,
-      "coef_variation": 0.7012901939011315,
-      "fano_factor": -2596.293822757577,
-      "norm_succ_diff": 0.6381202270074979,
-      "hurst_exponent": 0.41783763611508073,
-      "trend_coeff": 0.28088532061704985,
-      "count_skewness": -2.0924662747455907
+      "lag1_autocorr": 0.947574487495239,
+      "coef_variation": 1.4215927789210334,
+      "fano_factor": -2636.6635767187054,
+      "norm_succ_diff": 0.565040321038892,
+      "hurst_exponent": 0.4859037331119267,
+      "trend_coeff": 0.25165195064591683,
+      "count_skewness": -0.20975154001348417
     },
     "events": [
       {

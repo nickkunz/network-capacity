@@ -84,6 +84,7 @@ URL_WIKI = config['urls']['URL_WIKI'].strip('"')
 URL_OVERFLOW = config['urls']['URL_OVERFLOW'].strip('"')
 URL_EMAIL = config['urls']['URL_EMAIL'].strip('"')
 URL_COLLEGE = config['urls']['URL_COLLEGE'].strip('"')
+URL_CROP = config['urls'].get('URL_CROP', config['urls'].get('URL_CROP_RADER', '')).strip('"')
 URL_CROP_SAMPLING = config['urls']['URL_CROP_SAMPLING'].strip('"')
 URL_CROP_FIELD = config['urls']['URL_CROP_FIELD'].strip('"')
 URL_FAERS = config['urls']['URL_FAERS'].strip('"')
@@ -109,8 +110,9 @@ def json_processor(force: bool = False):
         logging.info("Processing Federal data...")
         data_federal = FederalProcessor(
             url = URL_FEDERAL,
-            start_date = "2014-01-01",
-            end_date = "2024-12-31"
+            start_date = "2011-01-01",
+            end_date = "2024-12-31",
+            keyword = "waterfowl"
         ).run()
         _save_to_json(data = data_federal, path = federal_path)
         logging.info(f"Federal data saved to {federal_path}")
@@ -234,7 +236,7 @@ def json_processor(force: bool = False):
 
     ## --- metr-la --- ##
     metrla_path = os.path.join(PATH_PROC, f"{NAME_METRLA}.json")
-    if not os.path.exists(metrla_path):
+    if force or not os.path.exists(metrla_path):
         logging.info("Processing METR-LA data...")
         data_metrla = MetrLaProcessor(raw_data_dir = os.path.join(PATH_ROOT, NAME_METRLA)).run()
         _save_to_json(data = data_metrla, path = metrla_path)
@@ -244,7 +246,7 @@ def json_processor(force: bool = False):
 
     ## --- pems-bay --- ##
     pemsbay_path = os.path.join(PATH_PROC, f"{NAME_PEMSBAY}.json")
-    if not os.path.exists(pemsbay_path):
+    if force or not os.path.exists(pemsbay_path):
         logging.info("Processing PEMS-BAY data...")
         data_pemsbay = PemsBayProcessor(raw_data_dir = os.path.join(PATH_ROOT, NAME_PEMSBAY)).run()
         _save_to_json(data = data_pemsbay, path = pemsbay_path)
@@ -266,7 +268,7 @@ def json_processor(force: bool = False):
     path_crop = os.path.join(PATH_PROC, f"{NAME_CROP}.json")
     if force or not os.path.exists(path_crop):
         logging.info("Processing CropPol data...")
-        data_crop = CropProcessor(url_sampling = URL_CROP_SAMPLING, url_field = URL_CROP_FIELD).run()
+        data_crop = CropProcessor(url = URL_CROP).run()
         _save_to_json(data = data_crop, path = path_crop)
         logging.info(f"CropPol data saved to {path_crop}")
     else:

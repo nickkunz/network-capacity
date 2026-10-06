@@ -31,7 +31,7 @@ PERT_SPEC = [
     {"key": "invariants_perturbed", "type": "invariants", "feat": "invariants"},
     {"key": "process_perturbed",    "type": "process",    "feat": "signatures"},
     {"key": "signatures_perturbed", "type": "signature",  "feat": "signatures"},
-    {"key": "temporal_perturbed",   "type": "temporal",   "feat": None},
+    # {"key": "temporal_perturbed",   "type": "temporal",   "feat": None},
 ]
 
 NAME_AMAZON = config['names']['NAME_AMAZON']
@@ -347,7 +347,7 @@ def data_builder(path: str | Path) -> pd.DataFrame | None:
 
     ## clean floating imprecision from processing and replace with exact zero
     numeric = data_main.select_dtypes(include = 'number')
-    data_main.loc[:, numeric.columns] = numeric.mask(numeric.abs() < 1e-12, 0.0)    
+    data_main.loc[:, numeric.columns] = numeric.mask(numeric.abs() < 1e-10, 0.0)    
     return data_main
 
 ## main dataframe saver
@@ -537,18 +537,18 @@ def _index_perturbs(path_pert: str) -> dict:
             for rec in records:
                 method = rec.get("method")
 
-                ## temporal: explicit method field in new records; fall back to aggregation for old records
-                if pert_type == "temporal":
-                    if "method" in rec:
-                        method = rec["method"]
-                        intensity = rec.get("intensity", rec.get("scale"))
-                    else:
-                        ## backward compat for records without method field
-                        method = "aggregation"
-                        intensity = rec.get("scale")
-                else:
-                    intensity = rec.get("intensity", rec.get("param"))
+                ## temporal aggregation excluded from the reported analysis; dead code
+                # if pert_type == "temporal":
+                #     if "method" in rec:
+                #         method = rec["method"]
+                #         intensity = rec.get("intensity", rec.get("scale"))
+                #     else:
+                #         method = "aggregation"
+                #         intensity = rec.get("scale")
+                # else:
+                intensity = rec.get("intensity", rec.get("param"))
 
+                realization = int(rec.get("realization", 0))
                 idx_key = (pert_type, method, intensity)
                 if idx_key not in index:
                     index[idx_key] = dict()
@@ -556,24 +556,25 @@ def _index_perturbs(path_pert: str) -> dict:
                 ## create observation with dataset name and features
                 obs = {"dataset": data_name}
 
-                ## temporal aggregation: compute signatures from events list
-                if pert_type == "temporal" and isinstance(rec.get("events"), list):
-                    events_df = pd.DataFrame(rec["events"])
-                    if "target" in events_df.columns and len(events_df) >= 2:
-                        from src.vectorizers.signatures import ProcessSignatures
-                        events_df["idx"] = range(len(events_df))
-                        sigs = ProcessSignatures(
-                            data = events_df, 
-                            sort_by = ["idx"], 
-                            target = "target"
-                        )
-                        obs.update(sigs.all())
-                        obs["target"] = int(events_df["target"].max())
-                else:
-                    feat_val = rec.get(feat_key, dict()) if feat_key is not None else dict()
-                    if isinstance(feat_val, dict):
-                        obs.update(feat_val)
-                index[idx_key][data_name] = obs
+                ## temporal excluded from the reported analysis; dead code
+                # if pert_type == "temporal" and isinstance(rec.get("events"), list):
+                #     events_df = pd.DataFrame(rec["events"])
+                #     if "target" in events_df.columns and len(events_df) >= 2:
+                #         from src.vectorizers.signatures import ProcessSignatures
+                #         events_df["idx"] = range(len(events_df))
+                #         sigs = ProcessSignatures(
+                #             data = events_df,
+                #             sort_by = ["idx"],
+                #             target = "target"
+                #         )
+                #         obs.update(sigs.all())
+                #         obs["target"] = int(events_df["target"].max())
+                # else:
+                feat_val = rec.get(feat_key, dict()) if feat_key is not None else dict()
+                if isinstance(feat_val, dict):
+                    obs.update(feat_val)
+                obs["realization"] = realization
+                index[idx_key].setdefault(realization, dict())[data_name] = obs
     return index
 
 ## ----------------------------------------------------------------------------
@@ -617,8 +618,13 @@ def load_perturbed_data(path_pert: str | Path = PATH_PERT) -> dict:
     index = _index_perturbs(path_pert)
     for key in sorted(index.keys(), key = _sort_key):
         pert_type, method, intensity = key
-        data = pd.DataFrame(list(index[key].values()))
-        data = data.sort_values("dataset").reset_index(drop = True)
+        realization_frames = list()
+        for realization, observations in sorted(index[key].items()):
+            frame = pd.DataFrame(list(observations.values()))
+            frame["realization"] = realization
+            realization_frames.append(frame)
+        data = pd.concat(realization_frames, ignore_index = True)
+        data = data.sort_values(["realization", "dataset"]).reset_index(drop = True)
         data.insert(1, "method", method)
         data.insert(2, "intensity", intensity)
         data_dict[key] = data
