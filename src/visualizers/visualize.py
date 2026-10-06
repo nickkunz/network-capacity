@@ -4973,6 +4973,7 @@ def _cache_matches(
         "random_state": random_state,
         "n_repeats": n_repeats,
         "model_names": sorted(models.keys()),
+        "rho_rescaled": True,
     }
     for key, value in expected.items():
         if cached.get(key) != value:
@@ -5056,6 +5057,7 @@ def load_or_compute_transfer_consensus_results(
             "target": target,
             "feat_x": list(feat_x),
             "feat_z": list(feat_z),
+            "rho_rescaled": True,
         }
         if (
             isinstance(metadata, Mapping)
@@ -5152,6 +5154,7 @@ def load_or_compute_transfer_consensus_results(
     results_data_10fold = compile_domain_transfer(results = transfer_10fold_dict)
 
     payload: dict[str, object] = {
+        "rho_rescaled": True,
         "results_dict_domain": results_dict_domain,
         "results_dict_5fold": results_dict_5fold,
         "results_dict_10fold": results_dict_10fold,
@@ -8755,6 +8758,7 @@ def load_results_cache(
         "target": context.target,
         "feat_x": list(context.feat_x),
         "feat_z": list(context.feat_z),
+        "rho_rescaled": True,
     }
     mismatches = {
         key: (metadata.get(key), expected)
