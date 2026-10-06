@@ -109,10 +109,28 @@ def _spearman_rho(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 ## distance correlation
 def _distance_corr(y_true: np.ndarray, y_pred: np.ndarray) -> float:
 
-    """ Non-linear dependence measured by distance correlation. """
+    """
+    Desc:
+        Measure non-linear dependence using sample distance correlation.
+    Args:
+        y_true: Observed values.
+        y_pred: Predicted values aligned with the observations.
+    Returns:
+        Distance correlation, or zero when either vector is constant or
+        contains fewer than two values.
+    """
+
+    y_true = np.asarray(a = y_true, dtype = float)
+    y_pred = np.asarray(a = y_pred, dtype = float)
+    if y_true.size < 2 or y_pred.size < 2:
+        return 0.0
+
+    ## exact equality avoids roundoff in variance-based constant checks
+    if np.all(y_true == y_true[0]) or np.all(y_pred == y_pred[0]):
+        return 0.0
 
     try:
-        return float(dcor.distance_correlation(y_true, y_pred))
+        return float(dcor.distance_correlation(x = y_true, y = y_pred))
     except Exception:
         return 0.0
 

@@ -1,13 +1,84 @@
 import unittest
 from unittest.mock import patch
 
+import dcor
 import numpy as np
 import pandas as pd
 
 from src.evaluators.decomposing import compile_decomposed_consensus, compile_decomposed_full
 from src.evaluators.falsifying import compile_falsified_full
+from src.evaluators.metrics import _distance_corr, frontier_consensus
 from src.evaluators.perturbing import compile_perturbed_full
 from src.evaluators.predicting import compile_corpus_full
+
+
+class DistanceCorrelationTests(unittest.TestCase):
+
+    def test_constant_vectors_return_zero(self) -> None:
+        for size in (3, 10, 25, 64):
+            varying = np.linspace(start = 0.0, stop = 1.0, num = size)
+            for constant in (0.0, 0.1, 1.23456789):
+                fixed = np.full(shape = size, fill_value = constant)
+                for y_true, y_pred in ((fixed, varying), (varying, fixed), (fixed, fixed)):
+                    with self.subTest(size = size, constant = constant, y_true = y_true, y_pred = y_pred):
+                        self.assertEqual(
+                            first = _distance_corr(y_true = y_true, y_pred = y_pred),
+                            second = 0.0,
+                        )
+
+    def test_constant_inputs_skip_distance_estimator(self) -> None:
+        varying = np.linspace(start = 0.0, stop = 1.0, num = 10)
+        fixed = np.full(shape = 10, fill_value = 0.1)
+        with patch(target = "src.evaluators.metrics.dcor.distance_correlation") as estimator:
+            self.assertEqual(
+                first = _distance_corr(y_true = varying, y_pred = fixed),
+                second = 0.0,
+            )
+            estimator.assert_not_called()
+
+    def test_empty_and_single_value_inputs_return_zero(self) -> None:
+        varying = np.array(object = [1.0, 2.0, 3.0])
+        for values in ([], [0.1]):
+            short = np.array(object = values, dtype = float)
+            for y_true, y_pred in ((short, varying), (varying, short), (short, short)):
+                with self.subTest(values = values, y_true = y_true, y_pred = y_pred):
+                    self.assertEqual(
+                        first = _distance_corr(y_true = y_true, y_pred = y_pred),
+                        second = 0.0,
+                    )
+
+    def test_nonconstant_inputs_preserve_distance_estimator(self) -> None:
+        rng = np.random.default_rng(seed = 42)
+        for size in (3, 10, 25):
+            with self.subTest(size = size):
+                y_true = rng.normal(loc = 0.0, scale = 1.0, size = size)
+                y_pred = rng.normal(loc = 0.0, scale = 1.0, size = size)
+                self.assertAlmostEqual(
+                    first = _distance_corr(y_true = y_true, y_pred = y_pred),
+                    second = float(dcor.distance_correlation(x = y_true, y = y_pred)),
+                    places = 12,
+                )
+
+    def test_nearly_constant_inputs_are_not_treated_as_constant(self) -> None:
+        y_true = np.array(object = [1.0, 2.0, 3.0])
+        y_pred = np.array(object = [0.1, 0.1, 0.1 + np.finfo(dtype = float).eps])
+        with patch(
+            target = "src.evaluators.metrics.dcor.distance_correlation", return_value = 0.75,
+        ) as estimator:
+            self.assertEqual(
+                first = _distance_corr(y_true = y_true, y_pred = y_pred),
+                second = 0.75,
+            )
+            estimator.assert_called_once()
+
+    def test_constant_vectors_have_zero_consensus(self) -> None:
+        varying = np.linspace(start = 0.0, stop = 1.0, num = 10)
+        fixed = np.full(shape = 10, fill_value = 0.1)
+        for y_true, y_pred in ((fixed, varying), (varying, fixed), (fixed, fixed)):
+            with self.subTest(y_true = y_true, y_pred = y_pred):
+                metrics = frontier_consensus(y_true = y_true, y_pred = y_pred)
+                self.assertEqual(first = metrics["dcr"], second = 0.0)
+                self.assertEqual(first = metrics["ci"], second = 0.0)
 
 
 class FullCorpusAgreementTests(unittest.TestCase):
