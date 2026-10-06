@@ -7,9 +7,30 @@ import pandas as pd
 
 from src.evaluators.decomposing import compile_decomposed_consensus, compile_decomposed_full
 from src.evaluators.falsifying import compile_falsified_full
-from src.evaluators.metrics import _distance_corr, frontier_consensus
+from src.evaluators.metrics import _distance_corr, _spearman_rho, consensus_index, frontier_consensus
 from src.evaluators.perturbing import compile_perturbed_full
 from src.evaluators.predicting import compile_corpus_full
+
+
+class RescaledSpearmanTests(unittest.TestCase):
+
+    def test_reported_rho_is_rescaled_without_changing_ci(self) -> None:
+        y_true = np.array(object = [1.0, 2.0, 3.0, 4.0])
+        predictions = (
+            (y_true, 1.0),
+            (y_true[::-1], 0.0),
+            (np.array(object = [2.0, 4.0, 1.0, 3.0]), 0.5),
+        )
+        for y_pred, expected_rho in predictions:
+            with self.subTest(y_pred = y_pred):
+                metrics = frontier_consensus(y_true = y_true, y_pred = y_pred)
+                raw_rho = _spearman_rho(y_true = y_true, y_pred = y_pred)
+                self.assertAlmostEqual(first = metrics["rho"], second = (raw_rho + 1.0) / 2.0)
+                self.assertAlmostEqual(first = metrics["rho"], second = expected_rho)
+                self.assertAlmostEqual(
+                    first = metrics["ci"],
+                    second = consensus_index(rho = raw_rho, rbo = metrics["rbo"], dcr = metrics["dcr"]),
+                )
 
 
 class DistanceCorrelationTests(unittest.TestCase):
