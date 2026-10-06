@@ -303,7 +303,7 @@ Each network substrate was encoded using 21 graph invariants across 5 categories
 \begin{equation}
     x \;=\; \phi(G) \;=\; (x_1, x_2, \ldots, x_{21}) \;\in\; \mathbb{R}^{21}
 \end{equation}
-For the 4 complete bipartite substrates (college, email, mooc, overflow), invariants were evaluated using exact closed-form expressions for $K_{m,n}$ to avoid instantiating billions of edges.
+For the 4 complete bipartite substrates (college, email, mooc, overflow), invariants were evaluated using exact analytical expressions for $K_{m,n}$ to avoid instantiating billions of edges.
 
 Each dynamical process was encoded using 7 process signatures across 5 categories: dependence, dispersion, volatility, trend, and asymmetry. The mapping $S \to z$ is formally defined as:
 \begin{equation}
@@ -857,14 +857,14 @@ Each retrained domain-level LOGO-CV contrast uses 45 paired estimator-by-domain 
 \centering
 \footnotesize
 \captionsetup{position=top,skip=12pt}
-\caption{21 graph invariants: definitions, expressions, and asymptotic time complexity.}
+\caption{Graph invariant definitions, expressions, and asymptotic time complexity.}
 \label{tab:si-features}
 \begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
 \toprule
-\textbf{Category} & \textbf{Invariant} & \textbf{Definition} & \textbf{Expressions} & \textbf{Complexity} \\
+\textbf{Category} & \textbf{Invariant} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
 \midrule
-Simple & 1. Number of Nodes & Number of nodes\newline $|V|$ & $n = |V|$ & $O(1)$ \\
- & 2. Number of Edges & Number of edges\newline $|E|$ & $m = |E|$ & $O(1)$ \\
+Simple & 1. Number of Nodes & Number of nodes\newline & $n = |V|$ & $O(1)$ \\
+ & 2. Number of Edges & Number of edges\newline & $m = |E|$ & $O(1)$ \\
  & 3. Articulation Points & Vertices whose removal splits $G$ & $\lvert \{ v : \omega(G - v) > \omega(G) \} \rvert$ & $O(n+m)$ \\
  & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ e : \omega(G - e) > \omega(G) \} \rvert$ & $O(n+m)$ \\
 \addlinespace
@@ -902,11 +902,11 @@ Admission required global graph descriptors defined solely by topology, independ
 \centering
 \footnotesize
 \captionsetup{position=top,skip=12pt}
-\caption{7 process signatures: definitions, expressions, and asymptotic time complexity.}
+\caption{Process signature definitions, expressions, and asymptotic time complexity.}
 \label{tab:si-signatures}
 \begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
 \toprule
-\textbf{Property} & \textbf{Signature} & \textbf{Definition} & \textbf{Formula} & \textbf{Complexity} \\
+\textbf{Property} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
 \midrule
 Dependence & 1. Lag-1 Autocorrelation & Short-term sequential dependence & $\frac{\sum_{i=1}^{L-1} \tilde{r}_i \tilde{r}_{i+1}}{\sum_{i=1}^{L} \tilde{r}_i^{2}}$ & $O(L)$ \\
  & 2. Hurst Exponent & Long-range\newline dependence & $\ln(R/s) / \ln L$ & $O(L)$ \\
