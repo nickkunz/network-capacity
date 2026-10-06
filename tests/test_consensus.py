@@ -4,10 +4,11 @@ from unittest.mock import patch
 import dcor
 import numpy as np
 import pandas as pd
+from scipy.stats import spearmanr
 
 from src.evaluators.decomposing import compile_decomposed_consensus, compile_decomposed_full
 from src.evaluators.falsifying import compile_falsified_full
-from src.evaluators.metrics import _distance_corr, _spearman_rho, consensus_index, frontier_consensus
+from src.evaluators.metrics import _distance_corr, _rescaled_spearman_rho, consensus_index, frontier_consensus
 from src.evaluators.perturbing import compile_perturbed_full
 from src.evaluators.predicting import compile_corpus_full
 
@@ -24,13 +25,31 @@ class RescaledSpearmanTests(unittest.TestCase):
         for y_pred, expected_rho in predictions:
             with self.subTest(y_pred = y_pred):
                 metrics = frontier_consensus(y_true = y_true, y_pred = y_pred)
-                raw_rho = _spearman_rho(y_true = y_true, y_pred = y_pred)
+                raw_rho = float(spearmanr(a = y_true, b = y_pred).statistic)
                 self.assertAlmostEqual(first = metrics["rho"], second = (raw_rho + 1.0) / 2.0)
                 self.assertAlmostEqual(first = metrics["rho"], second = expected_rho)
                 self.assertAlmostEqual(
-                    first = metrics["ci"],
-                    second = consensus_index(rho = raw_rho, rbo = metrics["rbo"], dcr = metrics["dcr"]),
+                    first = _rescaled_spearman_rho(y_true = y_true, y_pred = y_pred),
+                    second = expected_rho,
                 )
+                self.assertAlmostEqual(
+                    first = metrics["ci"],
+                    second = (expected_rho * metrics["rbo"] * metrics["dcr"]) ** (1.0 / 3.0),
+                )
+                self.assertAlmostEqual(
+                    first = metrics["ci"],
+                    second = consensus_index(rho = metrics["rho"], rbo = metrics["rbo"], dcr = metrics["dcr"]),
+                )
+
+    def test_undefined_rho_preserves_neutral_agreement(self) -> None:
+        for values in ([], [1.0], [1.0, 1.0, 1.0]):
+            with self.subTest(values = values):
+                vector = np.array(object = values, dtype = float)
+                self.assertEqual(
+                    first = _rescaled_spearman_rho(y_true = vector, y_pred = vector),
+                    second = 0.5,
+                )
+                self.assertEqual(first = frontier_consensus(y_true = vector, y_pred = vector)["ci"], second = 0.0)
 
 
 class DistanceCorrelationTests(unittest.TestCase):
