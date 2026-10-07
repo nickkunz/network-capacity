@@ -1,0 +1,8 @@
+submission readiness (2026-10-07)
+
+venue-dependent (optional):
+- author orcid
+- affiliation details
+- keywords
+- expand readme
+- neutral hyperlink colors
