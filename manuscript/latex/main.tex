@@ -35,6 +35,7 @@
 \usepackage{lscape}
 %% \usepackage{svg} % unused; requires shell-escape, incompatible with arxiv autotex
 \usepackage[none]{hyphenat}
+\usepackage[mathlines]{lineno} % mathlines: number displayed math lines
 
 \graphicspath{{figures/}}
 
@@ -138,11 +139,14 @@
 
 %% begin doc
 \begin{document}
+\linenumbers
 \title{A General Capacity Frontier of Complex Networks}
 \author{
-    Nicholas Kunz \href{mailto:nhk37@cornell.edu}{nhk37@cornell.edu}\\
-    H. Oliver Gao \href{mailto:hg55@cornell.edu}{hg55@cornell.edu}\\~\\
-    Systems Engineering, Cornell University}
+    Nicholas Kunz$^{\textbf{*}}$ \href{mailto:nhk37@cornell.edu}{nhk37@cornell.edu}\\
+    H. Oliver Gao \href{mailto:hg55@cornell.edu}{hg55@cornell.edu}\\
+    {\small\textit{Corresponding Author}$^{\textbf{*}}$}\\~\\
+    Systems Engineering, Cornell University\\
+}
 \date{\today}
 \maketitle
 \thispagestyle{fancy}
@@ -721,7 +725,7 @@ Random ($10$-Fold-CV) & 0.00 & -0.34 & $<0.001$ & $<0.001$ & *** & Yes \\
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Each contrast uses 45 paired estimator-by-domain cells (9 estimators $\times$ 5 domains), not 45 independent systems. Out-of-sample predictions were averaged over 30 seeds (42--71) before computing EI and CI within the same 5 broad domains for every regime. EI and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:ei} and~\eqref{eq:ci}). Shifts are medians of paired differences (test comparison $-$ domain-level LOGO-CV), not differences of marginal medians. Rank-biserial $r$ uses nonzero, unshifted differences with average ranks for ties; positive values favor the comparison regime. TOST uses paired one-sided Wilcoxon signed-rank tests on $\Delta+\delta$ and $\Delta-\delta$, assuming a symmetric paired-difference distribution with location $\theta$. The nulls are $\theta\leq-\delta$ and $\theta\geq\delta$; unadjusted $p$ is the larger of the two one-sided values. Margins $\delta_{\mathrm{EI}} = 0.02$ and $\delta_{\mathrm{CI}} = 0.11$ are IQRs across the 9 reference estimator-level means after equal averaging across domains, floored to 2 decimals. Raw differences with magnitude $<10^{-10}$ were zeroed before shifting. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zeros after shifting. $p_{\mathrm H}$ is Holm-adjusted across the 3 regime comparisons separately for EI and CI. Eq. requires rejection of both nulls at $p_{\mathrm H}<0.05$. Shared estimators, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:si-stat-conventions}).
+Each contrast uses 45 paired estimator-by-domain cells (9 estimators $\times$ 5 domains). Out-of-sample predictions were averaged over 30 seeds (42--71) before computing EI and CI within the same 5 broad domains for every regime. EI and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:ei} and~\eqref{eq:ci}). Shifts are medians of paired differences (test comparison $-$ domain-level LOGO-CV), not differences of marginal medians. Rank-biserial $r$ uses nonzero, unshifted differences with average ranks for ties; positive values favor the comparison regime. TOST uses paired one-sided Wilcoxon signed-rank tests on $\Delta+\delta$ and $\Delta-\delta$, assuming a symmetric paired-difference distribution with location $\theta$. The nulls are $\theta\leq-\delta$ and $\theta\geq\delta$; unadjusted $p$ is the larger of the two one-sided values. Margins $\delta_{\mathrm{EI}} = 0.02$ and $\delta_{\mathrm{CI}} = 0.11$ are IQRs across the 9 reference estimator-level means after equal averaging across domains, floored to 2 decimals. Raw differences with magnitude $<10^{-10}$ were zeroed before shifting. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zeros after shifting. $p_{\mathrm H}$ is Holm-adjusted across the 3 regime comparisons separately for EI and CI. Eq. requires rejection of both nulls at $p_{\mathrm H}<0.05$. Shared estimators, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:si-stat-conventions}).
 \end{minipage}
 \end{table}
 
