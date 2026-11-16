@@ -72,7 +72,7 @@ RESAMPLING_REGIMES = (
 )
 
 UTIL_METRICS = ("MAE", "RMSE", "CI", "GMME")
-UTIL_CONTROLS = (
+UTIL_ABLATIONS = (
     "SCT Frontier Anchor",
     "EVT Statistic Exclusion",
     "Utilization Features Exclusion",
@@ -914,12 +914,12 @@ def train_utilization_controls(
             quantile_c = 0.50,
         )
         settings = (
-            (UTIL_CONTROLS[1], folds, FEAT_6U, True, False),
-            (UTIL_CONTROLS[2], folds, ["constant"], True, True),
-            (UTIL_CONTROLS[3], folds, ["constant"], True, False),
-            (UTIL_CONTROLS[5], ceiling_folds, FEAT_6U, True, True),
+            (UTIL_ABLATIONS[1], folds, FEAT_6U, True, False),
+            (UTIL_ABLATIONS[2], folds, ["constant"], True, True),
+            (UTIL_ABLATIONS[3], folds, ["constant"], True, False),
+            (UTIL_ABLATIONS[5], ceiling_folds, FEAT_6U, True, True),
             (
-                UTIL_CONTROLS[6],
+                UTIL_ABLATIONS[6],
                 matched_folds,
                 FEAT_6U + ["evt_feature"],
                 False,
@@ -942,7 +942,7 @@ def train_utilization_controls(
         frontier = compile_utilization_frontier(folds = folds, n_obs = len(data))
         rng = np.random.default_rng(seed = random_state)
         for family in GLM_ESTIMATORS:
-            predictions[(regime, family, UTIL_CONTROLS[-1])] = list()
+            predictions[(regime, family, UTIL_ABLATIONS[-1])] = list()
         for _ in range(n_repeats):
             permutation = rng.permutation(x = len(data))
             while np.any(permutation == np.arange(len(data))):
@@ -972,7 +972,7 @@ def train_utilization_controls(
                 modes = SCT_MODALITIES[1:],
             )
             for family in GLM_ESTIMATORS:
-                predictions[(regime, family, UTIL_CONTROLS[-1])].append(
+                predictions[(regime, family, UTIL_ABLATIONS[-1])].append(
                     fitted[(family, SCT_MODALITIES[1])]["y_pred"]
                 )
     return predictions
@@ -1598,7 +1598,7 @@ def compile_utilization_superiority(
                 },
                 domains = data["domain"].to_numpy(),
             )
-            for configuration in UTIL_CONTROLS
+            for configuration in UTIL_ABLATIONS
         }
         settings.append(("Ablation and frontier controls", "", regime, cells))
     for fraction, frame in frames.items():
@@ -1862,7 +1862,7 @@ def compile_utilization_controls(
         for family in GLM_ESTIMATORS:
             print(f"Compiling utilization controls: {regime}, {family}")
             predictions = {
-                name: controls[(regime, family, name)] for name in UTIL_CONTROLS
+                name: controls[(regime, family, name)] for name in UTIL_ABLATIONS
             }
             summary, tests = stat_utilization_comparisons(
                 y_true = target,
@@ -3853,7 +3853,7 @@ def plot_utilization_controls(tables: dict[str, pd.DataFrame]) -> Image:
         Figure 5 with component controls and shared-window checks.
     """
     df_fig5 = tables["ablation"]
-    ABL_CONFIGS = UTIL_CONTROLS
+    ABL_CONFIGS = UTIL_ABLATIONS
     temporal = tables["temporal_complete"]
     temporal = temporal.loc[
         (temporal["Resampling Regime"] == RESAMPLING_REGIMES[0])
