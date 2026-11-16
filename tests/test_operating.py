@@ -35,7 +35,7 @@ from src.vectorizers.signatures import ProcessSignatures
 class UtilizationTests(unittest.TestCase):
     def test_superiority_orients_ci_and_handles_zero_differences(self) -> None:
         anchor = np.linspace(start = 0.5, stop = 0.8, num = 15)
-        for metric, comparator in (("mae", anchor + 0.1), ("ci", anchor - 0.1)):
+        for metric, comparator in (("MAE", anchor + 0.1), ("CI", anchor - 0.1)):
             result = stat_utilization_superiority(
                 metric = metric,
                 comparator_cells = comparator,
@@ -48,7 +48,7 @@ class UtilizationTests(unittest.TestCase):
             self.assertLess(a = result["One-sided p"], b = 0.05)
             self.assertFalse(expr = any("margin" in key.lower() for key in result))
         zeros = stat_utilization_superiority(
-            metric = "mae",
+            metric = "MAE",
             comparator_cells = anchor + 1e-12,
             anchor_cells = anchor,
         )
@@ -64,8 +64,8 @@ class UtilizationTests(unittest.TestCase):
             },
             domains = np.repeat(a = np.arange(5), repeats = 5),
         )
-        self.assertEqual(first = len(cells["mae"]), second = 15)
-        np.testing.assert_allclose(actual = cells["mae"], desired = 0.5)
+        self.assertEqual(first = len(cells["MAE"]), second = 15)
+        np.testing.assert_allclose(actual = cells["MAE"], desired = 0.5)
 
     def test_superiority_holm_separates_metrics_and_masks_primary_rows(self) -> None:
         frame = pd.DataFrame(
@@ -324,12 +324,12 @@ class UtilizationTests(unittest.TestCase):
         observed = np.log1p(np.array(object = [1.0, 4.0, 10.0]))
         predicted = np.log1p(np.array(object = [2.0, 8.0, 20.0]))
         result = compile_utilization_metrics(y_true = observed, y_pred = predicted)
-        self.assertAlmostEqual(first = result["gmme"], second = 2.0)
+        self.assertAlmostEqual(first = result["GMME"], second = 2.0)
         self.assertAlmostEqual(
-            first = result["mae"], second = float(np.mean(a = np.abs(observed - predicted)))
+            first = result["MAE"], second = float(np.mean(a = np.abs(observed - predicted)))
         )
         self.assertAlmostEqual(
-            first = result["rmse"],
+            first = result["RMSE"],
             second = float(np.sqrt(np.mean(a = (observed - predicted) ** 2))),
         )
 
