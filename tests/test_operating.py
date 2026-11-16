@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 from src.evaluators import operating
 from src.evaluators.operating import (
     FEAT_6U,
-    GLM_FAMILIES,
-    SCT_MODES,
+    GLM_ESTIMATORS,
+    SCT_MODALITIES,
     RESAMPLING_REGIMES,
     _utilization_style,
     compile_utilization_frontier,
@@ -60,7 +60,7 @@ class UtilizationTests(unittest.TestCase):
         cells = compile_utilization_domain_cells(
             y_true = observed,
             predictions = {
-                family: [observed - 0.5, observed + 0.5] for family in GLM_FAMILIES
+                family: [observed - 0.5, observed + 0.5] for family in GLM_ESTIMATORS
             },
             domains = np.repeat(a = np.arange(5), repeats = 5),
         )
@@ -101,19 +101,19 @@ class UtilizationTests(unittest.TestCase):
         frames = {fraction: data.copy() for fraction in (0.25, 0.5, 0.75)}
         controls = {
             (regime, family, configuration): [
-                observed + (0.1 if configuration == SCT_MODES[1] else 0.5)
+                observed + (0.1 if configuration == SCT_MODALITIES[1] else 0.5)
             ]
             for regime in RESAMPLING_REGIMES
-            for family in GLM_FAMILIES
-            for configuration in operating.UTILIZATION_CONTROLS
+            for family in GLM_ESTIMATORS
+            for configuration in operating.UTIL_ABLATIONS
         }
         windows = {
             (fraction, regime, True): {
                 (family, configuration): {
                     "y_pred": controls[(regime, family, configuration)][0]
                 }
-                for family in GLM_FAMILIES
-                for configuration in SCT_MODES
+                for family in GLM_ESTIMATORS
+                for configuration in SCT_MODALITIES
             }
             for fraction in frames
             for regime in RESAMPLING_REGIMES
@@ -258,8 +258,8 @@ class UtilizationTests(unittest.TestCase):
             }
         )
         predictions = {
-            (GLM_FAMILIES[-1], mode): {"y_pred": data["y_mean"].to_numpy() + 0.2}
-            for mode in SCT_MODES
+            (GLM_ESTIMATORS[-1], mode): {"y_pred": data["y_mean"].to_numpy() + 0.2}
+            for mode in SCT_MODALITIES
         }
         resampling = {
             "folds": {
@@ -383,7 +383,7 @@ class UtilizationTests(unittest.TestCase):
         indices = np.random.default_rng(seed = 42).integers(low = 0, high = 12, size = (50, 12))
         summaries, contrasts = stat_utilization_comparisons(
             y_true = observed,
-            predictions = {SCT_MODES[1]: [anchor], "SCT Frontier Remap": remaps},
+            predictions = {SCT_MODALITIES[1]: [anchor], "SCT Frontier Remap": remaps},
             indices = indices,
             n_boot_ci = 10,
         )
@@ -444,9 +444,9 @@ class UtilizationTests(unittest.TestCase):
             df_data = data, folds = folds
         )
         _, uncapped = train_utilization(
-            df_data = data, folds = folds, families = GLM_FAMILIES[:1], cap_frontier = False
+            df_data = data, folds = folds, families = GLM_ESTIMATORS[:1], cap_frontier = False
         )
-        anchor = predictions[(GLM_FAMILIES[0], SCT_MODES[1])]
+        anchor = predictions[(GLM_ESTIMATORS[0], SCT_MODALITIES[1])]
         np.testing.assert_allclose(actual = anchor["r_pred"], desired = np.exp(1.0))
         self.assertEqual(first = len(summary), second = 6)
         self.assertNotIn(member = "Mean_LogLik", container = summary.columns)
@@ -461,7 +461,7 @@ class UtilizationTests(unittest.TestCase):
         self.assertEqual(first = len(anchor["fold_fits"]), second = 2)
         self.assertTrue(
             expr = np.all(
-                uncapped[(GLM_FAMILIES[0], SCT_MODES[1])]["r_pred"] > anchor["r_pred"]
+                uncapped[(GLM_ESTIMATORS[0], SCT_MODALITIES[1])]["r_pred"] > anchor["r_pred"]
             )
         )
 
