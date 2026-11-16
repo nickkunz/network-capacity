@@ -22,6 +22,7 @@ FEAT_X = [
     "adjacency_fourth_moment_per_node",
     "degree_kurtosis"
 ]
+
 FEAT_Z = [
     "lag1_autocorr",
     "coef_variation",
@@ -31,6 +32,19 @@ FEAT_Z = [
     "trend_coeff",
     "count_skewness",
 ]
+
+FEAT_XU = [
+    "n_edges",
+    "degree_entropy",
+    "random_walk_triangle_weight",
+]
+
+FEAT_ZU = [
+    "norm_succ_diff",
+    "coef_variation",
+    "trend_coeff",
+]
+
 TARGET = "target"
 FRONTIER_METRICS = ["vr", "mv", "ms", "ei"]
 CONSENSUS_METRICS = ["rho", "rbo", "dcr", "ci"]
