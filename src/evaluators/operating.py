@@ -486,13 +486,11 @@ def train_utilization(
             else np.zeros(shape = n_sys)
         )
         r_true = df_data["r_mean"].to_numpy(dtype = float)
-        y_true = df_data["y_mean"].to_numpy(dtype = float)
         U_all_raw = signed_log1p(
             arr = df_data[list(reduced_cols)].to_numpy(dtype = float)
         )
 
-        ## init output containers
-        rows_out = list()
+        ## init output container
         preds_out: dict[tuple[str, str], dict[str, Any]] = dict()
 
         ## loop over families and modes
@@ -599,44 +597,49 @@ def train_utilization(
                     r_pred[te_idx] = r_hat
                     y_pred[te_idx] = np.log1p(r_hat)
 
-                abs_log_ratio = np.abs(
-                    np.log(np.maximum(r_pred, 1e-9) / np.maximum(r_true, 1e-9))
-                )
-                cm = frontier_consensus(y_true = y_true, y_pred = y_pred, p = 0.9)
-                rows_out.append(
-                    {
-                        "Estimator": fam,
-                        "Estimation Regime": mode,
-                        "MAE": round(
-                            number = float(np.mean(a = np.abs(y_true - y_pred))), ndigits = 3
-                        ),
-                        "RMSE": round(
-                            number = float(np.sqrt(np.mean(a = (y_true - y_pred) ** 2))),
-                            ndigits = 3,
-                        ),
-                        "GMME": round(
-                            number = float(np.exp(np.mean(a = abs_log_ratio))), ndigits = 3
-                        ),
-                        "Within 2x (%)": round(
-                            number = float(np.mean(a = np.exp(abs_log_ratio) <= 2.0) * 100.0),
-                            ndigits = 1,
-                        ),
-                        "Within 3x (%)": round(
-                            number = float(np.mean(a = np.exp(abs_log_ratio) <= 3.0) * 100.0),
-                            ndigits = 1,
-                        ),
-                        "rho": round(number = cm["rho"], ndigits = 3),
-                        "RBO": round(number = cm["rbo"], ndigits = 3),
-                        "dCor": round(number = cm["dcr"], ndigits = 3),
-                        "CI": round(number = cm["ci"], ndigits = 3),
-                    }
-                )
                 preds_out[(fam, mode)] = {
                     "r_pred": r_pred,
                     "y_pred": y_pred,
                     "fold_fits": fold_fits,
                 }
-        return pd.DataFrame(data = rows_out), preds_out
+        return compile_utilization_benchmark(df_data = df_data, predictions = preds_out), preds_out
+
+
+## score out-of-fold predictions at full precision, leaving rounding to display
+def compile_utilization_benchmark(
+    df_data: pd.DataFrame,
+    predictions: dict[tuple[str, str], dict[str, Any]],
+    ) -> pd.DataFrame:
+
+        ## prepare observed rates and log-rates
+        r_true = df_data["r_mean"].to_numpy(dtype = float)
+        y_true = df_data["y_mean"].to_numpy(dtype = float)
+
+        ## score each family and estimation regime
+        rows = list()
+        for (fam, mode), prediction in predictions.items():
+            r_pred = prediction["r_pred"]
+            y_pred = prediction["y_pred"]
+            abs_log_ratio = np.abs(
+                np.log(np.maximum(r_pred, 1e-9) / np.maximum(r_true, 1e-9))
+            )
+            cm = frontier_consensus(y_true = y_true, y_pred = y_pred, p = 0.9)
+            rows.append(
+                {
+                    "Estimator": fam,
+                    "Estimation Regime": mode,
+                    "MAE": float(np.mean(a = np.abs(y_true - y_pred))),
+                    "RMSE": float(np.sqrt(np.mean(a = (y_true - y_pred) ** 2))),
+                    "GMME": float(np.exp(np.mean(a = abs_log_ratio))),
+                    "Within 2x (%)": float(np.mean(a = np.exp(abs_log_ratio) <= 2.0) * 100.0),
+                    "Within 3x (%)": float(np.mean(a = np.exp(abs_log_ratio) <= 3.0) * 100.0),
+                    "rho": cm["rho"],
+                    "RBO": cm["rbo"],
+                    "dCor": cm["dcr"],
+                    "CI": cm["ci"],
+                }
+            )
+        return pd.DataFrame(data = rows)
 
 
 ## compile utilization metrics from predictions
@@ -1130,7 +1133,10 @@ def compile_utilization_predictions(
         system_predictions = pd.DataFrame(data = predictions)
         return {
             "corpus": compile_corpus_table(df_data = data),
-            "benchmark": resampling["results"][RESAMPLING_REGIMES[0]],
+            "benchmark": compile_utilization_benchmark(
+                df_data = data,
+                predictions = resampling["predictions"][RESAMPLING_REGIMES[0]],
+            ),
             "resampling": results.pivot(
                 index = ["Estimator", "Configuration"],
                 columns = "Resampling Regime",
