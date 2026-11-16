@@ -21,8 +21,10 @@ data/perturbed/*
 !data/perturbed/amazon.json
 notebooks/legacy
 
-manuscript/latex/*
-!manuscript/latex/*.tex
-!manuscript/latex/*.pdf
-!manuscript/latex/*.bib
-!manuscript/latex/figures
+manuscripts/*/*
+!manuscripts/*/*.tex
+!manuscripts/*/*.pdf
+!manuscripts/*/*.bib
+!manuscripts/*/figures/
+manuscripts/*/figures/*
+!manuscripts/*/figures/*.pdf
