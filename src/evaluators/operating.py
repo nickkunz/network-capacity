@@ -55,12 +55,12 @@ from src.evaluators.config import (
 
 FEAT_6U = FEAT_XU + FEAT_ZU
 
-GLM_FAMILIES = (
+GLM_ESTIMATORS = (
     "Poisson",
     "Poisson-Tweedie",
     "Negative Binomial",
 )
-SCT_MODES = (
+SCT_MODALITIES = (
     "SCT Frontier Exclusion",
     "SCT Frontier Anchor",
 )
@@ -71,8 +71,8 @@ RESAMPLING_REGIMES = (
     "10-Fold-CV",
 )
 
-UTILIZATION_METRICS = ("mae", "rmse", "ci", "gmme")
-UTILIZATION_CONTROLS = (
+UTIL_METRICS = ("MAE", "RMSE", "CI", "GMME")
+UTIL_CONTROLS = (
     "SCT Frontier Anchor",
     "EVT Statistic Exclusion",
     "Utilization Features Exclusion",
@@ -552,8 +552,8 @@ def train_utilization(
     df_data: pd.DataFrame,
     folds: Sequence[tuple],
     reduced_cols: Sequence[str] = FEAT_6U,
-    families: Sequence[str] = GLM_FAMILIES,
-    modes: Sequence[str] = SCT_MODES,
+    families: Sequence[str] = GLM_ESTIMATORS,
+    modes: Sequence[str] = SCT_MODALITIES,
     cap_frontier: bool = True,
     evt_offset: bool = True,
     ) -> tuple[pd.DataFrame, dict[tuple[str, str], dict[str, Any]]]:
@@ -747,10 +747,10 @@ def compile_utilization_metrics(
     error = y_true - y_pred
     ratio = np.maximum(np.expm1(y_pred), 1e-9) / np.maximum(np.expm1(y_true), 1e-9)
     return {
-        "mae": float(np.mean(a = np.abs(error))),
-        "rmse": float(np.sqrt(np.mean(a = error**2))),
-        "ci": frontier_consensus(y_true = y_true, y_pred = y_pred)["ci"],
-        "gmme": float(np.exp(np.mean(a = np.abs(np.log(ratio))))),
+        "MAE": float(np.mean(a = np.abs(error))),
+        "RMSE": float(np.sqrt(np.mean(a = error**2))),
+        "CI": frontier_consensus(y_true = y_true, y_pred = y_pred)["ci"],
+        "GMME": float(np.exp(np.mean(a = np.abs(np.log(ratio))))),
     }
 
 
@@ -803,10 +803,10 @@ def train_utilization_resampling(
                     _, fitted = train_utilization(
                         df_data = data,
                         folds = repeat_folds,
-                        modes = SCT_MODES[1:],
+                        modes = SCT_MODALITIES[1:],
                     )
-                for family in GLM_FAMILIES:
-                    repeated[(regime, repeat, family)] = fitted[(family, SCT_MODES[1])][
+                for family in GLM_ESTIMATORS:
+                    repeated[(regime, repeat, family)] = fitted[(family, SCT_MODALITIES[1])][
                         "y_pred"
                     ]
     return {
@@ -877,8 +877,8 @@ def train_utilization_controls(
     predictions = dict()
     for regime, folds in resampling["folds"].items():
         print(f"Training utilization controls: {regime}")
-        for family in GLM_FAMILIES:
-            for mode in SCT_MODES:
+        for family in GLM_ESTIMATORS:
+            for mode in SCT_MODALITIES:
                 predictions[(regime, family, mode)] = [
                     resampling["predictions"][regime][(family, mode)]["y_pred"]
                 ]
@@ -914,12 +914,12 @@ def train_utilization_controls(
             quantile_c = 0.50,
         )
         settings = (
-            (UTILIZATION_CONTROLS[1], folds, FEAT_6U, True, False),
-            (UTILIZATION_CONTROLS[2], folds, ["constant"], True, True),
-            (UTILIZATION_CONTROLS[3], folds, ["constant"], True, False),
-            (UTILIZATION_CONTROLS[5], ceiling_folds, FEAT_6U, True, True),
+            (UTIL_CONTROLS[1], folds, FEAT_6U, True, False),
+            (UTIL_CONTROLS[2], folds, ["constant"], True, True),
+            (UTIL_CONTROLS[3], folds, ["constant"], True, False),
+            (UTIL_CONTROLS[5], ceiling_folds, FEAT_6U, True, True),
             (
-                UTILIZATION_CONTROLS[6],
+                UTIL_CONTROLS[6],
                 matched_folds,
                 FEAT_6U + ["evt_feature"],
                 False,
@@ -931,18 +931,18 @@ def train_utilization_controls(
                 df_data = inputs,
                 folds = control_folds,
                 reduced_cols = features,
-                modes = SCT_MODES[1:],
+                modes = SCT_MODALITIES[1:],
                 cap_frontier = cap,
                 evt_offset = offset,
             )
-            for family in GLM_FAMILIES:
+            for family in GLM_ESTIMATORS:
                 predictions[(regime, family, name)] = [
-                    fitted[(family, SCT_MODES[1])]["y_pred"]
+                    fitted[(family, SCT_MODALITIES[1])]["y_pred"]
                 ]
         frontier = compile_utilization_frontier(folds = folds, n_obs = len(data))
         rng = np.random.default_rng(seed = random_state)
-        for family in GLM_FAMILIES:
-            predictions[(regime, family, UTILIZATION_CONTROLS[-1])] = list()
+        for family in GLM_ESTIMATORS:
+            predictions[(regime, family, UTIL_CONTROLS[-1])] = list()
         for _ in range(n_repeats):
             permutation = rng.permutation(x = len(data))
             while np.any(permutation == np.arange(len(data))):
@@ -969,11 +969,11 @@ def train_utilization_controls(
             _, fitted = train_utilization(
                 df_data = inputs,
                 folds = remapped,
-                modes = SCT_MODES[1:],
+                modes = SCT_MODALITIES[1:],
             )
-            for family in GLM_FAMILIES:
-                predictions[(regime, family, UTILIZATION_CONTROLS[-1])].append(
-                    fitted[(family, SCT_MODES[1])]["y_pred"]
+            for family in GLM_ESTIMATORS:
+                predictions[(regime, family, UTIL_CONTROLS[-1])].append(
+                    fitted[(family, SCT_MODALITIES[1])]["y_pred"]
                 )
     return predictions
 
@@ -1096,7 +1096,7 @@ def train_utilization_windows(
                     df_data = data,
                     folds = folds,
                     cap_frontier = capped,
-                    modes = SCT_MODES if capped else SCT_MODES[1:],
+                    modes = SCT_MODALITIES if capped else SCT_MODALITIES[1:],
                 )
     return predictions
 
@@ -1172,7 +1172,7 @@ def compile_utilization_predictions(
             metrics.append(
                 {
                     **labels,
-                    **{metric.upper(): value for metric, value in scores.items()},
+                    **{metric: value for metric, value in scores.items()},
                     "Within 2x (%)": 100 * np.mean(a = ratio <= 2),
                     "Within 3x (%)": 100 * np.mean(a = ratio <= 3),
                 }
@@ -1212,10 +1212,10 @@ def compile_utilization_predictions(
         observed = True,
     ):
         excluded = group.loc[
-            group["Configuration"] == SCT_MODES[0], "Coefficient"
+            group["Configuration"] == SCT_MODALITIES[0], "Coefficient"
         ].to_numpy()
         anchored = group.loc[
-            group["Configuration"] == SCT_MODES[1], "Coefficient"
+            group["Configuration"] == SCT_MODALITIES[1], "Coefficient"
         ].to_numpy()
         magnitude_excluded = float(np.mean(a = np.abs(excluded)))
         magnitude_anchored = float(np.mean(a = np.abs(anchored)))
@@ -1245,11 +1245,11 @@ def compile_utilization_predictions(
         "resampling": results.pivot(
             index = ["Estimator", "Configuration"],
             columns = "Resampling Regime",
-            values = [metric.upper() for metric in UTILIZATION_METRICS],
+            values = [metric for metric in UTIL_METRICS],
         ),
         "systems": system_predictions.loc[
             (system_predictions["Resampling Regime"] == RESAMPLING_REGIMES[0])
-            & (system_predictions["Estimator"] == GLM_FAMILIES[-1])
+            & (system_predictions["Estimator"] == GLM_ESTIMATORS[-1])
         ].reset_index(drop = True),
         "contraction": pd.DataFrame(data = contraction),
         "targets": pd.DataFrame(data = targets),
@@ -1283,9 +1283,9 @@ def stat_utilization_equivalence(
     domain = data["domain"].to_numpy()
     rows = list()
     for regime in RESAMPLING_REGIMES:
-        for family in GLM_FAMILIES:
+        for family in GLM_ESTIMATORS:
             predictions = (
-                [resampling["predictions"][regime][(family, SCT_MODES[1])]["y_pred"]]
+                [resampling["predictions"][regime][(family, SCT_MODALITIES[1])]["y_pred"]]
                 if regime in RESAMPLING_REGIMES[:2]
                 else [
                     prediction
@@ -1307,8 +1307,8 @@ def stat_utilization_equivalence(
                         "Estimator": family,
                         "Domain": group,
                         **{
-                            metric.upper(): np.mean(a = [score[metric] for score in scores])
-                            for metric in UTILIZATION_METRICS
+                            metric: np.mean(a = [score[metric] for score in scores])
+                            for metric in UTIL_METRICS
                         },
                     }
                 )
@@ -1317,9 +1317,9 @@ def stat_utilization_equivalence(
         domain_results["Resampling Regime"] == RESAMPLING_REGIMES[0]
     ].set_index(keys = ["Estimator", "Domain"])
     tables = list()
-    for metric in UTILIZATION_METRICS:
+    for metric in UTIL_METRICS:
         model_means = baseline.groupby(level = "Estimator", sort = False, observed = True)[
-            metric.upper()
+            metric
         ].mean()
         dispersion = float(np.diff(np.percentile(a = model_means, q = [25, 75]))[0])
         delta = float(
@@ -1335,7 +1335,7 @@ def stat_utilization_equivalence(
                 domain_results["Resampling Regime"] == regime
             ].set_index(keys = ["Estimator", "Domain"])
             diff = _clean_differences(
-                diff = comparison[metric.upper()].reindex(index = baseline.index) - baseline[metric.upper()]
+                diff = comparison[metric].reindex(index = baseline.index) - baseline[metric]
             )
             upper = (
                 1.0
@@ -1349,7 +1349,7 @@ def stat_utilization_equivalence(
             )
             comparisons.append(
                 {
-                    "Metric": metric.upper(),
+                    "Metric": metric,
                     "Comparison": regime,
                     "Pairs": len(diff),
                     "delta": delta,
@@ -1365,7 +1365,7 @@ def stat_utilization_equivalence(
         tables.append(table)
     differences = list()
     for regime in RESAMPLING_REGIMES[2:]:
-        for family in GLM_FAMILIES:
+        for family in GLM_ESTIMATORS:
             errors = [
                 np.abs(target - prediction)
                 for (name, _, model), prediction in resampling["repeated"].items()
@@ -1374,7 +1374,7 @@ def stat_utilization_equivalence(
             baseline_error = np.abs(
                 target
                 - resampling["predictions"][RESAMPLING_REGIMES[0]][
-                    (family, SCT_MODES[1])
+                    (family, SCT_MODALITIES[1])
                 ]["y_pred"]
             )
             differences.append(np.mean(a = errors, axis = 0) - baseline_error)
@@ -1416,7 +1416,7 @@ def stat_utilization_bootstrap(
         Bootstrap distributions for all four utilization metrics.
     """
 
-    distributions = {metric: list() for metric in UTILIZATION_METRICS}
+    distributions = {metric: list() for metric in UTIL_METRICS}
     for prediction in predictions:
         error = y_true - prediction
         log_ratio = np.abs(
@@ -1425,10 +1425,10 @@ def stat_utilization_bootstrap(
                 / np.maximum(np.expm1(y_true), 1e-9)
             )
         )
-        distributions["mae"].append(np.abs(error)[indices].mean(axis = 1))
-        distributions["rmse"].append(np.sqrt((error**2)[indices].mean(axis = 1)))
-        distributions["gmme"].append(np.exp(log_ratio[indices].mean(axis = 1)))
-        distributions["ci"].append(
+        distributions["MAE"].append(np.abs(error)[indices].mean(axis = 1))
+        distributions["RMSE"].append(np.sqrt((error**2)[indices].mean(axis = 1)))
+        distributions["GMME"].append(np.exp(log_ratio[indices].mean(axis = 1)))
+        distributions["CI"].append(
             np.array(
                 object = [
                     frontier_consensus(
@@ -1463,8 +1463,8 @@ def compile_utilization_domain_cells(
     """
     y_true = np.asarray(a = y_true, dtype = float)
     domains = np.asarray(a = domains)
-    cells = {metric: [] for metric in UTILIZATION_METRICS}
-    for family in GLM_FAMILIES:
+    cells = {metric: [] for metric in UTIL_METRICS}
+    for family in GLM_ESTIMATORS:
         for domain in sorted(set(domains)):
             mask = domains == domain
             scores = [
@@ -1474,7 +1474,7 @@ def compile_utilization_domain_cells(
                 )
                 for prediction in predictions[family]
             ]
-            for metric in UTILIZATION_METRICS:
+            for metric in UTIL_METRICS:
                 cells[metric].append(
                     float(np.mean(a = [score[metric] for score in scores]))
                 )
@@ -1491,7 +1491,7 @@ def stat_utilization_superiority(
         Test superiority above zero over paired cells.
 
     Args:
-        metric: Lowercase MAE, RMSE, CI, or GMME metric identifier.
+        metric: MAE, RMSE, CI, or GMME metric identifier.
         comparator_cells: Comparator metrics in family-major domain order.
         anchor_cells: Corresponding SCT Frontier Anchor metrics.
 
@@ -1501,7 +1501,7 @@ def stat_utilization_superiority(
     """
     diff = (
         anchor_cells - comparator_cells
-        if metric == "ci"
+        if metric == "CI"
         else comparator_cells - anchor_cells
     )
     diff = np.where(np.abs(diff) < 1e-10, 0.0, diff)
@@ -1594,11 +1594,11 @@ def compile_utilization_superiority(
                 y_true = data["y_mean"].to_numpy(dtype = float),
                 predictions = {
                     family: controls[(regime, family, configuration)]
-                    for family in GLM_FAMILIES
+                    for family in GLM_ESTIMATORS
                 },
                 domains = data["domain"].to_numpy(),
             )
-            for configuration in UTILIZATION_CONTROLS
+            for configuration in UTIL_CONTROLS
         }
         settings.append(("Ablation and frontier controls", "", regime, cells))
     for fraction, frame in frames.items():
@@ -1612,30 +1612,30 @@ def compile_utilization_superiority(
                                 "y_pred"
                             ]
                         ]
-                        for family in GLM_FAMILIES
+                        for family in GLM_ESTIMATORS
                     },
                     domains = frame["domain"].to_numpy(),
                 )
-                for configuration in SCT_MODES
+                for configuration in SCT_MODALITIES
             }
             settings.append(("Temporal separation", f"{fraction:.0%}", regime, cells))
     rows = []
     for analysis, window, regime, cells in settings:
         for comparator, comparison in cells.items():
-            if comparator == SCT_MODES[1]:
+            if comparator == SCT_MODALITIES[1]:
                 continue
-            for metric in UTILIZATION_METRICS:
+            for metric in UTIL_METRICS:
                 rows.append(
                     {
                         "Analysis": analysis,
                         "Prior-Window Share": window,
                         "Resampling Regime": regime,
                         "Comparator": comparator,
-                        "Metric": metric.upper(),
+                        "Metric": metric,
                         **stat_utilization_superiority(
                             metric = metric,
                             comparator_cells = comparison[metric],
-                            anchor_cells = cells[SCT_MODES[1]][metric],
+                            anchor_cells = cells[SCT_MODALITIES[1]][metric],
                         ),
                     }
                 )
@@ -1748,7 +1748,7 @@ def stat_utilization_comparisons(
         ]
         points[configuration] = {
             metric: np.mean(a = [score[metric] for score in scores])
-            for metric in UTILIZATION_METRICS
+            for metric in UTIL_METRICS
         }
         boots[configuration] = stat_utilization_bootstrap(
             y_true = y_true,
@@ -1760,13 +1760,13 @@ def stat_utilization_comparisons(
             a = [np.abs(y_true - value) for value in values], axis = 0
         )
         summary = {"Configuration": configuration}
-        for metric in UTILIZATION_METRICS:
+        for metric in UTIL_METRICS:
             lower, upper = np.percentile(a = boots[configuration][metric], q = [2.5, 97.5])
             summary.update(
                 {
-                    metric.upper(): points[configuration][metric],
-                    f"{metric.upper()}_lo": lower,
-                    f"{metric.upper()}_hi": upper,
+                    metric: points[configuration][metric],
+                    f"{metric}_lo": lower,
+                    f"{metric}_hi": upper,
                 }
             )
         log_ratios = np.asarray(
@@ -1784,12 +1784,12 @@ def stat_utilization_comparisons(
             summary[f"Within {factor}x (%)"] = 100 * np.mean(a = log_ratios <= np.log(factor))
         summaries.append(summary)
     rows = list()
-    anchor = SCT_MODES[1]
+    anchor = SCT_MODALITIES[1]
     for configuration in predictions:
         if configuration == anchor:
             continue
         diff = errors[configuration] - errors[anchor]
-        for metric in UTILIZATION_METRICS:
+        for metric in UTIL_METRICS:
             delta = points[configuration][metric] - points[anchor][metric]
             lower, upper = np.percentile(
                 a = boots[configuration][metric] - boots[anchor][metric], q = [2.5, 97.5]
@@ -1797,16 +1797,16 @@ def stat_utilization_comparisons(
             rows.append(
                 {
                     "Comparator": configuration,
-                    "Metric": metric.upper(),
+                    "Metric": metric,
                     "Comparator_Value": points[configuration][metric],
                     "Anchor_Value": points[anchor][metric],
                     "Delta": delta,
                     "Delta_CI_Lower": lower,
                     "Delta_CI_Upper": upper,
-                    "Favors Anchor": bool(delta < 0 if metric == "ci" else delta > 0),
+                    "Favors Anchor": bool(delta < 0 if metric == "CI" else delta > 0),
                     "Interval Excludes Zero": bool(lower > 0 or upper < 0),
                     "Systems With Lower Anchor Error": int(np.sum(a = diff > 0))
-                    if metric == "mae"
+                    if metric == "MAE"
                     else np.nan,
                 }
             )
@@ -1859,10 +1859,10 @@ def compile_utilization_controls(
         [],
     )
     for regime in RESAMPLING_REGIMES:
-        for family in GLM_FAMILIES:
+        for family in GLM_ESTIMATORS:
             print(f"Compiling utilization controls: {regime}, {family}")
             predictions = {
-                name: controls[(regime, family, name)] for name in UTILIZATION_CONTROLS
+                name: controls[(regime, family, name)] for name in UTIL_CONTROLS
             }
             summary, tests = stat_utilization_comparisons(
                 y_true = target,
@@ -1879,10 +1879,10 @@ def compile_utilization_controls(
     for fraction, frame in frames.items():
         target_window = frame["y_mean"].to_numpy(dtype = float)
         for regime in RESAMPLING_REGIMES:
-            for family in GLM_FAMILIES:
+            for family in GLM_ESTIMATORS:
                 predictions = {
                     mode: [windows[(fraction, regime, True)][(family, mode)]["y_pred"]]
-                    for mode in SCT_MODES
+                    for mode in SCT_MODALITIES
                 }
                 summary, tests = stat_utilization_comparisons(
                     y_true = target_window,
@@ -1897,8 +1897,8 @@ def compile_utilization_controls(
                 }
                 window_rows.append(summary.assign(**labels))
                 window_tests.append(tests.assign(**labels))
-                capped = predictions[SCT_MODES[1]][0]
-                uncapped = windows[(fraction, regime, False)][(family, SCT_MODES[1])][
+                capped = predictions[SCT_MODALITIES[1]][0]
+                uncapped = windows[(fraction, regime, False)][(family, SCT_MODALITIES[1])][
                     "y_pred"
                 ]
                 changed = int(np.sum(a = ~np.isclose(a = capped, b = uncapped)))
@@ -1915,7 +1915,7 @@ def compile_utilization_controls(
                             "Setting": setting,
                             "N_predictions_changed": changed,
                             **{
-                                metric.upper(): value
+                                metric: value
                                 for metric, value in scores.items()
                             },
                         }
@@ -1925,11 +1925,11 @@ def compile_utilization_controls(
     tests_ablation = pd.concat(objs = ablation_tests, ignore_index = True)
     tests_temporal = pd.concat(objs = window_tests, ignore_index = True)
     primary_ablation = (ablations["Resampling Regime"] == RESAMPLING_REGIMES[0]) & (
-        ablations["Estimator"] == GLM_FAMILIES[-1]
+        ablations["Estimator"] == GLM_ESTIMATORS[-1]
     )
     primary_tests = tests_ablation.loc[
         (tests_ablation["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (tests_ablation["Estimator"] == GLM_FAMILIES[-1])
+        & (tests_ablation["Estimator"] == GLM_ESTIMATORS[-1])
         & (tests_ablation["Metric"] == "MAE")
     ]
     ablation = (
@@ -1979,7 +1979,7 @@ def compile_utilization_controls(
         "carry_forward": pd.DataFrame(
             data = [
                 {
-                    metric.upper(): value
+                    metric: value
                     for metric, value in compile_utilization_metrics(
                         y_true = frame["y_mean"].to_numpy(dtype = float),
                         y_pred = np.log1p(frame["r_mean_A"].to_numpy(dtype = float)),
@@ -2533,10 +2533,10 @@ def plot_utilization_frontier(data: pd.DataFrame, resampling: dict[str, Any]) ->
         folds = resampling["folds"][RESAMPLING_REGIMES[0]], n_obs = len(data)
     )
     nb_no = resampling["predictions"][RESAMPLING_REGIMES[0]][
-        GLM_FAMILIES[-1], SCT_MODES[0]
+        GLM_ESTIMATORS[-1], SCT_MODALITIES[0]
     ]
     nb_cr = resampling["predictions"][RESAMPLING_REGIMES[0]][
-        GLM_FAMILIES[-1], SCT_MODES[1]
+        GLM_ESTIMATORS[-1], SCT_MODALITIES[1]
     ]
     with _utilization_style():
         fig1, ax = plt.subplots(1, 1, figsize = (DOUBLE_COL_IN, 3.1))
@@ -2782,7 +2782,7 @@ def plot_utilization_quality(
     """
     df_all = data
     df_6_main = tables["benchmark"].copy()
-    families = list(GLM_FAMILIES)
+    families = list(GLM_ESTIMATORS)
     fam_short = families
     modes = [LBL_NO, LBL_CR]
     colors = {LBL_NO: COL_NO, LBL_CR: COL_CR}
@@ -2811,7 +2811,7 @@ def plot_utilization_quality(
             - np.abs(
                 y_mean_si
                 - resampling["predictions"][RESAMPLING_REGIMES[0]][
-                    family, SCT_MODES[1]
+                    family, SCT_MODALITIES[1]
                 ]["y_pred"]
             )
             for comparison in RESAMPLING_REGIMES[2:]
@@ -3279,13 +3279,13 @@ def plot_utilization_attribution(tables: dict[str, pd.DataFrame]) -> Image:
     folds = tables["fold_coefficients"]
     folds = folds.loc[
         (folds["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (folds["Estimator"] == GLM_FAMILIES[-1])
+        & (folds["Estimator"] == GLM_ESTIMATORS[-1])
     ]
     coefs_no, coefs_cr = [
         folds.loc[folds["Configuration"] == mode]
         .pivot(index = "Fold", columns = "Feature", values = "Coefficient")[FEAT_6U]
         .to_numpy(float)
-        for mode in SCT_MODES
+        for mode in SCT_MODALITIES
     ]
     with _utilization_style():
         MARKER_D_SECONDARY = 4.0
@@ -3597,9 +3597,9 @@ def plot_utilization_calibration(tables: dict[str, pd.DataFrame]) -> Image:
     predictions = tables["predictions"]
     predictions = predictions.loc[
         (predictions["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (predictions["Estimator"] == GLM_FAMILIES[-1])
+        & (predictions["Estimator"] == GLM_ESTIMATORS[-1])
     ]
-    df_all = predictions.loc[predictions["Configuration"] == SCT_MODES[0]].rename(
+    df_all = predictions.loc[predictions["Configuration"] == SCT_MODALITIES[0]].rename(
         columns = {"Observed_LogRate": "y_mean", "Observed_Rate": "r_mean"}
     )
     nb_no, nb_cr = [
@@ -3611,11 +3611,11 @@ def plot_utilization_calibration(tables: dict[str, pd.DataFrame]) -> Image:
                 predictions["Configuration"] == mode, "Predicted_Rate"
             ].to_numpy(float),
         }
-        for mode in SCT_MODES
+        for mode in SCT_MODALITIES
     ]
     preds_6_main = {
-        (GLM_FAMILIES[-1], LBL_NO): nb_no,
-        (GLM_FAMILIES[-1], LBL_CR): nb_cr,
+        (GLM_ESTIMATORS[-1], LBL_NO): nb_no,
+        (GLM_ESTIMATORS[-1], LBL_CR): nb_cr,
     }
     with _utilization_style():
         fig4, axes4 = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.25))
@@ -3853,11 +3853,11 @@ def plot_utilization_controls(tables: dict[str, pd.DataFrame]) -> Image:
         Figure 5 with component controls and shared-window checks.
     """
     df_fig5 = tables["ablation"]
-    ABL_CONFIGS = UTILIZATION_CONTROLS
+    ABL_CONFIGS = UTIL_CONTROLS
     temporal = tables["temporal_complete"]
     temporal = temporal.loc[
         (temporal["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (temporal["Estimator"] == GLM_FAMILIES[-1])
+        & (temporal["Estimator"] == GLM_ESTIMATORS[-1])
     ]
     TH_FRACS = sorted(
         (
