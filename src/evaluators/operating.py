@@ -33,10 +33,13 @@ root = Path(__file__).resolve().parents[2]
 
 ## modules
 from src.data.builders import load_processed_data
-from src.estimators.linear_quantile import LinearQuantile
 from src.evaluators.metrics import frontier_consensus
-from src.evaluators.helpers import _clean_differences, paired_rank_biserial
+from src.estimators.linear_quantile import LinearQuantile
 from src.vectorizers.signatures import ProcessSignatures
+from src.evaluators.helpers import (
+    _clean_differences,
+    paired_rank_biserial
+)
 
 ## constants
 from src.data.builders import PATH_PROC
@@ -52,7 +55,6 @@ from src.evaluators.config import (
     FEAT_ZU,
     TARGET,
 )
-
 FEAT_6U = FEAT_XU + FEAT_ZU
 
 GLM_ESTIMATORS = (
@@ -114,7 +116,7 @@ def load_utilization_data(
             with json_path.open(mode = "r", encoding = "utf-8") as source:
                 evs = json.load(fp = source)["events"]
 
-            ## derive typical rates and the evt adjustment from each event series
+            ## derive expected rates and evt adjustment from each event series
             L = len(evs)
             M = float(sum(float(e["target"]) for e in evs))
             r_mean = M / L
@@ -336,7 +338,7 @@ def fit_parametric_glm_family(
         log_y = np.log(y_rate)
         y_work = log_y - off_tr
 
-        ## initialize the intercept and coefficients from offset-adjusted log rates
+        ## init the intercept and coefficients from offset-adjusted log rates
         m0 = Ridge(alpha = max(l2_pen, 1.0)).fit(X = X, y = y_work)
         th0 = np.r_[float(m0.intercept_), m0.coef_.astype(dtype = float)]
 
@@ -508,11 +510,11 @@ def train_utilization(
                     r_mean_tr = r_true[tr_idx]
                     log_r_mean_tr = np.log(np.maximum(r_mean_tr, 1e-8))
 
-                    ## subtract the evt adj to form the anchored log-rate
+                    ## subtract evt adj to form the anchored log-rate
                     sct_mean_tr = sct_tr - evt_tr
                     sct_mean_te = sct_te - evt_te
 
-                    ## select the penalty by inner-fold absolute log-rate error
+                    ## select penalty by inner-fold absolute log-rate error
                     best_hp, best_loss = 5.0, np.inf
                     for cand_l2 in l2_grid:
                         v_losses = list()
@@ -661,7 +663,7 @@ def train_utilization_resampling(
     random_state: int = 42,
     ) -> dict[str, Any]:
 
-        ## check repeats and initialize storage
+        ## check repeats and init storage
         if n_repeats < 1:
             raise ValueError("n_repeats must be positive")
         folds, results, predictions, repeated = dict(), dict(), dict(), dict()
