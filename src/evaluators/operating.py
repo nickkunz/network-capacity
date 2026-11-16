@@ -36,6 +36,7 @@ from src.data.builders import load_processed_data
 from src.evaluators.metrics import frontier_consensus
 from src.estimators.linear_quantile import LinearQuantile
 from src.vectorizers.signatures import ProcessSignatures
+from src.visualizers.visualize import export_pdf_scaled
 from src.evaluators.helpers import (
     _clean_differences,
     paired_rank_biserial
@@ -2366,10 +2367,21 @@ def _utilization_style() -> Iterator[None]:
 def _render_utilization_figure(
     figure: Figure,
     raster: bool = False,
+    index: int | None = None,
+    output_dir: Path | None = None,
     ) -> Image:
 
         ## prepare the figure within publication bounds
         bounds = _prepare_utilization_figure(fig = figure)
+
+        ## write the publication pdf as fig{index}.pdf when requested
+        if index is not None and output_dir is not None:
+            export_pdf_scaled(
+                fig = figure,
+                index = index,
+                output_dir = output_dir,
+                bbox = bounds,
+            )
 
         ## render the high-resolution preview into memory
         if raster:
@@ -2393,6 +2405,8 @@ def _render_utilization_figure(
 def plot_utilization_frontier(
     data: pd.DataFrame,
     resampling: dict[str, Any],
+    index: int | None = None,
+    output_dir: Path | None = None,
     ) -> Image:
 
         ## load held-out frontiers and negative binomial predictions
@@ -2663,7 +2677,7 @@ def plot_utilization_frontier(
                     h.set_height(FRONTIER_LW / page_scale)
                     h.set_x(h.get_x() - 0.5 * 0.5)
                     h.set_width(h.get_width() + 0.5)
-            return _render_utilization_figure(figure = fig1, raster = True)
+            return _render_utilization_figure(figure = fig1, index = index, output_dir = output_dir, raster = True)
 
 
 ## plot utilization estimation quality
@@ -2671,6 +2685,8 @@ def plot_utilization_quality(
     tables: dict[str, pd.DataFrame],
     data: pd.DataFrame,
     resampling: dict[str, Any],
+    index: int | None = None,
+    output_dir: Path | None = None,
     ) -> Image:
 
         ## prepare benchmark results and labels
@@ -3209,856 +3225,868 @@ def plot_utilization_quality(
 
             ## align y-labels and render
             fig2.align_ylabels([ax_a, axes_d[0]])
-            return _render_utilization_figure(figure = fig2)
+            return _render_utilization_figure(figure = fig2, index = index, output_dir = output_dir)
 
 
 ## plot target contraction and coefficient attribution
-def plot_utilization_attribution(tables: dict[str, pd.DataFrame]) -> Image:
-    targets = tables["targets"]
-    df_all = targets.loc[targets["Resampling Regime"] == RESAMPLING_REGIMES[0]].rename(
-        columns = {"Observed_LogRate": "y_mean", "EVT": "evt_stat"}
-    )
-    sct_native_oof = df_all["Frontier"].to_numpy(float)
-    REDUCED_6_DESC = FEAT_6U
+def plot_utilization_attribution(
+    tables: dict[str, pd.DataFrame],
+    index: int | None = None,
+    output_dir: Path | None = None,
+    ) -> Image:
+        targets = tables["targets"]
+        df_all = targets.loc[targets["Resampling Regime"] == RESAMPLING_REGIMES[0]].rename(
+            columns = {"Observed_LogRate": "y_mean", "EVT": "evt_stat"}
+        )
+        sct_native_oof = df_all["Frontier"].to_numpy(float)
+        REDUCED_6_DESC = FEAT_6U
 
-    ## load held-out negative binomial coefficients by fold
-    folds = tables["fold_coefficients"]
-    folds = folds.loc[
-        (folds["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (folds["Estimator"] == GLM_ESTIMATORS[-1])
-    ]
-    coefs_no, coefs_cr = [
-        folds.loc[folds["Configuration"] == mode]
-        .pivot(index = "Fold", columns = "Feature", values = "Coefficient")[FEAT_6U]
-        .to_numpy(float)
-        for mode in SCT_MODALITIES
-    ]
+        ## load held-out negative binomial coefficients by fold
+        folds = tables["fold_coefficients"]
+        folds = folds.loc[
+            (folds["Resampling Regime"] == RESAMPLING_REGIMES[0])
+            & (folds["Estimator"] == GLM_ESTIMATORS[-1])
+        ]
+        coefs_no, coefs_cr = [
+            folds.loc[folds["Configuration"] == mode]
+            .pivot(index = "Fold", columns = "Feature", values = "Coefficient")[FEAT_6U]
+            .to_numpy(float)
+            for mode in SCT_MODALITIES
+        ]
 
-    ## draw the figure within the publication style
-    with _utilization_style():
-        MARKER_D_SECONDARY = 4.0
+        ## draw the figure within the publication style
+        with _utilization_style():
+            MARKER_D_SECONDARY = 4.0
 
-        ## use computer modern for math labels
-        with mpl.rc_context({"mathtext.fontset": "cm"}):
-            fig3, axes_mech = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.3))
-            fig3.patch.set_facecolor(BG_COLOR)
+            ## use computer modern for math labels
+            with mpl.rc_context({"mathtext.fontset": "cm"}):
+                fig3, axes_mech = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.3))
+                fig3.patch.set_facecolor(BG_COLOR)
 
-            ## compare target dispersion through the capacity adjustment stages
-            ax = axes_mech[0]
-            y_mean_vec = df_all["y_mean"].to_numpy(float)
-            evt_vec = df_all["evt_stat"].to_numpy(float)
-            util_slack_vec = sct_native_oof - evt_vec - y_mean_vec
+                ## compare target dispersion through the capacity adjustment stages
+                ax = axes_mech[0]
+                y_mean_vec = df_all["y_mean"].to_numpy(float)
+                evt_vec = df_all["evt_stat"].to_numpy(float)
+                util_slack_vec = sct_native_oof - evt_vec - y_mean_vec
 
-            ## define exclusion and anchor targets centered on their medians
-            stages_b = [
-                (
-                    "Exclusion Target",
-                    y_mean_vec - np.median(y_mean_vec),
-                    COL_NO,
-                    COL_NO,
-                    0.18,
-                ),
-                (
-                    "Anchor Target",
-                    util_slack_vec - np.median(util_slack_vec),
-                    COL_CR,
-                    COL_CR,
-                    0.18,
-                ),
-            ]
+                ## define exclusion and anchor targets centered on their medians
+                stages_b = [
+                    (
+                        "Exclusion Target",
+                        y_mean_vec - np.median(y_mean_vec),
+                        COL_NO,
+                        COL_NO,
+                        0.18,
+                    ),
+                    (
+                        "Anchor Target",
+                        util_slack_vec - np.median(util_slack_vec),
+                        COL_CR,
+                        COL_CR,
+                        0.18,
+                    ),
+                ]
 
-            ## set density and box geometry
-            x_grid_b = np.linspace(-10.0, 10.0, 500)
-            y_span_orig = 1.96
-            y_base_green = 0.0
-            kde_peak_h = 0.55 / y_span_orig
-            row_y = np.array(
-                [y_base_green, y_base_green + 1.5 * kde_peak_h], dtype = float
-            )
-            y_box_offset = 0.1 / y_span_orig
-            cap_half_h = 0.045 / y_span_orig
-            h_bar = 0.32
-            y_top_a = row_y.max() + kde_peak_h + 0.17
-            box_half_h = 0.5 * (h_bar / (len(REDUCED_6_DESC) + 0.1)) * y_top_a
-            q25_list, q75_list = ([], [])
-
-            ## draw a density and box plot for each target
-            for r_i, (lbl_b, vals_b, col_b, fill_b, alph_b) in zip(row_y, stages_b):
-                kde_b = stats.gaussian_kde(vals_b, bw_method = 0.38)
-                dens_b = kde_b(x_grid_b)
-                dens_scaled = dens_b / np.max(dens_b) * kde_peak_h
-                ax.fill_between(
-                    x_grid_b,
-                    r_i,
-                    r_i + dens_scaled,
-                    color = fill_b,
-                    alpha = alph_b,
-                    lw = 0.0,
-                    zorder = 3,
+                ## set density and box geometry
+                x_grid_b = np.linspace(-10.0, 10.0, 500)
+                y_span_orig = 1.96
+                y_base_green = 0.0
+                kde_peak_h = 0.55 / y_span_orig
+                row_y = np.array(
+                    [y_base_green, y_base_green + 1.5 * kde_peak_h], dtype = float
                 )
-                ax.plot(x_grid_b, r_i + dens_scaled, color = col_b, lw = 0.6, zorder = 4)
+                y_box_offset = 0.1 / y_span_orig
+                cap_half_h = 0.045 / y_span_orig
+                h_bar = 0.32
+                y_top_a = row_y.max() + kde_peak_h + 0.17
+                box_half_h = 0.5 * (h_bar / (len(REDUCED_6_DESC) + 0.1)) * y_top_a
+                q25_list, q75_list = ([], [])
+
+                ## draw a density and box plot for each target
+                for r_i, (lbl_b, vals_b, col_b, fill_b, alph_b) in zip(row_y, stages_b):
+                    kde_b = stats.gaussian_kde(vals_b, bw_method = 0.38)
+                    dens_b = kde_b(x_grid_b)
+                    dens_scaled = dens_b / np.max(dens_b) * kde_peak_h
+                    ax.fill_between(
+                        x_grid_b,
+                        r_i,
+                        r_i + dens_scaled,
+                        color = fill_b,
+                        alpha = alph_b,
+                        lw = 0.0,
+                        zorder = 3,
+                    )
+                    ax.plot(x_grid_b, r_i + dens_scaled, color = col_b, lw = 0.6, zorder = 4)
+                    ax.plot(
+                        x_grid_b,
+                        np.full_like(x_grid_b, r_i),
+                        color = col_b,
+                        lw = 0.6,
+                        alpha = 0.75,
+                        zorder = 4,
+                    )
+
+                    ## draw whiskers, fliers, box, and median
+                    q10, q25, q50, q75, q90 = np.percentile(vals_b, [10, 25, 50, 75, 90])
+                    q25_list.append(q25)
+                    q75_list.append(q75)
+                    y_box = r_i + y_box_offset
+                    ax.plot([q10, q25], [y_box, y_box], color = TEXT_COLOR, lw = 0.5, zorder = 5)
+                    ax.plot([q75, q90], [y_box, y_box], color = TEXT_COLOR, lw = 0.5, zorder = 5)
+                    ax.plot(
+                        [q10, q10],
+                        [y_box - cap_half_h, y_box + cap_half_h],
+                        color = TEXT_COLOR,
+                        lw = 0.5,
+                        zorder = 5,
+                    )
+                    ax.plot(
+                        [q90, q90],
+                        [y_box - cap_half_h, y_box + cap_half_h],
+                        color = TEXT_COLOR,
+                        lw = 0.5,
+                        zorder = 5,
+                    )
+                    fliers = vals_b[(vals_b < q10) | (vals_b > q90)]
+                    ax.scatter(
+                        fliers,
+                        np.full_like(fliers, y_box),
+                        s = _utilization_marker_size("o", MARKER_D_SECONDARY),
+                        color = col_b,
+                        edgecolor = "none",
+                        alpha = 0.85,
+                        zorder = 1,
+                    )
+                    ax.fill_between(
+                        [q25, q75],
+                        y_box - box_half_h,
+                        y_box + box_half_h,
+                        color = col_b,
+                        edgecolor = TEXT_COLOR,
+                        lw = 0.5,
+                        alpha = 0.9,
+                        zorder = 6,
+                    )
+                    ax.plot(
+                        [q50, q50],
+                        [y_box - box_half_h, y_box + box_half_h],
+                        color = TEXT_COLOR,
+                        lw = 0.5,
+                        solid_capstyle = "butt",
+                        zorder = 7,
+                    )
+
+                ## connect interquartile ranges between targets
+                ax.fill_betweenx(
+                    [row_y[0] + y_box_offset, row_y[1] + y_box_offset],
+                    [q25_list[0], q25_list[1]],
+                    [q75_list[0], q75_list[1]],
+                    color = COL_CR_FILL,
+                    alpha = 0.55,
+                    lw = 0.0,
+                    zorder = 2,
+                )
                 ax.plot(
-                    x_grid_b,
-                    np.full_like(x_grid_b, r_i),
-                    color = col_b,
-                    lw = 0.6,
-                    alpha = 0.75,
+                    q25_list,
+                    row_y + y_box_offset,
+                    color = DASHED_GUIDE_COLOR,
+                    linestyle = "--",
+                    lw = DASHED_GUIDE_LW,
+                    zorder = 4,
+                )
+                ax.plot(
+                    q75_list,
+                    row_y + y_box_offset,
+                    color = DASHED_GUIDE_COLOR,
+                    linestyle = "--",
+                    lw = DASHED_GUIDE_LW,
                     zorder = 4,
                 )
 
-                ## draw whiskers, fliers, box, and median
-                q10, q25, q50, q75, q90 = np.percentile(vals_b, [10, 25, 50, 75, 90])
-                q25_list.append(q25)
-                q75_list.append(q75)
-                y_box = r_i + y_box_offset
-                ax.plot([q10, q25], [y_box, y_box], color = TEXT_COLOR, lw = 0.5, zorder = 5)
-                ax.plot([q75, q90], [y_box, y_box], color = TEXT_COLOR, lw = 0.5, zorder = 5)
-                ax.plot(
-                    [q10, q10],
-                    [y_box - cap_half_h, y_box + cap_half_h],
-                    color = TEXT_COLOR,
-                    lw = 0.5,
-                    zorder = 5,
+                ## annotate the iqr contraction
+                iqr_unb = q75_list[0] - q25_list[0]
+                iqr_bnd = q75_list[1] - q25_list[1]
+                iqr_pct = (1.0 - iqr_bnd / iqr_unb) * 100.0
+                ann_y = 0.5 * (row_y[0] + row_y[1]) + y_box_offset + 0.05
+                ann_t = (ann_y - (row_y[0] + y_box_offset)) / (row_y[1] - row_y[0])
+                ann_x_right = q75_list[0] + ann_t * (q75_list[1] - q75_list[0])
+                ann_x_text = 2.4
+                ann_arrow_drop_pt = 0.4
+                ann_arrow_tr = mpl.transforms.offset_copy(
+                    ax.transData, fig = fig3, y = -ann_arrow_drop_pt, units = "points"
                 )
-                ax.plot(
-                    [q90, q90],
-                    [y_box - cap_half_h, y_box + cap_half_h],
-                    color = TEXT_COLOR,
-                    lw = 0.5,
-                    zorder = 5,
+                ax.annotate(
+                    "",
+                    xy = (ann_x_right, ann_y),
+                    xytext = (ann_x_text, ann_y),
+                    xycoords = ann_arrow_tr,
+                    textcoords = ann_arrow_tr,
+                    arrowprops = dict(
+                        arrowstyle = "->", color = TEXT_COLOR, lw = 0.5, alpha = 0.8, shrinkA = 1.0
+                    ),
+                    zorder = 8,
                 )
-                fliers = vals_b[(vals_b < q10) | (vals_b > q90)]
-                ax.scatter(
-                    fliers,
-                    np.full_like(fliers, y_box),
-                    s = _utilization_marker_size("o", MARKER_D_SECONDARY),
-                    color = col_b,
-                    edgecolor = "none",
-                    alpha = 0.85,
-                    zorder = 1,
+                ann_iqr = ax.text(
+                    ann_x_text,
+                    ann_y,
+                    f"{iqr_pct:.0f}% IQR Contraction",
+                    ha = "left",
+                    va = "center_baseline",
+                    fontsize = 7.0,
+                    fontweight = "bold",
+                    zorder = 8,
                 )
-                ax.fill_between(
-                    [q25, q75],
-                    y_box - box_half_h,
-                    y_box + box_half_h,
-                    color = col_b,
+                ann_iqr._pub_bold = True
+
+                ## style axes and ticks
+                _style_utilization_axis(ax)
+                ax.spines["bottom"].set_zorder(5)
+                ax.spines["left"].set_zorder(5)
+                ax.set_ylim(0.0, y_top_a)
+                dens_fracs = np.array([0.0, 0.5, 1.0])
+                ax.set_yticks(
+                    np.concatenate([r_i + dens_fracs * kde_peak_h for r_i in row_y])
+                )
+                ax.set_yticklabels([f"{f:.1f}" for _ in row_y for f in dens_fracs])
+                ax.set_xlim(-10.0, 10.0)
+                ax.set_xticks([-10, -5, 0, 5, 10])
+                ax.set_xticklabels(["−10", "−5", "0", "5", "10"])
+                ax.set_box_aspect(1.0)
+                ax.set_xlabel("Median-Centered Log-Rate Dispersion", fontsize = 7.0)
+                ax.set_ylabel("Relative Density", fontsize = 7.0)
+                ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+
+                ## compare standardized coefficients from the actual held-out fits
+                ax = axes_mech[1]
+
+                ## label features with their notation
+                desc_pretty = [
+                    "Number of Edges\n" + "$x^{\\prime}_{u,1}\\;(x^{\\prime}_{2})$",
+                    "Degree Entropy\n" + "$x^{\\prime}_{u,2}\\;(x^{\\prime}_{13})$",
+                    "Random Walk Triangle Weight\n"
+                    + "$x^{\\prime}_{u,3}\\;(x^{\\prime}_{18})$",
+                    "Normalized Successive Difference\n"
+                    + "$z^{\\prime}_{u,1}\\;(z^{\\prime}_{4})$",
+                    "Coefficient of Variation\n"
+                    + "$z^{\\prime}_{u,2}\\;(z^{\\prime}_{2})$",
+                    "Trend Coefficient\n" + "$z^{\\prime}_{u,3}\\;(z^{\\prime}_{6})$",
+                ]
+
+                ## reverse feature order and average coefficients across folds
+                desc_pretty = desc_pretty[::-1]
+                coefs_no = coefs_no[:, ::-1]
+                coefs_cr = coefs_cr[:, ::-1]
+                y_idx = np.arange(len(desc_pretty))
+                mean_no, mean_cr = (coefs_no.mean(axis = 0), coefs_cr.mean(axis = 0))
+
+                ## draw paired coefficient bars
+                ax.barh(
+                    y_idx + h_bar / 2,
+                    mean_no,
+                    height = h_bar,
+                    color = COL_NO,
                     edgecolor = TEXT_COLOR,
-                    lw = 0.5,
+                    alpha = 0.88,
+                    linewidth = 0.5,
+                    label = LBL_NO_SHORT,
+                )
+                ax.barh(
+                    y_idx - h_bar / 2,
+                    mean_cr,
+                    height = h_bar,
+                    color = COL_CR,
+                    edgecolor = TEXT_COLOR,
                     alpha = 0.9,
-                    zorder = 6,
-                )
-                ax.plot(
-                    [q50, q50],
-                    [y_box - box_half_h, y_box + box_half_h],
-                    color = TEXT_COLOR,
-                    lw = 0.5,
-                    solid_capstyle = "butt",
-                    zorder = 7,
+                    linewidth = 0.5,
+                    label = LBL_CR_SHORT,
                 )
 
-            ## connect interquartile ranges between targets
-            ax.fill_betweenx(
-                [row_y[0] + y_box_offset, row_y[1] + y_box_offset],
-                [q25_list[0], q25_list[1]],
-                [q75_list[0], q75_list[1]],
-                color = COL_CR_FILL,
-                alpha = 0.55,
-                lw = 0.0,
-                zorder = 2,
-            )
-            ax.plot(
-                q25_list,
-                row_y + y_box_offset,
-                color = DASHED_GUIDE_COLOR,
-                linestyle = "--",
-                lw = DASHED_GUIDE_LW,
-                zorder = 4,
-            )
-            ax.plot(
-                q75_list,
-                row_y + y_box_offset,
-                color = DASHED_GUIDE_COLOR,
-                linestyle = "--",
-                lw = DASHED_GUIDE_LW,
-                zorder = 4,
-            )
+                ## annotate coefficient values
+                for y_i, m_n, m_c in zip(y_idx, mean_no, mean_cr):
+                    off_n = m_n + 0.05 if m_n >= 0 else m_n - 0.05
+                    off_c = m_c + 0.05 if m_c >= 0 else m_c - 0.05
+                    ax.text(
+                        off_n,
+                        y_i + h_bar / 2,
+                        f"{m_n:+.2f}".replace("-", "−"),
+                        va = "center_baseline",
+                        ha = "left" if m_n >= 0 else "right",
+                        fontsize = 7.0,
+                        color = TEXT_COLOR,
+                    )
+                    ax.text(
+                        off_c,
+                        y_i - h_bar / 2,
+                        f"{m_c:+.2f}".replace("-", "−"),
+                        va = "center_baseline",
+                        ha = "left" if m_c >= 0 else "right",
+                        fontsize = 7.0,
+                        color = TEXT_COLOR,
+                    )
 
-            ## annotate the iqr contraction
-            iqr_unb = q75_list[0] - q25_list[0]
-            iqr_bnd = q75_list[1] - q25_list[1]
-            iqr_pct = (1.0 - iqr_bnd / iqr_unb) * 100.0
-            ann_y = 0.5 * (row_y[0] + row_y[1]) + y_box_offset + 0.05
-            ann_t = (ann_y - (row_y[0] + y_box_offset)) / (row_y[1] - row_y[0])
-            ann_x_right = q75_list[0] + ann_t * (q75_list[1] - q75_list[0])
-            ann_x_text = 2.4
-            ann_arrow_drop_pt = 0.4
-            ann_arrow_tr = mpl.transforms.offset_copy(
-                ax.transData, fig = fig3, y = -ann_arrow_drop_pt, units = "points"
-            )
-            ax.annotate(
-                "",
-                xy = (ann_x_right, ann_y),
-                xytext = (ann_x_text, ann_y),
-                xycoords = ann_arrow_tr,
-                textcoords = ann_arrow_tr,
-                arrowprops = dict(
-                    arrowstyle = "->", color = TEXT_COLOR, lw = 0.5, alpha = 0.8, shrinkA = 1.0
-                ),
-                zorder = 8,
-            )
-            ann_iqr = ax.text(
-                ann_x_text,
-                ann_y,
-                f"{iqr_pct:.0f}% IQR Contraction",
-                ha = "left",
-                va = "center_baseline",
-                fontsize = 7.0,
-                fontweight = "bold",
-                zorder = 8,
-            )
-            ann_iqr._pub_bold = True
-
-            ## style axes and ticks
-            _style_utilization_axis(ax)
-            ax.spines["bottom"].set_zorder(5)
-            ax.spines["left"].set_zorder(5)
-            ax.set_ylim(0.0, y_top_a)
-            dens_fracs = np.array([0.0, 0.5, 1.0])
-            ax.set_yticks(
-                np.concatenate([r_i + dens_fracs * kde_peak_h for r_i in row_y])
-            )
-            ax.set_yticklabels([f"{f:.1f}" for _ in row_y for f in dens_fracs])
-            ax.set_xlim(-10.0, 10.0)
-            ax.set_xticks([-10, -5, 0, 5, 10])
-            ax.set_xticklabels(["−10", "−5", "0", "5", "10"])
-            ax.set_box_aspect(1.0)
-            ax.set_xlabel("Median-Centered Log-Rate Dispersion", fontsize = 7.0)
-            ax.set_ylabel("Relative Density", fontsize = 7.0)
-            ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
-
-            ## compare standardized coefficients from the actual held-out fits
-            ax = axes_mech[1]
-
-            ## label features with their notation
-            desc_pretty = [
-                "Number of Edges\n" + "$x^{\\prime}_{u,1}\\;(x^{\\prime}_{2})$",
-                "Degree Entropy\n" + "$x^{\\prime}_{u,2}\\;(x^{\\prime}_{13})$",
-                "Random Walk Triangle Weight\n"
-                + "$x^{\\prime}_{u,3}\\;(x^{\\prime}_{18})$",
-                "Normalized Successive Difference\n"
-                + "$z^{\\prime}_{u,1}\\;(z^{\\prime}_{4})$",
-                "Coefficient of Variation\n"
-                + "$z^{\\prime}_{u,2}\\;(z^{\\prime}_{2})$",
-                "Trend Coefficient\n" + "$z^{\\prime}_{u,3}\\;(z^{\\prime}_{6})$",
-            ]
-
-            ## reverse feature order and average coefficients across folds
-            desc_pretty = desc_pretty[::-1]
-            coefs_no = coefs_no[:, ::-1]
-            coefs_cr = coefs_cr[:, ::-1]
-            y_idx = np.arange(len(desc_pretty))
-            mean_no, mean_cr = (coefs_no.mean(axis = 0), coefs_cr.mean(axis = 0))
-
-            ## draw paired coefficient bars
-            ax.barh(
-                y_idx + h_bar / 2,
-                mean_no,
-                height = h_bar,
-                color = COL_NO,
-                edgecolor = TEXT_COLOR,
-                alpha = 0.88,
-                linewidth = 0.5,
-                label = LBL_NO_SHORT,
-            )
-            ax.barh(
-                y_idx - h_bar / 2,
-                mean_cr,
-                height = h_bar,
-                color = COL_CR,
-                edgecolor = TEXT_COLOR,
-                alpha = 0.9,
-                linewidth = 0.5,
-                label = LBL_CR_SHORT,
-            )
-
-            ## annotate coefficient values
-            for y_i, m_n, m_c in zip(y_idx, mean_no, mean_cr):
-                off_n = m_n + 0.05 if m_n >= 0 else m_n - 0.05
-                off_c = m_c + 0.05 if m_c >= 0 else m_c - 0.05
-                ax.text(
-                    off_n,
-                    y_i + h_bar / 2,
-                    f"{m_n:+.2f}".replace("-", "−"),
-                    va = "center_baseline",
-                    ha = "left" if m_n >= 0 else "right",
-                    fontsize = 7.0,
-                    color = TEXT_COLOR,
+                ## shade dynamical and structural feature groups
+                ax.axvline(0.0, color = TEXT_COLOR, linestyle = "-", lw = 0.5)
+                ax.axhline(
+                    2.5, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW
                 )
-                ax.text(
-                    off_c,
-                    y_i - h_bar / 2,
-                    f"{m_c:+.2f}".replace("-", "−"),
-                    va = "center_baseline",
-                    ha = "left" if m_c >= 0 else "right",
-                    fontsize = 7.0,
-                    color = TEXT_COLOR,
+                ax.axhspan(
+                    -0.55, 2.5, facecolor = COL_DYNAMICAL_FILL, edgecolor = "none", zorder = 0
                 )
-
-            ## shade dynamical and structural feature groups
-            ax.axvline(0.0, color = TEXT_COLOR, linestyle = "-", lw = 0.5)
-            ax.axhline(
-                2.5, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW
-            )
-            ax.axhspan(
-                -0.55, 2.5, facecolor = COL_DYNAMICAL_FILL, edgecolor = "none", zorder = 0
-            )
-            ax.axhspan(
-                2.5,
-                len(desc_pretty) - 0.45,
-                facecolor = COL_STRUCTURAL_FILL,
-                edgecolor = "none",
-                zorder = 0,
-            )
-            ax_yt = ax.get_yaxis_transform()
-            for y_lo, y_hi, grp, col_grp in [
-                (-0.45, 2.4, "Dynamical", COL_DYNAMICAL),
-                (2.6, len(desc_pretty) - 0.55, "Structural", COL_STRUCTURAL),
-            ]:
-                ax.text(
-                    1.04,
-                    0.5 * (y_lo + y_hi),
-                    grp,
-                    transform = ax_yt,
-                    fontsize = 7.0,
-                    color = col_grp,
-                    ha = "center",
-                    va = "center",
-                    rotation = 270,
+                ax.axhspan(
+                    2.5,
+                    len(desc_pretty) - 0.45,
+                    facecolor = COL_STRUCTURAL_FILL,
+                    edgecolor = "none",
+                    zorder = 0,
                 )
+                ax_yt = ax.get_yaxis_transform()
+                for y_lo, y_hi, grp, col_grp in [
+                    (-0.45, 2.4, "Dynamical", COL_DYNAMICAL),
+                    (2.6, len(desc_pretty) - 0.55, "Structural", COL_STRUCTURAL),
+                ]:
+                    ax.text(
+                        1.04,
+                        0.5 * (y_lo + y_hi),
+                        grp,
+                        transform = ax_yt,
+                        fontsize = 7.0,
+                        color = col_grp,
+                        ha = "center",
+                        va = "center",
+                        rotation = 270,
+                    )
 
-            ## style axes and ticks
-            _style_utilization_axis(ax)
-            ax.set_xlim(-2.0, 2.0)
-            ax.set_xticks([-2, -1, 0, 1, 2])
-            ax.set_xticklabels(["−2", "−1", "0", "1", "2"])
-            ax.set_yticks(y_idx)
-            ax.set_yticklabels(desc_pretty, fontsize = 7.0)
-            ax.invert_yaxis()
-            ax.set_ylim(len(desc_pretty) - 0.45, -0.55)
-            ax.set_box_aspect(1.0)
-            ax.set_xlabel(
-                "Standardized Negative Binomial Log-Rate Coefficient", fontsize = 7.0
-            )
-            ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+                ## style axes and ticks
+                _style_utilization_axis(ax)
+                ax.set_xlim(-2.0, 2.0)
+                ax.set_xticks([-2, -1, 0, 1, 2])
+                ax.set_xticklabels(["−2", "−1", "0", "1", "2"])
+                ax.set_yticks(y_idx)
+                ax.set_yticklabels(desc_pretty, fontsize = 7.0)
+                ax.invert_yaxis()
+                ax.set_ylim(len(desc_pretty) - 0.45, -0.55)
+                ax.set_box_aspect(1.0)
+                ax.set_xlabel(
+                    "Standardized Negative Binomial Log-Rate Coefficient", fontsize = 7.0
+                )
+                ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
 
-            ## add shared legend to panel a
-            h_3b, l_3b = ax.get_legend_handles_labels()
-            _style_utilization_legend(
-                axes_mech[0],
-                handles = [
-                    h_3b[l_3b.index(LBL_CR_SHORT)],
-                    h_3b[l_3b.index(LBL_NO_SHORT)],
-                ],
-                loc = "upper right",
-            )
-            plt.tight_layout()
-            return _render_utilization_figure(figure = fig3)
+                ## add shared legend to panel a
+                h_3b, l_3b = ax.get_legend_handles_labels()
+                _style_utilization_legend(
+                    axes_mech[0],
+                    handles = [
+                        h_3b[l_3b.index(LBL_CR_SHORT)],
+                        h_3b[l_3b.index(LBL_NO_SHORT)],
+                    ],
+                    loc = "upper right",
+                )
+                plt.tight_layout()
+                return _render_utilization_figure(figure = fig3, index = index, output_dir = output_dir)
 
 
 ## plot utilization calibration
-def plot_utilization_calibration(tables: dict[str, pd.DataFrame]) -> Image:
-    predictions = tables["predictions"]
-    predictions = predictions.loc[
-        (predictions["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (predictions["Estimator"] == GLM_ESTIMATORS[-1])
-    ]
-    df_all = predictions.loc[predictions["Configuration"] == SCT_MODALITIES[0]].rename(
-        columns = {"Observed_LogRate": "y_mean", "Observed_Rate": "r_mean"}
-    )
+def plot_utilization_calibration(
+    tables: dict[str, pd.DataFrame],
+    index: int | None = None,
+    output_dir: Path | None = None,
+    ) -> Image:
+        predictions = tables["predictions"]
+        predictions = predictions.loc[
+            (predictions["Resampling Regime"] == RESAMPLING_REGIMES[0])
+            & (predictions["Estimator"] == GLM_ESTIMATORS[-1])
+        ]
+        df_all = predictions.loc[predictions["Configuration"] == SCT_MODALITIES[0]].rename(
+            columns = {"Observed_LogRate": "y_mean", "Observed_Rate": "r_mean"}
+        )
 
-    ## collect predictions for each configuration
-    nb_no, nb_cr = [
-        {
-            "y_pred": predictions.loc[
-                predictions["Configuration"] == mode, "Predicted_LogRate"
-            ].to_numpy(float),
-            "r_pred": predictions.loc[
-                predictions["Configuration"] == mode, "Predicted_Rate"
-            ].to_numpy(float),
+        ## collect predictions for each configuration
+        nb_no, nb_cr = [
+            {
+                "y_pred": predictions.loc[
+                    predictions["Configuration"] == mode, "Predicted_LogRate"
+                ].to_numpy(float),
+                "r_pred": predictions.loc[
+                    predictions["Configuration"] == mode, "Predicted_Rate"
+                ].to_numpy(float),
+            }
+            for mode in SCT_MODALITIES
+        ]
+        preds_6_main = {
+            (GLM_ESTIMATORS[-1], LBL_NO): nb_no,
+            (GLM_ESTIMATORS[-1], LBL_CR): nb_cr,
         }
-        for mode in SCT_MODALITIES
-    ]
-    preds_6_main = {
-        (GLM_ESTIMATORS[-1], LBL_NO): nb_no,
-        (GLM_ESTIMATORS[-1], LBL_CR): nb_cr,
-    }
 
-    ## draw the figure within the publication style
-    with _utilization_style():
-        fig4, axes4 = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.25))
-        fig4.patch.set_facecolor(BG_COLOR)
+        ## draw the figure within the publication style
+        with _utilization_style():
+            fig4, axes4 = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.25))
+            fig4.patch.set_facecolor(BG_COLOR)
 
-        ## compare observed and estimated log-rates
-        ax = axes4[0]
-        y_true_vec = df_all["y_mean"].to_numpy(float)
-        y_no_vec = nb_no["y_pred"]
-        y_cr_vec = nb_cr["y_pred"]
-        grid_y = np.linspace(0.0, 15.0, 200)
+            ## compare observed and estimated log-rates
+            ax = axes4[0]
+            y_true_vec = df_all["y_mean"].to_numpy(float)
+            y_no_vec = nb_no["y_pred"]
+            y_cr_vec = nb_cr["y_pred"]
+            grid_y = np.linspace(0.0, 15.0, 200)
 
-        ## construct multiplicative bands in rate space before log transformation
-        r_grid = np.maximum(np.expm1(grid_y), 0.0)
-        y_band_2x_lo = np.log1p(r_grid / 2.0)
-        y_band_2x_hi = np.log1p(r_grid * 2.0)
-        y_band_3x_lo = np.log1p(r_grid / 3.0)
-        y_band_3x_hi = np.log1p(r_grid * 3.0)
+            ## construct multiplicative bands in rate space before log transformation
+            r_grid = np.maximum(np.expm1(grid_y), 0.0)
+            y_band_2x_lo = np.log1p(r_grid / 2.0)
+            y_band_2x_hi = np.log1p(r_grid * 2.0)
+            y_band_3x_lo = np.log1p(r_grid / 3.0)
+            y_band_3x_hi = np.log1p(r_grid * 3.0)
 
-        ## shade error bands and draw the parity line
-        ax.fill_between(
-            grid_y,
-            y_band_3x_lo,
-            y_band_3x_hi,
-            color = COL_BAND3_FILL,
-            alpha = 0.55,
-            lw = 0.0,
-            zorder = 0,
-        )
-        ax.fill_between(
-            grid_y,
-            y_band_2x_lo,
-            y_band_2x_hi,
-            color = COL_CR_FILL,
-            alpha = 0.75,
-            lw = 0.0,
-            zorder = 1,
-        )
-        ax.plot(
-            grid_y,
-            grid_y,
-            color = DASHED_GUIDE_COLOR,
-            linestyle = "--",
-            lw = DASHED_GUIDE_LW,
-            zorder = 3.5,
-        )
-
-        ## overlay excluded and anchored estimates
-        ax.scatter(
-            y_true_vec,
-            y_no_vec,
-            color = COL_NO,
-            marker = "x",
-            s = _utilization_marker_size("x", lw = 1.0),
-            linewidths = 1.0,
-            zorder = 4,
-        )
-        ax.scatter(
-            y_true_vec,
-            y_cr_vec,
-            color = COL_CR,
-            edgecolors = "none",
-            marker = "o",
-            s = _utilization_marker_size("o"),
-            zorder = 3,
-        )
-
-        ## style axes and ticks
-        _style_utilization_axis(ax)
-        ax.set_xlim(0, 15)
-        ax.set_ylim(0, 15)
-        ax.set_xticks(np.arange(0, 16, 3))
-        ax.set_yticks(np.arange(0, 16, 3))
-        ax.set_box_aspect(1.0)
-        ax.set_xlabel("Observed Log-Rate", fontsize = 7.0)
-        ax.set_ylabel("Estimated Log-Rate", fontsize = 7.0)
-        ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
-
-        ## build legend handles
-        legend_handles_4a_bands = [
-            Line2D(
-                [0],
-                [0],
+            ## shade error bands and draw the parity line
+            ax.fill_between(
+                grid_y,
+                y_band_3x_lo,
+                y_band_3x_hi,
+                color = COL_BAND3_FILL,
+                alpha = 0.55,
+                lw = 0.0,
+                zorder = 0,
+            )
+            ax.fill_between(
+                grid_y,
+                y_band_2x_lo,
+                y_band_2x_hi,
+                color = COL_CR_FILL,
+                alpha = 0.75,
+                lw = 0.0,
+                zorder = 1,
+            )
+            ax.plot(
+                grid_y,
+                grid_y,
                 color = DASHED_GUIDE_COLOR,
                 linestyle = "--",
                 lw = DASHED_GUIDE_LW,
-                label = "1:1 Parity",
-            ),
-            Patch(
-                facecolor = COL_CR_FILL,
-                alpha = 0.75,
-                edgecolor = "none",
-                label = "2x Error Band",
-            ),
-            Patch(
-                facecolor = COL_BAND3_FILL,
-                alpha = 0.55,
-                edgecolor = "none",
-                label = "3x Error Band",
-            ),
-        ]
-        legend_handles_4a_reg = [
-            Line2D(
-                [0],
-                [0],
-                marker = "o",
-                color = "w",
-                markerfacecolor = COL_CR,
-                markeredgecolor = "none",
-                markersize = np.sqrt(_utilization_marker_size("o")),
-                label = LBL_CR_SHORT,
-            ),
-            Line2D(
-                [0],
-                [0],
-                marker = "x",
-                color = "w",
-                markeredgecolor = COL_NO,
-                markeredgewidth = 1.0,
-                markersize = np.sqrt(_utilization_marker_size("x", lw = 1.0)),
-                label = LBL_NO_SHORT,
-            ),
-        ]
-
-        ## add legends
-        ax.add_artist(
-            _style_utilization_legend(
-                ax, handles = legend_handles_4a_bands, loc = "upper left"
-            )
-        )
-        _style_utilization_legend(ax, handles = legend_handles_4a_reg, loc = "lower right")
-
-        ## show cumulative fractions within each multiplicative error threshold
-        ax = axes4[1]
-        r_true_vec = df_all["r_mean"].to_numpy(float)
-
-        ## shade error bands
-        ax.axvspan(
-            1.0, 2.0, facecolor = COL_CR_FILL, alpha = 0.75, edgecolor = "none", zorder = 0
-        )
-        ax.axvspan(
-            2.0, 3.0, facecolor = COL_BAND3_FILL, alpha = 0.55, edgecolor = "none", zorder = 0
-        )
-
-        ## draw the empirical cdf of multiplicative errors
-        ecdf_specs = [
-            ("Negative Binomial", LBL_CR, COL_CR, "-", 1.0, LBL_CR_SHORT),
-            ("Negative Binomial", LBL_NO, COL_NO, "--", 1.0, LBL_NO_SHORT),
-        ]
-        for fam_k, mode_k, col_k, ls_k, lw_k, lbl_k in ecdf_specs:
-            r_p = preds_6_main[fam_k, mode_k]["r_pred"]
-            mult_err = np.sort(
-                np.exp(
-                    np.abs(
-                        np.log(np.maximum(r_p, 1e-09) / np.maximum(r_true_vec, 1e-09))
-                    )
-                )
-            )
-            ecdf_y = np.arange(1, len(mult_err) + 1) / len(mult_err)
-            x_step = np.r_[1.0, mult_err, 128.0]
-            y_step = np.r_[0.0, ecdf_y, 1.0]
-            ax.step(
-                x_step,
-                y_step,
-                where = "post",
-                color = col_k,
-                linestyle = ls_k,
-                lw = lw_k,
-                label = lbl_k,
-                zorder = 3,
-            )
-            if mode_k == LBL_CR:
-                mult_err_cr = mult_err
-            else:
-                mult_err_no = mult_err
-
-        ## mark the 2x and 3x thresholds
-        ax.axvline(
-            2.0, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW, zorder = 2
-        )
-        ax.axvline(
-            3.0, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW, zorder = 2
-        )
-
-        ## style axes and ticks
-        geom_ticks = [1, 2, 3, 4, 8, 16, 32]
-        _style_utilization_axis(ax)
-        ax.set_xscale("log", base = 2)
-        ax.set_xlim(1.0, 32.0)
-        ax.set_ylim(0.0, 1.0)
-        ax.set_yticks(np.linspace(0.0, 1.0, 11))
-        ax.yaxis.set_major_formatter("{x:.1f}")
-        ax.set_box_aspect(1.0)
-        ax.set_xticks(geom_ticks)
-        ax.set_xticklabels([f"{t}x" for t in geom_ticks], fontsize = 7.0)
-        ax.set_xlabel("Multiplicative Error", fontsize = 7.0)
-        ax.set_ylabel("Cumulative Proportion of Systems", fontsize = 7.0)
-        ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
-        _style_utilization_legend(ax, loc = "lower right")
-        plt.tight_layout()
-
-        ## set a fixed gap between panels at export width
-        AB_GAP_MM = 18.5
-        fig4_gap_frac = AB_GAP_MM / TARGET_WIDTH_MM
-        fig_w4 = fig4.get_figwidth()
-
-        ## adjust panel spacing using the rendered export width
-        for _ in range(3):
-            fig4.canvas.draw()
-            pos_a4, pos_b4 = (axes4[0].get_position(), axes4[1].get_position())
-            gap_in = (pos_b4.x0 - pos_a4.x1) * fig_w4
-            export_w_in = fig4.get_tightbbox(fig4.canvas.get_renderer()).width + 0.2
-            shift_in = (fig4_gap_frac * export_w_in - gap_in) / (1.0 - fig4_gap_frac)
-            axes4[1].set_position(pos_b4.translated(shift_in / fig_w4, 0.0))
-
-        ## annotate system counts within each threshold
-        fig4.canvas.draw()
-        fig4_count_gap_pt = 1.5
-        fig4_count_fontsize = 6.0
-        renderer_4 = fig4.canvas.get_renderer()
-        px_per_pt = fig4.dpi / 72.0
-        ax_h_px = ax.get_window_extent(renderer_4).height
-        fig4_count_labels = [
-            (mult_err_cr, COL_CR, {2.0: 4.0, 3.0: 0.0}),
-            (mult_err_no, COL_NO, {2.0: 1.0, 3.0: 0.0}),
-        ]
-        for errs_k, col_k, drop_by_thr in fig4_count_labels:
-            for thr, drop_pt in drop_by_thr.items():
-                n_thr = int(np.sum(errs_k <= thr))
-                ann = ax.annotate(
-                    f"{n_thr} / {len(errs_k)} Systems",
-                    (thr, 0.5),
-                    xytext = (-fig4_count_gap_pt, 0.0),
-                    textcoords = "offset points",
-                    rotation = 90,
-                    ha = "right",
-                    va = "top",
-                    fontsize = fig4_count_fontsize,
-                    color = col_k,
-                    fontweight = "bold",
-                    zorder = 4,
-                )
-                ann._pub_fontsize = fig4_count_fontsize
-                ann._pub_bold = True
-
-                ## place each count just below the cdf curve
-                x_left_px = ann.get_window_extent(renderer_4).x0 - 0.5 * px_per_pt
-                x_left = ax.transData.inverted().transform((x_left_px, 0.0))[0]
-                y_curve = np.sum(errs_k <= x_left) / len(errs_k)
-                ann.xy = (
-                    thr,
-                    y_curve - (fig4_count_gap_pt + 0.5 + drop_pt) * px_per_pt / ax_h_px,
-                )
-        return _render_utilization_figure(figure = fig4)
-
-
-## plot utilization ablations and temporal controls
-def plot_utilization_controls(tables: dict[str, pd.DataFrame]) -> Image:
-    df_fig5 = tables["ablation"]
-    ABL_CONFIGS = UTIL_ABLATIONS
-
-    ## select primary temporal window results
-    temporal = tables["temporal_complete"]
-    temporal = temporal.loc[
-        (temporal["Resampling Regime"] == RESAMPLING_REGIMES[0])
-        & (temporal["Estimator"] == GLM_ESTIMATORS[-1])
-    ]
-    TH_FRACS = sorted(
-        (
-            float(value.rstrip("%")) / 100.0
-            for value in temporal["Prior-Window Share"].unique()
-        )
-    )
-
-    ## index mae estimates and intervals by window and configuration
-    s1_mae = {
-        (float(row["Prior-Window Share"].rstrip("%")) / 100.0, row["Configuration"]): row[
-            "MAE"
-        ]
-        for _, row in temporal.iterrows()
-    }
-    s1_int = {
-        (float(row["Prior-Window Share"].rstrip("%")) / 100.0, row["Configuration"]): (
-            row["MAE_lo"],
-            row["MAE_hi"],
-        )
-        for _, row in temporal.iterrows()
-    }
-
-    ## draw the figure within the publication style
-    with _utilization_style():
-        import re
-
-        ## create the figure
-        fig5, axes5 = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.25))
-        fig5.patch.set_facecolor(BG_COLOR)
-
-        ## show ablation estimates with paired system-bootstrap intervals
-        ax = axes5[0]
-
-        ## assign ablation colors
-        ABL_COLORS = dict(
-            zip(
-                ABL_CONFIGS,
-                [
-                    COL_CR,
-                    "#0072B2",
-                    "#E69F00",
-                    "#CC79A7",
-                    COL_NO,
-                    "#009E73",
-                    "#56B4E9",
-                    "#6A6A6A",
-                ],
-            )
-        )
-        fig5_color = lambda cfg: ABL_COLORS[cfg]
-
-        ## plot each configuration with its intervals
-        for _, row in df_fig5.iterrows():
-            col = fig5_color(row["Configuration"])
-            ax.errorbar(
-                row["MAE"],
-                row["CI"],
-                xerr = [
-                    [row["MAE"] - row["MAE_lo"]],
-                    [row["MAE_hi"] - row["MAE"]],
-                ],
-                yerr = [[row["CI"] - row["CI_lo"]], [row["CI_hi"] - row["CI"]]],
-                fmt = "o",
-                color = col,
-                ecolor = mpl.colors.to_rgba(col, 0.45),
-                markersize = MARKER_D_PRIMARY,
-                markeredgewidth = 0,
-                elinewidth = 0.8,
-                capsize = 0,
-                zorder = 3,
+                zorder = 3.5,
             )
 
-        ## style axes and ticks
-        _style_utilization_axis(ax)
-        ax.set_xlim(0.0, 4.1)
-        ax.set_xticks(np.arange(0.0, 4.1, 1.0))
-        ax.set_xticklabels([f"{t:.1f}" for t in np.arange(0.0, 4.1, 1.0)])
-        ax.set_ylim(0.5, 1.04)
-        ax.set_yticks(np.arange(0.5, 1.01, 0.1))
-        ax.spines["left"].set_bounds(0.5, 1.0)
-        ax.spines["bottom"].set_bounds(0.0, 4.0)
-        ax.set_box_aspect(1.0)
-        ax.set_xlabel("Mean Absolute Error (MAE)", fontsize = 7.0)
-        ax.set_ylabel("Consensus Index (CI)", fontsize = 7.0)
-        ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
-
-        ## build legend handles ordered by consensus
-        fig5_label = lambda cfg: re.sub("(\\d+)\\.0x", "\\1x", cfg)
-        legend_handles_6_cfg = [
-            Line2D(
-                [0],
-                [0],
-                color = fig5_color(cfg),
-                marker = "o",
-                markersize = np.sqrt(_utilization_marker_size("o")),
-                markeredgewidth = 0.0,
-                lw = 0.0,
-                label = fig5_label(cfg),
-            )
-            for cfg in df_fig5.sort_values("CI", ascending = False)["Configuration"]
-        ]
-        _style_utilization_legend(ax, handles = legend_handles_6_cfg, loc = "lower left")
-
-        ## compare anchored and unanchored errors across temporal splits
-        ax = axes5[1]
-        s1_row = {f: i for i, f in enumerate(sorted(TH_FRACS))}
-
-        ## plot intervals and estimates for each window
-        for f in TH_FRACS:
-            x_cr, x_no = (
-                s1_mae[f, "SCT Frontier Anchor"],
-                s1_mae[f, "SCT Frontier Exclusion"],
-            )
-            for cfg, col in (
-                ("SCT Frontier Anchor", COL_CR),
-                ("SCT Frontier Exclusion", COL_NO),
-            ):
-                tint = 0.45 * np.array(mpl.colors.to_rgb(col)) + 0.55
-                ax.plot(
-                    s1_int[f, cfg],
-                    [s1_row[f]] * 2,
-                    color = tint,
-                    lw = 0.8,
-                    solid_capstyle = "butt",
-                    zorder = 2.5,
-                )
+            ## overlay excluded and anchored estimates
             ax.scatter(
-                [x_no],
-                [s1_row[f]],
+                y_true_vec,
+                y_no_vec,
                 color = COL_NO,
                 marker = "x",
                 s = _utilization_marker_size("x", lw = 1.0),
                 linewidths = 1.0,
-                zorder = 3,
+                zorder = 4,
             )
             ax.scatter(
-                [x_cr],
-                [s1_row[f]],
+                y_true_vec,
+                y_cr_vec,
                 color = COL_CR,
                 edgecolors = "none",
                 marker = "o",
                 s = _utilization_marker_size("o"),
-                zorder = 4,
+                zorder = 3,
             )
 
-        ## style axes and ticks
-        _style_utilization_axis(ax)
-        s1_xmax = float(
-            np.ceil((max((hi for _, hi in s1_int.values())) + 0.1) * 2.0) / 2.0
-        )
-        ax.set_xlim(0.0, s1_xmax)
-        ax.set_xticks(np.arange(0.0, s1_xmax + 0.01, 0.5))
-        ax.xaxis.set_major_formatter("{x:.1f}")
-        ax.set_ylim(-1.0, len(TH_FRACS) - 1 + 0.6)
-        ax.set_yticks([s1_row[f] for f in TH_FRACS])
-        ax.set_yticklabels([f"{f:.0%}" for f in TH_FRACS], fontsize = 7.0)
-        ax.set_box_aspect(1.0)
-        ax.set_xlabel("Mean Absolute Error (MAE)", fontsize = 7.0)
-        ax.set_ylabel("Prior-Window Proportion of Each Series", fontsize = 7.0)
-        ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+            ## style axes and ticks
+            _style_utilization_axis(ax)
+            ax.set_xlim(0, 15)
+            ax.set_ylim(0, 15)
+            ax.set_xticks(np.arange(0, 16, 3))
+            ax.set_yticks(np.arange(0, 16, 3))
+            ax.set_box_aspect(1.0)
+            ax.set_xlabel("Observed Log-Rate", fontsize = 7.0)
+            ax.set_ylabel("Estimated Log-Rate", fontsize = 7.0)
+            ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
 
-        ## build legend handles
-        legend_handles_s1_est = [
-            Line2D(
-                [0],
-                [0],
-                marker = "o",
-                color = "w",
-                markerfacecolor = COL_CR,
-                markeredgecolor = "none",
-                markersize = np.sqrt(_utilization_marker_size("o")),
-                label = LBL_CR_SHORT,
-            ),
-            Line2D(
-                [0],
-                [0],
-                marker = "x",
-                color = "w",
-                markeredgecolor = COL_NO,
-                markeredgewidth = 1.0,
-                markersize = np.sqrt(_utilization_marker_size("x", lw = 1.0)),
-                label = LBL_NO_SHORT,
-            ),
+            ## build legend handles
+            legend_handles_4a_bands = [
+                Line2D(
+                    [0],
+                    [0],
+                    color = DASHED_GUIDE_COLOR,
+                    linestyle = "--",
+                    lw = DASHED_GUIDE_LW,
+                    label = "1:1 Parity",
+                ),
+                Patch(
+                    facecolor = COL_CR_FILL,
+                    alpha = 0.75,
+                    edgecolor = "none",
+                    label = "2x Error Band",
+                ),
+                Patch(
+                    facecolor = COL_BAND3_FILL,
+                    alpha = 0.55,
+                    edgecolor = "none",
+                    label = "3x Error Band",
+                ),
+            ]
+            legend_handles_4a_reg = [
+                Line2D(
+                    [0],
+                    [0],
+                    marker = "o",
+                    color = "w",
+                    markerfacecolor = COL_CR,
+                    markeredgecolor = "none",
+                    markersize = np.sqrt(_utilization_marker_size("o")),
+                    label = LBL_CR_SHORT,
+                ),
+                Line2D(
+                    [0],
+                    [0],
+                    marker = "x",
+                    color = "w",
+                    markeredgecolor = COL_NO,
+                    markeredgewidth = 1.0,
+                    markersize = np.sqrt(_utilization_marker_size("x", lw = 1.0)),
+                    label = LBL_NO_SHORT,
+                ),
+            ]
+
+            ## add legends
+            ax.add_artist(
+                _style_utilization_legend(
+                    ax, handles = legend_handles_4a_bands, loc = "upper left"
+                )
+            )
+            _style_utilization_legend(ax, handles = legend_handles_4a_reg, loc = "lower right")
+
+            ## show cumulative fractions within each multiplicative error threshold
+            ax = axes4[1]
+            r_true_vec = df_all["r_mean"].to_numpy(float)
+
+            ## shade error bands
+            ax.axvspan(
+                1.0, 2.0, facecolor = COL_CR_FILL, alpha = 0.75, edgecolor = "none", zorder = 0
+            )
+            ax.axvspan(
+                2.0, 3.0, facecolor = COL_BAND3_FILL, alpha = 0.55, edgecolor = "none", zorder = 0
+            )
+
+            ## draw the empirical cdf of multiplicative errors
+            ecdf_specs = [
+                ("Negative Binomial", LBL_CR, COL_CR, "-", 1.0, LBL_CR_SHORT),
+                ("Negative Binomial", LBL_NO, COL_NO, "--", 1.0, LBL_NO_SHORT),
+            ]
+            for fam_k, mode_k, col_k, ls_k, lw_k, lbl_k in ecdf_specs:
+                r_p = preds_6_main[fam_k, mode_k]["r_pred"]
+                mult_err = np.sort(
+                    np.exp(
+                        np.abs(
+                            np.log(np.maximum(r_p, 1e-09) / np.maximum(r_true_vec, 1e-09))
+                        )
+                    )
+                )
+                ecdf_y = np.arange(1, len(mult_err) + 1) / len(mult_err)
+                x_step = np.r_[1.0, mult_err, 128.0]
+                y_step = np.r_[0.0, ecdf_y, 1.0]
+                ax.step(
+                    x_step,
+                    y_step,
+                    where = "post",
+                    color = col_k,
+                    linestyle = ls_k,
+                    lw = lw_k,
+                    label = lbl_k,
+                    zorder = 3,
+                )
+                if mode_k == LBL_CR:
+                    mult_err_cr = mult_err
+                else:
+                    mult_err_no = mult_err
+
+            ## mark the 2x and 3x thresholds
+            ax.axvline(
+                2.0, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW, zorder = 2
+            )
+            ax.axvline(
+                3.0, color = DASHED_GUIDE_COLOR, linestyle = "--", lw = DASHED_GUIDE_LW, zorder = 2
+            )
+
+            ## style axes and ticks
+            geom_ticks = [1, 2, 3, 4, 8, 16, 32]
+            _style_utilization_axis(ax)
+            ax.set_xscale("log", base = 2)
+            ax.set_xlim(1.0, 32.0)
+            ax.set_ylim(0.0, 1.0)
+            ax.set_yticks(np.linspace(0.0, 1.0, 11))
+            ax.yaxis.set_major_formatter("{x:.1f}")
+            ax.set_box_aspect(1.0)
+            ax.set_xticks(geom_ticks)
+            ax.set_xticklabels([f"{t}x" for t in geom_ticks], fontsize = 7.0)
+            ax.set_xlabel("Multiplicative Error", fontsize = 7.0)
+            ax.set_ylabel("Cumulative Proportion of Systems", fontsize = 7.0)
+            ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+            _style_utilization_legend(ax, loc = "lower right")
+            plt.tight_layout()
+
+            ## set a fixed gap between panels at export width
+            AB_GAP_MM = 18.5
+            fig4_gap_frac = AB_GAP_MM / TARGET_WIDTH_MM
+            fig_w4 = fig4.get_figwidth()
+
+            ## adjust panel spacing using the rendered export width
+            for _ in range(3):
+                fig4.canvas.draw()
+                pos_a4, pos_b4 = (axes4[0].get_position(), axes4[1].get_position())
+                gap_in = (pos_b4.x0 - pos_a4.x1) * fig_w4
+                export_w_in = fig4.get_tightbbox(fig4.canvas.get_renderer()).width + 0.2
+                shift_in = (fig4_gap_frac * export_w_in - gap_in) / (1.0 - fig4_gap_frac)
+                axes4[1].set_position(pos_b4.translated(shift_in / fig_w4, 0.0))
+
+            ## annotate system counts within each threshold
+            fig4.canvas.draw()
+            fig4_count_gap_pt = 1.5
+            fig4_count_fontsize = 6.0
+            renderer_4 = fig4.canvas.get_renderer()
+            px_per_pt = fig4.dpi / 72.0
+            ax_h_px = ax.get_window_extent(renderer_4).height
+            fig4_count_labels = [
+                (mult_err_cr, COL_CR, {2.0: 4.0, 3.0: 0.0}),
+                (mult_err_no, COL_NO, {2.0: 1.0, 3.0: 0.0}),
+            ]
+            for errs_k, col_k, drop_by_thr in fig4_count_labels:
+                for thr, drop_pt in drop_by_thr.items():
+                    n_thr = int(np.sum(errs_k <= thr))
+                    ann = ax.annotate(
+                        f"{n_thr} / {len(errs_k)} Systems",
+                        (thr, 0.5),
+                        xytext = (-fig4_count_gap_pt, 0.0),
+                        textcoords = "offset points",
+                        rotation = 90,
+                        ha = "right",
+                        va = "top",
+                        fontsize = fig4_count_fontsize,
+                        color = col_k,
+                        fontweight = "bold",
+                        zorder = 4,
+                    )
+                    ann._pub_fontsize = fig4_count_fontsize
+                    ann._pub_bold = True
+
+                    ## place each count just below the cdf curve
+                    x_left_px = ann.get_window_extent(renderer_4).x0 - 0.5 * px_per_pt
+                    x_left = ax.transData.inverted().transform((x_left_px, 0.0))[0]
+                    y_curve = np.sum(errs_k <= x_left) / len(errs_k)
+                    ann.xy = (
+                        thr,
+                        y_curve - (fig4_count_gap_pt + 0.5 + drop_pt) * px_per_pt / ax_h_px,
+                    )
+            return _render_utilization_figure(figure = fig4, index = index, output_dir = output_dir)
+
+
+## plot utilization ablations and temporal controls
+def plot_utilization_controls(
+    tables: dict[str, pd.DataFrame],
+    index: int | None = None,
+    output_dir: Path | None = None,
+    ) -> Image:
+        df_fig5 = tables["ablation"]
+        ABL_CONFIGS = UTIL_ABLATIONS
+
+        ## select primary temporal window results
+        temporal = tables["temporal_complete"]
+        temporal = temporal.loc[
+            (temporal["Resampling Regime"] == RESAMPLING_REGIMES[0])
+            & (temporal["Estimator"] == GLM_ESTIMATORS[-1])
         ]
-        _style_utilization_legend(ax, handles = legend_handles_s1_est, loc = "lower right")
-        plt.tight_layout()
+        TH_FRACS = sorted(
+            (
+                float(value.rstrip("%")) / 100.0
+                for value in temporal["Prior-Window Share"].unique()
+            )
+        )
 
-        ## set a fixed gap between panels at export width
-        AB_GAP_MM = 18.5
-        fig5_gap_frac = AB_GAP_MM / TARGET_WIDTH_MM
-        fig_w4 = fig5.get_figwidth()
+        ## index mae estimates and intervals by window and configuration
+        s1_mae = {
+            (float(row["Prior-Window Share"].rstrip("%")) / 100.0, row["Configuration"]): row[
+                "MAE"
+            ]
+            for _, row in temporal.iterrows()
+        }
+        s1_int = {
+            (float(row["Prior-Window Share"].rstrip("%")) / 100.0, row["Configuration"]): (
+                row["MAE_lo"],
+                row["MAE_hi"],
+            )
+            for _, row in temporal.iterrows()
+        }
 
-        ## adjust panel spacing using the rendered export width
-        for _ in range(3):
+        ## draw the figure within the publication style
+        with _utilization_style():
+            import re
+
+            ## create the figure
+            fig5, axes5 = plt.subplots(1, 2, figsize = (DOUBLE_COL_IN, 3.25))
+            fig5.patch.set_facecolor(BG_COLOR)
+
+            ## show ablation estimates with paired system-bootstrap intervals
+            ax = axes5[0]
+
+            ## assign ablation colors
+            ABL_COLORS = dict(
+                zip(
+                    ABL_CONFIGS,
+                    [
+                        COL_CR,
+                        "#0072B2",
+                        "#E69F00",
+                        "#CC79A7",
+                        COL_NO,
+                        "#009E73",
+                        "#56B4E9",
+                        "#6A6A6A",
+                    ],
+                )
+            )
+            fig5_color = lambda cfg: ABL_COLORS[cfg]
+
+            ## plot each configuration with its intervals
+            for _, row in df_fig5.iterrows():
+                col = fig5_color(row["Configuration"])
+                ax.errorbar(
+                    row["MAE"],
+                    row["CI"],
+                    xerr = [
+                        [row["MAE"] - row["MAE_lo"]],
+                        [row["MAE_hi"] - row["MAE"]],
+                    ],
+                    yerr = [[row["CI"] - row["CI_lo"]], [row["CI_hi"] - row["CI"]]],
+                    fmt = "o",
+                    color = col,
+                    ecolor = mpl.colors.to_rgba(col, 0.45),
+                    markersize = MARKER_D_PRIMARY,
+                    markeredgewidth = 0,
+                    elinewidth = 0.8,
+                    capsize = 0,
+                    zorder = 3,
+                )
+
+            ## style axes and ticks
+            _style_utilization_axis(ax)
+            ax.set_xlim(0.0, 4.1)
+            ax.set_xticks(np.arange(0.0, 4.1, 1.0))
+            ax.set_xticklabels([f"{t:.1f}" for t in np.arange(0.0, 4.1, 1.0)])
+            ax.set_ylim(0.5, 1.04)
+            ax.set_yticks(np.arange(0.5, 1.01, 0.1))
+            ax.spines["left"].set_bounds(0.5, 1.0)
+            ax.spines["bottom"].set_bounds(0.0, 4.0)
+            ax.set_box_aspect(1.0)
+            ax.set_xlabel("Mean Absolute Error (MAE)", fontsize = 7.0)
+            ax.set_ylabel("Consensus Index (CI)", fontsize = 7.0)
+            ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+
+            ## build legend handles ordered by consensus
+            fig5_label = lambda cfg: re.sub("(\\d+)\\.0x", "\\1x", cfg)
+            legend_handles_6_cfg = [
+                Line2D(
+                    [0],
+                    [0],
+                    color = fig5_color(cfg),
+                    marker = "o",
+                    markersize = np.sqrt(_utilization_marker_size("o")),
+                    markeredgewidth = 0.0,
+                    lw = 0.0,
+                    label = fig5_label(cfg),
+                )
+                for cfg in df_fig5.sort_values("CI", ascending = False)["Configuration"]
+            ]
+            _style_utilization_legend(ax, handles = legend_handles_6_cfg, loc = "lower left")
+
+            ## compare anchored and unanchored errors across temporal splits
+            ax = axes5[1]
+            s1_row = {f: i for i, f in enumerate(sorted(TH_FRACS))}
+
+            ## plot intervals and estimates for each window
+            for f in TH_FRACS:
+                x_cr, x_no = (
+                    s1_mae[f, "SCT Frontier Anchor"],
+                    s1_mae[f, "SCT Frontier Exclusion"],
+                )
+                for cfg, col in (
+                    ("SCT Frontier Anchor", COL_CR),
+                    ("SCT Frontier Exclusion", COL_NO),
+                ):
+                    tint = 0.45 * np.array(mpl.colors.to_rgb(col)) + 0.55
+                    ax.plot(
+                        s1_int[f, cfg],
+                        [s1_row[f]] * 2,
+                        color = tint,
+                        lw = 0.8,
+                        solid_capstyle = "butt",
+                        zorder = 2.5,
+                    )
+                ax.scatter(
+                    [x_no],
+                    [s1_row[f]],
+                    color = COL_NO,
+                    marker = "x",
+                    s = _utilization_marker_size("x", lw = 1.0),
+                    linewidths = 1.0,
+                    zorder = 3,
+                )
+                ax.scatter(
+                    [x_cr],
+                    [s1_row[f]],
+                    color = COL_CR,
+                    edgecolors = "none",
+                    marker = "o",
+                    s = _utilization_marker_size("o"),
+                    zorder = 4,
+                )
+
+            ## style axes and ticks
+            _style_utilization_axis(ax)
+            s1_xmax = float(
+                np.ceil((max((hi for _, hi in s1_int.values())) + 0.1) * 2.0) / 2.0
+            )
+            ax.set_xlim(0.0, s1_xmax)
+            ax.set_xticks(np.arange(0.0, s1_xmax + 0.01, 0.5))
+            ax.xaxis.set_major_formatter("{x:.1f}")
+            ax.set_ylim(-1.0, len(TH_FRACS) - 1 + 0.6)
+            ax.set_yticks([s1_row[f] for f in TH_FRACS])
+            ax.set_yticklabels([f"{f:.0%}" for f in TH_FRACS], fontsize = 7.0)
+            ax.set_box_aspect(1.0)
+            ax.set_xlabel("Mean Absolute Error (MAE)", fontsize = 7.0)
+            ax.set_ylabel("Prior-Window Proportion of Each Series", fontsize = 7.0)
+            ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
+
+            ## build legend handles
+            legend_handles_s1_est = [
+                Line2D(
+                    [0],
+                    [0],
+                    marker = "o",
+                    color = "w",
+                    markerfacecolor = COL_CR,
+                    markeredgecolor = "none",
+                    markersize = np.sqrt(_utilization_marker_size("o")),
+                    label = LBL_CR_SHORT,
+                ),
+                Line2D(
+                    [0],
+                    [0],
+                    marker = "x",
+                    color = "w",
+                    markeredgecolor = COL_NO,
+                    markeredgewidth = 1.0,
+                    markersize = np.sqrt(_utilization_marker_size("x", lw = 1.0)),
+                    label = LBL_NO_SHORT,
+                ),
+            ]
+            _style_utilization_legend(ax, handles = legend_handles_s1_est, loc = "lower right")
+            plt.tight_layout()
+
+            ## set a fixed gap between panels at export width
+            AB_GAP_MM = 18.5
+            fig5_gap_frac = AB_GAP_MM / TARGET_WIDTH_MM
+            fig_w4 = fig5.get_figwidth()
+
+            ## adjust panel spacing using the rendered export width
+            for _ in range(3):
+                fig5.canvas.draw()
+                pos_a4, pos_b4 = (axes5[0].get_position(), axes5[1].get_position())
+                gap_in = (pos_b4.x0 - pos_a4.x1) * fig_w4
+                export_w_in = fig5.get_tightbbox(fig5.canvas.get_renderer()).width + 0.2
+                shift_in = (fig5_gap_frac * export_w_in - gap_in) / (1.0 - fig5_gap_frac)
+                axes5[1].set_position(pos_b4.translated(shift_in / fig_w4, 0.0))
             fig5.canvas.draw()
-            pos_a4, pos_b4 = (axes5[0].get_position(), axes5[1].get_position())
-            gap_in = (pos_b4.x0 - pos_a4.x1) * fig_w4
-            export_w_in = fig5.get_tightbbox(fig5.canvas.get_renderer()).width + 0.2
-            shift_in = (fig5_gap_frac * export_w_in - gap_in) / (1.0 - fig5_gap_frac)
-            axes5[1].set_position(pos_b4.translated(shift_in / fig_w4, 0.0))
-        fig5.canvas.draw()
-        return _render_utilization_figure(figure = fig5)
+            return _render_utilization_figure(figure = fig5, index = index, output_dir = output_dir)
