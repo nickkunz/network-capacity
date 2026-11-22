@@ -2580,16 +2580,16 @@ def plot_utilization_frontier(
                     label = "SCT Frontier",
                 ),
                 Patch(
-                    facecolor = mpl.colors.to_rgba(COL_SLACK_UPPER, 0.85),
-                    edgecolor = TEXT_COLOR,
-                    linewidth = 0.5,
-                    label = "Utilization Slack",
-                ),
-                Patch(
                     facecolor = mpl.colors.to_rgba(COL_SLACK_LOWER, 0.72),
                     edgecolor = TEXT_COLOR,
                     linewidth = 0.5,
                     label = "EVT Statistic",
+                ),
+                Patch(
+                    facecolor = mpl.colors.to_rgba(COL_SLACK_UPPER, 0.85),
+                    edgecolor = TEXT_COLOR,
+                    linewidth = 0.5,
+                    label = "Utilization Slack",
                 ),
                 Patch(
                     facecolor = COL_OBSERVED,
