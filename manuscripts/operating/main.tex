@@ -1,0 +1,1527 @@
+%% init
+\pdfoutput=1
+\documentclass{article}
+
+%% libraries 
+\usepackage{array}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{nameref}
+\usepackage{enumitem}
+\usepackage{adjustbox}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{algcompatible}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{textcomp}
+\usepackage{subcaption}
+\usepackage{fontawesome5}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{lscape}
+%% \usepackage{svg} % unused; requires shell-escape, incompatible with arxiv autotex
+\usepackage[none]{hyphenat}
+
+\graphicspath{{figures/}}
+\captionsetup[figure]{font=small,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false}
+
+%% doc settings
+\hyphenchar\font=-1 % suppress hyphenation
+\setlength\parindent{0pt} % suppress indentation
+\setlength{\parskip}{0.75em} % separate paragraphs
+\usepackage[margin=1.2truein]{geometry} % set page margins
+\renewcommand{\tabularxcolumn}[1]{m{#1}} % left-justified
+\sloppy
+
+%% suppress section numbers
+\makeatletter
+\renewcommand{\@seccntformat}[1]{}
+\makeatother
+
+%% link viz
+\hypersetup{
+    colorlinks=true,
+    linkcolor=red,
+    urlcolor=red,
+    citecolor=red
+}
+
+%% figs
+\usetikzlibrary{
+    shapes,
+    arrows,
+    arrows.meta,
+    positioning,
+    backgrounds,
+    shapes.multipart,
+    calc
+}
+
+\tikzset{
+    block/.style={draw, fill=white, rectangle, minimum height=48pt, minimum width=48pt},
+    round/.style={draw, fill=white, circle},
+    sum/.style={draw, fill=white, circle, node distance=2cm},
+    input/.style={coordinate},
+    output/.style={coordinate},
+}
+
+\pgfplotsset{compat=newest}
+
+%% code colors 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinelanguage{python}{
+    % backgroundcolor=\color{backcolour},   
+    % commentstyle=\color{codegreen},
+    % keywordstyle=\color{blue},
+    % numberstyle=\tiny\color{codegray},
+    % stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    % breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    % keepspaces=true,                 
+    % numbers=left,                    
+    % numbersep=5pt,                  
+    % showspaces=false,                
+    % showstringspaces=false,
+    % showtabs=false,                  
+    tabsize=2
+}
+
+\lstdefinelanguage{json}{
+    basicstyle=\ttfamily\footnotesize,
+    showstringspaces=false,
+    keywordstyle=\color{blue},
+    stringstyle=\color{black},
+    string=[s]{"}{"}
+}
+
+\lstdefinestyle{sql}{
+    language=SQL,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue}\bfseries,
+    identifierstyle=\color{black},
+    stringstyle=\color{red},
+    commentstyle=\color{green},
+    morecomment=[l]{--},
+    morecomment=[s]{/*}{*/}
+}
+
+%% math ops
+\DeclareMathOperator*{\argmax}{argmax}
+
+%% algo comments
+\renewcommand{\algorithmiccomment}[1]{\texttt{//#1}}
+
+%% page nums
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{Pg. \thepage \space of \pageref*{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+
+%% begin doc
+\begin{document}
+\title{From Capacity Frontiers to Operating Rates\\in Complex Networks}
+\author{
+    Nicholas Kunz \href{https://orcid.org/0000-0002-3218-2131}{\includegraphics[scale=0.09]{orcid.pdf}}$^{\textbf{*}}$
+    \hspace{2mm}
+    H. Oliver Gao \href{https://orcid.org/0000-0002-7861-9634}{\includegraphics[scale=0.09]{orcid.pdf}}\\
+    {\small\textit{Corresponding Author}$^{\textbf{*}}$}\\~\\
+    Systems Engineering, Cornell University\\
+}
+\date{\today}
+\maketitle
+\thispagestyle{fancy}
+
+%% abstract
+\begin{abstract}
+\noindent
+    From metabolism to messaging, traffic to trade, complex networks typically operate well below their empirical limit. Estimating an operating rate traditionally requires domain-specific knowledge. We demonstrate that a wide range of complex networks share a regular separation between capacity and typical activity. We formalize this regularity by proposing Structural Capacity Theory Frontier Anchored Rates (SCT-FAR), an estimator built on Structural Capacity Theory (SCT). The capacity frontier, an empirical upper bound on the maximum rate, is lowered log-additively by Extreme Value Theory (EVT) calibration and learned utilization. Across operating rates that span nearly 6 orders of magnitude, overdispersed estimators trained on one set of domains place every expected operating rate in entirely different domains within a factor of 3. Frontier anchoring removes most of the variation that an estimator must explain before it is trained. Prediction quality is equivalent across resampling regimes, yet degrades when the frontier is removed, replaced, or reassigned across systems. These findings support the capacity frontier as a generalizable reference point that describes how network capacity informs typical activity across otherwise unrelated systems.
+\end{abstract}
+
+%% classifications and keywords
+\begin{quotation}
+\noindent\small
+\textbf{Keywords:} universality, network science, capacity utilization, operating rates
+\end{quotation}
+\vspace{8pt}
+
+%% significance statement
+\begingroup
+\renewcommand{\abstractname}{Significance}
+\begin{abstract}
+\noindent
+    Networked systems rarely operate at their limits. Seismic detection systems, pollination networks, and online platforms all exhibit typical activity well below their peaks. That distance is usually measured one field at a time. Consequently, activity from one system often reveals little about another. Here, we demonstrate that when a network's capacity is estimated from its structure and dynamics, typical activity across a wide range of disciplines sits at a regular distance beneath it. This regularity allows researchers and practitioners to use cross-disciplinary evidence to estimate expected operating rates of complex networks.
+\end{abstract}
+\endgroup
+\clearpage
+
+%% untitled intro
+\vspace{1em}
+\phantomsection
+\label{sec:intro}
+Expected operating rates are fundamental features of complex networks. Understanding them is important because how close a network typically operates to its limit governs its throughput, delay, and exposure to cascading failure \citep{ref35,ref183,ref152,ref150,ref158,ref161}. For example, a biological network sustains metabolic or firing rates far below the peaks it can briefly reach \citep{ref155,ref156,ref157,ref163,ref175,ref164}. A communication or infrastructure network carries only a small share of the traffic it can bear as bursty demand fluctuates over time \citep{ref153,ref154,ref113,ref110,ref165,ref10,ref160,ref159}. Although it is known that typical activity sits below capacity, understanding \textit{how far} traditionally requires domain-specific knowledge \citep{ref151,ref135,ref162,ref79}. Whether or not the separation between capacity and typical activity has a common regularity across domains is still an open question \citep{ref13,ref14,ref15,ref122}. Addressing it requires a shared reference point.
+
+In the previous examples, network capacity formed the ceiling beneath which a dynamical process operated \citep{ref06,ref15,ref35,ref122}. Network organization and temporal fluctuations shape metabolic scaling \citep{ref124,ref17,ref126,ref125}, urban activity \citep{ref18,ref121}, fluctuation scaling \citep{ref13,ref14,ref127}, traffic and mobility \citep{ref01,ref133,ref171,ref128,ref24,ref166,ref35}, and system response and resilience \citep{ref15,ref16,ref129,ref130}. Scaling and dynamical laws model typical activity directly, but only hold within a narrow class of systems or when the governing dynamics are specified \citep{ref06,ref134,ref132,ref131}. Conversely, frontier analysis separates an attainable limit from realized activity without modeling mechanism \citep{ref103,ref19,ref20,ref21,ref169}, yet compares producers that share a technology \citep{ref170,ref23}. Across unrelated systems, expected operating rates reflect an attainable limit and the structural and dynamical characteristics by which it is utilized.
+
+We propose Structural Capacity Theory Frontier Anchored Rates (SCT-FAR) as a rate estimator with which this relationship can be evaluated. SCT-FAR builds on Structural Capacity Theory (SCT), where a Network Substrate Structured System (N3S) couples a fixed network substrate, an observable dynamical process, and a measurable maximum rate constrained by a common capacity frontier \citep{ref122}. We extend the estimation task from the maximum rate to the expected operating rate $\bar{r} = M/L$, where $M$ is the total event count across $L$ observed intervals (Eq.~\eqref{eq:expected}). SCT-FAR proposes that expected operating rates from any N3S are comparable when measured from the capacity frontier. From there, variation in the remaining distance is small relative to the scale of the rates.
+
+We estimate the expected operating rate as a log-additive distance beneath the capacity frontier \citep{ref19,ref21,ref23}. Extreme Value Theory (EVT) relates a maximum to the dispersion and number of observations beneath it \citep{ref136,ref137,ref58,ref179,ref123}, while Generalized Linear Models (GLMs) for count data learn the remaining utilization \citep{ref138,ref177,ref178}. The system's network substrate $G$ and dynamical process $S$ supply the frontier estimate $\widehat{y}^*$, the EVT statistic $e$, and 6 standardized utilization coordinates $u'$. The estimator $\ln \widehat{r} = \min\{\widehat{y}^* - e + g(u'),\, \widehat{y}^*\}$ (Eq.~\eqref{eq:far}) adjusts the frontier by the learned utilization beneath capacity to estimate the log-transformed expected operating rate $y = \ln(1 + \bar{r})$ (Eq.~\eqref{eq:expected}). The formulation is strictly empirical. It shifts the task from estimating the full scale of a rate to estimating a correction relative to capacity and carries no claim of measuring inefficiency.
+
+We evaluate whether this formulation supports an accurate, transferable, contracting, decomposable, system-specific, and persistent estimate of expected operating rates. We found that frontier anchoring outperformed unanchored estimation, and overdispersed estimators placed all 25 systems from withheld domains within a factor of 3 of their observed rates, with equivalent performance across Leave-One-Group-Out Cross-Validation (LOGO-CV) and repeated $k$-Fold Cross-Validation ($k$-Fold-CV). Anchoring to the frontier removed most of the variation in the estimation target before any estimator was trained. Component ablations showed that the frontier supplied the scale of typical activity, while EVT calibration and learned utilization refined the estimate. By contrast, 3 substitution procedures that deliberately replaced the decomposition, the frontier, or the correspondence between systems and their frontiers degraded prediction quality. Finally, the advantage over unanchored estimation persisted when process measurements preceded the rates they estimated, although carrying each system's own earlier rate forward was more accurate.
+\clearpage
+
+%% results
+\section*{Results}
+\phantomsection
+\label{sec:results}
+
+\subsection*{Accuracy Across Scales}
+\label{sub-sec:accuracy}
+When entire domains were withheld from training, Negative Binomial and Poisson--Tweedie fits of SCT-FAR each estimated all 25 operating rates within a factor of 3 (Fig.~\ref{fig:agreement}). The 5 broad domains were Earth \& Physical Sciences, Life Sciences \& Medicine, Technology \& Information, Trade \& Institutions, and Transportation \& Infrastructure. Each contained 5 individual disciplines. Expected operating rates ranged from 0.89 to 649,636.89 observations per day, spanning nearly 6 orders of magnitude, and equaled 6\% to 83\% of their corresponding maximum rates (\textit{SI Appendix}, Table~\ref{tab:si-rates}). Under domain-level LOGO-CV, SCT-FAR was trained on 4 domains and evaluated on the 5 disciplines in the withheld domain (\nameref{sec:resampling}). Unanchored estimation used the same GLM and the same 6 utilization coordinates without the frontier (\nameref{sec:far}). Error was measured using the Mean Absolute Error (MAE) of log-transformed rates and the Geometric Mean Multiplicative Error (GMME) on the original rate scale, where a factor of 1 indicated exact agreement (\nameref{sec:performance-metrics},~Eq.~\eqref{eq:gmme}). Under Negative Binomial estimation, anchoring reduced MAE from 1.45 to 0.32 and GMME from 4.71 to 1.47. The number of systems within a factor of 2 increased from 11 to 19 of 25, and within a factor of 3 from 14 to 25 of 25 (Fig.~\ref{fig:agreement}b). Three unanchored estimates erred by more than a factor of 32, including a 33.64-fold underestimate of activity on Wikipedia mathematics pages, the highest rate in the corpus. The largest unanchored error was a 337.19-fold overestimate of the adverse event reporting rate. With SCT-FAR, the corresponding errors were factors of 1.48 and 1.72, and the largest error across all 25 systems was a factor of 2.70 (\textit{SI Appendix}, Table~\ref{tab:si-estimates}). Frontier anchoring therefore bounded multiplicative error across widely separated scales.
+
+Frontier anchoring improved accuracy and consensus across all 3 GLM families (\textit{SI Appendix}, Table~\ref{tab:si-quality}). Under Poisson--Tweedie estimation, MAE decreased from 1.46 to 0.32. Both overdispersed families yielded Root Mean Squared Error (RMSE) of 0.38 and GMME of 1.47. Poisson estimation was less accurate, with MAE decreasing from 3.26 to 0.80 and 20 of 25 systems within a factor of 3 (Fig.~\ref{fig:quality}c). Estimation-observation consensus was measured using the Consensus Index (CI) --- the bounded $[0, 1]$ geometric mean of global rank agreement, high-capacity overlap, and non-linear dependence (\nameref{sec:performance-metrics},~Eq.~\eqref{eq:ci}). CI increased from 0.85 to 0.98, from 0.82 to 0.98, and from 0.60 to 0.97 for Negative Binomial, Poisson--Tweedie, and Poisson estimation, respectively (Fig.~\ref{fig:quality}a, Fig.~\ref{fig:quality}b). Each withheld discipline supplied its own graph invariants, process signatures, and series length. Its expected and maximum rates were withheld from training. Under these conditions, frontier anchoring reduced MAE by 75\% to 78\% across the 3 GLM families. The benefit therefore did not depend on the GLM family.
+
+%% fig 1
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fig1.pdf}
+\caption{
+    \textbf{Estimation-observation agreement and multiplicative error.} Out-of-sample Negative Binomial estimation under domain-level LOGO-CV across 25 systems. \textbf{a}. Estimated versus observed log-rates using SCT-FAR (SCT Frontier Anchor, green circles) and unanchored estimation (SCT Frontier Exclusion, red crosses) relative to parity (diagonal gray dashed line). Green and yellow shading mark twofold and threefold multiplicative error, defined on the original rate scale. \textbf{b}. Empirical cumulative distributions of multiplicative error using SCT-FAR (green solid trace) and unanchored estimation (red dashed trace). Vertical dashed lines and shading mark twofold (green) and threefold (yellow) error, and annotations report the number of systems within each threshold.
+}
+\label{fig:agreement}
+\end{figure}
+
+\subsection*{Transfer Across Domains}
+\label{sub-sec:transfer}
+SCT-FAR retained its accuracy across withheld domains and disciplines (\textit{SI Appendix}, Table~\ref{tab:si-quality}). Withholding a single discipline tested generalization at a higher resolution than withholding a broad domain. Under discipline-level LOGO-CV, SCT-FAR was trained on 24 of the 25 disciplines and evaluated on the one that was withheld, effectively Leave-One-Out Cross-Validation (LOO-CV). Under $5$-Fold-CV and $10$-Fold-CV, systems were withheld at random irrespective of their domain. Across the 4 resampling regimes, Negative Binomial MAE ranged from 0.26 to 0.35 using SCT-FAR, compared with 1.44 to 1.56 under unanchored estimation. GMME ranged from 1.39 to 1.51, compared with 4.70 to 5.29. Estimation-observation consensus was 0.98 in all 4 regimes, compared with 0.80 to 0.87. Poisson--Tweedie estimation placed all 25 systems within a factor of 3 in all 4 regimes, and Negative Binomial estimation did so in 3 of the 4. Withholding an entire domain therefore cost little accuracy relative to withholding a single discipline.
+
+SCT-FAR achieved equivalent prediction quality across resampling regimes (\textit{SI Appendix}, Table~\ref{tab:si-transfer-equivalence}). Random $k$-Fold-CV was repeated 30 times to reduce dependence on any single seeded fold, and metrics were averaged across repetitions. Paired differences were computed by subtracting domain-level LOGO-CV results from those of each comparative regime across the 3 GLM families within the 5 broad domains (Fig.~\ref{fig:quality}d). Median paired differences in MAE were $-0.08$ for discipline-level LOGO-CV, $-0.05$ for repeated $5$-Fold-CV, and $-0.03$ for repeated $10$-Fold-CV. Negative values indicated lower error than under domain-level LOGO-CV. Median paired differences in estimation-observation consensus were 0.00 for all 3 comparisons. Paired Wilcoxon Two One-Sided Tests (TOST) across 15 family-by-domain comparisons supported equivalence (\nameref{sec:inference}) within the empirically derived margins ($\delta_{\mathrm{MAE}} = 0.25$ and $\delta_{\mathrm{CI}} = 0.01$, all Holm-adjusted $p \leq 0.011$). RMSE and GMME were likewise equivalent within their margins (all Holm-adjusted $p < 0.001$). Thus, the differences among resampling regimes were small relative to the variation across GLM families.
+
+%% fig 2
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fig2.pdf}
+\caption{
+    \textbf{Prediction quality of frontier-anchored operating rates.} 3 GLM families estimate expected operating rates for 25 systems in 5 broad domains using SCT-FAR (SCT Frontier Anchor, green) and unanchored estimation (SCT Frontier Exclusion, red). \textbf{a}. Estimation-observation consensus (CI) by Mean Absolute Error (MAE) under domain-level LOGO-CV. Marker shapes identify Poisson (circle), Poisson--Tweedie (triangle), and Negative Binomial (square) estimation. Shaded rectangles span coordinate-wise ranges across families for each estimation regime (dashed outlines) with labeled (Min, Max) and (Max, Min) corners, and the arrow connects unanchored to SCT-FAR Negative Binomial estimation. \textbf{b}. CI by GLM family under domain-level LOGO-CV. \textbf{c}. MAE by GLM family under domain-level LOGO-CV. \textbf{d}. Paired differences in absolute log-rate error between repeated $k$-Fold-CV, averaged over 30 repetitions, and domain-level LOGO-CV using SCT-FAR. Markers with vertical intervals exhibit discipline medians and interquartile ranges across 3 families and 2 random resampling regimes (domain-color intervals), dashed horizontal lines exhibit domain medians (domain-color dashed lines), and the horizontal shading is the equivalence margin ($\pm\delta_{\mathrm{MAE}}$, green shaded band). Annotations report (\textbf{b}) family CI, (\textbf{c}) family MAE, and (\textbf{d}) domain $\Delta\mathrm{MAE}$.
+}
+\label{fig:quality}
+\end{figure}
+
+\subsection*{Contraction Under Anchoring}
+\label{sub-sec:contraction}
+Frontier anchoring contracted the target before utilization was learned (Fig.~\ref{fig:decomposition}, Fig.~\ref{fig:attribution}a). Unanchored estimation targeted the observed log-rate $y = \ln(1 + \bar{r})$ (Eq.~\eqref{eq:expected}). SCT-FAR targeted the utilization slack $y_U = \widehat{y}^* - e - y$, the distance from the observed log-rate to the frontier after EVT calibration (Eq.~\eqref{eq:slack}). The frontier estimates were out-of-sample, and the target comparison was common to all 3 GLM families. Under domain-level LOGO-CV, the Interquartile Range (IQR) decreased from 4.46 log units for the observed rates to 0.92 for the utilization slack, a contraction of 79\%. Variance decreased from 11.11 to 1.67, a contraction of 85\%. Across the 4 resampling regimes, IQR contraction ranged from 75\% to 91\% and variance contraction from 81\% to 90\% (\textit{SI Appendix}, Table~\ref{tab:si-contraction}). The median utilization slack was 8.11 log units, with a range of 4.01 to 9.11 (\textit{SI Appendix}, Table~\ref{tab:si-estimates}). Although the calibrated frontier lay far above typical activity, its distance from the observed rates varied much less than the log-rates themselves.
+
+Anchoring also reduced the fitted association with edge count (Fig.~\ref{fig:attribution}b). Under Negative Binomial domain-level LOGO-CV, the mean signed coefficient for the number of edges fell from 1.37 to 0.04. Its mean absolute value fell from 1.37 to 0.08, a reduction of 94\% (\textit{SI Appendix}, Table~\ref{tab:si-coefficients}). Mean absolute coefficients decreased by 74\% to 94\% for the 3 graph invariants and by 58\% to 81\% for the 3 process signatures. They decreased in 71 of the 72 combinations of coordinate, GLM family, and resampling regime. Under domain-level LOGO-CV, the coefficient of variation and normalized successive difference had mean coefficients of $-0.37$ and $-0.22$ for Negative Binomial estimation and $-0.38$ and $-0.22$ for Poisson--Tweedie estimation. These 2 measures of temporal variability had the largest remaining coefficients by magnitude in both overdispersed families. Dispersion and coefficient changes were evaluated descriptively. Nevertheless, the frontier absorbed most of the fitted association with network size, leaving mainly temporal variability among the utilization coordinates.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fig3.pdf}
+\caption{
+    \textbf{Decomposition of the slack.} Out-of-sample Negative Binomial estimation under domain-level LOGO-CV across 25 systems, labeled by discipline and ordered by the estimated capacity frontier. Stacked bars exhibit the observed log-rate $y$ (black segment, bottom), the EVT statistic $e$ (light gray segment), the utilization slack $y_U$ (dark gray segment), and the SCT frontier estimate $\widehat{y}^*$ (blue segment, top). Markers exhibit estimated log-rates using SCT-FAR (SCT Frontier Anchor, green circles) and unanchored estimation (SCT Frontier Exclusion, red crosses). The expected operating rate $\bar{r} = M/L$ is the total count divided by the number of observed intervals. The SCT frontier is estimated from all 21 graph invariants and 7 process signatures, while the operating-rate estimators use 3 graph invariants and 3 process signatures, excluding the Fano factor.
+}
+\label{fig:decomposition}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fig4.pdf}
+\caption{
+    \textbf{Target dispersion and feature attribution.} Out-of-sample Negative Binomial estimation under domain-level LOGO-CV across 25 systems. \textbf{a}. Median-centered dispersion of the observed log-rate $y$ targeted by unanchored estimation (SCT Frontier Exclusion, red, bottom) and the utilization slack $y_U$ targeted by SCT-FAR (SCT Frontier Anchor, green, top), where slack is the out-of-sample SCT frontier estimate minus the EVT statistic and observed log-rate. Shaded curves exhibit Gaussian kernel densities (bandwidth factor 0.38) scaled independently to unit peak. Boxes exhibit medians and IQRs, whiskers span the 10th to 90th percentiles, and points exhibit systems beyond the whiskers. Dashed gray lines connect corresponding quartiles, and the annotation reports IQR contraction. \textbf{b}. Standardized log-rate coefficients for 3 process signatures (Dynamical, pink region) and 3 graph invariants (Structural, blue region) using SCT-FAR (green bars) and unanchored estimation (red bars). Coefficients are equally weighted outer-fold means and describe fitted associations. Random Walk Triangle Weight denotes the random walk 3rd moment, and parenthetical labels index coordinates in the order of the source code repository.
+}
+\label{fig:attribution}
+\end{figure}
+
+\subsection*{Decomposition Under Ablation}
+\label{sub-sec:conversion}
+A single fitted shift of the capacity frontier outperformed unanchored estimation (Fig.~\ref{fig:ablation}a). The 3 component ablations removed the EVT statistic, replaced the 6 utilization coordinates with a constant fit on the training set, or both (\nameref{sec:ablation}). Under Negative Binomial domain-level LOGO-CV, the shifted frontier yielded MAE of 1.07 and consensus of 0.94, compared with 1.45 and 0.85 for unanchored estimation using all 6 coordinates. Restoring the EVT statistic alone reduced MAE to 0.60 and placed 21 of 25 systems within a factor of 3. Restoring the utilization coordinates alone reduced MAE to 0.39. With both components restored, MAE was 0.32 and consensus was 0.98. In all 12 combinations of GLM family and resampling regime, the shifted frontier had lower MAE than unanchored estimation, and SCT-FAR had the lowest MAE of the tested formulations (\textit{SI Appendix}, Tables~\ref{tab:si-ablation}--\ref{tab:si-ablation-complete}). Under Negative Binomial domain-level LOGO-CV, removing the EVT statistic, the utilization coordinates, or both increased MAE by 0.08, 0.28, and 0.76, respectively, with all paired bootstrap 95\% intervals above 0. Paired One-Sided Wilcoxon Signed-Rank Tests across 15 family-by-domain comparisons supported higher MAE, RMSE, and GMME for all 3 ablations (all Holm-adjusted $p < 0.001$; \textit{SI Appendix}, Table~\ref{tab:si-superiority}). For consensus, the tests supported a decline only after removal of the EVT statistic alone (Holm-adjusted $p < 0.001$ for EVT exclusion and $p = 0.330$ for the shifted frontier). Under Negative Binomial $5$-Fold-CV, removing the EVT statistic reduced RMSE from 0.44 to 0.41 and increased MAE by less than 0.01. Thus, a common shift of each system's frontier retained much of the agreement across disciplines, while EVT calibration and learned utilization reduced operating-rate error.
+
+\subsection*{Degradation Under Substitution}
+\label{sub-sec:substitution}
+SCT-FAR outperformed direct estimation from the same graph and process measurements (Fig.~\ref{fig:ablation}a). Feature match offset used the same 21 graph invariants and 7 process signatures to estimate the expected operating rate directly (\nameref{sec:ablation}). Both stages of the offset were fit at the median. The EVT statistic entered as a utilization coordinate, and the resulting estimates were uncapped. Under Negative Binomial domain-level LOGO-CV, MAE was 0.32 using SCT-FAR, 1.42 using feature match offset, and 1.45 under unanchored estimation (\textit{SI Appendix}, Table~\ref{tab:si-ablation}). The corresponding GMME values were 1.47, 4.61, and 4.71, and estimation-observation consensus was 0.98, 0.83, and 0.85, respectively. SCT-FAR had lower MAE, RMSE, and GMME and higher consensus than feature match offset in all 12 combinations of family and resampling regime (\textit{SI Appendix}, Table~\ref{tab:si-ablation-complete}). The comparison held the input measurements fixed while testing the complete frontier-anchored formulation. SCT-FAR's advantage over feature match offset therefore came from anchoring to the frontier rather than from the inputs.
+
+Prediction quality also depended on which frontier was assigned to each system (Fig.~\ref{fig:ablation}a). Arbitrary ceiling replaced the system-specific frontiers with a common constant above all training maxima. Under frontier remap, SCT-FAR was refit for 30 reassignments in which each system received another system's frontier. Under Negative Binomial domain-level LOGO-CV, MAE was 1.38 for arbitrary ceiling and 2.95 for frontier remap. Consensus fell to 0.88 and 0.61, respectively, and GMME rose to 4.38 and 26.92. Reassigning the frontiers produced higher MAE than omitting them in 11 of the 12 combinations of GLM family and resampling regime (\textit{SI Appendix}, Table~\ref{tab:si-ablation-complete}). The exception was Poisson domain-level LOGO-CV, where MAE was 3.18 with reassignment and 3.26 with the frontier omitted. Under domain-level LOGO-CV, paired superiority tests favored SCT-FAR over all 3 substitutions in all 4 metrics (all Holm-adjusted $p < 0.001$; \textit{SI Appendix}, Table~\ref{tab:si-superiority}). Using the systems' own frontiers yielded lower error and higher consensus than either substitute across all 3 families and 4 resampling regimes (\textit{SI Appendix}, Table~\ref{tab:si-ablation-complete}). Arbitrary ceiling and frontier remap therefore served as negative controls that indicated the estimates depended on each system's own frontier.
+
+\subsection*{Persistence Under Temporal Separation}
+\label{sub-sec:temporal}
+Frontier anchoring retained its advantage when process measurements preceded the target window (Fig.~\ref{fig:ablation}b). Each rate series was divided chronologically at 25\%, 50\%, or 75\% of its intervals. The earlier window supplied the process signatures, EVT statistic, and frontier training maxima, while the later window supplied the expected operating rate (\nameref{sec:temporal}). Graph invariants spanned both windows. At the 50\% division under domain-level LOGO-CV, Negative Binomial MAE was 0.58 using SCT-FAR, compared with 0.32 in the full series and 1.51 under unanchored estimation in the divided series. Anchoring reduced GMME from 5.01 to 1.89, increased consensus from 0.81 to 0.95, and raised the number of systems within a factor of 3 from 11 to 21 of 25. At this division and resampling regime, paired bootstrap 95\% intervals excluded 0 for the differences in all 4 metrics in all 3 families. Paired superiority tests favored SCT-FAR over unanchored estimation (unadjusted $p < 0.001$ for MAE, RMSE, and GMME and $p = 0.009$ for consensus; \textit{SI Appendix}, Table~\ref{tab:si-temporal-tests}). SCT-FAR outperformed unanchored estimation in all 4 metrics across all 36 combinations of temporal division, GLM family, and resampling regime. After adjustment across the 12 division-by-regime comparisons, superiority was supported in all 12 for MAE, RMSE, and GMME (all Holm-adjusted $p \leq 0.002$) and in none for consensus (\textit{SI Appendix}, Table~\ref{tab:si-support}). Refitting SCT-FAR without the frontier cap changed 0 of the 25 estimates in each of the 36 settings (\textit{SI Appendix}, Table~\ref{tab:si-temporal}). The advantage over unanchored estimation therefore persisted when process inputs and target rates came from disjoint windows.
+
+Under domain-level LOGO-CV, the overdispersed estimators approached the accuracy of each system's earlier mean. At the 50\% division, carrying that mean forward yielded MAE of 0.47, RMSE of 0.78, GMME of 1.69, and consensus of 0.96 (\textit{SI Appendix}, Table~\ref{tab:si-temporal-tests}). Negative Binomial and Poisson--Tweedie MAE fell from 1.51 and 1.52 under unanchored estimation to 0.58 and 0.55 using SCT-FAR, respectively. SCT-FAR closed approximately 90\% of the MAE difference between unanchored estimation and the earlier mean in both overdispersed families. The estimators used each withheld system's earlier process signatures and EVT statistic, while the reference used its earlier mean rate directly. Carrying that mean forward yielded the lowest error in this descriptive comparison. Nevertheless, frontier anchoring recovered most of the accuracy otherwise available from a system's own earlier rate.
+
+%% fig 5
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{fig5.pdf}
+\caption{
+    \textbf{Component ablation, substitution, and temporal separation.} Negative Binomial estimation under domain-level LOGO-CV across 25 systems. \textbf{a}. Estimation-observation consensus (CI) by Mean Absolute Error (MAE) for SCT-FAR (SCT Frontier Anchor) and 7 alternative formulations: removing the EVT statistic (EVT Statistic Exclusion), replacing utilization coordinates with a fitted constant (Utilization Features Exclusion), removing both (SCT Frontier Anchor Only), removing the frontier (SCT Frontier Exclusion), substituting an arbitrary ceiling at 3 times the maximum training log-maximum within each outer and inner fold (Arbitrary Ceiling), estimating rates directly at the median from the same 28 SCT inputs with the EVT statistic as a coordinate and no cap (SCT Feature Match Offset), and reassigning frontier estimates across systems over 30 derangements (SCT Frontier Remap). \textbf{b}. MAE when process signatures, EVT statistics, and frontier training maxima are computed from the first 25\%, 50\%, or 75\% of each chronologically ordered series and expected operating rates from the remaining intervals, using SCT-FAR (green circles) and unanchored estimation (red crosses). Graph invariants span both windows. In \textbf{a} and \textbf{b}, markers exhibit point estimates and lines exhibit 95\% paired system-bootstrap percentile intervals with fitted estimators held fixed.
+}
+\label{fig:ablation}
+\end{figure}
+
+%% discussion
+\section*{Discussion}
+\label{sec:discussion}
+
+Estimating operating rates with capacity frontier anchoring outperforms modeling them directly. SCT-FAR improved prediction quality relative to unanchored estimation while also outperforming a direct feature-matched estimator. The feature-matched estimator used the same graph invariant and process signature inputs, but treated the EVT statistic as a utilization coordinate and omitted the frontier. Estimating operating rates beneath the frontier was far more accurate than modeling them directly given identical inputs at inference time. The distance between capacity and typical activity is more uniform across heterogeneous networks than the typical activity itself.
+
+The capacity frontier anchors operating rates across disciplinary boundaries. When domains were withheld from training, overdispersed estimators placed all 25 systems within a factor of 3 of the observed rates across nearly 6 orders of magnitude. Prediction quality under domain-level LOGO-CV was equivalent to discipline-level LOGO-CV and repeated $k$-Fold-CV within the empirically derived margins. Relationships learned in unrelated domains were useful despite wide differences in substance, scale, and dynamics. Operating-rate estimation can therefore use empirical evidence beyond a system's own substantive boundary without a domain-specific model of the underlying dynamics.
+
+Operating rates are tethered to the capacity frontier. Although the frontier lay far above the observed operating rates, it absorbed the majority of the target variability before utilization was learned, which indicates that the frontier does not need to be tight to be informative. Even without the utilization component or the EVT statistic, shifting each system's frontier by a shared constant outperformed unanchored estimation. By contrast, reassigning frontiers across systems was broadly less accurate than omitting the frontier altogether, even after retraining. The frontier sets the scale of typical activity, while EVT calibration and utilization absorb the remaining slack.
+
+Capacity frontier anchoring is informative across time. SCT-FAR consistently outperformed unanchored estimation when prior process measurements were used to predict later operating rates across all 3 temporal divisions, all 3 GLM families, and all 4 resampling regimes. SCT-FAR is not yet a forecasting technique. However, estimates learned from other domains approached the accuracy of carrying each system's prior operating rate forward. The frontier captures much of the scale otherwise absorbed from a system's own history. All findings were conditioned on the 25 tested systems, their representations, the slack decomposition, and the daily temporal aggregation. Broader corpora, different system representations, more diverse GLM families, different time horizons, and alternative temporal scales all provide direct tests of SCT-FAR.
+
+%% methods
+\section*{Materials and Methods}
+\label{sec:methods}
+
+\subsection*{N3S Definition}
+Within SCT, an N3S contains a fixed network substrate $G$, an observable dynamical process $S$, and a measurable maximum rate $r_{\max}$ \citep{ref122}. The network substrate contains finite elements with relational or attribution structure. The dynamical process is a time-indexed sequence of observed events or reconstructed events from published schedules. Each event is attributable or relates to one or more elements of the network substrate. A given measurement convention converts the sequence into a rate series. Membership requires records for all 3 components. Any rate series with a measurable maximum rate also has a measurable expected operating rate across the same observation window. Membership and operational recastings are identical to the companion study and fixed across all reported evaluations (\textit{SI Appendix}, Table~\ref{tab:si-corpus}).
+
+\subsection*{Data and Corpus Composition}
+The corpus contained 25 systems across 5 broad domains: Earth \& Physical Sciences, Life Sciences \& Medicine, Technology \& Information, Trade \& Institutions, and Transportation \& Infrastructure. Each of the 5 broad domains contained 5 individual disciplines (\textit{SI Appendix}, Table~\ref{tab:si-corpus} and \hyperref[sec:si-note-processing]{Note~S1}). Network substrates ranged from 5 to 10,356,390 nodes and from 10 to 7,220,486,175 edges. Rate series contained 18 to 6,296 intervals and 39 to 474,884,565 total observations. Expected operating rates ranged from 0.89 to 649,636.89 observations per day and maximum rates from 3 to 1,323,743 observations per day (\textit{SI Appendix}, Table~\ref{tab:si-rates}). The ratio of expected to maximum rate ranged from 6.31\% to 83.45\%. Measurements shared no units prior to encoding. Each system contributed exactly one record containing its graph invariants $x$, process signatures $z$, series length $L$, total count $M$, and maximum rate $r_{\max}$.
+
+\subsection*{Network Substrate Construction}
+Network substrates were represented as static, unweighted, and undirected graphs. They were strictly held fixed across their observation windows. Nodes represented units. Edges represented native connections between nodes or constructed associations. Directed and weighted edges were converted to undirected and unweighted edges. Multi-edges and self-loops were removed. Isolated nodes were retained. Each network substrate was formally defined as a simple graph $G$:
+\begin{equation}
+    G \;=\; (V, E),
+    \qquad
+    E \subseteq \binom{V}{2}
+\label{eq:graph}
+\end{equation}
+where $V$ and $E$ denote the node and edge sets, respectively. Interaction logs formed unions of observed pairs or complete bipartite graphs over documented entity types. There were 4 network substrates (college, email, mooc, overflow) defined as complete bipartite graphs $K_{m,n}$ by sizes $m$ and $n$. Each $G$ served as the fixed network substrate to which observations of the system's dynamical process were attributed.
+
+\subsection*{Dynamical Process Construction}
+Dynamical processes were constructed from empirical observations. For continuous records, measurements were discretized using system-specific thresholds (\textit{SI Appendix}, Table~\ref{tab:si-corpus}). Event counts were aggregated into uniform daily intervals using UTC timestamps or consecutive 24-hour periods. Note the exception of 1 system (celegans) where developmental transitions were reconstructed from published timings using a 30-day dauer duration. Each dynamical process was formally defined as a chronologically ordered discrete daily rate series $S$:
+\begin{equation}
+    S \;=\; \left\{ r_{t} \right\}_{t \in T},
+    \qquad
+    r_{t} \;=\; \frac{n_{t}}{\Delta t},
+    \qquad
+    \Delta t \;=\; 1\ \mathrm{day}\ (24\ \mathrm{hours})
+    \label{eq:series}
+\end{equation}
+
+where $n_{t}$ is the event count in interval $t$ and $T$ is the chronologically ordered set of intervals. The number of included intervals was $L = \lvert T \rvert$. Source conventions determined interval inclusion. For 19 systems, $T$ contained only days with at least one recorded event. There were 5 systems that supplied regular snapshots aggregated into consecutive daily intervals, including zero-event days (metrla, pemsbay, montevideo, windmill, and wiki) and 1 system (chickenpox) that computed a daily-average rate at each weekly report date. Each $S$ served as the realization of the system's dynamical process across its observation window.
+
+\subsection*{Expected and Maximum Rate Targets}
+The estimation target for each system was the log-transformed expected operating rate across its observation window. The frontier target was the log-transformed maximum rate realized across the same window, as in the companion study. The log-transformation compressed the range of rates. For each rate series $S$ on interval set $T$ (Eq.~\eqref{eq:series}), the expected operating rate $\bar{r}$ and log-transformed expected rate target $y$ are formally defined as:
+\begin{equation}
+    y \;=\; \ln\!\left(1 + \bar{r}\right),
+    \qquad
+    \bar{r} \;=\; \frac{M}{L} \;=\; \frac{1}{L}\sum_{t \in T} r_t,
+    \qquad
+    M \;=\; \sum_{t \in T} n_t
+\label{eq:expected}
+\end{equation}
+The maximum rate $r_{\max}$ and log-transformed maximum rate target $y^*$ are formally defined as:
+\begin{equation}
+    y^{*} \;=\; \ln\!\left(1 + r_{\max}\right),
+    \qquad
+    r_{\max} \;=\; \max_{t \in T} r_t
+\label{eq:maximum}
+\end{equation}
+Maxima can grow with observation window length \citep{ref58,ref59,ref60}, whereas expected rates are averages across it. Observation windows varied across sources and were held at their recorded durations. Expected rates were conditional on interval inclusion. For the 19 systems whose intervals contained only days with recorded events, $\bar{r}$ was therefore the expected rate of an active day. All targets remained conditional on their recorded observational windows (\textit{SI Appendix}, Table~\ref{tab:si-corpus}). Each $y$ served as the target estimated by SCT-FAR, and each $y^*$ as the target bounded by the capacity frontier.
+
+\subsection*{Encoding and Standardization}
+\label{sec:encoding}
+Each network substrate was encoded using 21 graph invariants across 5 categories: simple, cohesion, extremal, statistical, and spectral. The mapping $G \to x$ is formally defined as:
+\begin{equation}
+    x \;=\; \phi(G) \;=\; (x_1, x_2, \ldots, x_{21}) \;\in\; \mathbb{R}^{21}
+\label{eq:invariants}
+\end{equation}
+For the 4 complete bipartite substrates (college, email, mooc, overflow), invariants were evaluated using exact analytical expressions for $K_{m,n}$ to avoid instantiating billions of edges.
+
+Each dynamical process was encoded using 7 process signatures across 5 categories: dependence, dispersion, volatility, trend, and asymmetry. The mapping $S \to z$ is formally defined as:
+\begin{equation}
+    z \;=\; \psi(S) \;=\; (z_1, z_2, \ldots, z_7) \;\in\; \mathbb{R}^{7}
+\label{eq:signatures}
+\end{equation}
+6 process signatures were scale-free. The Fano factor retained count scale, equaling the series mean $\bar{r}$ multiplied by the squared coefficient of variation, reflecting process dispersion.
+
+The utilization vector contained 6 coordinates drawn from $x$ and $z$. The mapping $(x, z) \to u$ is formally defined as:
+\begin{equation}
+    u \;=\; (u_1, u_2, \ldots, u_6) \;\in\; \mathbb{R}^{6}
+\label{eq:utilization}
+\end{equation}
+where $u_1$, $u_2$, and $u_3$ are the number of edges, degree entropy, and random walk 3rd moment, and $u_4$, $u_5$, and $u_6$ are the normalized successive difference, coefficient of variation, and trend coefficient (\textit{SI Appendix}, Tables~\ref{tab:si-features}--\ref{tab:si-signatures}). The Fano factor was excluded, such that no utilization coordinate retained count scale. The utilization coordinates were fixed across all reported evaluations.
+
+Coordinates of $x$, $z$, and $u$ were compressed by the signed logarithm $\operatorname{sl}(v) = \operatorname{sgn}(v)\ln(1 + \lvert v \rvert)$, centered by in-sample means, and scaled by in-sample population standard deviations, with 0 standard deviations replaced by 1. For either vector $v \in \{x, z, u\}$, the standardized vectors are formally defined as:
+\begin{equation}
+v' \;=\; \frac{\operatorname{sl}(v) - \mu_v}{\sigma_v}
+\label{eq:standardize}
+\end{equation}
+Means and scales were fit strictly in-sample. The signed logarithm was applied coordinate-wise. It differed from the companion study, which standardized untransformed coordinates.
+
+\subsection*{Frontier Estimation}
+\phantomsection
+\label{sec:frontier}
+The capacity frontier was estimated through the two-stage log-additive formulation of SCT \citep{ref122}. The structural stage (stage 1) was $f_C(x')$, and the process stage (stage 2) was $f_R(z')$. The estimated frontier value $\widehat{y}^*$ is formally defined as:
+\begin{equation}
+\widehat{y}^* = F(x', z') = f_C(x'; \tau_C) + f_R(z'; \tau_R)
+\label{eq:frontier}
+\end{equation}
+
+where log-transformed maximum rates are bounded by this envelope ($y^* \leq \widehat{y}^*$), subject to slack and potential violations.
+
+Both stages used linear quantile regression \citep{ref22}, 1 of the 9 frontier estimators evaluated in the companion study. Stage 1 trained the structural component $f_C(x'; \tau_C)$ to target $y^{*}$ at $\tau_C = 0.99$. It placed the learned function near the upper-envelope given the graph invariants \citep{ref29}. Stage 2 trained the process component $f_R(z'; \tau_R)$ to the signed slack $y^{*} - f_C(x'; \tau_C)$ at $\tau_R = 0.50$. Subtracting the process stage's training mean $\mu_R$ fixed its additive offset \citep{ref67}, resulting in the centered contribution $f_R(z'; \tau_R)$ while leaving $f_C(x'; \tau_C)$ unchanged. Each stage minimized mean pinball loss with $\ell_1$-penalized slopes ($\alpha = 0.1$), an unpenalized intercept, and the \texttt{HiGHS 1.8.0} solver. The estimator was deterministic given its training set. Every frontier value that entered SCT-FAR was estimated out-of-sample, such that a system's own maximum rate never trained its own frontier estimate.
+
+\subsection*{Extreme-Value Calibration}
+\phantomsection
+\label{sec:evt}
+The EVT statistic approximated the log-separation between the maximum and the mean of a rate series. For $L$ independent Gaussian observations with mean $\bar{r}$ and standard deviation $s$, the expected maximum grows to leading order as $\bar{r} + s\sqrt{2 \ln L}$ \citep{ref58,ref179,ref181}. The ratio of the maximum to the mean is then approximately $1 + c\sqrt{2 \ln L}$, where $c = s/\bar{r}$ is the coefficient of variation. The EVT statistic $e$ is formally defined as:
+\begin{equation}
+    e \;=\; \ln\!\left(1 + c\,\sqrt{2 \ln L}\right)
+\label{eq:evt}
+\end{equation}
+where $L$ was floored at 2. Subtracting $e$ from the frontier estimate adjusted a reference for the maximum rate toward a reference for the expected rate. The statistic used only the coefficient of variation and the series length, neither of which retained count scale. It carried no claim that observations were independent or Gaussian \citep{ref180,ref123}. Departures from this approximation were left to the learned utilization.
+
+\subsection*{Frontier-Anchored Rate Estimation}
+\phantomsection
+\label{sec:far}
+SCT-FAR estimated the expected operating rate as a log-additive distance beneath the calibrated frontier. The estimated rate $\widehat{r}$ is formally defined as:
+\begin{equation}
+    \ln \widehat{r} \;=\; \min\!\left\{\, \widehat{y}^* - e + g(u'),\;\; \widehat{y}^* \,\right\},
+    \qquad
+    g(u') \;=\; \beta_0 + \beta^{\top} u'
+\label{eq:far}
+\end{equation}
+where the calibrated frontier $\widehat{y}^* - e$ entered as a fixed offset with unit coefficient \citep{ref138,ref177}, $g(u')$ was the learned utilization with intercept $\beta_0$ and coefficients $\beta \in \mathbb{R}^{6}$, and estimates were capped at the frontier estimate. Unanchored estimation removed the offset and the cap, such that $\ln \widehat{r} = \beta_0 + \beta^{\top} u'$. Estimated log-rates were $\widehat{y} = \ln(1 + \widehat{r})$. The distance left for the learned utilization to explain was the utilization slack $y_U$, formally defined as:
+\begin{equation}
+    y_U \;=\; \widehat{y}^* - e - y
+\label{eq:slack}
+\end{equation}
+The dispersion of $y_U$ across systems was compared with that of $y$ prior to training.
+
+The learned utilization was trained by 3 GLM families with logarithmic links. Let $\mu$ denote the mean implied by the uncapped linear predictor (Eq.~\eqref{eq:far}). Poisson estimation modeled the total count $M$ with mean $L\mu$ and variance equal to its mean, such that the series length entered as exposure. Negative Binomial estimation modeled the expected rate $\bar{r}$ with mean $\mu$ and variance $\mu + \alpha\mu^{2}$ \citep{ref140,ref182,ref178}. Poisson--Tweedie estimation modeled $\bar{r}$ with mean $\mu$ and variance $\mu + \phi\mu^{p}$ at fixed power $p = 1.75$ \citep{ref142,ref141}, trained by extended quasi-likelihood \citep{ref143,ref144}. The 2 overdispersed families evaluated their likelihoods at non-integer expected rates. Dispersion parameters $\alpha$ and $\phi$ were estimated within each training set by alternating with the coefficients for 3 iterations.
+
+Coefficients minimized the scaled negative log-likelihood or deviance with an $\ell_2$ penalty $(\lambda/2n)\lVert\beta\rVert_2^2$ \citep{ref139}, where $n$ is the training sample size and the intercept was unpenalized. Optimization used L-BFGS-B with analytical gradients \citep{ref145}. The penalty was selected from $\lambda \in \{1, 2, 5, 10\}$ by inner $4$-Fold-CV as the value minimizing the mean absolute difference between $\ln \bar{r}$ and $\ln \widehat{r}$ across inner validation systems. The estimator was then refit on the full training set. Likelihood scaling, initialization, and numerical bounds are specified in the supplement (\textit{SI Appendix}, \hyperref[sec:si-note-estimation]{Note~S2}).
+
+\subsection*{Performance Metrics}
+\phantomsection
+\label{sec:performance-metrics}
+Prediction error was measured using MAE, RMSE, and GMME. For $n$ evaluated systems with observed log-rates $y_i$ and estimated log-rates $\widehat{y}_i$, MAE and RMSE are formally defined as:
+\begin{equation}
+    \mathrm{MAE} \;=\; \frac{1}{n}\sum_{i=1}^{n} \lvert y_i - \widehat{y}_i \rvert,
+    \qquad
+    \mathrm{RMSE} \;=\; \Big[\frac{1}{n}\sum_{i=1}^{n} {(y_i - \widehat{y}_i)}^{2}\Big]^{1/2}
+\label{eq:mae}
+\end{equation}
+GMME is the geometric mean of the multiplicative error between estimated rates $\widehat{r}_i$ and observed rates $\bar{r}_i$ \citep{ref149}, formally defined as:
+\begin{equation}
+    \mathrm{GMME} \;=\; \exp\!\Big[\frac{1}{n}\sum_{i=1}^{n} \Big\lvert \ln\frac{\widehat{r}_i}{\bar{r}_i} \Big\rvert\Big] \in [1, \infty)
+\label{eq:gmme}
+\end{equation}
+The multiplicative error of a system was $\max(\widehat{r}_i/\bar{r}_i,\, \bar{r}_i/\widehat{r}_i)$. The number of systems within a factor of 2 or 3 counted multiplicative errors of at most 2 or 3, respectively. For numerical stability, rates were floored at $10^{-9}$ within the ratio. MAE and RMSE are expressed in natural-log units. Note that GMME = 1 under exact agreement.
+
+Estimation-observation consensus was measured using CI, as defined in the companion study. CI is the geometric mean of rescaled Spearman rank correlation $\rho_s^{+} = (1 + \rho_s)/2$ \citep{ref42}, top-weighted Rank-Biased Overlap (RBO) \citep{ref43}, and distance correlation ($\mathrm{dCor}$) \citep{ref44}, formally defined as:
+\begin{equation}
+\mathrm{CI} \;=\;
+\Big[
+\rho_s^{+} \cdot \mathrm{RBO} \cdot \mathrm{dCor}
+\Big]^{1/3} \in [0, 1]
+\label{eq:ci}
+\end{equation}
+$\rho_s$ used average ranks for ties and was set to 0 when either vector was constant, yielding $\rho_s^{+} = 0.5$. RBO evaluated descending rankings with persistence $p_{\mathrm{RBO}} = 0.9$. Ties were resolved by ascending input index. RBO used tail extrapolation from agreement at the last evaluated depth. $\mathrm{dCor}$ used the biased V-statistic sample estimator with Euclidean-distance exponent 1 and 0 for a constant vector. All CI components were clipped $[0, 1]$ against floating point imprecision. CI measured estimation-observation consensus between estimated log-rates $\widehat{y}$ and observed log-rates $y$. Note that CI = 1 under perfect consensus, which requires that all three components be in perfect agreement ($\rho_s^{+} = \mathrm{RBO} = \mathrm{dCor} = 1$).
+
+Error and consensus serve as paired metrics designed to measure complementary aspects of prediction quality. MAE, RMSE, and GMME measure the distance between estimated and observed rates on the logarithmic and original scales. CI measures system-specific fidelity by measuring monotonic ordering, top-rate overlap, and statistical dependence, independently of scale. Critically, neither is sufficient in isolation. A constant shift applied to every estimate degrades error while preserving consensus. Conversely, estimates that are accurate on average can still misorder systems. A valid estimate of expected operating rates must simultaneously demonstrate accuracy and fidelity.
+
+\subsection*{Resampling and Leakage Control}
+\phantomsection
+\label{sec:resampling}
+Generalization was evaluated using 4 resampling regimes: domain-level LOGO-CV, discipline-level LOGO-CV, $5$-Fold-CV, and $10$-Fold-CV \citep{ref146,ref73}. Domain-level LOGO-CV withheld 1 of the 5 broad domains for each domain. Discipline-level LOGO-CV withheld 1 of the 25 disciplines for each discipline \citep{ref68,ref69,ref70,ref74,ref107,ref172}. LOGO-CV folds were deterministic. $k$-Fold-CV used random reshuffling with seed 42 for reported estimates, and seeds $42 + b$ for $b = 0, \ldots, 29$ across 30 repetitions for resampling equivalence. Penalty selection was nested within each training set \citep{ref147}, using inner $4$-Fold-CV with random reshuffling and seed 42.
+
+Within each outer and inner fold, the standardizers for $x$, $z$, and $u$ (Eq.~\eqref{eq:standardize}), both frontier stages $f_C(.)$ and $f_R(.)$, the process centering mean $\mu_R$ (Eq.~\eqref{eq:frontier}), the dispersion parameters, and the coefficients of the learned utilization (Eq.~\eqref{eq:far}) were fit \textit{exclusively} on the training set. Frontier estimates for inner validation systems were produced by frontiers trained on the inner training systems. At inference time, a withheld system supplied its graph invariants $x$, process signatures $z$, and series length $L$. Its expected rate $\bar{r}$, total count $M$, and maximum rate $r_{\max}$ did not enter standardization, frontier estimation, penalty selection, or coefficient estimation. Recall that $y$ and $y^*$ were log-transformed, which did not require parameter fitting. Therefore, information from out-of-sample targets did not enter model training during cross-validation.
+
+Process signatures of a withheld system were computed from the same rate series as its expected rate. The frontier's process stage received all 7 process signatures, including the Fano factor, which retained count scale. The utilization vector and the EVT statistic received only coordinates without count scale. Feature match offset (\nameref{sec:ablation}) and temporal separation (\nameref{sec:temporal}) evaluated this dependence.
+
+\subsection*{Component Ablation and Substitution}
+\phantomsection
+\label{sec:ablation}
+There were 7 alternative formulations compared with SCT-FAR using the original training folds, nested penalty selection, and standard estimator protocols (\textit{SI Appendix}, Table~\ref{tab:si-protocol}). The 3 component ablations removed elements of SCT-FAR (Eq.~\eqref{eq:far}). EVT statistic exclusion used the uncalibrated offset $\widehat{y}^*$, such that $\ln \widehat{r} = \min\{\widehat{y}^* + g(u'), \widehat{y}^*\}$. Utilization features exclusion replaced the learned utilization with its intercept, such that $\ln \widehat{r} = \min\{\widehat{y}^* - e + \beta_0, \widehat{y}^*\}$. Frontier anchor only removed both, such that $\ln \widehat{r} = \min\{\widehat{y}^* + \beta_0, \widehat{y}^*\}$. Frontier exclusion was unanchored estimation.
+
+The 3 substitutions replaced elements of SCT-FAR while retaining its remaining structure. Arbitrary ceiling replaced $\widehat{y}^*$ in the offset and the cap with the constant $3\max_{j} y_j^{*}$ across training systems $j$, computed separately within each outer and inner training set. Feature match offset replaced the frontier estimate with a direct estimate of the expected rate. The two-stage formulation (Eq.~\eqref{eq:frontier}) was trained on the same $x'$ and $z'$ to target $y$ at $\tau_C = \tau_R = 0.50$, and its out-of-sample estimate entered as the offset. The EVT statistic was not subtracted. It was appended to $u$ as a 7th coordinate, and estimates were not capped. This formulation received the same 28 inputs as SCT-FAR without an upper-envelope. Frontier remap reassigned out-of-sample frontier estimates across systems as $\widetilde{y}_i^{*} = \widehat{y}_{\pi(i)}^{*}$, where $\pi$ was a uniformly sampled permutation satisfying $\pi(i) \ne i$ for all 25 systems. Each system retained its own $e$ and $u'$. SCT-FAR was refit under 30 independent reassignments, and metrics were averaged across reassignments after scoring.
+
+\subsection*{Temporal Separation}
+\phantomsection
+\label{sec:temporal}
+Temporal separation divided each chronologically ordered rate series at proportion $\rho \in \{0.25, 0.50, 0.75\}$. The earlier window contained the first $L_A = \lfloor \rho L \rfloor$ intervals and the later window the remaining $L_B = L - L_A$ intervals, with at least 3 intervals in each. The earlier window supplied the process signatures $z$, the coefficient of variation and series length $L_A$ of the EVT statistic (Eq.~\eqref{eq:evt}), and the frontier training target $y_A^{*}$, the log-transformed maximum rate of the earlier window (Eq.~\eqref{eq:maximum}). The later window supplied the estimation target $y_B = \ln(1 + \bar{r}_B)$, the log-transformed expected rate of the later window (Eq.~\eqref{eq:expected}). Graph invariants were static and spanned both windows.
+
+SCT-FAR and unanchored estimation were refit for each proportion under all 4 resampling regimes and all 3 GLM families. The 50\% division under domain-level LOGO-CV was the primary setting. A carry-forward reference estimated the later rate from the earlier rate as $\widehat{y}_B = \ln(1 + \bar{r}_A)$ without training \citep{ref148}. SCT-FAR was also refit without the cap (Eq.~\eqref{eq:far}), including penalty selection. Removing the cap changed 0 of 25 estimates in each of the 36 combinations of proportion, resampling regime, and GLM family.
+
+\subsection*{Evaluation and Statistical Inference}
+\phantomsection
+\label{sec:inference}
+Inference used 15 family-by-domain comparisons. Within each of the 5 broad domains, MAE, RMSE, CI, and GMME were computed from the out-of-sample estimates of its 5 systems for each of the 3 GLM families. Metrics under repeated $k$-Fold-CV and frontier remap were averaged across their 30 repetitions after scoring.
+
+Paired differences were computed as test comparison minus baseline and summarized by their median. All comparisons used One-Sided Wilcoxon Signed-Rank tests \citep{ref45}, assuming symmetric paired-difference distributions with location parameter $\theta$. Inference was conditional on the given panel whose shared systems, GLM families, and cross-validation folds induced dependence that may affect $p$-value calibration.
+
+For a margin $\delta > 0$, resampling equivalence used TOST~\citep{ref47} of $H_{01}: \theta \le -\delta$ and $H_{02}: \theta \ge \delta$, with domain-level LOGO-CV as the baseline. Equivalence required rejection of both nulls with the TOST $p$-value taken as the larger of the 2 one-sided values \citep{ref78}. Margins were empirically derived as the IQR across the 3 family-level means under domain-level LOGO-CV, rounded up 2 decimal places ($\delta_{\mathrm{MAE}} = 0.25$, $\delta_{\mathrm{RMSE}} = 0.26$, $\delta_{\mathrm{CI}} = 0.01$, and $\delta_{\mathrm{GMME}} = 0.57$). Margins therefore reflected the dispersion between GLM families.
+
+Component ablation, substitution, and temporal separation tested superiority of SCT-FAR over each alternative. Paired differences were oriented such that positive values favored SCT-FAR: alternative minus SCT-FAR for MAE, RMSE, and GMME, and SCT-FAR minus alternative for CI. Each test assessed $H_0: \theta \le 0$ versus $H_1: \theta > 0$. Superiority required rejection of the null and a positive median paired difference.
+
+Holm-Bonferroni adjustments (Holm-adjusted $p$, denoted $p_{\mathrm H}$) \citep{ref46} used a significance threshold of $\alpha = 0.05$ separately for each metric within 5 families: 3 resampling regimes, 7 alternative formulations under domain-level LOGO-CV, all 28 combinations of alternative formulation and resampling regime, the primary temporal setting, and all 12 combinations of temporal division and resampling regime. The primary temporal setting contained 1 comparison per metric and was unadjusted.
+
+Rank-biserial effect sizes were computed as $r = (W_{+} - W_{-})/(W_{+} + W_{-})$ from nonzero paired differences \citep{ref71}. Here $W_{+}$ and $W_{-}$ are the sums of ranks of absolute differences with positive and negative signs, respectively, with average ranks for ties.
+
+Paired bootstrap intervals resampled the 25 systems with replacement across 10,000 realizations \citep{ref75,ref176}. Estimates were held fixed, and the same resampled systems were shared across all formulations, resampling regimes, and temporal divisions. Percentile 95\% intervals were computed for each metric and for the paired difference between each alternative and SCT-FAR. Intervals for CI used the first 1,000 realizations. Bootstrap intervals described variation across systems conditional on the trained estimators and did not include training variability.
+
+Target dispersion and standardized coefficients were descriptive (Fig.~\ref{fig:attribution}). Dispersion was measured using the IQR and the population variance across the 25 systems, where contraction was 1 minus the ratio of slack dispersion to observed dispersion. Coefficients were equally weighted means across outer folds, and their reduction was 1 minus the ratio of mean absolute coefficients using SCT-FAR to those under unanchored estimation. Differences, ratios, and percentages were computed before rounding.
+
+%% implementation
+\subsection*{Implementation and Reproducibility}
+\label{sub-sec:imp-rep}
+
+All analyses were implemented in \texttt{Python 3.11.9} \citep{ref86,ref102}. All dependency versions were pinned in the repository's \texttt{requirements.txt}. Graphs, processes, and encodings used \texttt{python-igraph 1.0.0} \citep{ref48,ref93}, \texttt{NumPy 2.3.5} \citep{ref81,ref96}, \texttt{SciPy 1.16.3} \citep{ref82,ref97}, and \texttt{pandas 3.0.0} \citep{ref83,ref84}. Urban street network construction used \texttt{networkx 3.5} \citep{ref91,ref98} and \texttt{OSMnx 2.0.6} \citep{ref118,ref119}.
+
+Public dataset retrieval was conducted using \texttt{requests 2.32.5} \citep{ref120}. Temporal graph datasets were loaded using \texttt{torch-geometric 2.7.0} \citep{ref89,ref99} and \texttt{torch\_geometric\_temporal 0.56.2} \citep{ref90,ref100}. Observational records for gravitational wave and meteorological systems were retrieved using \texttt{gwosc 0.8.1} and \texttt{meteostat 1.7.6}, respectively \citep{ref116,ref117}.
+
+Frontier and operating-rate estimators used \texttt{scikit-learn 1.8.0} \citep{ref72,ref94} and \texttt{SciPy 1.16.3} \citep{ref82,ref97}. Multiplicity adjustments used \texttt{statsmodels 0.14.5} \citep{ref167,ref168}. Distance correlation was computed using \texttt{dcor 0.7} \citep{ref88}, and scientific figures were generated with \texttt{matplotlib 3.9.2} \citep{ref92,ref101}. Unspecified settings followed library defaults.
+
+All stochastic procedures started from random seed 42 with repeat indices applied as fixed numerical offsets. Random permutations, cross-validation folds, frontier reassignments, and bootstrap realizations originated from seeded generators. 
+
+All estimators were deterministic given their training sets and seeds. Results reproduced with the code repository, corpus, and environment specifications are subject to floating-point imprecision.
+\clearpage
+
+\section*{Data, Materials, and Software Availability}
+\label{sec:data}
+\label{sec:code}
+The corpus was collated from publicly available data sources (\textit{SI Appendix}, Table~\ref{tab:si-corpus}). The processed records, scripts for data processing, frontier estimation, operating-rate estimation, evaluation, ablation, and temporal separation, along with the notebooks that reproduce every figure and table, are distributed with the source code repository at \url{https://github.com/nickkunz/network-capacity}.
+
+\section*{Acknowledgments}
+\label{sec:acknowledge}
+We would like to thank F. Parise and W. Xu for their early feedback and encouragement.
+
+\section*{Author Contributions}
+\label{sec:authors}
+N. Kunz initiated and developed the concept, methods, implementation, testing, documentation, and manuscript. H. O. Gao initiated and supervised the development of the investigation and manuscript. The authors have agreed to the submitted version of this manuscript.
+
+\section*{Funding}
+\label{sec:funding}
+This work was supported by Cornell Systems Engineering and Gao Labs.
+
+\section*{Competing Interests}
+\label{sec:competing}
+The authors declare no competing interests.
+
+\section*{Additional Information}
+\label{sec:additional}
+\textbf{Supporting information} is in \textit{SI Appendix}, Tables~\ref{tab:si-corpus}--\ref{tab:si-protocol} and \hyperref[sec:si-note-processing]{Notes~S1}--\hyperref[sec:si-note-estimation]{S2}.
+
+\textbf{Correspondence and requests for materials} should be addressed to N. Kunz.
+
+%% references
+\newpage
+\bibliographystyle{unsrtnat}
+\bibliography{ref}
+
+\clearpage
+\begingroup
+\renewcommand{\tablename}{Table}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\theHtable}{supp.\arabic{table}}
+\setcounter{table}{0}
+\captionsetup[table]{font=footnotesize,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=false}
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\footnotesize
+
+\section*{SI Appendix}
+\begingroup
+\captionsetup{hypcap=false}
+\captionof{table}{Corpus composition, definitions, sources, and date provenance.}
+\label{tab:si-corpus}
+\endgroup
+
+\begin{center}
+\rotatebox{90}{%
+\begin{minipage}{.92\textheight}
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}
+    >{\raggedright\arraybackslash}p{\dimexpr.08\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.08\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.105\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.135\linewidth-2\tabcolsep\relax}@{}}
+\toprule
+\textbf{System} & \textbf{Domain} & \textbf{Discipline} & \textbf{Nodes} & \textbf{Edges} & \textbf{Event} & \textbf{Target} & \textbf{Time (Days)} & \textbf{Source} & \textbf{Notes} \\
+\midrule
+\textbf{\textit{gwosc}} & Earth \& Physical Sciences & Cosmology &
+Gravitational-\allowbreak wave detectors (H1, L1, V1, K1, G1). & Complete graph among detectors. &
+GWTC event records from any GWTC catalog attributed to at least one corpus detector, including the marginal and auxiliary catalogs. & Maximum daily records $r_{\max} = 3$, $y^* = 1.386$. & 2015-09-14 to 2024-01-09 ($n = 3{,}040$). &
+GWOSC event API (\ref{src:S1}, \ref{src:S24}, \ref{src:S25}, \ref{src:S26}, \ref{src:S27}, \ref{src:S30}). & Catalog articles published in 2019, 2021, 2023, and 2024. GWTC-4.0 first released 26 August 2025 and its results article was published in 2026. Fixed event cutoff 2024-01-09. \\
+\addlinespace[3.5pt]
+\textbf{\textit{river}} & Earth \& Physical Sciences & Hydrology &
+USGS stream gauges on the Colorado River (HUC 15010001, 15010002, 15010005). & Non-crossing path among gauges. &
+Peaks of discharge (parameter 00060) above the site-wise 99th percentile. & Maximum daily discharge-peak exceedances $r_{\max} = 9$, $y^* = 2.303$. & 2014-11-12 to 2023-08-01 ($n = 3{,}185$). &
+USGS NWIS site and instantaneous-\allowbreak values services (\ref{src:S2}). & NWIS dataset record published 1994. API query cutoff 2024-12-31. \\
+\addlinespace[3.5pt]
+\textbf{\textit{auger}} & Earth \& Physical Sciences & Physics &
+Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbours within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
+Surface-\allowbreak detector air-shower events. & Maximum daily air-shower events $r_{\max} = 66$, $y^* = 4.205$. & 2004-01-03 to 2018-09-01 ($n = 5{,}356$). &
+Auger Open Data station map and Zenodo record 10488964 (\ref{src:S3}). & Open Data version 3 released 2024. Observations span 2004--2018. \\
+\addlinespace[3.5pt]
+\textbf{\textit{seismic}} & Earth \& Physical Sciences & Geology &
+IRIS IU network stations. & Complete graph among stations. &
+Reviewed USGS events, 2023. & Maximum daily reviewed events $r_{\max} = 1{,}129$, $y^* = 7.030$. & 2023-01-01 to 2023-12-30 ($n = 364$). &
+IRIS FDSN station service (\ref{src:S4}) and USGS FDSN event service (\ref{src:S5}). & GSN dataset record published 1988. ComCat record published 2017. Event-query cutoff 2023-12-31. \\
+\addlinespace[3.5pt]
+\textbf{\textit{rain}} & Earth \& Physical Sciences & Meteorology &
+Meteostat hourly stations in Laos. & Delaunay triangulation of station coordinates. &
+Station-hours with precipitation $>1$ mm. & Maximum daily wet station-hours $r_{\max} = 46$, $y^* = 3.850$. & 2024-01-12 to 2024-03-30 ($n = 79$). &
+Meteostat (\ref{src:S6}). & Mutable service accessed 1 September 2026. Query cutoff 2024-03-31. \\
+\addlinespace[3.5pt]
+\textbf{\textit{celegans}} & Life Sciences \& Medicine & Biology &
+\textit{C. elegans} developmental stages. & Known stage-to-stage transitions (normal, dauer, and recovery pathways), entered undirected. &
+Developmental transitions at published mean times. & Maximum daily developmental transitions $r_{\max} = 8$, $y^* = 2.197$. & Days 0--33 ($n = 34$). &
+Cassada \& Russell, \textit{Dev. Biol.} \textbf{46}, 326--342 (1975) (\ref{src:S7}), and Golden \& Riddle, \textit{Dev. Biol.} \textbf{102}, 368--378 (1984) (\ref{src:S8}). & Timing studies published 1975 and 1984. Days are developmental-age indices, not calendar dates. \\
+\midrule
+\multicolumn{10}{r@{}}{\textit{Continued on next page}}\\
+\end{tabular}
+\end{minipage}}
+\end{center}
+
+\begin{landscape}
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\addtocounter{table}{-1}
+\renewcommand{\theHtable}{supp.1.cont}
+\begin{longtable}{@{}
+    >{\raggedright\arraybackslash}p{\dimexpr.08\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.10\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.08\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.105\linewidth-2\tabcolsep\relax}
+    >{\raggedright\arraybackslash}p{\dimexpr.135\linewidth-2\tabcolsep\relax}@{}}
+\multicolumn{10}{@{}l@{}}{\textbf{Table~\ref{tab:si-corpus}.} Corpus composition and provenance \textit{(continued).}}\\[4pt]
+\toprule
+\textbf{System} & \textbf{Domain} & \textbf{Discipline} & \textbf{Nodes} & \textbf{Edges} & \textbf{Event} & \textbf{Target} & \textbf{Time (Days)} & \textbf{Source} & \textbf{Notes} \\
+\midrule
+\endfirsthead
+\multicolumn{10}{@{}l@{}}{\textbf{Table~\ref{tab:si-corpus}.} Corpus composition and provenance \textit{(continued).}}\\[4pt]
+\toprule
+\textbf{System} & \textbf{Domain} & \textbf{Discipline} & \textbf{Nodes} & \textbf{Edges} & \textbf{Event} & \textbf{Target} & \textbf{Time (Days)} & \textbf{Source} & \textbf{Notes} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{10}{r@{}}{\textit{Continued on next page}}\\
+\endfoot
+\bottomrule
+\endlastfoot
+\textbf{\textit{crop}} & Life Sciences \& Medicine & Ecology &
+Crops and pollinator taxa. & Observed crop--pollinator interactions. &
+Daily flower-visitor census visits from primary study records. & Maximum daily census visits $r_{\max} = 1{,}266$, $y^* = 7.144$. & 2004-05-07 to 2012-05-29 ($n = 2{,}945$). &
+CropPol repository (Rader et al. primary census records) (\ref{src:S9}, \ref{src:S31}). & Database article published 2022. Observations span 2004--2012. \\
+\addlinespace[5pt]
+\textbf{\textit{chickenpox}} & Life Sciences \& Medicine & Epidemiology &
+Hungarian counties. & County adjacency from the Chickenpox dataset. &
+Weekly county case counts summed across counties, divided by 7 to a daily average. & Maximum daily-average cases $r_{\max} = 378$, $y^* = 5.938$. & 2005-01-03 to 2014-12-29 ($n = 3{,}648$). &
+Rozemberczki et al. Chickenpox dataset and UCI Hungarian chickenpox cases (\ref{src:S10}). & UCI dataset released 2021. Observations span 2005--2014. Source reports weekly totals, converted to daily averages. \\
+\addlinespace[5pt]
+\textbf{\textit{faers}} & Life Sciences \& Medicine & Pharmacology &
+Medicinal products and MedDRA reaction terms co-reported with imatinib. & Drug--reaction co-occurrence. &
+Unique FAERS case receipts. & Maximum daily case receipts $r_{\max} = 45$, $y^* = 3.829$. & 2004-01-23 to 2025-12-31 ($n = 8{,}014$). &
+openFDA drug-event API, query IMATINIB (\ref{src:S11}). & Mutable API retrieved 13 March 2026. Case-receipt cutoff 2025-12-31. \\
+\addlinespace[5pt]
+\textbf{\textit{epilepsy}} & Life Sciences \& Medicine & Neurology &
+19 scalp electrodes (10--20 system). & Anatomical neighbours on the 10--20 montage. &
+Annotated seizures in CHB-MIT (chb01--chb24). & Maximum daily annotated seizures $r_{\max} = 27$, $y^* = 3.332$. & Relative recording days 0--76 ($n = 77$). &
+PhysioNet CHB-MIT (\ref{src:S12}). & PhysioNet version 1.0.0 released 2010. Calendar dates are unavailable, so recording order is expressed as relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{federal}} & Trade \& Institutions & Government &
+Awarding agencies and recipients. & Agency--\allowbreak recipient contract pairs. &
+Waterfowl-\allowbreak related contract start dates. & Maximum daily contract starts $r_{\max} = 17$, $y^* = 2.890$. & 2011-01-19 to 2024-12-30 ($n = 5{,}095$). &
+USAspending API, keyword waterfowl (\ref{src:S13}). & Mutable API retrieved 25 August 2026. Award-start cutoff 2024-12-31. \\
+\addlinespace[5pt]
+\textbf{\textit{mooc}} & Trade \& Institutions & Education &
+Students and course actions. & Complete bipartite graph between students and actions. &
+Student--action timestamps. & Maximum daily student actions $r_{\max} = 18{,}213$, $y^* = 9.810$. & Days 0--29 ($n = 30$). &
+SNAP act-mooc (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{amazon}} & Trade \& Institutions & Commerce &
+Reviewers and book products. & Reviewer--\allowbreak product review pairs. &
+Review timestamps. & Maximum daily reviews $r_{\max} = 37{,}293$, $y^* = 10.527$. & 1996-05-20 to 2014-07-23 ($n = 6{,}639$). &
+SNAP Amazon product graph, Books ratings (\ref{src:S15}). & Dataset article published 2015. Reviews span 1996--2014. \\
+\addlinespace[5pt]
+\textbf{\textit{bitcoin}} & Trade \& Institutions & Cryptocurrency &
+OTC users and integer rating values. & User--\allowbreak rating--\allowbreak user incidences over the complete Bitcoin OTC history. &
+Rating timestamps. & Maximum daily ratings $r_{\max} = 319$, $y^* = 5.768$. & 2010-11-08 to 2016-01-25 ($n = 1{,}905$). &
+PyTorch Geometric BitcoinOTC (\ref{src:S16}). & Dataset article published 2016. Ratings span 2010--2016. \\
+\addlinespace[5pt]
+\textbf{\textit{world}} & Trade \& Institutions & International Development &
+World Bank lending instruments and countries. & Instrument--\allowbreak country eligibility. &
+Project board-approval dates. & Maximum daily project approvals $r_{\max} = 12$, $y^* = 2.565$. & 2014-01-14 to 2024-12-20 ($n = 3{,}994$). &
+World Bank projects and country APIs (\ref{src:S17}). & Mutable APIs retrieved 29 September 2026. Approval-year cutoff 2024. \\
+\addlinespace[5pt]
+\textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
+Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
+Daily summed page activity. & Maximum daily summed page activity $r_{\max} = 1{,}323{,}743$, $y^* = 14.096$. & 2019-03-16 to 2021-03-15 ($n = 731$). &
+UCI Wikipedia Math Essentials and PyTorch Geometric Temporal WikiMaths (\ref{src:S18}). & UCI dataset released 2021. Activity spans 2019--2021. \\
+\addlinespace[5pt]
+\textbf{\textit{jodie}} & Technology \& Information & Interaction Networks &
+Wikipedia users and pages. & User--page interactions. &
+Interaction timestamps. & Maximum daily interactions $r_{\max} = 6{,}087$, $y^* = 8.714$. & Days 0--30 ($n = 31$). &
+PyTorch Geometric JODIE, Wikipedia (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{overflow}} & Technology \& Information & Online Forums &
+Stack Overflow users and calendar days. & Complete bipartite graph between users and days. &
+Comment, answer, and other timed interactions. & Maximum daily timed interactions $r_{\max} = 52{,}446$, $y^* = 10.868$. & 2008-08-01 to 2016-03-06 ($n = 2{,}775$). &
+SNAP sx-stackoverflow (\ref{src:S19}). & Dataset article published 2017. Interactions span 2008--2016. \\
+\addlinespace[5pt]
+\textbf{\textit{email}} & Technology \& Information & Email Exchanges &
+European research-\allowbreak institution email accounts and days. & Complete bipartite graph between accounts and days. &
+Email timestamps. & Maximum daily emails $r_{\max} = 2{,}270$, $y^* = 7.728$. & Days 0--803 ($n = 804$). &
+SNAP email-\allowbreak Eu-\allowbreak core-\allowbreak temporal (\ref{src:S19}). & Dataset article published 2017. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{college}} & Technology \& Information & Social Networks &
+UC Irvine college-message users and days. & Complete bipartite graph between users and days. &
+Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678$, $y^* = 7.893$. & 2004-04-15 to 2004-10-26 ($n = 195$). &
+SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
+\addlinespace[5pt]
+\textbf{\textit{idling}} & Transportation \& Infrastructure & Mobility &
+Halifax drive-network nodes from the unsimplified OSM graph. & Street segments (OSM drive graph, undirected). &
+Vehicle-idling records. & Maximum daily idling records $r_{\max} = 732$, $y^* = 6.597$. & 2025-06-02 to 2025-09-02 ($n = 93$). &
+OpenStreetMap via OSMnx, query Halifax, Canada (\ref{src:S21}, \ref{src:S22}), and local idling CSVs (\ref{src:S29}). & Data preprint first posted 2024 and revised 2025. Observations are from 2025. OSMnx article published 2025. \\
+\addlinespace[5pt]
+\textbf{\textit{windmill}} & Transportation \& Infrastructure & Energy &
+Wind turbines. & Complete graph among turbines. &
+Raw-production on/off transitions (threshold $10^{-6}$). & Maximum daily turbine transitions $r_{\max} = 7$, $y^* = 2.079$. & Days 0--727 ($n = 728$). &
+PyTorch Geometric Temporal Windmill\allowbreak Output\allowbreak Large \citep{ref90}. & Loader article published 2021. Source supplies snapshot order rather than calendar dates. \\
+\addlinespace[5pt]
+\textbf{\textit{metrla}} & Transportation \& Infrastructure & Traffic &
+METR-LA loop detectors. & Detector adjacency from METR-LA snapshots. &
+Onset of congestion (raw speed at or below the detector-wise 1st percentile). & Maximum daily congestion onsets $r_{\max} = 675$, $y^* = 6.516$. & 2012-03-01 to 2012-06-27 ($n = 119$). &
+PyTorch Geometric Temporal METRLA \citep{ref90} (\ref{src:S23}). & Benchmark article published 2018 and loader article 2021. Sensor observations are from 2012. \\
+\addlinespace[5pt]
+\textbf{\textit{pemsbay}} & Transportation \& Infrastructure & Traffic II &
+PEMS-BAY loop detectors. & Detector adjacency from PEMS-BAY snapshots. &
+Onset of congestion (raw speed at or below the detector-wise 1st percentile). & Maximum daily congestion onsets $r_{\max} = 634$, $y^* = 6.454$. & 2017-01-01 to 2017-06-29 ($n = 180$). &
+PyTorch Geometric Temporal PEMS-BAY \citep{ref90} (\ref{src:S23}). & Benchmark article published 2018 and loader article 2021. Sensor observations are from 2017. \\
+\addlinespace[5pt]
+\textbf{\textit{montevideo}} & Transportation \& Infrastructure & Ridership &
+Montevideo bus stops. & Stop adjacency from MontevideoBus snapshots. &
+Stop-hours with standardized inflow above the global 99th percentile. & Maximum daily exceedance stop-hours $r_{\max} = 256$, $y^* = 5.549$. & Days 0--29 ($n = 30$). &
+PyTorch Geometric Temporal MontevideoBus \citep{ref90} (\ref{src:S28}). & Data recorded in October 2020. Loader article published 2021. Dates represented as relative days. \\
+\end{longtable}
+\par\smallskip
+\begin{minipage}{\linewidth}
+\footnotesize
+Each row represents one N3S, with observations aggregated to $r_t$ (Eq.~\eqref{eq:series}) and targets $r_{\max}$ and $y^* = \ln(1 + r_{\max})$ (Eq.~\eqref{eq:maximum}). Metrla, pemsbay, montevideo, windmill, and wiki provide complete daily series, including zero-event days. Chickenpox provides weekly county totals, summed and divided by 7, with one daily-average value per report date; the other 24 systems use daily event counts. The remaining 19 series include only days with recorded events. Windows follow native recording periods, expressed as dates or relative day indices; $n$ is the inclusive span in days, not necessarily the series length $L$. The 7 API systems (gwosc, river, seismic, rain, faers, federal, and world) also use fixed script query dates, with end cutoffs in the source notes. Durations were not standardized, and maxima remain conditional on their windows. Observation dates differ from source release or publication dates; source notes specify versions and relative-date conventions. Additional processing conventions are provided in the supplement (\hyperref[sec:si-note-processing]{Note~S1}). Citations S1--S31 refer to the SI sources (\nameref{sec:si-sources}).
+\end{minipage}
+\endgroup
+\end{landscape}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Operating-rate characteristics of the corpus.}
+\label{tab:si-rates}
+\begin{tabularx}{\linewidth}{@{}Xlrrrrrrr@{}}
+\toprule
+Domain & System & $L$ & $M$ & $\bar{r}$ & $r_{\max}$ & $\bar{r}/r_{\max}$ (\%) & $y$ & $y^{*}$ \\
+\midrule
+Earth \& Physical Sciences & \textit{gwosc} & 201 & 244 & 1.21 & 3 & 40.46 & 0.79 & 1.39 \\
+ & \textit{river} & 109 & 280 & 2.57 & 9 & 28.54 & 1.27 & 2.30 \\
+ & \textit{rain} & 38 & 310 & 8.16 & 46 & 17.73 & 2.21 & 3.85 \\
+ & \textit{auger} & 4{,}871 & 81{,}155 & 16.66 & 66 & 25.24 & 2.87 & 4.20 \\
+ & \textit{seismic} & 364 & 137{,}897 & 378.84 & 1{,}129 & 33.56 & 5.94 & 7.03 \\
+\addlinespace
+Life Sciences \& Medicine & \textit{celegans} & 18 & 39 & 2.17 & 8 & 27.08 & 1.15 & 2.20 \\
+ & \textit{faers} & 2{,}616 & 9{,}344 & 3.57 & 45 & 7.94 & 1.52 & 3.83 \\
+ & \textit{epilepsy} & 50 & 198 & 3.96 & 27 & 14.67 & 1.60 & 3.33 \\
+ & \textit{chickenpox} & 522 & 57{,}931 & 110.98 & 378 & 29.36 & 4.72 & 5.94 \\
+ & \textit{crop} & 129 & 20{,}529 & 159.14 & 1{,}266 & 12.57 & 5.08 & 7.14 \\
+\addlinespace
+Technology \& Information & \textit{college} & 193 & 59{,}835 & 310.03 & 2{,}678 & 11.58 & 5.74 & 7.89 \\
+ & \textit{email} & 526 & 332{,}334 & 631.81 & 2{,}270 & 27.83 & 6.45 & 7.73 \\
+ & \textit{jodie} & 31 & 157{,}474 & 5{,}079.81 & 6{,}087 & 83.45 & 8.53 & 8.71 \\
+ & \textit{overflow} & 2{,}775 & 63{,}497{,}050 & 22{,}881.82 & 52{,}446 & 43.63 & 10.04 & 10.87 \\
+ & \textit{wiki} & 731 & 474{,}884{,}565 & 649{,}636.89 & 1{,}323{,}743 & 49.08 & 13.38 & 14.10 \\
+\addlinespace
+Trade \& Institutions & \textit{federal} & 934 & 1{,}304 & 1.40 & 17 & 8.21 & 0.87 & 2.89 \\
+ & \textit{world} & 1{,}314 & 3{,}317 & 2.52 & 12 & 21.04 & 1.26 & 2.56 \\
+ & \textit{bitcoin} & 1{,}769 & 35{,}592 & 20.12 & 319 & 6.31 & 3.05 & 5.77 \\
+ & \textit{amazon} & 6{,}296 & 22{,}507{,}155 & 3{,}574.83 & 37{,}293 & 9.59 & 8.18 & 10.53 \\
+ & \textit{mooc} & 30 & 411{,}749 & 13{,}724.97 & 18{,}213 & 75.36 & 9.53 & 9.81 \\
+\addlinespace
+Transportation \& Infrastructure & \textit{windmill} & 728 & 648 & 0.89 & 7 & 12.72 & 0.64 & 2.08 \\
+ & \textit{montevideo} & 30 & 4{,}891 & 163.03 & 256 & 63.68 & 5.10 & 5.55 \\
+ & \textit{pemsbay} & 180 & 40{,}670 & 225.94 & 634 & 35.64 & 5.42 & 6.45 \\
+ & \textit{metrla} & 119 & 34{,}113 & 286.66 & 675 & 42.47 & 5.66 & 6.52 \\
+ & \textit{idling} & 53 & 20{,}968 & 395.62 & 732 & 54.05 & 5.98 & 6.60 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Each row is 1 of 25 systems, grouped into 5 broad domains with 5 disciplines each and ordered by expected rate within each domain. $L$ is the number of included intervals in the rate series (Eq.~\eqref{eq:series}) and $M$ the total count across them, rounded to the nearest integer. The expected operating rate is $\bar{r} = M/L$ with $y = \ln(1 + \bar{r})$ (Eq.~\eqref{eq:expected}), and the maximum rate is $r_{\max}$ with $y^{*} = \ln(1 + r_{\max})$ (Eq.~\eqref{eq:maximum}). Rates are observations per day. $y$ is the target estimated by SCT-FAR and $y^{*}$ the target bounded by the capacity frontier. Series definitions, observation windows, and sources are specified in the corpus records (Table~\ref{tab:si-corpus}). Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Slack decomposition and out-of-sample estimates by system.}
+\label{tab:si-estimates}
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}Xlrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{4}{c}{Decomposition} & \multicolumn{2}{c}{Estimated $\widehat{y}$} & \multicolumn{2}{c}{Multiplicative Error} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-8}\cmidrule(l){9-10}
+Domain & System & $y$ & $\widehat{y}^{*}$ & $e$ & $y_U$ & SCT-FAR & Unanchored & SCT-FAR & Unanchored \\
+\midrule
+Earth \& Physical Sciences & \textit{gwosc} & 0.79 & 10.76 & 0.86 & 9.11 & 1.45 & 1.21 & 2.70 & 1.94 \\
+ & \textit{river} & 1.27 & 10.79 & 1.16 & 8.36 & 1.89 & 3.58 & 2.20 & 13.58 \\
+ & \textit{rain} & 2.21 & 11.68 & 1.35 & 8.11 & 1.89 & 1.69 & 1.46 & 1.84 \\
+ & \textit{auger} & 2.87 & 12.83 & 1.65 & 8.31 & 3.05 & 4.97 & 1.21 & 8.61 \\
+ & \textit{seismic} & 5.94 & 13.59 & 0.55 & 7.10 & 5.93 & 7.63 & 1.01 & 5.44 \\
+\addlinespace
+Life Sciences \& Medicine & \textit{celegans} & 1.15 & 10.76 & 1.08 & 8.52 & 1.78 & 2.98 & 2.26 & 8.62 \\
+ & \textit{faers} & 1.52 & 11.07 & 1.53 & 8.01 & 1.96 & 7.09 & 1.72 & 337.19 \\
+ & \textit{epilepsy} & 1.60 & 11.14 & 1.42 & 8.11 & 1.41 & 1.84 & 1.28 & 1.34 \\
+ & \textit{chickenpox} & 4.72 & 14.13 & 1.25 & 8.16 & 5.06 & 5.14 & 1.41 & 1.53 \\
+ & \textit{crop} & 5.08 & 14.45 & 1.54 & 7.84 & 4.63 & 3.27 & 1.58 & 6.26 \\
+\addlinespace
+Technology \& Information & \textit{college} & 5.74 & 13.60 & 1.81 & 6.05 & 6.11 & 6.08 & 1.45 & 1.40 \\
+ & \textit{email} & 6.45 & 13.41 & 1.29 & 5.67 & 6.66 & 6.81 & 1.24 & 1.44 \\
+ & \textit{jodie} & 8.53 & 12.85 & 0.31 & 4.01 & 7.75 & 9.13 & 2.19 & 1.81 \\
+ & \textit{overflow} & 10.04 & 16.83 & 1.23 & 5.56 & 10.56 & 10.18 & 1.68 & 1.15 \\
+ & \textit{wiki} & 13.38 & 18.59 & 0.58 & 4.62 & 12.99 & 9.87 & 1.48 & 33.64 \\
+\addlinespace
+Trade \& Institutions & \textit{federal} & 0.87 & 10.72 & 1.31 & 8.54 & 1.42 & 3.71 & 2.25 & 28.63 \\
+ & \textit{world} & 1.26 & 11.06 & 1.38 & 8.42 & 1.43 & 3.68 & 1.26 & 15.28 \\
+ & \textit{bitcoin} & 3.05 & 13.13 & 1.66 & 8.42 & 3.10 & 6.50 & 1.05 & 33.13 \\
+ & \textit{amazon} & 8.18 & 18.69 & 2.07 & 8.43 & 8.13 & 8.92 & 1.05 & 2.08 \\
+ & \textit{mooc} & 9.53 & 17.44 & 0.48 & 7.44 & 9.45 & 7.92 & 1.08 & 5.01 \\
+\addlinespace
+Transportation \& Infrastructure & \textit{windmill} & 0.64 & 10.60 & 1.84 & 8.12 & 0.35 & 0.98 & 2.12 & 1.88 \\
+ & \textit{montevideo} & 5.10 & 13.56 & 0.66 & 7.80 & 5.31 & 5.63 & 1.23 & 1.71 \\
+ & \textit{pemsbay} & 5.42 & 14.97 & 1.24 & 8.31 & 5.36 & 6.21 & 1.06 & 2.20 \\
+ & \textit{metrla} & 5.66 & 14.89 & 1.05 & 8.17 & 5.75 & 6.73 & 1.09 & 2.91 \\
+ & \textit{idling} & 5.98 & 14.81 & 0.83 & 7.99 & 6.21 & 6.58 & 1.25 & 1.82 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Out-of-sample quantities for 25 systems under domain-level LOGO-CV, where each system is estimated by the fold that withholds its domain. $y$ is the observed log-rate (Eq.~\eqref{eq:expected}), $\widehat{y}^{*}$ the frontier estimate (Eq.~\eqref{eq:frontier}), $e$ the EVT statistic (Eq.~\eqref{eq:evt}), and $y_U = \widehat{y}^{*} - e - y$ the utilization slack (Eq.~\eqref{eq:slack}). The decomposition precedes operating-rate estimation and is independent of GLM family. Estimated log-rates $\widehat{y} = \ln(1 + \widehat{r})$ and multiplicative errors $\max(\widehat{r}/\bar{r},\, \bar{r}/\widehat{r})$ are from Negative Binomial estimation using SCT-FAR (Eq.~\eqref{eq:far}) and unanchored estimation. SCT-FAR denotes SCT Frontier Anchor and Unanchored denotes SCT Frontier Exclusion in the figures. Across systems, $y_U$ has a median of 8.11, a minimum of 4.01, and a maximum of 9.11 log units. Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Prediction quality across resampling regimes, GLM families, and estimation regimes.}
+\label{tab:si-quality}
+\begin{tabularx}{\linewidth}{@{}lXlrrrrrr@{}}
+\toprule
+Evaluation & Family & Estimation & MAE & RMSE & CI & GMME & $\le 2\times$ (\%) & $\le 3\times$ (\%) \\
+\midrule
+Domain (LOGO-CV) & Poisson & SCT-FAR & 0.80 & 0.93 & 0.97 & 2.46 & 40 & 80 \\
+ &  & Unanchored & 3.26 & 3.90 & 0.60 & 29.75 & 20 & 24 \\
+ & Poisson--Tweedie & SCT-FAR & 0.32 & 0.38 & 0.98 & 1.47 & 76 & 100 \\
+ &  & Unanchored & 1.46 & 1.99 & 0.82 & 4.71 & 32 & 44 \\
+ & Negative Binomial & SCT-FAR & 0.32 & 0.38 & 0.98 & 1.47 & 76 & 100 \\
+ &  & Unanchored & 1.45 & 1.95 & 0.85 & 4.71 & 44 & 56 \\
+\addlinespace
+Discipline (LOGO-CV) & Poisson & SCT-FAR & 0.70 & 0.84 & 0.97 & 2.18 & 60 & 76 \\
+ &  & Unanchored & 3.02 & 3.58 & 0.66 & 23.36 & 8 & 20 \\
+ & Poisson--Tweedie & SCT-FAR & 0.27 & 0.33 & 0.99 & 1.41 & 84 & 100 \\
+ &  & Unanchored & 1.66 & 2.22 & 0.79 & 5.84 & 32 & 40 \\
+ & Negative Binomial & SCT-FAR & 0.26 & 0.33 & 0.98 & 1.39 & 84 & 100 \\
+ &  & Unanchored & 1.55 & 2.09 & 0.81 & 5.18 & 40 & 52 \\
+\addlinespace
+Random ($5$-Fold-CV) & Poisson & SCT-FAR & 0.70 & 0.83 & 0.97 & 2.17 & 48 & 80 \\
+ &  & Unanchored & 2.90 & 3.36 & 0.67 & 20.67 & 12 & 20 \\
+ & Poisson--Tweedie & SCT-FAR & 0.33 & 0.41 & 0.99 & 1.49 & 76 & 100 \\
+ &  & Unanchored & 1.49 & 1.90 & 0.87 & 5.07 & 16 & 44 \\
+ & Negative Binomial & SCT-FAR & 0.35 & 0.44 & 0.98 & 1.51 & 76 & 96 \\
+ &  & Unanchored & 1.44 & 1.91 & 0.87 & 4.70 & 36 & 52 \\
+\addlinespace
+Random ($10$-Fold-CV) & Poisson & SCT-FAR & 0.78 & 0.92 & 0.97 & 2.38 & 52 & 64 \\
+ &  & Unanchored & 3.00 & 3.54 & 0.62 & 23.14 & 16 & 16 \\
+ & Poisson--Tweedie & SCT-FAR & 0.34 & 0.41 & 0.98 & 1.51 & 80 & 100 \\
+ &  & Unanchored & 1.74 & 2.36 & 0.76 & 6.46 & 20 & 44 \\
+ & Negative Binomial & SCT-FAR & 0.34 & 0.42 & 0.98 & 1.50 & 76 & 100 \\
+ &  & Unanchored & 1.56 & 2.13 & 0.80 & 5.29 & 32 & 52 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Out-of-sample metrics for every combination of 4 resampling regimes, 3 GLM families, and 2 estimation regimes across 25 systems. Domain-level LOGO-CV withholds 1 of the 5 broad domains per fold, discipline-level LOGO-CV withholds 1 of the 25 disciplines, and $k$-Fold-CV uses a single random reshuffling with seed 42. Repeated random reshuffling enters only resampling equivalence (Table~\ref{tab:si-transfer-equivalence}). SCT-FAR denotes SCT Frontier Anchor (Eq.~\eqref{eq:far}) and Unanchored denotes SCT Frontier Exclusion in the figures. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). MAE and RMSE use natural-log units. The final 2 columns report the percentage of the 25 systems whose estimated rate is within a factor of 2 or 3 of the observed rate. Penalties are selected by inner $4$-Fold-CV within each training set (\nameref{sec:resampling}). Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Equivalence of resampling regimes to domain-level LOGO-CV.}
+\label{tab:si-transfer-equivalence}
+\begin{tabularx}{\linewidth}{@{}Xrrrrrr@{}}
+\toprule
+\multicolumn{7}{c}{\textbf{Estimation-Observation Consensus Equivalence}} \\
+\cmidrule(lr){1-7}
+Evaluation & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
+\midrule
+Discipline (LOGO-CV) & 0.00 & 0.25 & 0.003 & 0.010 & * & Yes \\
+Random ($5$-Fold-CV) & 0.00 & -0.07 & 0.004 & 0.010 & * & Yes \\
+Random ($10$-Fold-CV) & 0.00 & 0.17 & 0.011 & 0.011 & * & Yes \\
+\midrule
+\multicolumn{7}{c}{\textbf{Mean Absolute Error Equivalence}} \\
+\cmidrule(lr){1-7}
+Evaluation & \shortstack{Median\\$\Delta\mathrm{MAE}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
+\midrule
+Discipline (LOGO-CV) & -0.08 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($5$-Fold-CV) & -0.05 & -0.45 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($10$-Fold-CV) & -0.03 & -0.53 & $<0.001$ & $<0.001$ & *** & Yes \\
+\midrule
+\multicolumn{7}{c}{\textbf{Root Mean Squared Error Equivalence}} \\
+\cmidrule(lr){1-7}
+Evaluation & \shortstack{Median\\$\Delta\mathrm{RMSE}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
+\midrule
+Discipline (LOGO-CV) & -0.04 & -0.53 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($5$-Fold-CV) & -0.02 & -0.28 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($10$-Fold-CV) & -0.01 & -0.42 & $<0.001$ & $<0.001$ & *** & Yes \\
+\midrule
+\multicolumn{7}{c}{\textbf{Geometric Mean Multiplicative Error Equivalence}} \\
+\cmidrule(lr){1-7}
+Evaluation & \shortstack{Median\\$\Delta\mathrm{GMME}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{TOST\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Eq. \\
+\midrule
+Discipline (LOGO-CV) & -0.15 & -0.55 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($5$-Fold-CV) & -0.12 & -0.47 & $<0.001$ & $<0.001$ & *** & Yes \\
+Random ($10$-Fold-CV) & -0.08 & -0.53 & $<0.001$ & $<0.001$ & *** & Yes \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Paired comparisons of each resampling regime with domain-level LOGO-CV for SCT-FAR estimation. Each contrast uses 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains), with metrics scored within each domain. Random-split metrics were averaged over 30 outer seeds (42--71) before pairing, with the inner 4-fold seed fixed at 42; LOGO-CV regimes are deterministic. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). Shifts are medians of paired differences (comparison regime $-$ domain-level LOGO-CV), not differences of marginal medians. Rank-biserial $r$ uses nonzero, unshifted differences with average ranks for ties; positive values indicate larger metric values under the comparison regime. TOST uses paired one-sided Wilcoxon signed-rank tests on $\Delta+\delta$ and $\Delta-\delta$, assuming a symmetric paired-difference distribution with location $\theta$. The nulls are $\theta\leq-\delta$ and $\theta\geq\delta$; unadjusted $p$ is the larger of the two one-sided values. Margins $\delta_{\mathrm{CI}} = 0.01$, $\delta_{\mathrm{MAE}} = 0.25$, $\delta_{\mathrm{RMSE}} = 0.26$, and $\delta_{\mathrm{GMME}} = 0.57$ are IQRs across the 3 family-level means under domain-level LOGO-CV after equal averaging across domains (with 3 values, half their range), rounded up to 2 decimals. Raw differences with magnitude $<10^{-10}$ were zeroed before shifting. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zeros after shifting. $p_{\mathrm H}$ is Holm-adjusted across the 3 regime comparisons separately for each metric. Eq. requires rejection of both nulls at $p_{\mathrm H}<0.05$. Shared GLM families, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:inference}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Target contraction across resampling regimes.}
+\label{tab:si-contraction}
+\begin{tabularx}{\linewidth}{@{}Xrrrrrr@{}}
+\toprule
+ & \multicolumn{3}{c}{Interquartile Range} & \multicolumn{3}{c}{Variance} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Evaluation & $y$ & $y_U$ & Contraction (\%) & $y$ & $y_U$ & Contraction (\%) \\
+\midrule
+Domain (LOGO-CV) & 4.46 & 0.92 & 79.40 & 11.11 & 1.67 & 84.96 \\
+Discipline (LOGO-CV) & 4.46 & 0.39 & 91.20 & 11.11 & 1.07 & 90.36 \\
+Random ($5$-Fold-CV) & 4.46 & 1.10 & 75.33 & 11.11 & 2.05 & 81.50 \\
+Random ($10$-Fold-CV) & 4.46 & 0.69 & 84.51 & 11.11 & 1.78 & 83.97 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Dispersion of the observed log-rate $y$ (Eq.~\eqref{eq:expected}) and the utilization slack $y_U$ (Eq.~\eqref{eq:slack}) across 25 systems. Each resampling regime contributes one out-of-sample frontier estimate per system, and $k$-Fold-CV uses a single random reshuffling with seed 42. The calculation precedes operating-rate estimation and is independent of GLM family, so the dispersion of $y$ is identical across regimes. IQRs use linear interpolation between order statistics, and variances are population variances. Contraction (\%) is $100 \times (1 - D_U / D)$, where $D_U$ and $D$ are the dispersions of $y_U$ and $y$, and negative values would indicate increased dispersion. Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Standardized coefficients of the learned utilization.}
+\label{tab:si-coefficients}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}Xrrrrrrr@{}}
+\toprule
+\multicolumn{9}{c}{\textbf{Domain-Level LOGO-CV}} \\
+\cmidrule(lr){1-9}
+ & & \multicolumn{2}{c}{Unanchored} & \multicolumn{2}{c}{SCT-FAR} & \multicolumn{2}{c}{Mean $\lvert \beta \rvert$} & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+Family & Coordinate & Mean & SD & Mean & SD & Unanchored & SCT-FAR & \shortstack{Reduction\\(\%)} \\
+\midrule
+Poisson & Number of Edges & 0.77 & 0.24 & -0.06 & 0.03 & 0.77 & 0.06 & 92.84 \\
+ & Degree Entropy & 0.74 & 0.55 & 0.05 & 0.10 & 0.83 & 0.11 & 87.21 \\
+ & Random Walk 3rd Moment & -0.30 & 0.13 & 0.00 & 0.01 & 0.30 & 0.01 & 97.18 \\
+ & Normalized Successive Difference & -0.91 & 0.22 & -0.03 & 0.01 & 0.91 & 0.03 & 96.59 \\
+ & Coefficient of Variation & -1.08 & 0.54 & -0.27 & 0.13 & 1.08 & 0.27 & 74.89 \\
+ & Trend Coefficient & 0.07 & 0.06 & -0.08 & 0.04 & 0.08 & 0.08 & 2.51 \\
+\addlinespace
+Poisson--Tweedie & Number of Edges & 1.56 & 0.21 & 0.04 & 0.10 & 1.56 & 0.09 & 94.23 \\
+ & Degree Entropy & 1.26 & 0.49 & 0.09 & 0.11 & 1.26 & 0.11 & 91.16 \\
+ & Random Walk 3rd Moment & -0.56 & 0.13 & -0.15 & 0.06 & 0.56 & 0.15 & 73.99 \\
+ & Normalized Successive Difference & -1.18 & 0.26 & -0.22 & 0.06 & 1.18 & 0.22 & 81.28 \\
+ & Coefficient of Variation & -1.02 & 0.29 & -0.38 & 0.07 & 1.02 & 0.38 & 62.28 \\
+ & Trend Coefficient & -0.18 & 0.08 & -0.05 & 0.03 & 0.18 & 0.05 & 71.50 \\
+\addlinespace
+Negative Binomial & Number of Edges & 1.37 & 0.26 & 0.04 & 0.09 & 1.37 & 0.08 & 94.15 \\
+ & Degree Entropy & 1.10 & 0.28 & 0.09 & 0.11 & 1.10 & 0.12 & 89.33 \\
+ & Random Walk 3rd Moment & -0.58 & 0.11 & -0.15 & 0.07 & 0.58 & 0.15 & 74.04 \\
+ & Normalized Successive Difference & -1.12 & 0.19 & -0.22 & 0.08 & 1.12 & 0.22 & 80.72 \\
+ & Coefficient of Variation & -0.88 & 0.18 & -0.37 & 0.07 & 0.88 & 0.37 & 58.30 \\
+ & Trend Coefficient & -0.17 & 0.13 & -0.04 & 0.02 & 0.17 & 0.04 & 74.30 \\
+\midrule
+\multicolumn{9}{c}{\textbf{Range of Reduction Across Resampling Regimes (\%)}} \\
+\cmidrule(lr){1-9}
+Evaluation & Folds & \multicolumn{2}{r}{Poisson} & \multicolumn{2}{r}{Poisson--Tweedie} & \multicolumn{2}{r}{Negative Binomial} & \\
+\midrule
+Domain (LOGO-CV) & 5 & \multicolumn{2}{r}{2.51 to 97.18} & \multicolumn{2}{r}{62.28 to 94.23} & \multicolumn{2}{r}{58.30 to 94.15} & \\
+Discipline (LOGO-CV) & 25 & \multicolumn{2}{r}{-1.64 to 97.91} & \multicolumn{2}{r}{65.61 to 94.95} & \multicolumn{2}{r}{62.49 to 95.22} & \\
+Random ($5$-Fold-CV) & 5 & \multicolumn{2}{r}{67.63 to 97.39} & \multicolumn{2}{r}{72.52 to 96.13} & \multicolumn{2}{r}{69.91 to 96.92} & \\
+Random ($10$-Fold-CV) & 10 & \multicolumn{2}{r}{31.90 to 98.36} & \multicolumn{2}{r}{66.14 to 95.05} & \multicolumn{2}{r}{62.39 to 94.87} & \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Coefficients $\beta$ of the 6 utilization coordinates $u'$ (Eq.~\eqref{eq:far}) from every outer fold of nested cross-validation: 5 folds for domain-level LOGO-CV and $5$-Fold-CV, 25 for discipline-level LOGO-CV, and 10 for $10$-Fold-CV. Coordinates are signed-log transformed and standardized within each outer training set (Eq.~\eqref{eq:standardize}), so coefficients are changes in the log expected rate per in-sample standard deviation. Means and standard deviations (SD, denominator folds $-$ 1) summarize coefficients across folds and describe variation across trained estimators, not inferential uncertainty. Reduction (\%) is $100 \times (1 - \overline{\lvert \beta \rvert}_{\mathrm{A}} / \overline{\lvert \beta \rvert}_{\mathrm{U}})$, where $\overline{\lvert \beta \rvert}_{\mathrm{A}}$ and $\overline{\lvert \beta \rvert}_{\mathrm{U}}$ are mean absolute coefficients using SCT-FAR and under unanchored estimation, and negative values indicate larger magnitudes using SCT-FAR. The upper panel reports all 18 family-by-coordinate combinations under domain-level LOGO-CV. The lower panel reports the minimum and maximum reduction across the 6 coordinates for each resampling regime and GLM family. Reduction is positive in 71 of the 72 combinations of coordinate, family, and regime, the exception being the Poisson trend coefficient under discipline-level LOGO-CV. Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\scriptsize
+\captionsetup{position=top,skip=12pt}
+\caption{Component ablation and substitution under domain-level LOGO-CV.}
+\label{tab:si-ablation}
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrrr@{}}
+\toprule
+Formulation & \shortstack{MAE\\{[95\% interval]}} & \shortstack{$\Delta\mathrm{MAE}$\\{[95\% interval]}} & \shortstack{RMSE\\{[95\% interval]}} & \shortstack{CI\\{[95\% interval]}} & \shortstack{GMME\\{[95\% interval]}} \\
+\midrule
+\multicolumn{6}{@{}l}{\textbf{Reference}} \\
+SCT-FAR & 0.32 [0.23, 0.40] & --- & 0.38 [0.29, 0.46] & 0.98 [0.94, 1.00] & 1.47 [1.32, 1.65] \\
+\addlinespace
+\multicolumn{6}{@{}l}{\textbf{Component Ablation}} \\
+EVT Statistic Exclusion & 0.39 [0.31, 0.49] & 0.08 [0.04, 0.12] & 0.46 [0.36, 0.55] & 0.98 [0.94, 1.00] & 1.60 [1.43, 1.80] \\
+Utilization Features Exclusion & 0.60 [0.45, 0.77] & 0.28 [0.16, 0.41] & 0.73 [0.53, 0.91] & 0.97 [0.92, 0.99] & 1.99 [1.65, 2.44] \\
+Frontier Anchor Only & 1.07 [0.88, 1.26] & 0.76 [0.58, 0.93] & 1.18 [1.00, 1.36] & 0.94 [0.85, 0.98] & 3.27 [2.61, 4.09] \\
+Frontier Exclusion & 1.45 [0.97, 2.00] & 1.13 [0.65, 1.68] & 1.95 [1.29, 2.61] & 0.85 [0.74, 0.94] & 4.71 [2.86, 8.38] \\
+\addlinespace
+\multicolumn{6}{@{}l}{\textbf{Substitution}} \\
+Arbitrary Ceiling & 1.38 [0.92, 1.92] & 1.06 [0.60, 1.60] & 1.87 [1.22, 2.51] & 0.88 [0.74, 0.96] & 4.38 [2.71, 7.66] \\
+Feature Match Offset & 1.42 [0.91, 1.98] & 1.10 [0.59, 1.69] & 1.97 [1.34, 2.55] & 0.83 [0.75, 0.92] & 4.61 [2.72, 8.23] \\
+Frontier Remap & 2.95 [2.58, 3.45] & 2.64 [2.27, 3.13] & 3.83 [3.27, 4.42] & 0.61 [0.54, 0.69] & 26.92 [18.65, 54.57] \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Negative Binomial point estimates with paired system-bootstrap intervals for SCT-FAR and 7 alternative formulations under domain-level LOGO-CV across 25 systems (\nameref{sec:ablation}; Table~\ref{tab:si-protocol}). Frontier Exclusion is unanchored estimation. $\Delta\mathrm{MAE}$ is the paired difference in MAE (alternative $-$ SCT-FAR), where positive values favor SCT-FAR. Intervals are 2.5th to 97.5th percentiles across 10,000 realizations that resample the 25 systems with replacement (seed 42), shared across formulations, with estimates held fixed. Intervals for CI use the first 1,000 realizations. Frontier Remap metrics are averaged across 30 reassignments within each realization. Intervals describe variation across systems conditional on the trained estimators (\nameref{sec:inference}). Paired intervals for $\Delta\mathrm{MAE}$ exclude 0 for all 7 alternative formulations in all 3 GLM families. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Superiority of SCT-FAR over component ablations and substitutions.}
+\label{tab:si-superiority}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}Xrrrrrr@{}}
+\toprule
+\multicolumn{8}{c}{\textbf{Mean Absolute Error}} \\
+\cmidrule(lr){1-8}
+Category & Formulation & \shortstack{Median\\$\Delta\mathrm{MAE}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Sp. \\
+\midrule
+Component & EVT Statistic Exclusion & 0.11 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Utilization Features Exclusion & 0.35 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Anchor Only & 0.75 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Exclusion & 1.56 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\addlinespace
+Substitution & Arbitrary Ceiling & 1.50 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Feature Match Offset & 0.92 & 0.90 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Remap & 2.43 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\midrule
+\multicolumn{8}{c}{\textbf{Root Mean Squared Error}} \\
+\cmidrule(lr){1-8}
+Category & Formulation & \shortstack{Median\\$\Delta\mathrm{RMSE}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Sp. \\
+\midrule
+Component & EVT Statistic Exclusion & 0.08 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Utilization Features Exclusion & 0.36 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Anchor Only & 0.84 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Exclusion & 2.08 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\addlinespace
+Substitution & Arbitrary Ceiling & 1.90 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Feature Match Offset & 1.44 & 0.95 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Remap & 2.97 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\midrule
+\multicolumn{8}{c}{\textbf{Estimation-Observation Consensus}} \\
+\cmidrule(lr){1-8}
+Category & Formulation & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Sp. \\
+\midrule
+Component & EVT Statistic Exclusion & 0.00 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Utilization Features Exclusion & 0.00 & -0.18 & 0.738 & 0.738 &  & No \\
+ & Frontier Anchor Only & 0.05 & 0.30 & 0.165 & 0.330 &  & No \\
+ & Frontier Exclusion & 0.08 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\addlinespace
+Substitution & Arbitrary Ceiling & 0.08 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Feature Match Offset & 0.10 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Remap & 0.22 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\midrule
+\multicolumn{8}{c}{\textbf{Geometric Mean Multiplicative Error}} \\
+\cmidrule(lr){1-8}
+Category & Formulation & \shortstack{Median\\$\Delta\mathrm{GMME}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Sp. \\
+\midrule
+Component & EVT Statistic Exclusion & 0.18 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Utilization Features Exclusion & 0.65 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Anchor Only & 2.47 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Exclusion & 6.60 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\addlinespace
+Substitution & Arbitrary Ceiling & 6.17 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Feature Match Offset & 2.72 & 0.90 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Remap & 52.29 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+One-sided Wilcoxon signed-rank tests of SCT-FAR superiority over 7 alternative formulations under domain-level LOGO-CV (\nameref{sec:ablation}). Each contrast uses 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains), with metrics scored within each domain from out-of-sample estimates. Frontier Remap cells average metrics across 30 reassignments after scoring. Shifts are medians of paired differences oriented such that positive values favor SCT-FAR: alternative $-$ SCT-FAR for MAE, RMSE, and GMME, and SCT-FAR $-$ alternative for CI. Rank-biserial $r$ uses nonzero differences with average ranks for ties. Tests assess $H_0:\theta\leq0$ versus $H_1:\theta>0$, assuming a symmetric paired-difference distribution with location $\theta$. Raw differences with magnitude $<10^{-10}$ were zeroed. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zero differences. $p$ is unadjusted; $p_{\mathrm H}$ is Holm-adjusted across the 7 alternative formulations separately for each metric. Sp. requires $p_{\mathrm H}<0.05$ and a positive median shift, supporting superiority of SCT-FAR. Adjustment across all 4 resampling regimes is summarized separately (Table~\ref{tab:si-support}). Shared GLM families, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:inference}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Component ablation and substitution across resampling regimes and GLM families.}
+\label{tab:si-ablation-complete}
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xrrrrrrrrrrrr@{}}
+\toprule
+ & \multicolumn{4}{c}{Poisson} & \multicolumn{4}{c}{Poisson--Tweedie} & \multicolumn{4}{c}{Negative Binomial} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}\cmidrule(l){10-13}
+Formulation & MAE & RMSE & CI & GMME & MAE & RMSE & CI & GMME & MAE & RMSE & CI & GMME \\
+\midrule
+\multicolumn{13}{@{}l}{\textbf{Domain (LOGO-CV)}} \\
+SCT-FAR & 0.80 & 0.93 & 0.97 & 2.46 & 0.32 & 0.38 & 0.98 & 1.47 & 0.32 & 0.38 & 0.98 & 1.47 \\
+EVT Statistic Exclusion & 1.02 & 1.15 & 0.95 & 3.07 & 0.40 & 0.46 & 0.98 & 1.62 & 0.39 & 0.46 & 0.98 & 1.60 \\
+Utilization Features Exclusion & 1.10 & 1.26 & 0.95 & 3.39 & 0.82 & 0.95 & 0.98 & 2.53 & 0.60 & 0.73 & 0.97 & 1.99 \\
+Frontier Anchor Only & 1.47 & 1.70 & 0.88 & 4.95 & 1.31 & 1.44 & 0.93 & 4.19 & 1.07 & 1.18 & 0.94 & 3.27 \\
+Frontier Exclusion & 3.26 & 3.90 & 0.60 & 29.75 & 1.46 & 1.99 & 0.82 & 4.71 & 1.45 & 1.95 & 0.85 & 4.71 \\
+Arbitrary Ceiling & 3.21 & 3.86 & 0.62 & 28.51 & 1.38 & 1.91 & 0.83 & 4.33 & 1.38 & 1.87 & 0.88 & 4.38 \\
+Feature Match Offset & 1.54 & 2.15 & 0.81 & 5.17 & 1.46 & 2.03 & 0.82 & 4.79 & 1.42 & 1.97 & 0.83 & 4.61 \\
+Frontier Remap & 3.18 & 4.20 & 0.50 & 34.17 & 2.80 & 3.65 & 0.61 & 23.52 & 2.95 & 3.83 & 0.61 & 26.92 \\
+\addlinespace
+\multicolumn{13}{@{}l}{\textbf{Discipline (LOGO-CV)}} \\
+SCT-FAR & 0.70 & 0.84 & 0.97 & 2.18 & 0.27 & 0.33 & 0.99 & 1.41 & 0.26 & 0.33 & 0.98 & 1.39 \\
+EVT Statistic Exclusion & 0.88 & 1.02 & 0.94 & 2.63 & 0.32 & 0.40 & 0.98 & 1.49 & 0.33 & 0.39 & 0.98 & 1.49 \\
+Utilization Features Exclusion & 1.12 & 1.23 & 0.97 & 3.43 & 0.83 & 0.93 & 0.97 & 2.53 & 0.60 & 0.75 & 0.97 & 1.98 \\
+Frontier Anchor Only & 1.43 & 1.55 & 0.90 & 4.71 & 1.32 & 1.43 & 0.93 & 4.23 & 1.07 & 1.19 & 0.93 & 3.25 \\
+Frontier Exclusion & 3.02 & 3.58 & 0.66 & 23.36 & 1.66 & 2.22 & 0.79 & 5.84 & 1.55 & 2.09 & 0.81 & 5.18 \\
+Arbitrary Ceiling & 3.00 & 3.52 & 0.67 & 22.94 & 1.58 & 2.17 & 0.80 & 5.39 & 1.52 & 2.05 & 0.81 & 5.01 \\
+Feature Match Offset & 1.44 & 2.09 & 0.82 & 4.60 & 1.19 & 1.69 & 0.86 & 3.55 & 1.11 & 1.61 & 0.86 & 3.32 \\
+Frontier Remap & 3.12 & 4.12 & 0.55 & 39.80 & 3.13 & 4.03 & 0.59 & 33.70 & 3.30 & 4.23 & 0.59 & 39.74 \\
+\addlinespace
+\multicolumn{13}{@{}l}{\textbf{Random ($5$-Fold-CV)}} \\
+SCT-FAR & 0.70 & 0.83 & 0.97 & 2.17 & 0.33 & 0.41 & 0.99 & 1.49 & 0.35 & 0.44 & 0.98 & 1.51 \\
+EVT Statistic Exclusion & 0.94 & 1.08 & 0.94 & 2.79 & 0.40 & 0.47 & 0.98 & 1.61 & 0.35 & 0.41 & 0.99 & 1.53 \\
+Utilization Features Exclusion & 0.98 & 1.10 & 0.97 & 2.97 & 0.77 & 0.86 & 0.97 & 2.38 & 0.58 & 0.71 & 0.97 & 1.93 \\
+Frontier Anchor Only & 1.31 & 1.51 & 0.88 & 4.16 & 1.25 & 1.34 & 0.94 & 3.93 & 1.03 & 1.13 & 0.94 & 3.10 \\
+Frontier Exclusion & 2.90 & 3.36 & 0.67 & 20.67 & 1.49 & 1.90 & 0.87 & 5.07 & 1.44 & 1.91 & 0.87 & 4.70 \\
+Arbitrary Ceiling & 2.88 & 3.33 & 0.69 & 20.28 & 1.42 & 1.83 & 0.88 & 4.69 & 1.38 & 1.83 & 0.86 & 4.40 \\
+Feature Match Offset & 1.63 & 2.15 & 0.81 & 5.79 & 1.11 & 1.53 & 0.89 & 3.53 & 1.17 & 1.63 & 0.88 & 3.69 \\
+Frontier Remap & 3.08 & 4.00 & 0.52 & 36.79 & 3.15 & 4.03 & 0.58 & 34.96 & 3.41 & 4.31 & 0.57 & 44.48 \\
+\addlinespace
+\multicolumn{13}{@{}l}{\textbf{Random ($10$-Fold-CV)}} \\
+SCT-FAR & 0.78 & 0.92 & 0.97 & 2.38 & 0.34 & 0.41 & 0.98 & 1.51 & 0.34 & 0.42 & 0.98 & 1.50 \\
+EVT Statistic Exclusion & 1.04 & 1.21 & 0.92 & 3.09 & 0.38 & 0.45 & 0.98 & 1.59 & 0.37 & 0.43 & 0.98 & 1.55 \\
+Utilization Features Exclusion & 1.11 & 1.21 & 0.96 & 3.39 & 0.83 & 0.92 & 0.97 & 2.53 & 0.58 & 0.73 & 0.97 & 1.93 \\
+Frontier Anchor Only & 1.43 & 1.56 & 0.88 & 4.72 & 1.32 & 1.41 & 0.94 & 4.24 & 1.05 & 1.16 & 0.94 & 3.18 \\
+Frontier Exclusion & 3.00 & 3.54 & 0.62 & 23.14 & 1.74 & 2.36 & 0.76 & 6.46 & 1.56 & 2.13 & 0.80 & 5.29 \\
+Arbitrary Ceiling & 2.96 & 3.47 & 0.63 & 22.24 & 1.59 & 2.19 & 0.79 & 5.53 & 1.52 & 2.08 & 0.82 & 5.12 \\
+Feature Match Offset & 1.72 & 2.39 & 0.74 & 6.20 & 1.20 & 1.69 & 0.85 & 3.66 & 1.14 & 1.63 & 0.85 & 3.43 \\
+Frontier Remap & 3.18 & 4.20 & 0.51 & 38.59 & 3.11 & 4.06 & 0.58 & 32.30 & 3.27 & 4.24 & 0.58 & 38.48 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Out-of-sample point estimates for SCT-FAR and 7 alternative formulations across 4 resampling regimes and 3 GLM families (\nameref{sec:ablation}; Table~\ref{tab:si-protocol}). Component ablations remove the EVT statistic, replace the utilization coordinates with a fitted intercept, remove both, or remove the frontier. Substitutions replace the frontier estimate with a constant ceiling at 3 times the maximum training log-maximum within each outer and inner training set, replace it with a direct estimate of the expected rate from the same 28 inputs with the EVT statistic as a coordinate and no cap, or reassign it across systems. Frontier Remap metrics are averaged across 30 reassignments after scoring. $k$-Fold-CV uses a single random reshuffling with seed 42. SCT-FAR achieves the lowest MAE in all 12 family-by-regime settings. The 3 substitutions are less accurate than SCT-FAR in all 4 metrics in all 12 settings. Frontier Anchor Only achieves lower MAE than Frontier Exclusion in all 12 settings. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\scriptsize
+\captionsetup{position=top,skip=12pt}
+\caption{Temporal separation across divisions, resampling regimes, and GLM families.}
+\label{tab:si-temporal}
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xlrrrrrrrrrrrr@{}}
+\toprule
+ & & \multicolumn{4}{c}{Poisson} & \multicolumn{4}{c}{Poisson--Tweedie} & \multicolumn{4}{c}{Negative Binomial} \\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}\cmidrule(l){11-14}
+Evaluation & Estimation & MAE & RMSE & CI & GMME & MAE & RMSE & CI & GMME & MAE & RMSE & CI & GMME \\
+\midrule
+\multicolumn{14}{@{}l}{\textbf{Earlier Window 25\%}} \\
+Domain (LOGO-CV) & SCT-FAR & 1.13 & 1.36 & 0.94 & 3.46 & 0.55 & 0.88 & 0.95 & 1.83 & 0.58 & 0.90 & 0.95 & 1.86 \\
+ & Unanchored & 3.82 & 4.51 & 0.53 & 52.52 & 1.76 & 2.12 & 0.79 & 6.50 & 1.69 & 2.05 & 0.82 & 6.08 \\
+Discipline (LOGO-CV) & SCT-FAR & 1.00 & 1.28 & 0.94 & 3.02 & 0.60 & 0.89 & 0.94 & 1.94 & 0.63 & 0.94 & 0.94 & 2.00 \\
+ & Unanchored & 3.81 & 4.34 & 0.60 & 52.12 & 1.58 & 2.03 & 0.84 & 5.41 & 1.61 & 2.06 & 0.84 & 5.58 \\
+Random ($5$-Fold-CV) & SCT-FAR & 0.99 & 1.26 & 0.94 & 2.98 & 0.60 & 0.89 & 0.95 & 1.98 & 0.64 & 0.92 & 0.94 & 2.04 \\
+ & Unanchored & 3.80 & 4.35 & 0.54 & 51.19 & 1.63 & 2.03 & 0.85 & 5.71 & 1.58 & 2.01 & 0.84 & 5.32 \\
+Random ($10$-Fold-CV) & SCT-FAR & 0.99 & 1.27 & 0.93 & 2.96 & 0.56 & 0.87 & 0.94 & 1.88 & 0.63 & 0.94 & 0.94 & 2.02 \\
+ & Unanchored & 3.78 & 4.34 & 0.55 & 50.29 & 1.74 & 2.23 & 0.77 & 6.33 & 1.86 & 2.37 & 0.75 & 7.23 \\
+\addlinespace
+\multicolumn{14}{@{}l}{\textbf{Earlier Window 50\%}} \\
+Domain (LOGO-CV) & SCT-FAR & 0.70 & 0.94 & 0.95 & 2.16 & 0.55 & 0.79 & 0.96 & 1.83 & 0.58 & 0.81 & 0.95 & 1.89 \\
+ & Unanchored & 4.05 & 4.61 & 0.57 & 65.94 & 1.52 & 1.95 & 0.82 & 5.02 & 1.51 & 1.98 & 0.81 & 5.01 \\
+Discipline (LOGO-CV) & SCT-FAR & 0.74 & 0.94 & 0.95 & 2.20 & 0.57 & 0.82 & 0.95 & 1.86 & 0.60 & 0.87 & 0.95 & 1.93 \\
+ & Unanchored & 4.15 & 4.43 & 0.64 & 72.93 & 1.58 & 2.00 & 0.81 & 5.41 & 1.48 & 1.97 & 0.80 & 4.83 \\
+Random ($5$-Fold-CV) & SCT-FAR & 0.90 & 1.14 & 0.95 & 2.67 & 0.60 & 0.88 & 0.95 & 1.94 & 0.63 & 0.93 & 0.95 & 2.00 \\
+ & Unanchored & 3.80 & 4.18 & 0.61 & 51.25 & 1.42 & 1.86 & 0.83 & 4.58 & 1.42 & 1.86 & 0.82 & 4.54 \\
+Random ($10$-Fold-CV) & SCT-FAR & 0.76 & 0.94 & 0.95 & 2.28 & 0.60 & 0.82 & 0.95 & 1.94 & 0.63 & 0.88 & 0.95 & 2.00 \\
+ & Unanchored & 4.04 & 4.38 & 0.60 & 65.28 & 1.48 & 1.94 & 0.84 & 4.83 & 1.45 & 1.92 & 0.82 & 4.71 \\
+\addlinespace
+\multicolumn{14}{@{}l}{\textbf{Earlier Window 75\%}} \\
+Domain (LOGO-CV) & SCT-FAR & 1.02 & 1.24 & 0.95 & 3.06 & 0.66 & 0.90 & 0.96 & 2.12 & 0.65 & 0.89 & 0.96 & 2.09 \\
+ & Unanchored & 3.44 & 4.08 & 0.66 & 36.20 & 1.57 & 1.99 & 0.83 & 5.46 & 1.45 & 1.98 & 0.83 & 4.77 \\
+Discipline (LOGO-CV) & SCT-FAR & 1.20 & 1.37 & 0.94 & 3.67 & 0.61 & 0.84 & 0.96 & 2.00 & 0.66 & 0.97 & 0.95 & 2.11 \\
+ & Unanchored & 3.49 & 3.88 & 0.69 & 37.79 & 1.77 & 2.23 & 0.77 & 6.62 & 1.60 & 2.14 & 0.77 & 5.47 \\
+Random ($5$-Fold-CV) & SCT-FAR & 1.10 & 1.32 & 0.95 & 3.28 & 0.63 & 0.91 & 0.95 & 2.04 & 0.66 & 0.97 & 0.96 & 2.09 \\
+ & Unanchored & 3.48 & 3.92 & 0.68 & 37.30 & 1.52 & 1.96 & 0.82 & 5.11 & 1.47 & 1.98 & 0.84 & 4.73 \\
+Random ($10$-Fold-CV) & SCT-FAR & 1.07 & 1.27 & 0.95 & 3.17 & 0.62 & 0.85 & 0.96 & 2.01 & 0.64 & 0.92 & 0.95 & 2.07 \\
+ & Unanchored & 3.62 & 4.04 & 0.68 & 42.99 & 1.78 & 2.32 & 0.78 & 6.69 & 1.62 & 2.22 & 0.79 & 5.60 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Out-of-sample point estimates using SCT-FAR and unanchored estimation across 3 temporal divisions, 4 resampling regimes, and 3 GLM families (\nameref{sec:temporal}). For each division, the first $\lfloor \rho L \rfloor$ chronologically ordered intervals supply the process signatures, EVT statistic, and frontier training maxima, and the remaining intervals supply the expected operating rate, with at least 3 intervals in each window. Graph invariants are static and span both windows. $k$-Fold-CV uses a single random reshuffling with seed 42. SCT-FAR is more accurate than unanchored estimation in all 4 metrics in all 36 combinations of division, resampling regime, and GLM family. Removing the cap (Eq.~\eqref{eq:far}) and reselecting penalties changes 0 of 25 estimates in each of the 36 combinations. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). Descriptive summaries only.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\scriptsize
+\captionsetup{position=top,skip=12pt}
+\caption{Temporal separation at the primary setting.}
+\label{tab:si-temporal-tests}
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}Xlrrrrrr@{}}
+\toprule
+\multicolumn{8}{c}{\textbf{Prediction Quality}} \\
+\cmidrule(lr){1-8}
+Family & Estimation & \shortstack{MAE\\{[95\% interval]}} & \shortstack{RMSE\\{[95\% interval]}} & \shortstack{CI\\{[95\% interval]}} & \shortstack{GMME\\{[95\% interval]}} & \shortstack{$\le 2\times$\\(\%)} & \shortstack{$\le 3\times$\\(\%)} \\
+\midrule
+Poisson & SCT-FAR & 0.70 [0.48, 0.96] & 0.94 [0.62, 1.28] & 0.95 [0.86, 0.98] & 2.16 [1.71, 2.81] & 56 & 72 \\
+ & Unanchored & 4.05 [3.16, 4.90] & 4.61 [3.82, 5.33] & 0.57 [0.43, 0.75] & 65.94 [26.05, 161.41] & 16 & 16 \\
+\addlinespace
+Poisson--Tweedie & SCT-FAR & 0.55 [0.34, 0.78] & 0.79 [0.50, 1.06] & 0.96 [0.89, 0.99] & 1.83 [1.46, 2.34] & 68 & 84 \\
+ & Unanchored & 1.52 [1.08, 2.01] & 1.95 [1.41, 2.43] & 0.82 [0.72, 0.91] & 5.02 [3.20, 8.19] & 28 & 44 \\
+\addlinespace
+Negative Binomial & SCT-FAR & 0.58 [0.37, 0.82] & 0.81 [0.52, 1.09] & 0.95 [0.88, 0.99] & 1.89 [1.51, 2.43] & 68 & 84 \\
+ & Unanchored & 1.51 [1.04, 2.02] & 1.98 [1.47, 2.44] & 0.81 [0.70, 0.94] & 5.01 [3.09, 8.43] & 32 & 44 \\
+\addlinespace
+Reference & Carry-Forward & 0.47 & 0.78 & 0.96 & 1.69 & --- & --- \\
+\midrule
+\multicolumn{8}{c}{\textbf{Superiority of SCT-FAR Over Unanchored Estimation}} \\
+\cmidrule(lr){1-8}
+Metric & & \shortstack{Median\\$\Delta$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Complete\\Holm-adj. $p$} & Sig. & Sp. \\
+\midrule
+MAE & & 1.49 & 0.95 & $<0.001$ & 0.001 & *** & Yes \\
+RMSE & & 1.56 & 0.95 & $<0.001$ & 0.001 & *** & Yes \\
+CI & & 0.11 & 0.68 & 0.009 & 0.081 & ** & Yes \\
+GMME & & 7.89 & 0.95 & $<0.001$ & 0.001 & *** & Yes \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+The primary temporal setting is the 50\% division under domain-level LOGO-CV, where the first half of each chronologically ordered series supplies the process signatures, EVT statistic, and frontier training maxima, and the second half supplies the expected operating rate (\nameref{sec:temporal}). The upper panel reports out-of-sample point estimates with paired system-bootstrap intervals, the 2.5th to 97.5th percentiles across 10,000 realizations that resample the 25 systems with replacement (seed 42) with estimates held fixed. Intervals for CI use the first 1,000 realizations. Paired intervals for the difference between unanchored estimation and SCT-FAR exclude 0 in all 4 metrics for all 3 GLM families. Carry-Forward estimates each later rate as $\ln(1 + \bar{r}_A)$ from the expected rate of the earlier window without training, and its proportions within a factor of 2 or 3 were not computed. The lower panel reports one-sided Wilcoxon signed-rank tests across 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains), with paired differences oriented such that positive values favor SCT-FAR: unanchored $-$ SCT-FAR for MAE, RMSE, and GMME, and SCT-FAR $-$ unanchored for CI. With 1 comparison per metric, $p$ is unadjusted, and Sig. and Sp. refer to it. Sp. requires $p<0.05$ and a positive median shift. The complete Holm-adjusted $p$ is adjusted across all 12 combinations of division and resampling regime separately for each metric (Table~\ref{tab:si-support}). Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}. Shared GLM families, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:inference}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Statistical support across all settings.}
+\label{tab:si-support}
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}Xlrrrrrr@{}}
+\toprule
+Analysis & Comparison & Metric & Settings & \shortstack{Min. Median\\$\Delta$} & \shortstack{Max. Median\\$\Delta$} & Favoring & Superior & \shortstack{Max. Holm-adj.\\$p$} \\
+\midrule
+Component & EVT Statistic Exclusion & MAE & 4 & 0.05 & 0.11 & 4 & 4 & 0.011 \\
+ & & RMSE & 4 & 0.04 & 0.08 & 4 & 4 & 0.042 \\
+ & & CI & 4 & 0.00 & 0.00 & 4 & 2 & 0.606 \\
+ & & GMME & 4 & 0.10 & 0.18 & 4 & 4 & 0.008 \\
+\addlinespace
+ & Utilization Features Exclusion & MAE & 4 & 0.29 & 0.45 & 4 & 4 & $<0.001$ \\
+ & & RMSE & 4 & 0.28 & 0.42 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.00 & 0.00 & 4 & 0 & 1.000 \\
+ & & GMME & 4 & 0.65 & 0.98 & 4 & 4 & $<0.001$ \\
+\addlinespace
+ & Frontier Anchor Only & MAE & 4 & 0.75 & 0.99 & 4 & 4 & $<0.001$ \\
+ & & RMSE & 4 & 0.80 & 0.96 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.05 & 0.05 & 4 & 0 & 0.826 \\
+ & & GMME & 4 & 2.12 & 2.97 & 4 & 4 & $<0.001$ \\
+\addlinespace
+ & Frontier Exclusion & MAE & 4 & 1.56 & 2.02 & 4 & 4 & $<0.001$ \\
+ & & RMSE & 4 & 2.03 & 2.11 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.05 & 0.09 & 4 & 4 & 0.011 \\
+ & & GMME & 4 & 6.60 & 10.00 & 4 & 4 & $<0.001$ \\
+\addlinespace
+Substitution & Arbitrary Ceiling & MAE & 4 & 1.50 & 1.84 & 4 & 4 & $<0.001$ \\
+ & & RMSE & 4 & 1.83 & 1.97 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.05 & 0.08 & 4 & 4 & 0.007 \\
+ & & GMME & 4 & 6.17 & 8.33 & 4 & 4 & $<0.001$ \\
+\addlinespace
+ & Feature Match Offset & MAE & 4 & 0.76 & 1.09 & 4 & 4 & 0.002 \\
+ & & RMSE & 4 & 1.14 & 1.44 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.08 & 0.12 & 4 & 4 & 0.003 \\
+ & & GMME & 4 & 1.80 & 3.17 & 4 & 4 & 0.002 \\
+\addlinespace
+ & Frontier Remap & MAE & 4 & 2.43 & 2.64 & 4 & 4 & $<0.001$ \\
+ & & RMSE & 4 & 2.97 & 3.42 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.22 & 0.25 & 4 & 4 & $<0.001$ \\
+ & & GMME & 4 & 38.14 & 56.09 & 4 & 4 & $<0.001$ \\
+\addlinespace
+Temporal & Frontier Exclusion & MAE & 12 & 1.35 & 1.97 & 12 & 12 & 0.002 \\
+ & & RMSE & 12 & 1.42 & 2.15 & 12 & 12 & 0.001 \\
+ & & CI & 12 & 0.04 & 0.13 & 12 & 0 & 0.253 \\
+ & & GMME & 12 & 7.20 & 12.70 & 12 & 12 & 0.002 \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Superiority tests summarized by comparison and metric across all settings. Component and substitution rows span the 4 resampling regimes (4 settings per row), and temporal rows span 3 divisions $\times$ 4 resampling regimes (12 settings per row). Each setting tests SCT-FAR superiority across 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains) with one-sided Wilcoxon signed-rank tests, with paired differences oriented such that positive values favor SCT-FAR. Min. and Max. Median $\Delta$ bound the setting-level medians of paired differences. Favoring counts settings with a positive median shift, and Superior counts those that also satisfy $p_{\mathrm H}<0.05$. $p_{\mathrm H}$ is Holm-adjusted across all settings and comparisons within each analysis separately for each metric, covering 28 ablation and substitution comparisons or 12 temporal comparisons, and the maximum across a row's settings is reported. Frontier Exclusion is unanchored estimation. All settings reuse the same 25 systems and are not independent replications (\nameref{sec:inference}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Graph invariant definitions, expressions, and asymptotic time complexity.}
+\label{tab:si-features}
+\begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
+\toprule
+\textbf{Category} & \textbf{Invariant} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
+\midrule
+Simple & 1. Number of Nodes & Number of nodes\newline & $n = |V|$ & $O(1)$ \\
+ & 2. Number of Edges \ddag & Number of edges\newline & $m = |E|$ & $O(1)$ \\
+ & 3. Articulation Points & Vertices whose removal splits $G$ & $\lvert \{ v : \omega(G - v) > \omega(G) \} \rvert$ & $O(n+m)$ \\
+ & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ e : \omega(G - e) > \omega(G) \} \rvert$ & $O(n+m)$ \\
+\addlinespace
+Cohesion & 5. Diameter & Longest shortest-path length \dag & $\max_v \epsilon(v)$ & $O(nm)$ \\
+ & 6. Radius & Smallest vertex eccentricity \dag & $\min_v \epsilon(v)$ & $O(nm)$ \\
+ & 7. Degeneracy & Largest $k$ with\newline a $k$-core & $k^{*} = \max_v c(v)$ & $O(n+m)$ \\
+ & 8. $k$-Core Size & Vertices in the\newline core at $k^{*}$ & $\lvert \{ v : c(v) = k^{*} \} \rvert$ & $O(n+m)$ \\
+\addlinespace
+Extremal & 9. Maximum Degree & Highest vertex degree & $\max_v d_v$ & $O(n)$ \\
+\addlinespace
+Statistical & 10. Degree Variance & Spread of vertex\newline degrees & $n^{-1} \sum_v (d_v - \bar{d})^2$ & $O(n)$ \\
+ & 11. Degree Entropy \ddag & Entropy of degree distribution & $-\sum_k p_k \ln p_k$ & $O(n)$ \\
+ & 12. Joint Degree Entropy & Entropy of edge degree pairs & $-\sum_{k \le l} q_{kl} \ln q_{kl}$ & $O(m)$ \\
+ & 13. Degree Skewness & Asymmetry of degree distribution & $\frac{\sqrt{n(n-1)}}{n-2}\, g_1$ & $O(n)$ \\
+ & 14. Degree Kurtosis & Tail weight of degree distribution & $\frac{(n-1)[(n+1) g_2 + 6]}{(n-2)(n-3)}$ & $O(n)$ \\
+ & 15. Global Clustering Coefficient & Fraction of\newline closed triples & $3 N_{\triangle} / N_{\wedge}$ & $O(n d_{\max}^2)$ \\
+ & 16. Assortativity & Correlation of endpoint degrees & $\mathrm{corr}_{\{u,v\} \in E}(d_u, d_v)$ & $O(m)$ \\
+\addlinespace
+Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{tr}(L^2)/n$ & $O(m)$ \\
+ & 18. Normalized Laplacian 3rd Moment & Diffusion asymmetry & $\mathrm{tr}(L^3)/n$ & $O(m^2)$ \\
+ & 19. Random Walk 3rd Moment \ddag & Three-step recurrence & $\mathrm{tr}(P^3)/n$ & $O(m^2)$ \\
+ & 20. Random Walk 4th Moment & Four-step recurrence & $\mathrm{tr}(P^4)/n$ & $O(m^2)$ \\
+ & 21. Adjacency 4th Moment & Four-length walk density & $\mathrm{tr}(A^4)/n$ & $O(m^2)$ \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Admission required global graph descriptors defined solely by topology, independent of embeddings, weights, external parameters, and arbitrary thresholds, exactly and deterministically computable at corpus scale, and non-trivially variable across systems. All returned values were finite. \dag~Diameter and radius use the largest connected component; degeneracy and $k$-core size use the full graph. \ddag~Coordinates of the utilization vector $u$ (Eq.~\eqref{eq:utilization}). Spectral moments use exact trace identities without eigendecomposition; the 4 complete bipartite substrates use closed-form invariants. Here $n = |V|$, $m = |E|$, $d_v$ is vertex degree, $\bar{d}$ its mean, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, and $g_2 = \mu_4 / \mu_2^{2} - 3$. $\omega$ counts connected components, $\epsilon(v)$ is eccentricity in hops, $c(v)$ is core number, $p_k$ is the fraction of nodes of degree $k$, $q_{kl}$ is the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ count triangles and connected triples. $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ over non-isolated nodes, $L = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ but contribute 0 to $\mathrm{tr}(L^k)$. Logarithms are natural; assortativity counts both edge orientations. Undefined assortativity and clustering are 0. Degree skewness and kurtosis are 0 for equal degrees or $n < 3$ and $n < 4$, respectively. References: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Process signature definitions, expressions, and asymptotic time complexity.}
+\label{tab:si-signatures}
+\begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
+\toprule
+\textbf{Property} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
+\midrule
+Dependence & 1. Lag-1 Autocorrelation & Short-term sequential dependence & $\frac{\sum_{i=1}^{L-1} \tilde{r}_i \tilde{r}_{i+1}}{\sum_{i=1}^{L} \tilde{r}_i^{2}}$ & $O(L)$ \\
+ & 2. Hurst Exponent & Long-range\newline dependence & $\ln(R/s) / \ln L$ & $O(L)$ \\
+\addlinespace
+Dispersion & 3. Coefficient of Variation \ddag & Scale-free\newline dispersion & $s / \bar{r}$ & $O(L)$ \\
+ & 4. Fano Factor & Deviation from Poisson dispersion & $s^{2} / \bar{r}$ & $O(L)$ \\
+\addlinespace
+Volatility & 5. Normalized Successive Difference \ddag & Local temporal volatility & $\frac{1}{(L-1)\,\bar{r}} \sum_{i=1}^{L-1} \lvert r_{i+1} - r_i \rvert$ & $O(L)$ \\
+\addlinespace
+Trend & 6. Trend Coefficient \ddag & Systematic non-stationarity & $\mathrm{corr}(r_i, i)$ & $O(L)$ \\
+\addlinespace
+Asymmetry & 7. Count Skewness & Distributional asymmetry & $\frac{1}{L} \sum_{i=1}^{L} (\tilde{r}_i / s)^{3}$ & $O(L)$ \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+Admission required global series descriptors defined solely by the rate series, without external parameters or arbitrary thresholds, exactly and deterministically computable, and non-trivially variable across systems. All returned values were finite. \ddag~Coordinates of the utilization vector $u$ (Eq.~\eqref{eq:utilization}), where the coefficient of variation also enters the EVT statistic (Eq.~\eqref{eq:evt}). For the chronologically ordered rate series $r_1, \ldots, r_L$ (Eq.~\eqref{eq:series}), $L = \lvert T \rvert$, $\bar{r}$ is the mean, $\tilde{r}_i = r_i - \bar{r}$, and $s$ is the sample standard deviation with denominator $L - 1$. Interval inclusion follows corpus definitions (Table~\ref{tab:si-corpus}); lag-1 dependence and trend index consecutive included observations, not calendar gaps. The Hurst exponent is a full-series, single-window rescaled-range estimate clipped to $[0, 1]$, with $R = \max_i Y_i - \min_i Y_i$ and cumulative sums $Y_i = \sum_{j \le i} \tilde{r}_j$. Trend is Pearson correlation with position $i$. CV, Fano factor, and normalized successive difference use denominator $\bar{r} + 10^{-10}$ and are 0 when $\bar{r} \le 0$. Lag-1 autocorrelation and trend are 0 for denominators $\le 10^{-10}$. Skewness is 0 when $L < 3$ or $s \le 10^{-10}$; Hurst is 0.5 when $L < 8$ or $R$ or $s$ is $\le 10^{-10}$. References: \citep{ref53,ref54,ref55,ref65,ref66,ref108,ref109,ref110,ref113}.
+\end{minipage}
+\end{table}
+
+\clearpage
+\begin{table}[H]
+\centering
+\footnotesize
+\captionsetup{position=top,skip=12pt}
+\caption{Estimation, ablation, substitution, and temporal protocols and inference.}
+\label{tab:si-protocol}
+\begin{tabularx}{\linewidth}{@{}lll>{\raggedright\arraybackslash}Xl@{}}
+\toprule
+\textbf{Category} & \textbf{Formulation} & \textbf{Offset} & \textbf{Description} & \textbf{Cap} \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Estimation} (TOST equivalence across resampling regimes, $\delta_{\mathrm{MAE}} = 0.25$, $\delta_{\mathrm{RMSE}} = 0.26$, $\delta_{\mathrm{CI}} = 0.01$, $\delta_{\mathrm{GMME}} = 0.57$)} \\
+\midrule
+Reference & SCT-FAR & $\widehat{y}^{*} - e$ & Learned utilization on 6 coordinates $u'$ (Eq.~\eqref{eq:far}) & $\widehat{y}^{*}$ \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Ablation} (one-sided superiority of SCT-FAR, Holm-adjusted)} \\
+\midrule
+Component & EVT Statistic Exclusion & $\widehat{y}^{*}$ & Learned utilization on $u'$ without the EVT statistic & $\widehat{y}^{*}$ \\
+ & Utilization Features Exclusion & $\widehat{y}^{*} - e$ & Fitted intercept without $u'$ & $\widehat{y}^{*}$ \\
+ & Frontier Anchor Only & $\widehat{y}^{*}$ & Fitted intercept without $u'$ or the EVT statistic & $\widehat{y}^{*}$ \\
+ & Frontier Exclusion & None & Unanchored estimation on $u'$ & None \\
+\addlinespace
+Substitution & Arbitrary Ceiling & $c - e$ & Constant $c = 3\max_j y_j^{*}$ across training systems replaces $\widehat{y}^{*}$ & $c$ \\
+ & Feature Match Offset & $\widehat{y}_{D}$ & Direct estimate $\widehat{y}_{D}$ of $y$ from $x'$ and $z'$ at $\tau_C = \tau_R = 0.50$, with $e$ appended to $u$ & None \\
+ & Frontier Remap & $\widehat{y}_{\pi(i)}^{*} - e$ & Frontier estimates reassigned across systems by $\pi$ over 30 reassignments & $\widehat{y}_{\pi(i)}^{*}$ \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{Temporal Separation} (one-sided superiority of SCT-FAR over unanchored estimation, Holm-adjusted)} \\
+\midrule
+Division & Earlier Window 25\% & $\widehat{y}_A^{*} - e_A$ & First 25\% of intervals supply $z$, $e$, and frontier training maxima & $\widehat{y}_A^{*}$ \\
+ & Earlier Window 50\% & $\widehat{y}_A^{*} - e_A$ & First 50\% of intervals supply $z$, $e$, and frontier training maxima & $\widehat{y}_A^{*}$ \\
+ & Earlier Window 75\% & $\widehat{y}_A^{*} - e_A$ & First 75\% of intervals supply $z$, $e$, and frontier training maxima & $\widehat{y}_A^{*}$ \\
+\addlinespace
+Reference & Carry-Forward & None & Later rate estimated as $\ln(1 + \bar{r}_A)$ without training & None \\
+\bottomrule
+\end{tabularx}
+\par\vspace{12pt}
+\begin{minipage}{\linewidth}
+\footnotesize
+All formulations use the original training folds, 3 GLM families, 4 resampling regimes, and nested penalty selection from $\lambda \in \{1, 2, 5, 10\}$ by inner $4$-Fold-CV (\nameref{sec:far}). Offsets enter the logarithmic link with unit coefficient, and the cap is the upper limit placed on $\ln \widehat{r}$. $\widehat{y}^{*}$ is the out-of-sample frontier estimate (Eq.~\eqref{eq:frontier}) and $e$ the EVT statistic (Eq.~\eqref{eq:evt}). Frontier Exclusion is unanchored estimation, which is also evaluated in every temporal division. The arbitrary ceiling is computed separately within each outer and inner training set. Feature Match Offset trains the two-stage formulation on the same 21 graph invariants and 7 process signatures to target $y$, and appends the EVT statistic to $u$ as a 7th coordinate prior to standardization. Frontier Remap samples permutations uniformly subject to $\pi(i) \ne i$ for all 25 systems from a generator with seed 42, and each system retains its own $e$ and $u'$. Temporal divisions require at least 3 intervals in each window and hold graph invariants static, where subscript $A$ denotes quantities computed from the earlier window. The 50\% division under domain-level LOGO-CV is the primary temporal setting. Inference uses the 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains); metric aggregation, margins, and Holm-adjustment families are specified across test summaries (Tables~\ref{tab:si-transfer-equivalence}, \ref{tab:si-superiority}, \ref{tab:si-temporal-tests}, and \ref{tab:si-support}).
+\end{minipage}
+\end{table}
+
+\clearpage
+\subsection*{Note S1: Corpus Processing Conventions}
+\phantomsection
+\label{sec:si-note-processing}
+The \textbf{federal} series excludes awards with non-positive amounts or start dates outside 2011-01-01 to 2024-12-31. Zero speeds are treated as missing in \textbf{metrla} (8.1\% of readings) and as readings in \textbf{pemsbay} (0.003\%). \textbf{Montevideo} drops the first 4 hours removed by the loader lag and the final 20 hours of the 744-hour source that do not complete a day.
+
+GPS timestamps in \textbf{gwosc} and \textbf{auger} were converted to UTC without leap-second correction; correction would move 19 \textbf{auger} events and no \textbf{gwosc} events to another day. The \textbf{crop} network retains 12 nodes and 30 edges from studies whose visits lack dates. Exact-name matching of \textbf{world} countries to lending metadata leaves 23 regional aggregates and spelling variants isolated.
+
+\clearpage
+\subsection*{Note S2: Count-Family Estimation}
+\phantomsection
+\label{sec:si-note-estimation}
+Let $o$ denote the offset, $\eta = o + \beta_0 + \beta^{\top}u'$ the linear predictor, and $\mu = e^{\eta}$ the fitted mean across $n$ training systems (Eq.~\eqref{eq:far}). All 3 GLM families minimized a scaled loss with the penalty $(\lambda/2n)\lVert\beta\rVert_2^2$ and an unpenalized intercept. Linear predictors were clipped to $[-15, 25]$ during training, and estimated log-rates were clipped to $[-12, 20]$ before exponentiation. Expected rates were floored at $10^{-8}$. The intercept and coefficients were initialized by ridge regression of $\ln \bar{r} - o$ on $u'$ with penalty $\max(\lambda, 1)$. L-BFGS-B used analytical gradients and default tolerances \citep{ref145}.
+
+\textbf{Poisson} estimation used $\eta + \ln L$ as the linear predictor of the total count $M$. The loss was the mean of $e^{\eta + \ln L} - M(\eta + \ln L)$ across training systems, divided by the mean training count, which was floored at 1.
+
+\textbf{Negative Binomial} estimation used the log-likelihood of the expected rate $\bar{r}$ with mean $\mu$ and dispersion $\alpha$:
+\begin{equation*}
+\ell(\bar{r};\, \mu, \alpha) \;=\; \ln\Gamma(\bar{r} + \alpha^{-1}) - \ln\Gamma(\alpha^{-1}) - \ln\Gamma(\bar{r} + 1) - \alpha^{-1}\ln(1 + \alpha\mu) + \bar{r}\,\ln\frac{\alpha\mu}{1 + \alpha\mu}
+\end{equation*}
+The loss was the mean negative log-likelihood multiplied by $\alpha$. The dispersion minimized the mean negative log-likelihood at the current fitted means by bounded scalar minimization on $[10^{-3}, 10]$ \citep{ref184}.
+
+\textbf{Poisson--Tweedie} estimation used the variance function $V(\mu) = \mu + \phi\mu^{p}$ with $p = 1.75$ and the unit deviance:
+\begin{equation*}
+d(\bar{r}, \mu) \;=\; 2\int_{\ln \mu}^{\ln \bar{r}} \frac{\bar{r} - e^{v}}{1 + \phi\, e^{(p - 1)v}}\, dv
+\end{equation*}
+evaluated by 16-node Gauss-Legendre quadrature \citep{ref174}. The loss was the mean of $d/2$ divided by the mean working weight $\bar{r}/(1 + \phi\bar{r}^{\,p-1})$. The dispersion maximized the mean saddlepoint log-density $-\tfrac{1}{2}\ln[2\pi V(\bar{r})] - \tfrac{1}{2}d(\bar{r}, \mu)$ at the current fitted means by bounded scalar minimization on $[10^{-3}, 10]$ \citep{ref173,ref144}.
+
+For the 2 overdispersed families, dispersion and coefficient updates alternated for 3 iterations from the ridge initialization. Penalty selection scored each $\lambda$ by the mean absolute difference between $\ln \bar{r}$ and $\ln \widehat{r}$ across inner validation systems, averaged across the 4 inner folds. Formulations with a cap applied it before scoring. Ties were resolved in favor of the smaller penalty.
+
+\clearpage
+\subsection*{SI References}
+\phantomsection
+\label{sec:si-sources}
+\footnotesize
+\begin{enumerate}[label=S\arabic*.,ref=S\arabic*,leftmargin=2.8em,itemsep=0.6em]
+\item \label{src:S1} Vallisneri, M., Kanner, J., Williams, R., Weinstein, A. \& Stephens, B. The LIGO Open Science Center. \textit{J. Phys. Conf. Ser.} \textbf{610}, 012021 (2015). \url{https://doi.org/10.1088/1742-6596/610/1/012021}
+\item \label{src:S2} U.S. Geological Survey. USGS Water Data for the Nation (1994). \url{https://doi.org/10.5066/F7P55KJN}
+\item \label{src:S3} Pierre Auger Collaboration. Pierre Auger Observatory Open Data, version 3 [Dataset]. Zenodo (2024). \url{https://doi.org/10.5281/zenodo.10488964}
+\item \label{src:S4} Albuquerque Seismological Laboratory/USGS. Global Seismograph Network (GSN - IRIS/USGS) [Dataset]. International Federation of Digital Seismograph Networks (1988). \url{https://doi.org/10.7914/SN/IU}
+\item \label{src:S5} U.S. Geological Survey. Advanced National Seismic System (ANSS) Comprehensive Catalog (2017). \url{https://doi.org/10.5066/F7MS3QZH}
+\item \label{src:S6} Meteostat. Meteostat weather and climate database. \url{https://meteostat.net} (accessed 1 September 2026).
+\item \label{src:S7} Cassada, R. C. \& Russell, R. L. The dauerlarva, a post-embryonic developmental variant of the nematode \textit{Caenorhabditis elegans}. \textit{Dev. Biol.} \textbf{46}, 326--342 (1975). \url{https://doi.org/10.1016/0012-1606(75)90109-8}
+\item \label{src:S8} Golden, J. W. \& Riddle, D. L. The \textit{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \textit{Dev. Biol.} \textbf{102}, 368--378 (1984). \url{https://doi.org/10.1016/0012-1606(84)90201-X}
+\item \label{src:S9} Allen-Perkins, A. et al. CropPol: A dynamic, open and global database on crop pollination. \textit{Ecology} \textbf{103}, e3614 (2022). \url{https://doi.org/10.1002/ecy.3614}
+\item \label{src:S10} Hungarian Chickenpox Cases [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5103B}
+\item \label{src:S11} U.S. Food and Drug Administration. openFDA Drug Event API. \url{https://open.fda.gov/apis/drug/event/} (accessed 13 March 2026).
+\item \label{src:S12} Guttag, J. CHB-MIT Scalp EEG Database, version 1.0.0 [Dataset]. PhysioNet (2010). \url{https://doi.org/10.13026/C2K01R}
+\item \label{src:S13} U.S. Department of the Treasury. USAspending API. \url{https://api.usaspending.gov/} (accessed 25 August 2026).
+\item \label{src:S14} Kumar, S., Zhang, X. \& Leskovec, J. Predicting dynamic embedding trajectory in temporal interaction networks. In \textit{Proc. 25th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining} 1269--1278 (ACM, 2019). \url{https://doi.org/10.1145/3292500.3330895}
+\item \label{src:S15} McAuley, J., Targett, C., Shi, Q. \& van den Hengel, A. Image-based recommendations on styles and substitutes. In \textit{Proc. 38th Int. ACM SIGIR Conf. Research and Development in Information Retrieval} 43--52 (ACM, 2015). \url{https://doi.org/10.1145/2766462.2767755}
+\item \label{src:S16} Kumar, S., Spezzano, F., Subrahmanian, V. S. \& Faloutsos, C. Edge weight prediction in weighted signed networks. In \textit{Proc. IEEE 16th Int. Conf. Data Mining} 221--230 (IEEE, 2016). \url{https://doi.org/10.1109/ICDM.2016.0033}
+\item \label{src:S17} World Bank. Projects \& Operations API and Country API. \url{https://search.worldbank.org/api/v2/projects} and \url{https://api.worldbank.org/v2/country} (accessed 29 September 2026).
+\item \label{src:S18} Wikipedia Math Essentials [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5V32F}
+\item \label{src:S19} Paranjape, A., Benson, A. R. \& Leskovec, J. Motifs in temporal networks. In \textit{Proc. 10th ACM Int. Conf. Web Search and Data Mining} 601--610 (ACM, 2017). \url{https://doi.org/10.1145/3018661.3018731}
+\item \label{src:S20} Panzarasa, P., Opsahl, T. \& Carley, K. M. Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \textit{J. Am. Soc. Inf. Sci. Technol.} \textbf{60}, 911--932 (2009). \url{https://doi.org/10.1002/asi.21015}
+\item \label{src:S21} OpenStreetMap contributors. OpenStreetMap [Dataset]. \url{https://www.openstreetmap.org} (accessed 10 November 2025).
+\item \label{src:S22} Boeing, G. Modeling and analyzing urban networks and amenities with OSMnx. \textit{Geogr. Anal.} \textbf{57}, 567--577 (2025). \url{https://doi.org/10.1111/gean.70009}
+\item \label{src:S23} Li, Y., Yu, R., Shahabi, C. \& Liu, Y. Diffusion convolutional recurrent neural network: data-driven traffic forecasting. In \textit{Int. Conf. Learning Representations} (2018).
+\item \label{src:S24} Abbott, B. P. et al. GWTC-1: A Gravitational-Wave Transient Catalog of Compact Binary Mergers Observed by LIGO and Virgo during the First and Second Observing Runs. \textit{Phys. Rev. X} \textbf{9}, 031040 (2019). \url{https://doi.org/10.1103/PhysRevX.9.031040}
+\item \label{src:S25} Abbott, R. et al. GWTC-2: Compact Binary Coalescences Observed by LIGO and Virgo during the First Half of the Third Observing Run. \textit{Phys. Rev. X} \textbf{11}, 021053 (2021). \url{https://doi.org/10.1103/PhysRevX.11.021053}
+\item \label{src:S26} Abbott, R. et al. GWTC-2.1: Deep extended catalog of compact binary coalescences observed by LIGO and Virgo during the first half of the third observing run. \textit{Phys. Rev. D} \textbf{109}, 022001 (2024). \url{https://doi.org/10.1103/PhysRevD.109.022001}
+\item \label{src:S27} Abbott, R. et al. GWTC-3: Compact Binary Coalescences Observed by LIGO and Virgo during the Second Part of the Third Observing Run. \textit{Phys. Rev. X} \textbf{13}, 041039 (2023). \url{https://doi.org/10.1103/PhysRevX.13.041039}
+\item \label{src:S28} Government of Uruguay. National Open Data Catalog. \url{https://catalogodatos.gub.uy/} (accessed 1 September 2026).
+\item \label{src:S29} Kunz, N. \& Gao, H. O. Global geolocated realtime data of interfleet urban transit bus idling. Preprint at \url{https://doi.org/10.48550/arXiv.2403.03489} (2024).
+\item \label{src:S30} LIGO Scientific Collaboration, Virgo Collaboration \& KAGRA Collaboration. GWTC-4.0 Data Release Documentation [Dataset]. Gravitational Wave Open Science Center (2025). \url{https://doi.org/10.7935/aes8-px89}
+\item \label{src:S31} Rader, R. et al. Non-bee insects are important contributors to global crop pollination. \textit{Proc. Natl Acad. Sci. USA} \textbf{113}, 146--151 (2016). \url{https://doi.org/10.1073/pnas.1517092112}
+\end{enumerate}
+
+\endgroup
+\end{document}

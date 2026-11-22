@@ -316,7 +316,7 @@ class TransferFigureTests(unittest.TestCase):
             self.assertAlmostEqual(first = span_patch.get_height(), second = summary["baseline_iqr"][1] - summary["baseline_iqr"][0])
             self.assertEqual(first = span_patch.get_zorder(), second = 0)
             facecolor_hex = mcolors.to_hex(c = span_patch.get_facecolor()[:3]).upper()
-            self.assertEqual(first = facecolor_hex, second = "#E6F4EA")
+            self.assertEqual(first = facecolor_hex, second = "#DDEFE3")
 
             ## verify dashed guide lines at margin boundaries
             guide_lines = [

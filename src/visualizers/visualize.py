@@ -671,7 +671,7 @@ def plot_perturbation_superfigure(
     fig.patch.set_facecolor("white")
     fig.subplots_adjust(top = 0.88, bottom = 0.08, left = 0.07, right = 0.985)
     neutral_color = "#C0C0C0"
-    margin_color = "#E6F4EA"
+    margin_color = "#DDEFE3"
     fingerprint_margin_color = "#CFEAD6"
     margin_edge_color = "#A6A6A6"
     margin_text_color = "#1F5E2E"
@@ -2678,7 +2678,7 @@ def plot_universality_domain_columns(
             x = diagonal_values,
             y1 = diagonal_values,
             y2 = axis_high,
-            color = "#E6F4EA",
+            color = "#DDEFE3",
             zorder = 0,
             clip_on = True,
             antialiased = False,
@@ -4319,10 +4319,10 @@ def _plot_transfer_invariance_legacy(
     )
     forest_axis.axvline(0.0, color = "#7a7a7a", lw = 1.0, zorder = 1)
     forest_axis.axvline(
-        -equivalence_margin, color = "#a8b3a9", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
+        -equivalence_margin, color = "#DDEFE3", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
     )
     forest_axis.axvline(
-        +equivalence_margin, color = "#a8b3a9", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
+        +equivalence_margin, color = "#DDEFE3", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
     )
 
     ## domain / discipline section divider
@@ -4664,10 +4664,10 @@ def plot_transfer_invariance(
     )
     forest_axis.axvline(0.0, color = "#7a7a7a", lw = 1.0, zorder = 1)
     forest_axis.axvline(
-        -equivalence_margin, color = "#a8b3a9", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
+        -equivalence_margin, color = "#DDEFE3", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
     )
     forest_axis.axvline(
-        +equivalence_margin, color = "#a8b3a9", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
+        +equivalence_margin, color = "#DDEFE3", lw = 0.7, ls = (0, (3, 3)), zorder = 1,
     )
 
     n_disc = len(disc_rows)
@@ -5991,7 +5991,7 @@ def _draw_transfer_panel(
         axis.axhspan(
             ymin = baseline_iqr[0],
             ymax = baseline_iqr[1],
-            facecolor = "#E6F4EA",
+            facecolor = "#DDEFE3",
             edgecolor = "none",
             zorder = 0,
         )
