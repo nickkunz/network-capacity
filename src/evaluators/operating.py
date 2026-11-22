@@ -24,7 +24,6 @@ from scipy.optimize import minimize, minimize_scalar
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold, LeaveOneGroupOut
-from statsmodels.stats.multitest import multipletests
 from IPython.display import HTML, Image
 from IPython.core.pylabtools import print_figure
 
@@ -1156,6 +1155,18 @@ def compile_utilization_predictions(
         }
 
 
+## holm step-down adjusted p-values
+def holm_adjust(pvals: Any) -> np.ndarray:
+    pvals = np.asarray(a = pvals, dtype = float)
+    order = np.argsort(a = pvals)
+    scaled = pvals[order] * np.arange(start = len(pvals), stop = 0, step = -1)
+    adjusted = np.maximum.accumulate(scaled)
+    adjusted[adjusted > 1] = 1
+    result = np.empty_like(prototype = adjusted)
+    result[order] = adjusted
+    return result
+
+
 ## test equivalence across resampling regimes
 def stat_utilization_equivalence(
     data: pd.DataFrame,
@@ -1267,7 +1278,7 @@ def stat_utilization_equivalence(
 
             ## adjust p-values within each metric
             table = pd.DataFrame(data = comparisons)
-            table["Holm-adj. p"] = multipletests(pvals = table["TOST p"], method = "holm")[1]
+            table["Holm-adj. p"] = holm_adjust(pvals = table["TOST p"])
             table["Eq."] = table["Holm-adj. p"] < 0.05
             tables.append(table)
 
@@ -1433,9 +1444,9 @@ def stat_utilization_superiority_holm(
         for metric in result["Metric"].unique():
             selected = family_mask & (result["Metric"] == metric)
             if selected.any():
-                result.loc[selected, column] = multipletests(
-                    pvals = result.loc[selected, "One-sided p"], method = "holm"
-                )[1]
+                result.loc[selected, column] = holm_adjust(
+                    pvals = result.loc[selected, "One-sided p"]
+                )
 
         ## declare superiority when significant and favoring the anchor
         result[decision] = (
