@@ -2108,7 +2108,7 @@ COL_STRUCTURAL = "#2944A2"
 COL_STRUCTURAL_FILL = "#D6E0FA"
 
 ## series labels
-LBL_NO = "Estimated Log-Rate Using SCT Frontier  Exclusion"
+LBL_NO = "Estimated Log-Rate Using SCT Frontier Exclusion"
 LBL_CR = "Estimated Log-Rate Using SCT Frontier Anchor"
 LBL_NO_SHORT = "SCT Frontier Exclusion"
 LBL_CR_SHORT = "SCT Frontier Anchor"
@@ -2589,7 +2589,7 @@ def plot_utilization_frontier(
                     facecolor = mpl.colors.to_rgba(COL_SLACK_LOWER, 0.72),
                     edgecolor = TEXT_COLOR,
                     linewidth = 0.5,
-                    label = "EVT Statistic Slack",
+                    label = "EVT Statistic",
                 ),
                 Patch(
                     facecolor = COL_OBSERVED,
