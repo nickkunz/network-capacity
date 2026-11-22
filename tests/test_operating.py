@@ -8,6 +8,10 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
+
+## use the headless backend so figure sizes are not snapped to whole screen pixels
+mpl.use(backend = "Agg")
+
 import matplotlib._mathtext as _mathtext
 import matplotlib.pyplot as plt
 
