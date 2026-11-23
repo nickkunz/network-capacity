@@ -7040,7 +7040,7 @@ def _render_consensus_figure(
     
     
     def _paradigm_validity_medians(label: str) -> list[float]:
-        """Median Model-Truth CI per paradigm (mirrors the per-paradigm consensus matrices)."""
+        """Median estimation-observation consensus per paradigm (mirrors the per-paradigm consensus matrices)."""
         frame = validity_frames[label]
         ci_values = pd.to_numeric(frame["ci"], errors = "coerce")
         if "model" in frame.columns:
@@ -7197,8 +7197,8 @@ def _render_consensus_figure(
     ax_scatter.set_yticks(np.arange(0.0, 1.01, 0.25))
     ax_scatter.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"])
     ax_scatter.set_yticklabels(["0", "0.25", "0.50", "0.75", "1"])
-    ax_scatter.set_xlabel(r"Median Model-Truth CI $(\hat{y}, \, y)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
-    ax_scatter.set_ylabel(r"Median Pairwise CI $(y_i, \, y_j)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
+    ax_scatter.set_xlabel(r"Median Estimation-Observation Consensus $(\hat{y}^*, \, y^*)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
+    ax_scatter.set_ylabel(r"Median Pairwise Model Consensus $(\hat{y}^*_i, \, \hat{y}^*_j)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
     ## reference gridlines only at 0 and 1 (omit intermediate gridlines)
     for _grid_pos in (0.0, 1.0):
         ax_scatter.axhline(_grid_pos, linestyle = (0, (3, 3)), linewidth = 0.6, color = "#BDBDBD", zorder = 0)
@@ -7362,7 +7362,7 @@ def _render_consensus_figure(
         colorbar.set_ticks([0.0, 0.5, 1.0])
         colorbar.set_ticklabels(["0", "0.5", "1"])
         colorbar.set_label(
-            label = "Median Pairwise CI",
+            label = "Median Pairwise Model Consensus",
             fontsize = COLORBAR_LABEL_FONT_SIZE,
             color = TEXT_COLOR,
             labelpad = 5,
