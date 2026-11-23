@@ -3071,8 +3071,10 @@ def plot_utilization_quality(
                 "Knowledge Graphs": "Knowledge\nGraphs",
             }
 
-            ## format signed differences with a true minus sign
-            _d_signed = lambda v: f"{round(v, 2) + 0.0:+.2f}".replace("-", "−")
+            ## format signed differences with a true minus sign, leaving zero unsigned
+            _d_signed = lambda v: (
+                "0.00" if round(v, 2) == 0 else f"{round(v, 2):+.2f}".replace("-", "−")
+            )
             ylim_d = 1.0
 
             ## create the domain panel gridspec
@@ -3470,16 +3472,16 @@ def plot_utilization_attribution(
                 ## compare standardized coefficients from the actual held-out fits
                 ax = axes_mech[1]
 
-                ## label features with their notation
+                ## label features with their notation, indexed as numbered in the si tables
                 desc_pretty = [
                     "Number of Edges\n" + "$x^{\\prime}_{u,1}\\;(x^{\\prime}_{2})$",
-                    "Degree Entropy\n" + "$x^{\\prime}_{u,2}\\;(x^{\\prime}_{13})$",
-                    "Random Walk Triangle Weight\n"
-                    + "$x^{\\prime}_{u,3}\\;(x^{\\prime}_{18})$",
+                    "Degree Entropy\n" + "$x^{\\prime}_{u,2}\\;(x^{\\prime}_{11})$",
+                    "Random Walk 3rd Moment\n"
+                    + "$x^{\\prime}_{u,3}\\;(x^{\\prime}_{19})$",
                     "Normalized Successive Difference\n"
-                    + "$z^{\\prime}_{u,1}\\;(z^{\\prime}_{4})$",
+                    + "$z^{\\prime}_{u,1}\\;(z^{\\prime}_{5})$",
                     "Coefficient of Variation\n"
-                    + "$z^{\\prime}_{u,2}\\;(z^{\\prime}_{2})$",
+                    + "$z^{\\prime}_{u,2}\\;(z^{\\prime}_{3})$",
                     "Trend Coefficient\n" + "$z^{\\prime}_{u,3}\\;(z^{\\prime}_{6})$",
                 ]
 
