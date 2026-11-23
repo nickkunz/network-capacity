@@ -8087,10 +8087,13 @@ def _render_stress_test_figure(
             if track not in set(fals_track_order)
         )
     )
+    ## manuscript order, matching cached names with underscores or spaces
+    fals_methods_present = list(falsification_fingerprint[fals_method_col].dropna().unique())
     fals_method_order = [
         method
-        for method in ("target remap", "random generate", "vector generate")
-        if method in set(falsification_fingerprint[fals_method_col])
+        for preferred in ("target remap", "random generate", "vector generate")
+        for method in fals_methods_present
+        if str(method).replace("_", " ").lower() == preferred
     ]
     fals_method_order.extend(
         sorted(
