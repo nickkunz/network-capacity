@@ -3722,13 +3722,13 @@ def plot_utilization_calibration(
                     facecolor = COL_CR_FILL,
                     alpha = 0.75,
                     edgecolor = "none",
-                    label = "2x Error Band",
+                    label = "2× Error Band",
                 ),
                 Patch(
                     facecolor = COL_BAND3_FILL,
                     alpha = 0.55,
                     edgecolor = "none",
-                    label = "3x Error Band",
+                    label = "3× Error Band",
                 ),
             ]
             legend_handles_4a_reg = [
@@ -3824,7 +3824,7 @@ def plot_utilization_calibration(
             ax.yaxis.set_major_formatter("{x:.1f}")
             ax.set_box_aspect(1.0)
             ax.set_xticks(geom_ticks)
-            ax.set_xticklabels([f"{t}x" for t in geom_ticks], fontsize = 7.0)
+            ax.set_xticklabels([f"{t}×" for t in geom_ticks], fontsize = 7.0)
             ax.set_xlabel("Multiplicative Error", fontsize = 7.0)
             ax.set_ylabel("Cumulative Proportion of Systems", fontsize = 7.0)
             ax.set_title("b", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
@@ -3988,7 +3988,7 @@ def plot_utilization_controls(
             ax.set_title("a", loc = "left", fontsize = 7.0, fontweight = "bold", pad = 4)
 
             ## build legend handles ordered by consensus
-            fig5_label = lambda cfg: re.sub("(\\d+)\\.0x", "\\1x", cfg)
+            fig5_label = lambda cfg: re.sub(r"(\d+)(?:\.0)?x(?=\s)", "\\1×", cfg)
             legend_handles_6_cfg = [
                 Line2D(
                     [0],
