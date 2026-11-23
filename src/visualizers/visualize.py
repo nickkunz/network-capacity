@@ -2493,10 +2493,10 @@ def plot_decomposition_moneyshot(
 ## ----------------------------------------------------------------------------
 DEFAULT_DOMAIN_PALETTE = {
     "Earth & Physical Sciences":       "#C07D3A",
-    "Life Sciences & Medicine":        "#3A7D55",
+    "Life Sciences & Medicine":        "#6B4E31",
     "Technology & Information":        "#2C6E91",
     "Trade & Institutions":            "#B8860B",
-    "Transportation & Infrastructure": "#8B3A3A",
+    "Transportation & Infrastructure": "#2A8C8C",
 }
 DEFAULT_DOMAIN_LABELS = {
     "Earth & Physical Sciences":       "Earth\n& Physical",
@@ -4886,10 +4886,13 @@ def _format_decimal(value: float, decimals: int = 2, signed: bool = False) -> st
         Formatted numeric label.
     """
 
-    if np.isclose(value, 0.0):
+    if np.isclose(value, 0.0) and not signed:
         return "0"
+    rounded = round(float(value), decimals)
+    if rounded == 0:
+        return f"{0:.{decimals}f}"
     sign = "+" if signed else ""
-    return f"{value:{sign}.{decimals}f}"
+    return f"{rounded:{sign}.{decimals}f}".replace("-", "−")
 
 
 def _discipline_label(discipline: object) -> str:
@@ -6105,7 +6108,7 @@ def _draw_transfer_panel(
         labels = [_format_decimal(value = tick, decimals = 1) for tick in transfer_ticks],
     )
     if has_equivalence_band:
-        label_specs = [(float(baseline_iqr[1]), "+δ"), (float(baseline_iqr[0]), "-δ")]
+        label_specs = [(float(baseline_iqr[1]), "+δ"), (float(baseline_iqr[0]), "−δ")]
         t0 = axis.get_yticklabels()[0] if axis.get_yticklabels() else None
         label_transform = t0.get_transform() if t0 is not None else axis.get_yaxis_transform()
         for y_value, label in label_specs:
@@ -6122,7 +6125,7 @@ def _draw_transfer_panel(
                 clip_on = False,
                 zorder = 6,
             )
-    axis.set_ylabel(ylabel = r"$\Delta$ EI ($\mathit{k}$-Fold - Domain LOGO)", color = AXIS_LABEL_COLOR, fontsize = AXIS_LABEL_SIZE, labelpad = 6)
+    axis.set_ylabel(ylabel = r"$\Delta$ EI ($\mathit{k}$-Fold − Domain LOGO-CV)", color = AXIS_LABEL_COLOR, fontsize = AXIS_LABEL_SIZE, labelpad = 6)
     axis.set_xticks(ticks = x)
     axis.set_xticklabels(
         labels = [_discipline_label(discipline) for discipline in ordered_disciplines],
@@ -6688,15 +6691,16 @@ def plot_universality_superfigure(
             fontsize = 8.0,
             fontweight = "bold",
         )
-    for axis, label_text in (
-        (domain_axes[0], "Estimated Log-Max"),
-        (ax_consensus, "Relative Log-Max"),
-        (ax_transfer, r"$\Delta$ EI ($\mathit{k}$-Fold - Domain LOGO)"),
+    ## the longer transfer label is nudged down to clear the panel "c" label
+    for axis, label_text, y_offset in (
+        (domain_axes[0], "Estimated Log-Max", 0.0),
+        (ax_consensus, "Relative Log-Max", 0.0),
+        (ax_transfer, r"$\Delta$ EI ($\mathit{k}$-Fold − Domain LOGO-CV)", -0.012),
     ):
         axis_position = axis.get_position()
         fig.text(
             x = outer_ylabel_x,
-            y = 0.5 * (axis_position.y0 + axis_position.y1),
+            y = 0.5 * (axis_position.y0 + axis_position.y1) + y_offset,
             s = label_text,
             ha = "center",
             va = "center",
@@ -7166,9 +7170,14 @@ def _render_consensus_figure(
             1.0,
         )
         _min_label_drop = MIN_GREEN_LABEL_DROP if _group_ci > 0.65 else 0.0
+        _min_outside = _group == GROUP_CONDITIONS[0] and _min_label_drop > 0
         minmax_label_artists.append(ax_scatter.text(
-            _x_min + MINMAX_LABEL_INSET, _y_min + MINMAX_LABEL_INSET - 0.01, "Min",
-            color = _minmax_text_color, ha = "left", va = "bottom",
+            _x_min - MINMAX_LABEL_INSET if _min_outside else _x_min + MINMAX_LABEL_INSET,
+            _y_min - MINMAX_LABEL_INSET if _min_outside else _y_min + MINMAX_LABEL_INSET - 0.01,
+            "Min",
+            color = _minmax_text_color,
+            ha = "right" if _min_outside else "left",
+            va = "top" if _min_outside else "bottom",
             fontsize = MINMAX_FONT_SIZE, zorder = 5,
         ))
         minmax_label_artists.append(ax_scatter.text(
@@ -7589,7 +7598,7 @@ def _render_stress_test_figure(
         "pdf.fonttype": 42,
         "ps.fonttype": 42,
         "svg.fonttype": "none",
-        "axes.unicode_minus": False,
+        "axes.unicode_minus": True,
     })
     
     TEXT_COLOR = "#000000"
@@ -7612,8 +7621,15 @@ def _render_stress_test_figure(
     METHOD_SHADE_FACTORS = tuple(DEFAULT_METHOD_SHADE_FACTORS)
     
     
+    FALSIFICATION_LABELS = {
+        "target remap": "Target Permutation",
+        "random generate": "Random Generation",
+        "vector generate": "Vector Generation",
+    }
+
     def _format_label(value: object) -> str:
-        return str(value).replace("_", " ").replace("-", " ").title()
+        text = str(value).replace("_", " ").replace("-", " ")
+        return FALSIFICATION_LABELS.get(text.lower(), text.title())
     
     
     def _relative_luminance(color: str) -> float:
@@ -7640,7 +7656,7 @@ def _render_stress_test_figure(
                 text_artist.set_fontweight("bold")
             elif text_artist.get_gid() == PANEL_DELTA_ANNOTATION_GID:
                 text_artist.set_fontweight("bold")
-            elif text_artist.get_text() in {"+δ", "-δ"}:
+            elif text_artist.get_text() in {"+δ", "−δ"}:
                 text_artist.set_fontstyle("italic")
                 text_artist.set_color(DELTA_LABEL_COLOR)
             elif text_artist.get_fontweight() == "bold":
@@ -7650,7 +7666,7 @@ def _render_stress_test_figure(
     def _format_zero_tick(value: float, _position: int | None = None) -> str:
         if np.isclose(value, 0.0):
             return "0"
-        return f"{value:.2f}".rstrip("0").rstrip(".")
+        return f"{value:.2f}".rstrip("0").rstrip(".").replace("-", "−")
     
     
     PANEL_DELTA_ANNOTATION_GID = "panel_delta_median_annotation"
@@ -7662,7 +7678,7 @@ def _render_stress_test_figure(
         rounded_value = float(np.round(value, decimals = 2))
         if np.isclose(rounded_value, 0.0):
             return "0.00"
-        return f"{rounded_value:+.2f}"
+        return f"{rounded_value:+.2f}".replace("-", "−")
     
     
     def _annotate_panel_delta_median(axis, panel: pd.DataFrame) -> None:
@@ -7753,7 +7769,7 @@ def _render_stress_test_figure(
     def _label_delta_y_lines(axis, delta_value: float, include_negative: bool = True) -> None:
         label_specs = [(float(delta_value), "+δ")]
         if include_negative:
-            label_specs.append((-float(delta_value), "-δ"))
+            label_specs.append((-float(delta_value), "−δ"))
         for y_value, label in label_specs:
             axis.text(
                 x = -0.035,
@@ -7772,7 +7788,7 @@ def _render_stress_test_figure(
     def _label_delta_x_lines(axis, delta_value: float, include_negative: bool = True) -> None:
         label_specs = [(float(delta_value), "+δ")]
         if include_negative:
-            label_specs.append((-float(delta_value), "-δ"))
+            label_specs.append((-float(delta_value), "−δ"))
         pad_points = axis.xaxis.get_major_ticks()[0].get_pad() if axis.xaxis.get_major_ticks() else 1.5
         label_transform, label_valign, _ = axis.get_xaxis_text1_transform(pad_points = pad_points)
         for x_value, label in label_specs:
