@@ -23,6 +23,7 @@
 \usepackage{algpseudocode}
 \usepackage{algcompatible}
 \usepackage[numbers,sort&compress]{natbib}
+\providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url} % unsrtnat doi format, shared by the SI references
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{textcomp}
@@ -529,7 +530,7 @@ Peaks of discharge (parameter 00060) above the site-wise 99th percentile. & Maxi
 USGS NWIS site and instantaneous-\allowbreak values services (\ref{src:S2}). & NWIS dataset record published 1994. API query cutoff 2024-12-31. \\
 \addlinespace[3.5pt]
 \textbf{\textit{auger}} & Earth \& Physical Sciences & Physics &
-Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbours within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
+Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbors within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
 Surface-\allowbreak detector air-shower events. & Maximum daily air-shower events $r_{\max} = 66$, $y^* = 4.205$. & 2004-01-03 to 2018-09-01 ($n = 5{,}356$). &
 Auger Open Data station map and Zenodo record 10488964 (\ref{src:S3}). & Open Data version 3 released 2024. Observations span 2004--2018. \\
 \addlinespace[3.5pt]
@@ -546,7 +547,7 @@ Meteostat (\ref{src:S6}). & Mutable service accessed 1 September 2026. Query cut
 \textbf{\textit{celegans}} & Life Sciences \& Medicine & Biology &
 \textit{C. elegans} developmental stages. & Known stage-to-stage transitions (normal, dauer, and recovery pathways), entered undirected. &
 Developmental transitions at published mean times. & Maximum daily developmental transitions $r_{\max} = 8$, $y^* = 2.197$. & Days 0--33 ($n = 34$). &
-Cassada \& Russell, \textit{Dev. Biol.} \textbf{46}, 326--342 (1975) (\ref{src:S7}), and Golden \& Riddle, \textit{Dev. Biol.} \textbf{102}, 368--378 (1984) (\ref{src:S8}). & Timing studies published 1975 and 1984. Days are developmental-age indices, not calendar dates. \\
+Cassada \& Russell (\ref{src:S7}) and Golden \& Riddle (\ref{src:S8}). & Timing studies published 1975 and 1984. Days are developmental-age indices, not calendar dates. \\
 \midrule
 \multicolumn{10}{r@{}}{\textit{Continued on next page}}\\
 \end{tabular}
@@ -593,7 +594,7 @@ CropPol repository (Rader et al. primary census records) (\ref{src:S9}, \ref{src
 \textbf{\textit{chickenpox}} & Life Sciences \& Medicine & Epidemiology &
 Hungarian counties. & County adjacency from the Chickenpox dataset. &
 Weekly county case counts summed across counties, divided by 7 to a daily average. & Maximum daily-average cases $r_{\max} = 378$, $y^* = 5.938$. & 2005-01-03 to 2014-12-29 ($n = 3{,}648$). &
-Rozemberczki et al. Chickenpox dataset and UCI Hungarian chickenpox cases (\ref{src:S10}). & UCI dataset released 2021. Observations span 2005--2014. Source reports weekly totals, converted to daily averages. \\
+Rozemberczki et al. Chickenpox dataset \citep{ref90} and UCI Hungarian chickenpox cases (\ref{src:S10}). & UCI dataset released 2021. Observations span 2005--2014. Source reports weekly totals, converted to daily averages. \\
 \addlinespace[5pt]
 \textbf{\textit{faers}} & Life Sciences \& Medicine & Pharmacology &
 Medicinal products and MedDRA reaction terms co-reported with imatinib. & Drug--reaction co-occurrence. &
@@ -601,9 +602,34 @@ Unique FAERS case receipts. & Maximum daily case receipts $r_{\max} = 45$, $y^* 
 openFDA drug-event API, query IMATINIB (\ref{src:S11}). & Mutable API retrieved 13 March 2026. Case-receipt cutoff 2025-12-31. \\
 \addlinespace[5pt]
 \textbf{\textit{epilepsy}} & Life Sciences \& Medicine & Neurology &
-19 scalp electrodes (10--20 system). & Anatomical neighbours on the 10--20 montage. &
+19 scalp electrodes (10--20 system). & Anatomical neighbors on the 10--20 montage. &
 Annotated seizures in CHB-MIT (chb01--chb24). & Maximum daily annotated seizures $r_{\max} = 27$, $y^* = 3.332$. & Relative recording days 0--76 ($n = 77$). &
 PhysioNet CHB-MIT (\ref{src:S12}). & PhysioNet version 1.0.0 released 2010. Calendar dates are unavailable, so recording order is expressed as relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
+Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
+Daily summed page activity. & Maximum daily summed page activity $r_{\max} = 1{,}323{,}743$, $y^* = 14.096$. & 2019-03-16 to 2021-03-15 ($n = 731$). &
+UCI Wikipedia Math Essentials (\ref{src:S18}) and PyTorch Geometric Temporal WikiMaths \citep{ref90}. & UCI dataset released 2021. Activity spans 2019--2021. \\
+\addlinespace[5pt]
+\textbf{\textit{jodie}} & Technology \& Information & Interaction Networks &
+Wikipedia users and pages. & User--page interactions. &
+Interaction timestamps. & Maximum daily interactions $r_{\max} = 6{,}087$, $y^* = 8.714$. & Days 0--30 ($n = 31$). &
+PyTorch Geometric JODIE, Wikipedia (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{overflow}} & Technology \& Information & Online Forums &
+Stack Overflow users and calendar days. & Complete bipartite graph between users and days. &
+Comment, answer, and other timed interactions. & Maximum daily timed interactions $r_{\max} = 52{,}446$, $y^* = 10.868$. & 2008-08-01 to 2016-03-06 ($n = 2{,}775$). &
+SNAP sx-stackoverflow (\ref{src:S19}). & Dataset article published 2017. Interactions span 2008--2016. \\
+\addlinespace[5pt]
+\textbf{\textit{email}} & Technology \& Information & Email Exchanges &
+European research-\allowbreak institution email accounts and days. & Complete bipartite graph between accounts and days. &
+Email timestamps. & Maximum daily emails $r_{\max} = 2{,}270$, $y^* = 7.728$. & Days 0--803 ($n = 804$). &
+SNAP email-\allowbreak Eu-\allowbreak core-\allowbreak temporal (\ref{src:S19}). & Dataset article published 2017. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{college}} & Technology \& Information & Social Networks &
+UC Irvine college-message users and days. & Complete bipartite graph between users and days. &
+Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678$, $y^* = 7.893$. & 2004-04-15 to 2004-10-26 ($n = 195$). &
+SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
 \addlinespace[5pt]
 \textbf{\textit{federal}} & Trade \& Institutions & Government &
 Awarding agencies and recipients. & Agency--\allowbreak recipient contract pairs. &
@@ -629,31 +655,6 @@ PyTorch Geometric BitcoinOTC (\ref{src:S16}). & Dataset article published 2016. 
 World Bank lending instruments and countries. & Instrument--\allowbreak country eligibility. &
 Project board-approval dates. & Maximum daily project approvals $r_{\max} = 12$, $y^* = 2.565$. & 2014-01-14 to 2024-12-20 ($n = 3{,}994$). &
 World Bank projects and country APIs (\ref{src:S17}). & Mutable APIs retrieved 29 September 2026. Approval-year cutoff 2024. \\
-\addlinespace[5pt]
-\textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
-Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
-Daily summed page activity. & Maximum daily summed page activity $r_{\max} = 1{,}323{,}743$, $y^* = 14.096$. & 2019-03-16 to 2021-03-15 ($n = 731$). &
-UCI Wikipedia Math Essentials and PyTorch Geometric Temporal WikiMaths (\ref{src:S18}). & UCI dataset released 2021. Activity spans 2019--2021. \\
-\addlinespace[5pt]
-\textbf{\textit{jodie}} & Technology \& Information & Interaction Networks &
-Wikipedia users and pages. & User--page interactions. &
-Interaction timestamps. & Maximum daily interactions $r_{\max} = 6{,}087$, $y^* = 8.714$. & Days 0--30 ($n = 31$). &
-PyTorch Geometric JODIE, Wikipedia (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
-\addlinespace[5pt]
-\textbf{\textit{overflow}} & Technology \& Information & Online Forums &
-Stack Overflow users and calendar days. & Complete bipartite graph between users and days. &
-Comment, answer, and other timed interactions. & Maximum daily timed interactions $r_{\max} = 52{,}446$, $y^* = 10.868$. & 2008-08-01 to 2016-03-06 ($n = 2{,}775$). &
-SNAP sx-stackoverflow (\ref{src:S19}). & Dataset article published 2017. Interactions span 2008--2016. \\
-\addlinespace[5pt]
-\textbf{\textit{email}} & Technology \& Information & Email Exchanges &
-European research-\allowbreak institution email accounts and days. & Complete bipartite graph between accounts and days. &
-Email timestamps. & Maximum daily emails $r_{\max} = 2{,}270$, $y^* = 7.728$. & Days 0--803 ($n = 804$). &
-SNAP email-\allowbreak Eu-\allowbreak core-\allowbreak temporal (\ref{src:S19}). & Dataset article published 2017. Timestamps reindexed to relative days. \\
-\addlinespace[5pt]
-\textbf{\textit{college}} & Technology \& Information & Social Networks &
-UC Irvine college-message users and days. & Complete bipartite graph between users and days. &
-Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678$, $y^* = 7.893$. & 2004-04-15 to 2004-10-26 ($n = 195$). &
-SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
 \addlinespace[5pt]
 \textbf{\textit{idling}} & Transportation \& Infrastructure & Mobility &
 Halifax drive-network nodes from the unsimplified OSM graph. & Street segments (OSM drive graph, undirected). &
@@ -897,12 +898,12 @@ Each retrained domain-level LOGO-CV contrast uses 45 paired estimator-by-domain 
 Simple & 1. Number of Nodes & Number of nodes\newline & $n = |V|$ & $O(1)$ \\
  & 2. Number of Edges & Number of edges\newline & $m = |E|$ & $O(1)$ \\
  & 3. Articulation Points & Vertices whose removal splits $G$ & $\lvert \{ v : \omega(G - v) > \omega(G) \} \rvert$ & $O(n+m)$ \\
- & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ e : \omega(G - e) > \omega(G) \} \rvert$ & $O(n+m)$ \\
+ & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ uv : \omega(G - uv) > \omega(G) \} \rvert$ & $O(n+m)$ \\
 \addlinespace
 Cohesion & 5. Diameter & Longest shortest-path length \dag & $\max_v \epsilon(v)$ & $O(nm)$ \\
  & 6. Radius & Smallest vertex eccentricity \dag & $\min_v \epsilon(v)$ & $O(nm)$ \\
- & 7. Degeneracy & Largest $k$ with\newline a $k$-core & $k^{*} = \max_v c(v)$ & $O(n+m)$ \\
- & 8. $k$-Core Size & Vertices in the\newline core at $k^{*}$ & $\lvert \{ v : c(v) = k^{*} \} \rvert$ & $O(n+m)$ \\
+ & 7. Degeneracy & Largest $k$ with\newline a $k$-core & $k^{*} = \max_v k_s(v)$ & $O(n+m)$ \\
+ & 8. $k$-Core Size & Vertices in the\newline core at $k^{*}$ & $\lvert \{ v : k_s(v) = k^{*} \} \rvert$ & $O(n+m)$ \\
 \addlinespace
 Extremal & 9. Maximum Degree & Highest vertex degree & $\max_v d_v$ & $O(n)$ \\
 \addlinespace
@@ -914,8 +915,8 @@ Statistical & 10. Degree Variance & Spread of vertex\newline degrees & $n^{-1} \
  & 15. Global Clustering Coefficient & Fraction of\newline closed triples & $3 N_{\triangle} / N_{\wedge}$ & $O(n d_{\max}^2)$ \\
  & 16. Assortativity & Correlation of endpoint degrees & $\mathrm{corr}_{\{u,v\} \in E}(d_u, d_v)$ & $O(m)$ \\
 \addlinespace
-Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{tr}(L^2)/n$ & $O(m)$ \\
- & 18. Normalized Laplacian 3rd Moment & Diffusion asymmetry & $\mathrm{tr}(L^3)/n$ & $O(m^2)$ \\
+Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{tr}(\mathcal{L}^2)/n$ & $O(m)$ \\
+ & 18. Normalized Laplacian 3rd Moment & Diffusion asymmetry & $\mathrm{tr}(\mathcal{L}^3)/n$ & $O(m^2)$ \\
  & 19. Random Walk 3rd Moment & Three-step recurrence & $\mathrm{tr}(P^3)/n$ & $O(m^2)$ \\
  & 20. Random Walk 4th Moment & Four-step recurrence & $\mathrm{tr}(P^4)/n$ & $O(m^2)$ \\
  & 21. Adjacency 4th Moment & Four-length walk density & $\mathrm{tr}(A^4)/n$ & $O(m^2)$ \\
@@ -924,7 +925,7 @@ Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Admission required global graph descriptors defined solely by topology, independent of embeddings, weights, external parameters, and arbitrary thresholds, exactly and deterministically computable at corpus scale, and non-trivially variable across systems. All returned values were finite. \dag~Diameter and radius use the largest connected component; degeneracy and $k$-core size use the full graph. Spectral moments use exact trace identities without eigendecomposition; the 4 complete bipartite substrates use closed-form invariants. Here $n = |V|$, $m = |E|$, $d_v$ is vertex degree, $\bar{d}$ its mean, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, and $g_2 = \mu_4 / \mu_2^{2} - 3$. $\omega$ counts connected components, $\epsilon(v)$ is eccentricity in hops, $c(v)$ is core number, $p_k$ is the fraction of nodes of degree $k$, $q_{kl}$ is the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ count triangles and connected triples. $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ over non-isolated nodes, $L = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ but contribute 0 to $\mathrm{tr}(L^k)$. Logarithms are natural; assortativity counts both edge orientations. Undefined assortativity and clustering are 0. Degree skewness and kurtosis are 0 for equal degrees or $n < 3$ and $n < 4$, respectively. References: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
+Admission required global graph descriptors defined solely by topology, independent of embeddings, weights, external parameters, and arbitrary thresholds, exactly and deterministically computable at corpus scale, and non-trivially variable across systems. All returned values were finite. \dag~Diameter and radius use the largest connected component; degeneracy and $k$-core size use the full graph. Spectral moments use exact trace identities without eigendecomposition; the 4 complete bipartite substrates use closed-form invariants. Here $n = |V|$, $m = |E|$, $d_v$ is vertex degree, $\bar{d}$ its mean, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, and $g_2 = \mu_4 / \mu_2^{2} - 3$. $\omega$ counts connected components, $\epsilon(v)$ is eccentricity in hops, $k_s(v)$ is core number, $p_k$ is the fraction of nodes of degree $k$, $q_{kl}$ is the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ count triangles and connected triples. $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ over non-isolated nodes, $\mathcal{L} = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ but contribute 0 to $\mathrm{tr}(\mathcal{L}^k)$. Logarithms are natural; assortativity counts both edge orientations. Undefined assortativity and clustering are 0. Degree skewness and kurtosis are 0 for equal degrees or $n < 3$ and $n < 4$, respectively. References: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
 \end{minipage}
 \end{table}
 
@@ -937,7 +938,7 @@ Admission required global graph descriptors defined solely by topology, independ
 \label{tab:si-signatures}
 \begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
 \toprule
-\textbf{Property} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
+\textbf{Category} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
 \midrule
 Dependence & 1. Lag-1 Autocorrelation & Short-term sequential dependence & $\frac{\sum_{i=1}^{L-1} \tilde{r}_i \tilde{r}_{i+1}}{\sum_{i=1}^{L} \tilde{r}_i^{2}}$ & $O(L)$ \\
  & 2. Hurst Exponent & Long-range\newline dependence & $\ln(R/s) / \ln L$ & $O(L)$ \\
@@ -1025,7 +1026,7 @@ The approximation $\Phi$ assigned the following values and set articulation poin
 \item Size: $|V| = N$, $|E| = M'$, and $d_{\max} = \max_c d_c$.
 \item Cohesion: diameter $D = \max\{2, \ln \max(N, 2) / \ln \kappa\}$ when $\kappa > 1$ and $D = N$ otherwise, radius $D/2$, degeneracy $k^{*} = \min(d_{\max}, \sqrt{2M'})$, and $k$-core size $\sum_c N_c \mathbf{1}[d_c \ge k^{*}]$.
 \item Degree statistics: variance $N^{-1} \sum_c N_c (d_c - \bar{d})^2$, bias-corrected skewness and excess kurtosis of the class-weighted degrees, degree entropy $-\sum_k p_k \ln p_k$ over degrees rounded to integers $k$ with vertex fractions $p_k$, and joint degree entropy $-2 \sum_k q_k \ln q_k$ with stub fractions $q_k \propto k p_k$.
-\item Spectral moments: $\mathrm{tr}(L^2)/N = 1 + 2M'N / \max(S_1, 1)^2$, $\mathrm{tr}(L^3)/N = 1 + (S_2 - S_1)^3 / \max(N S_1^3, 1)$, $\mathrm{tr}(P^3)/N = 6 (S_2 - S_1)^2\, \overline{d^{-1}} / [\max(6 S_1, 1) \max(S_1, 1)]$, $\mathrm{tr}(P^4)/N = N^{-1} \sum_c N_c [d_c S_2 / \max(S_1^2, 1) + \max(\kappa, 0) / \max(d_c, 1)]$, and $\mathrm{tr}(A^4)/N = [S_2 + S_2^2 / \max(2 S_1, 1)] / N$.
+\item Spectral moments: $\mathrm{tr}(\mathcal{L}^2)/N = 1 + 2M'N / \max(S_1, 1)^2$, $\mathrm{tr}(\mathcal{L}^3)/N = 1 + (S_2 - S_1)^3 / \max(N S_1^3, 1)$, $\mathrm{tr}(P^3)/N = 6 (S_2 - S_1)^2\, \overline{d^{-1}} / [\max(6 S_1, 1) \max(S_1, 1)]$, $\mathrm{tr}(P^4)/N = N^{-1} \sum_c N_c [d_c S_2 / \max(S_1^2, 1) + \max(\kappa, 0) / \max(d_c, 1)]$, and $\mathrm{tr}(A^4)/N = [S_2 + S_2^2 / \max(2 S_1, 1)] / N$.
 \end{itemize}
 Rewiring at intensity $\epsilon$ evaluated $\Phi$ on the classes of $K_{m,n}$, with degrees $(n, m)$, class sizes $(m, n)$, and $M' = M$, and interpolated each invariant as $(1 - \alpha) x_j + \alpha \Phi_j$ with $\alpha = 1 - (1 - \epsilon)^2$, where $x_j$ is the exact $K_{m,n}$ value. Densification added $a = \min(\lfloor \epsilon M \rfloor, C)$ edges among the $C = \binom{m}{2} + \binom{n}{2}$ within-fold vertex pairs, so that each pair was added with probability $q = a / C$. It evaluated $\Phi$ with degrees $(n + q(m - 1), m + q(n - 1))$, class sizes $(m, n)$, and $M' = M + a$. It then multiplied the $K_{m,n}$ articulation points, bridges, and assortativity by $1 - q$ and set clustering to $\min\{c_0 + (1 - c_0) q, 1\}$, where $c_0$ is the $K_{m,n}$ clustering. All other substrates were perturbed as explicit graphs.
 
@@ -1042,38 +1043,38 @@ GPS timestamps in \textbf{gwosc} and \textbf{auger} were converted to UTC withou
 \phantomsection
 \label{sec:si-sources}
 \footnotesize
-\begin{enumerate}[label=S\arabic*.,ref=S\arabic*,leftmargin=2.8em,itemsep=0.6em]
-\item \label{src:S1} Vallisneri, M., Kanner, J., Williams, R., Weinstein, A. \& Stephens, B. The LIGO Open Science Center. \textit{J. Phys. Conf. Ser.} \textbf{610}, 012021 (2015). \url{https://doi.org/10.1088/1742-6596/610/1/012021}
-\item \label{src:S2} U.S. Geological Survey. USGS Water Data for the Nation (1994). \url{https://doi.org/10.5066/F7P55KJN}
-\item \label{src:S3} Pierre Auger Collaboration. Pierre Auger Observatory Open Data, version 3 [Dataset]. Zenodo (2024). \url{https://doi.org/10.5281/zenodo.10488964}
-\item \label{src:S4} Albuquerque Seismological Laboratory/USGS. Global Seismograph Network (GSN - IRIS/USGS) [Dataset]. International Federation of Digital Seismograph Networks (1988). \url{https://doi.org/10.7914/SN/IU}
-\item \label{src:S5} U.S. Geological Survey. Advanced National Seismic System (ANSS) Comprehensive Catalog (2017). \url{https://doi.org/10.5066/F7MS3QZH}
-\item \label{src:S6} Meteostat. Meteostat weather and climate database. \url{https://meteostat.net} (accessed 1 September 2026).
-\item \label{src:S7} Cassada, R. C. \& Russell, R. L. The dauerlarva, a post-embryonic developmental variant of the nematode \textit{Caenorhabditis elegans}. \textit{Dev. Biol.} \textbf{46}, 326--342 (1975). \url{https://doi.org/10.1016/0012-1606(75)90109-8}
-\item \label{src:S8} Golden, J. W. \& Riddle, D. L. The \textit{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \textit{Dev. Biol.} \textbf{102}, 368--378 (1984). \url{https://doi.org/10.1016/0012-1606(84)90201-X}
-\item \label{src:S9} Allen-Perkins, A. et al. CropPol: A dynamic, open and global database on crop pollination. \textit{Ecology} \textbf{103}, e3614 (2022). \url{https://doi.org/10.1002/ecy.3614}
-\item \label{src:S10} Hungarian Chickenpox Cases [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5103B}
-\item \label{src:S11} U.S. Food and Drug Administration. openFDA Drug Event API. \url{https://open.fda.gov/apis/drug/event/} (accessed 13 March 2026).
-\item \label{src:S12} Guttag, J. CHB-MIT Scalp EEG Database, version 1.0.0 [Dataset]. PhysioNet (2010). \url{https://doi.org/10.13026/C2K01R}
-\item \label{src:S13} U.S. Department of the Treasury. USAspending API. \url{https://api.usaspending.gov/} (accessed 25 August 2026).
-\item \label{src:S14} Kumar, S., Zhang, X. \& Leskovec, J. Predicting dynamic embedding trajectory in temporal interaction networks. In \textit{Proc. 25th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining} 1269--1278 (ACM, 2019). \url{https://doi.org/10.1145/3292500.3330895}
-\item \label{src:S15} McAuley, J., Targett, C., Shi, Q. \& van den Hengel, A. Image-based recommendations on styles and substitutes. In \textit{Proc. 38th Int. ACM SIGIR Conf. Research and Development in Information Retrieval} 43--52 (ACM, 2015). \url{https://doi.org/10.1145/2766462.2767755}
-\item \label{src:S16} Kumar, S., Spezzano, F., Subrahmanian, V. S. \& Faloutsos, C. Edge weight prediction in weighted signed networks. In \textit{Proc. IEEE 16th Int. Conf. Data Mining} 221--230 (IEEE, 2016). \url{https://doi.org/10.1109/ICDM.2016.0033}
-\item \label{src:S17} World Bank. Projects \& Operations API and Country API. \url{https://search.worldbank.org/api/v2/projects} and \url{https://api.worldbank.org/v2/country} (accessed 29 September 2026).
-\item \label{src:S18} Wikipedia Math Essentials [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5V32F}
-\item \label{src:S19} Paranjape, A., Benson, A. R. \& Leskovec, J. Motifs in temporal networks. In \textit{Proc. 10th ACM Int. Conf. Web Search and Data Mining} 601--610 (ACM, 2017). \url{https://doi.org/10.1145/3018661.3018731}
-\item \label{src:S20} Panzarasa, P., Opsahl, T. \& Carley, K. M. Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \textit{J. Am. Soc. Inf. Sci. Technol.} \textbf{60}, 911--932 (2009). \url{https://doi.org/10.1002/asi.21015}
-\item \label{src:S21} OpenStreetMap contributors. OpenStreetMap [Dataset]. \url{https://www.openstreetmap.org} (accessed 10 November 2025).
-\item \label{src:S22} Boeing, G. Modeling and analyzing urban networks and amenities with OSMnx. \textit{Geogr. Anal.} \textbf{57}, 567--577 (2025). \url{https://doi.org/10.1111/gean.70009}
-\item \label{src:S23} Li, Y., Yu, R., Shahabi, C. \& Liu, Y. Diffusion convolutional recurrent neural network: data-driven traffic forecasting. In \textit{Int. Conf. Learning Representations} (2018).
-\item \label{src:S24} Abbott, B. P. et al. GWTC-1: A Gravitational-Wave Transient Catalog of Compact Binary Mergers Observed by LIGO and Virgo during the First and Second Observing Runs. \textit{Phys. Rev. X} \textbf{9}, 031040 (2019). \url{https://doi.org/10.1103/PhysRevX.9.031040}
-\item \label{src:S25} Abbott, R. et al. GWTC-2: Compact Binary Coalescences Observed by LIGO and Virgo during the First Half of the Third Observing Run. \textit{Phys. Rev. X} \textbf{11}, 021053 (2021). \url{https://doi.org/10.1103/PhysRevX.11.021053}
-\item \label{src:S26} Abbott, R. et al. GWTC-2.1: Deep extended catalog of compact binary coalescences observed by LIGO and Virgo during the first half of the third observing run. \textit{Phys. Rev. D} \textbf{109}, 022001 (2024). \url{https://doi.org/10.1103/PhysRevD.109.022001}
-\item \label{src:S27} Abbott, R. et al. GWTC-3: Compact Binary Coalescences Observed by LIGO and Virgo during the Second Part of the Third Observing Run. \textit{Phys. Rev. X} \textbf{13}, 041039 (2023). \url{https://doi.org/10.1103/PhysRevX.13.041039}
-\item \label{src:S28} Government of Uruguay. National Open Data Catalog. \url{https://catalogodatos.gub.uy/} (accessed 1 September 2026).
-\item \label{src:S29} Kunz, N. \& Gao, H. O. Global geolocated realtime data of interfleet urban transit bus idling. Preprint at \url{https://doi.org/10.48550/arXiv.2403.03489} (2024).
-\item \label{src:S30} LIGO Scientific Collaboration, Virgo Collaboration \& KAGRA Collaboration. GWTC-4.0 Data Release Documentation [Dataset]. Gravitational Wave Open Science Center (2025). \url{https://doi.org/10.7935/aes8-px89}
-\item \label{src:S31} Rader, R. et al. Non-bee insects are important contributors to global crop pollination. \textit{Proc. Natl Acad. Sci. USA} \textbf{113}, 146--151 (2016). \url{https://doi.org/10.1073/pnas.1517092112}
+\begin{enumerate}[label={[S\arabic*]},ref=S\arabic*,leftmargin=2.8em,itemsep=0.6em]
+\item \label{src:S1} M.~Vallisneri, J.~Kanner, R.~Williams, A.~Weinstein, and B.~Stephens. \newblock The {LIGO Open Science Center}. \newblock \emph{Journal of Physics: Conference Series}, 610:\penalty0 012021, 2015. \newblock \doi{10.1088/1742-6596/610/1/012021}.
+\item \label{src:S2} {U.S. Geological Survey}. \newblock {USGS Water Data for the Nation}, 1994. \newblock URL \url{https://doi.org/10.5066/F7P55KJN}.
+\item \label{src:S3} {Pierre Auger Collaboration}. \newblock {Pierre Auger Observatory Open Data}, version 3. \newblock Zenodo, 2024. \newblock URL \url{https://doi.org/10.5281/zenodo.10488964}.
+\item \label{src:S4} {Albuquerque Seismological Laboratory/USGS}. \newblock {Global Seismograph Network (GSN - IRIS/USGS)}. \newblock International Federation of Digital Seismograph Networks, 1988. \newblock URL \url{https://doi.org/10.7914/SN/IU}.
+\item \label{src:S5} {U.S. Geological Survey}. \newblock {Advanced National Seismic System (ANSS) Comprehensive Catalog}, 2017. \newblock URL \url{https://doi.org/10.5066/F7MS3QZH}.
+\item \label{src:S6} {Meteostat}. \newblock {Meteostat} weather and climate database, 2026. \newblock URL \url{https://meteostat.net}. \newblock Accessed 1 September 2026.
+\item \label{src:S7} R.~C. Cassada and R.~L. Russell. \newblock The dauerlarva, a post-embryonic developmental variant of the nematode \emph{Caenorhabditis elegans}. \newblock \emph{Developmental Biology}, 46:\penalty0 326--342, 1975. \newblock \doi{10.1016/0012-1606(75)90109-8}.
+\item \label{src:S8} J.~W. Golden and D.~L. Riddle. \newblock The \emph{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \newblock \emph{Developmental Biology}, 102:\penalty0 368--378, 1984. \newblock \doi{10.1016/0012-1606(84)90201-X}.
+\item \label{src:S9} A.~Allen-Perkins et~al. \newblock {CropPol}: a dynamic, open and global database on crop pollination. \newblock \emph{Ecology}, 103:\penalty0 e3614, 2022. \newblock \doi{10.1002/ecy.3614}.
+\item \label{src:S10} {UCI Machine Learning Repository}. \newblock {Hungarian Chickenpox Cases}, 2021{\natexlab{a}}. \newblock URL \url{https://doi.org/10.24432/C5103B}.
+\item \label{src:S11} {U.S. Food and Drug Administration}. \newblock {openFDA Drug Event API}, 2026. \newblock URL \url{https://open.fda.gov/apis/drug/event/}. \newblock Accessed 13 March 2026.
+\item \label{src:S12} John Guttag. \newblock {CHB-MIT Scalp EEG Database}, version 1.0.0. \newblock PhysioNet, 2010. \newblock URL \url{https://doi.org/10.13026/C2K01R}.
+\item \label{src:S13} {U.S. Department of the Treasury}. \newblock {USAspending API}, 2026. \newblock URL \url{https://api.usaspending.gov/}. \newblock Accessed 25 August 2026.
+\item \label{src:S14} Srijan Kumar, Xikun Zhang, and Jure Leskovec. \newblock Predicting dynamic embedding trajectory in temporal interaction networks. \newblock In \emph{Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, pages 1269--1278. ACM, 2019. \newblock \doi{10.1145/3292500.3330895}.
+\item \label{src:S15} Julian McAuley, Christopher Targett, Qinfeng Shi, and Anton van~den Hengel. \newblock Image-based recommendations on styles and substitutes. \newblock In \emph{Proceedings of the 38th International ACM SIGIR Conference on Research and Development in Information Retrieval}, pages 43--52. ACM, 2015. \newblock \doi{10.1145/2766462.2767755}.
+\item \label{src:S16} Srijan Kumar, Francesca Spezzano, V.~S. Subrahmanian, and Christos Faloutsos. \newblock Edge weight prediction in weighted signed networks. \newblock In \emph{Proceedings of the IEEE 16th International Conference on Data Mining}, pages 221--230. IEEE, 2016. \newblock \doi{10.1109/ICDM.2016.0033}.
+\item \label{src:S17} {World Bank}. \newblock {Projects \& Operations API} and {Country API}, 2026. \newblock URL \url{https://search.worldbank.org/api/v2/projects}. \newblock Country API at \url{https://api.worldbank.org/v2/country}. Accessed 29 September 2026.
+\item \label{src:S18} {UCI Machine Learning Repository}. \newblock {Wikipedia Math Essentials}, 2021{\natexlab{b}}. \newblock URL \url{https://doi.org/10.24432/C5V32F}.
+\item \label{src:S19} Ashwin Paranjape, Austin~R. Benson, and Jure Leskovec. \newblock Motifs in temporal networks. \newblock In \emph{Proceedings of the 10th ACM International Conference on Web Search and Data Mining}, pages 601--610. ACM, 2017. \newblock \doi{10.1145/3018661.3018731}.
+\item \label{src:S20} Pietro Panzarasa, Tore Opsahl, and Kathleen~M. Carley. \newblock Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \newblock \emph{Journal of the American Society for Information Science and Technology}, 60:\penalty0 911--932, 2009. \newblock \doi{10.1002/asi.21015}.
+\item \label{src:S21} {OpenStreetMap contributors}. \newblock {OpenStreetMap}, 2025. \newblock URL \url{https://www.openstreetmap.org}. \newblock Accessed 10 November 2025.
+\item \label{src:S22} Geoff Boeing. \newblock Modeling and analyzing urban networks and amenities with {OSMnx}. \newblock \emph{Geographical Analysis}, 57:\penalty0 567--577, 2025. \newblock \doi{10.1111/gean.70009}.
+\item \label{src:S23} Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. \newblock Diffusion convolutional recurrent neural network: data-driven traffic forecasting. \newblock In \emph{International Conference on Learning Representations}, 2018. \newblock \doi{10.48550/arXiv.1707.01926}.
+\item \label{src:S24} B.~P. Abbott et~al. \newblock {GWTC-1}: a gravitational-wave transient catalog of compact binary mergers observed by {LIGO} and {Virgo} during the first and second observing runs. \newblock \emph{Physical Review X}, 9:\penalty0 031040, 2019. \newblock \doi{10.1103/PhysRevX.9.031040}.
+\item \label{src:S25} R.~Abbott et~al. \newblock {GWTC-2}: compact binary coalescences observed by {LIGO} and {Virgo} during the first half of the third observing run. \newblock \emph{Physical Review X}, 11:\penalty0 021053, 2021. \newblock \doi{10.1103/PhysRevX.11.021053}.
+\item \label{src:S26} R.~Abbott et~al. \newblock {GWTC-2.1}: deep extended catalog of compact binary coalescences observed by {LIGO} and {Virgo} during the first half of the third observing run. \newblock \emph{Physical Review D}, 109:\penalty0 022001, 2024. \newblock \doi{10.1103/PhysRevD.109.022001}.
+\item \label{src:S27} R.~Abbott et~al. \newblock {GWTC-3}: compact binary coalescences observed by {LIGO} and {Virgo} during the second part of the third observing run. \newblock \emph{Physical Review X}, 13:\penalty0 041039, 2023. \newblock \doi{10.1103/PhysRevX.13.041039}.
+\item \label{src:S28} {Government of Uruguay}. \newblock {National Open Data Catalog}, 2026. \newblock URL \url{https://catalogodatos.gub.uy/}. \newblock Accessed 1 September 2026.
+\item \label{src:S29} Nicholas Kunz and H.~Oliver Gao. \newblock Global geolocated realtime data of interfleet urban transit bus idling. \newblock Preprint, 2024. \newblock URL \url{https://doi.org/10.48550/arXiv.2403.03489}.
+\item \label{src:S30} {LIGO Scientific Collaboration, Virgo Collaboration, and KAGRA Collaboration}. \newblock {GWTC-4.0 Data Release Documentation}. \newblock Gravitational Wave Open Science Center, 2025. \newblock URL \url{https://doi.org/10.7935/aes8-px89}.
+\item \label{src:S31} Romina Rader et~al. \newblock Non-bee insects are important contributors to global crop pollination. \newblock \emph{Proceedings of the National Academy of Sciences}, 113:\penalty0 146--151, 2016. \newblock \doi{10.1073/pnas.1517092112}.
 \end{enumerate}
 
 \endgroup
