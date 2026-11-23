@@ -3057,10 +3057,10 @@ def plot_utilization_quality(
             ## set domain colors and labels
             DOMAIN_COLORS = {
                 "Earth & Physical Sciences": "#C07D3A",
-                "Life Sciences & Medicine": "#8A66B5",
+                "Life Sciences & Medicine": "#6B4E31",
                 "Technology & Information": "#2C6E91",
                 "Trade & Institutions": "#B8860B",
-                "Transportation & Infrastructure": "#6B4E31",
+                "Transportation & Infrastructure": "#2A8C8C",
             }
             DOMAIN_LABELS = {
                 "Transportation & Infrastructure": "Transport & Infrastructure"
