@@ -170,7 +170,7 @@
 \renewcommand{\abstractname}{Significance}
 \begin{abstract}
 \noindent
-    Networked systems rarely operate at their limits. Seismic detection systems, pollination networks, and online platforms all exhibit typical activity well below their peaks. That distance is usually measured one field at a time. Consequently, activity from one system often reveals little about another. Here, we demonstrate that when a network's capacity is estimated from its structure and dynamics, typical activity across a wide range of disciplines sits at a regular distance beneath it. This regularity allows researchers and practitioners to use cross-disciplinary evidence to estimate expected operating rates of complex networks.
+    Networked systems rarely operate at their limits. Seismic detection systems, pollination networks, and online marketplaces all exhibit typical activity well below their peaks. That distance is usually measured one field at a time. Consequently, activity from one system often reveals little about another. Here, we demonstrate that when a network's capacity is estimated from its structure and dynamics, typical activity across a wide range of disciplines sits at a regular distance beneath it. This regularity allows researchers and practitioners to use cross-disciplinary evidence to estimate expected operating rates of complex networks.
 \end{abstract}
 \endgroup
 \clearpage
@@ -246,14 +246,14 @@ Anchoring also reduced the fitted association with edge count (Fig.~\ref{fig:att
 \centering
 \includegraphics[width=\linewidth]{fig4.pdf}
 \caption{
-    \textbf{Target dispersion and feature attribution.} Out-of-sample Negative Binomial estimation under domain-level LOGO-CV across 25 systems. \textbf{a}. Median-centered dispersion of the observed log-rate $y$ targeted by unanchored estimation (SCT Frontier Exclusion, red, bottom) and the utilization slack $y_U$ targeted by SCT-FAR (SCT Frontier Anchor, green, top), where utilization slack is the out-of-sample SCT frontier estimate minus the EVT statistic and observed log-rate. Shaded curves exhibit Gaussian kernel densities (bandwidth factor 0.38) scaled independently to unit peak. Boxes exhibit medians and IQRs, whiskers span the 10th to 90th percentiles, and points exhibit systems beyond the whiskers. Dashed gray lines connect corresponding quartiles, and the annotation reports IQR contraction. \textbf{b}. Standardized log-rate coefficients for 3 process signatures (Dynamical, pink region) and 3 graph invariants (Structural, blue region) using SCT-FAR (green bars) and unanchored estimation (red bars). Coefficients are equally weighted outer-fold means and describe fitted associations. Random Walk Triangle Weight denotes the random walk 3rd moment, and parenthetical labels index coordinates in the order of the source code repository.
+    \textbf{Target dispersion and feature attribution.} Out-of-sample Negative Binomial estimation under domain-level LOGO-CV across 25 systems. \textbf{a}. Median-centered dispersion of the observed log-rate $y$ targeted by unanchored estimation (SCT Frontier Exclusion, red, bottom) and the utilization slack $y_U$ targeted by SCT-FAR (SCT Frontier Anchor, green, top), where utilization slack is the out-of-sample SCT frontier estimate minus the EVT statistic and observed log-rate. Shaded curves exhibit Gaussian kernel densities (bandwidth factor 0.38) scaled independently to unit peak. Boxes exhibit medians and IQRs, whiskers span the 10th to 90th percentiles, and points exhibit systems beyond the whiskers. Dashed gray lines connect corresponding quartiles, and the annotation reports IQR contraction. \textbf{b}. Standardized log-rate coefficients for 3 process signatures (Dynamical, pink region) and 3 graph invariants (Structural, blue region) using SCT-FAR (green bars) and unanchored estimation (red bars). Coefficients are equally weighted outer-fold means and describe fitted associations. Parenthetical labels index coordinates as numbered in \textit{SI Appendix}, Tables~\ref{tab:si-features}--\ref{tab:si-signatures}.
 }
 \label{fig:attribution}
 \end{figure}
 
 \subsection*{Decomposition Under Ablation}
 \label{sub-sec:conversion}
-A single fitted shift of the capacity frontier outperformed unanchored estimation (Fig.~\ref{fig:ablation}a). The 3 component ablations removed the EVT statistic, replaced the 6 utilization coordinates with a constant fit on the training set, or both (\nameref{sec:ablation}). Under Negative Binomial domain-level LOGO-CV, the shifted frontier yielded MAE of 1.07 and consensus of 0.94, compared with 1.45 and 0.85 for unanchored estimation using all 6 coordinates. Restoring the EVT statistic alone reduced MAE to 0.60 and placed 21 of 25 systems within a factor of 3. Restoring the utilization coordinates alone reduced MAE to 0.39. With both components restored, MAE was 0.32 and consensus was 0.98. In all 12 combinations of GLM family and resampling regime, the shifted frontier had lower MAE than unanchored estimation, and SCT-FAR had the lowest MAE of the tested formulations (\textit{SI Appendix}, Tables~\ref{tab:si-ablation}--\ref{tab:si-ablation-complete}). Under Negative Binomial domain-level LOGO-CV, removing the EVT statistic, the utilization coordinates, or both increased MAE by 0.08, 0.28, and 0.76, respectively, with all paired bootstrap 95\% intervals above 0. Paired One-Sided Wilcoxon Signed-Rank Tests across 15 family-by-domain comparisons supported higher MAE, RMSE, and GMME for all 3 ablations (all Holm-adjusted $p < 0.001$; \textit{SI Appendix}, Table~\ref{tab:si-superiority}). For consensus, the tests supported a decline only after removal of the EVT statistic alone (Holm-adjusted $p < 0.001$ for EVT exclusion and $p = 0.330$ for the shifted frontier). Under Negative Binomial $5$-Fold-CV, removing the EVT statistic reduced RMSE from 0.44 to 0.41 and increased MAE by less than 0.01. Thus, a common shift of each system's frontier retained much of the agreement across disciplines, while EVT calibration and learned utilization reduced operating-rate error.
+A single fitted shift of the capacity frontier outperformed unanchored estimation (Fig.~\ref{fig:ablation}a). The 3 component ablations removed the EVT statistic, replaced the 6 utilization coordinates with a constant fit on the training set, or both (\nameref{sec:ablation}). Under Negative Binomial domain-level LOGO-CV, the shifted frontier yielded MAE of 1.07 and consensus of 0.94, compared with 1.45 and 0.85 for unanchored estimation using all 6 coordinates. Restoring the EVT statistic alone reduced MAE to 0.60 and placed 21 of 25 systems within a factor of 3. Restoring the utilization coordinates alone reduced MAE to 0.39. With both components restored, MAE was 0.32 and consensus was 0.98. In all 12 combinations of GLM family and resampling regime, the shifted frontier had lower MAE than unanchored estimation, and SCT-FAR had the lowest MAE of the tested formulations (\textit{SI Appendix}, Tables~\ref{tab:si-ablation}--\ref{tab:si-ablation-complete}). Under Negative Binomial domain-level LOGO-CV, removing the EVT statistic, the utilization coordinates, or both increased MAE by 0.08, 0.28, and 0.76, respectively, with all paired bootstrap 95\% intervals above 0. Paired One-Sided Wilcoxon Signed-Rank Tests across 15 family-by-domain comparisons supported higher MAE, RMSE, and GMME for all 3 ablations (all Holm-adjusted $p < 0.001$; \textit{SI Appendix}, Table~\ref{tab:si-superiority}). For consensus, the tests supported a decline only after removal of the EVT statistic alone (Holm-adjusted $p < 0.001$ for EVT exclusion, $p = 0.738$ for utilization features exclusion, and $p = 0.330$ for the shifted frontier). Under Negative Binomial $5$-Fold-CV, removing the EVT statistic reduced RMSE from 0.44 to 0.41 and increased MAE by less than 0.01. Thus, a common shift of each system's frontier retained much of the agreement across disciplines, while EVT calibration and learned utilization reduced operating-rate error.
 
 \subsection*{Degradation Under Substitution}
 \label{sub-sec:substitution}
@@ -359,10 +359,10 @@ The 6 process signatures were scale-free. The Fano factor retained count scale, 
 
 The utilization vector contained 6 coordinates drawn from $x$ and $z$. The mapping $(x, z) \to u$ is formally defined as:
 \begin{equation}
-    u \;=\; (u_1, u_2, \ldots, u_6) \;\in\; \mathbb{R}^{6}
+    u \;=\; (x_{u,1}, x_{u,2}, x_{u,3}, z_{u,1}, z_{u,2}, z_{u,3}) \;\in\; \mathbb{R}^{6}
 \label{eq:utilization}
 \end{equation}
-where $u_1$, $u_2$, and $u_3$ are the number of edges, degree entropy, and random walk 3rd moment, and $u_4$, $u_5$, and $u_6$ are the normalized successive difference, coefficient of variation, and trend coefficient (\textit{SI Appendix}, Tables~\ref{tab:si-features}--\ref{tab:si-signatures}). The Fano factor was excluded, such that no utilization coordinate retained count scale. The utilization coordinates were fixed across all reported evaluations.
+where $x_{u,1}$, $x_{u,2}$, and $x_{u,3}$ are the number of edges, degree entropy, and random walk 3rd moment drawn from $x$, and $z_{u,1}$, $z_{u,2}$, and $z_{u,3}$ are the normalized successive difference, coefficient of variation, and trend coefficient drawn from $z$ (\textit{SI Appendix}, Tables~\ref{tab:si-features}--\ref{tab:si-signatures}). The Fano factor was excluded, such that no utilization coordinate retained count scale. The utilization coordinates were fixed across all reported evaluations.
 
 Coordinates of $x$, $z$, and $u$ were compressed by the signed logarithm $\operatorname{sl}(v) = \operatorname{sgn}(v)\ln(1 + \lvert v \rvert)$, centered by in-sample means, and scaled by in-sample population standard deviations, with 0 standard deviations replaced by 1. For either vector $v \in \{x, z, u\}$, the standardized vectors are formally defined as:
 \begin{equation}
@@ -463,7 +463,7 @@ The 3 substitutions replaced elements of SCT-FAR while retaining its remaining s
 \subsection*{Temporal Separation}
 \phantomsection
 \label{sec:temporal}
-Temporal separation divided each chronologically ordered rate series at proportion $\rho \in \{0.25, 0.50, 0.75\}$. The earlier window contained the first $L_A = \lfloor \rho L \rfloor$ intervals and the later window the remaining $L_B = L - L_A$ intervals, with at least 3 intervals in each. The earlier window supplied the process signatures $z$, the coefficient of variation and series length $L_A$ of the EVT statistic (Eq.~\eqref{eq:evt}), and the frontier training target $y_A^{*}$, the log-transformed maximum rate of the earlier window (Eq.~\eqref{eq:maximum}). The later window supplied the estimation target $y_B = \ln(1 + \bar{r}_B)$, the log-transformed expected rate of the later window (Eq.~\eqref{eq:expected}). Graph invariants were static and spanned both windows.
+Temporal separation divided each chronologically ordered rate series at proportion $\kappa \in \{0.25, 0.50, 0.75\}$. The earlier window contained the first $L_A = \lfloor \kappa L \rfloor$ intervals and the later window the remaining $L_B = L - L_A$ intervals, with at least 3 intervals in each. The earlier window supplied the process signatures $z$, the coefficient of variation and series length $L_A$ of the EVT statistic (Eq.~\eqref{eq:evt}), and the frontier training target $y_A^{*}$, the log-transformed maximum rate of the earlier window (Eq.~\eqref{eq:maximum}). The later window supplied the estimation target $y_B = \ln(1 + \bar{r}_B)$, the log-transformed expected rate of the later window (Eq.~\eqref{eq:expected}). Graph invariants were static and spanned both windows.
 
 SCT-FAR and unanchored estimation were refit for each proportion under all 4 resampling regimes and all 3 GLM families. The 50\% division under domain-level LOGO-CV was the primary setting. A carry-forward reference estimated the later rate from the earlier rate as $\widehat{y}_B = \ln(1 + \bar{r}_A)$ without training \citep{ref148}. SCT-FAR was also refit without the cap (Eq.~\eqref{eq:far}), including penalty selection. Removing the cap changed 0 of 25 estimates in each of the 36 combinations of proportion, resampling regime, and GLM family.
 
@@ -581,7 +581,7 @@ Peaks of discharge (parameter 00060) above the site-wise 99th percentile. & Maxi
 USGS NWIS site and instantaneous-\allowbreak values services (\ref{src:S2}). & NWIS dataset record published 1994. API query cutoff 2024-12-31. \\
 \addlinespace[3.5pt]
 \textbf{\textit{auger}} & Earth \& Physical Sciences & Physics &
-Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbours within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
+Pierre Auger Observatory surface-\allowbreak detector stations. & Reciprocal 6-nearest neighbors within $1.1\times$ array spacing (1,500 m and 750 m arrays). &
 Surface-\allowbreak detector air-shower events. & Maximum daily air-shower events $r_{\max} = 66$, $y^* = 4.205$. & 2004-01-03 to 2018-09-01 ($n = 5{,}356$). &
 Auger Open Data station map and Zenodo record 10488964 (\ref{src:S3}). & Open Data version 3 released 2024. Observations span 2004--2018. \\
 \addlinespace[3.5pt]
@@ -598,7 +598,7 @@ Meteostat (\ref{src:S6}). & Mutable service accessed 1 September 2026. Query cut
 \textbf{\textit{celegans}} & Life Sciences \& Medicine & Biology &
 \textit{C. elegans} developmental stages. & Known stage-to-stage transitions (normal, dauer, and recovery pathways), entered undirected. &
 Developmental transitions at published mean times. & Maximum daily developmental transitions $r_{\max} = 8$, $y^* = 2.197$. & Days 0--33 ($n = 34$). &
-Cassada \& Russell, \textit{Dev. Biol.} \textbf{46}, 326--342 (1975) (\ref{src:S7}), and Golden \& Riddle, \textit{Dev. Biol.} \textbf{102}, 368--378 (1984) (\ref{src:S8}). & Timing studies published 1975 and 1984. Days are developmental-age indices, not calendar dates. \\
+Cassada \& Russell (\ref{src:S7}) and Golden \& Riddle (\ref{src:S8}). & Timing studies published 1975 and 1984. Days are developmental-age indices, not calendar dates. \\
 \midrule
 \multicolumn{10}{r@{}}{\textit{Continued on next page}}\\
 \end{tabular}
@@ -645,7 +645,7 @@ CropPol repository (Rader et al. primary census records) (\ref{src:S9}, \ref{src
 \textbf{\textit{chickenpox}} & Life Sciences \& Medicine & Epidemiology &
 Hungarian counties. & County adjacency from the Chickenpox dataset. &
 Weekly county case counts summed across counties, divided by 7 to a daily average. & Maximum daily-average cases $r_{\max} = 378$, $y^* = 5.938$. & 2005-01-03 to 2014-12-29 ($n = 3{,}648$). &
-Rozemberczki et al. Chickenpox dataset and UCI Hungarian chickenpox cases (\ref{src:S10}). & UCI dataset released 2021. Observations span 2005--2014. Source reports weekly totals, converted to daily averages. \\
+Rozemberczki et al. Chickenpox dataset \citep{ref90} and UCI Hungarian chickenpox cases (\ref{src:S10}). & UCI dataset released 2021. Observations span 2005--2014. Source reports weekly totals, converted to daily averages. \\
 \addlinespace[5pt]
 \textbf{\textit{faers}} & Life Sciences \& Medicine & Pharmacology &
 Medicinal products and MedDRA reaction terms co-reported with imatinib. & Drug--reaction co-occurrence. &
@@ -653,9 +653,34 @@ Unique FAERS case receipts. & Maximum daily case receipts $r_{\max} = 45$, $y^* 
 openFDA drug-event API, query IMATINIB (\ref{src:S11}). & Mutable API retrieved 13 March 2026. Case-receipt cutoff 2025-12-31. \\
 \addlinespace[5pt]
 \textbf{\textit{epilepsy}} & Life Sciences \& Medicine & Neurology &
-19 scalp electrodes (10--20 system). & Anatomical neighbours on the 10--20 montage. &
+19 scalp electrodes (10--20 system). & Anatomical neighbors on the 10--20 montage. &
 Annotated seizures in CHB-MIT (chb01--chb24). & Maximum daily annotated seizures $r_{\max} = 27$, $y^* = 3.332$. & Relative recording days 0--76 ($n = 77$). &
 PhysioNet CHB-MIT (\ref{src:S12}). & PhysioNet version 1.0.0 released 2010. Calendar dates are unavailable, so recording order is expressed as relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
+Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
+Daily summed page activity. & Maximum daily summed page activity $r_{\max} = 1{,}323{,}743$, $y^* = 14.096$. & 2019-03-16 to 2021-03-15 ($n = 731$). &
+UCI Wikipedia Math Essentials (\ref{src:S18}) and PyTorch Geometric Temporal WikiMaths \citep{ref90}. & UCI dataset released 2021. Activity spans 2019--2021. \\
+\addlinespace[5pt]
+\textbf{\textit{jodie}} & Technology \& Information & Interaction Networks &
+Wikipedia users and pages. & User--page interactions. &
+Interaction timestamps. & Maximum daily interactions $r_{\max} = 6{,}087$, $y^* = 8.714$. & Days 0--30 ($n = 31$). &
+PyTorch Geometric JODIE, Wikipedia (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{overflow}} & Technology \& Information & Online Forums &
+Stack Overflow users and calendar days. & Complete bipartite graph between users and days. &
+Comment, answer, and other timed interactions. & Maximum daily timed interactions $r_{\max} = 52{,}446$, $y^* = 10.868$. & 2008-08-01 to 2016-03-06 ($n = 2{,}775$). &
+SNAP sx-stackoverflow (\ref{src:S19}). & Dataset article published 2017. Interactions span 2008--2016. \\
+\addlinespace[5pt]
+\textbf{\textit{email}} & Technology \& Information & Email Exchanges &
+European research-\allowbreak institution email accounts and days. & Complete bipartite graph between accounts and days. &
+Email timestamps. & Maximum daily emails $r_{\max} = 2{,}270$, $y^* = 7.728$. & Days 0--803 ($n = 804$). &
+SNAP email-\allowbreak Eu-\allowbreak core-\allowbreak temporal (\ref{src:S19}). & Dataset article published 2017. Timestamps reindexed to relative days. \\
+\addlinespace[5pt]
+\textbf{\textit{college}} & Technology \& Information & Social Networks &
+UC Irvine college-message users and days. & Complete bipartite graph between users and days. &
+Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678$, $y^* = 7.893$. & 2004-04-15 to 2004-10-26 ($n = 195$). &
+SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
 \addlinespace[5pt]
 \textbf{\textit{federal}} & Trade \& Institutions & Government &
 Awarding agencies and recipients. & Agency--\allowbreak recipient contract pairs. &
@@ -681,31 +706,6 @@ PyTorch Geometric BitcoinOTC (\ref{src:S16}). & Dataset article published 2016. 
 World Bank lending instruments and countries. & Instrument--\allowbreak country eligibility. &
 Project board-approval dates. & Maximum daily project approvals $r_{\max} = 12$, $y^* = 2.565$. & 2014-01-14 to 2024-12-20 ($n = 3{,}994$). &
 World Bank projects and country APIs (\ref{src:S17}). & Mutable APIs retrieved 29 September 2026. Approval-year cutoff 2024. \\
-\addlinespace[5pt]
-\textbf{\textit{wiki}} & Technology \& Information & Knowledge Graphs &
-Wikipedia mathematics pages. & Page--page relations from WikiMaths snapshots. &
-Daily summed page activity. & Maximum daily summed page activity $r_{\max} = 1{,}323{,}743$, $y^* = 14.096$. & 2019-03-16 to 2021-03-15 ($n = 731$). &
-UCI Wikipedia Math Essentials and PyTorch Geometric Temporal WikiMaths (\ref{src:S18}). & UCI dataset released 2021. Activity spans 2019--2021. \\
-\addlinespace[5pt]
-\textbf{\textit{jodie}} & Technology \& Information & Interaction Networks &
-Wikipedia users and pages. & User--page interactions. &
-Interaction timestamps. & Maximum daily interactions $r_{\max} = 6{,}087$, $y^* = 8.714$. & Days 0--30 ($n = 31$). &
-PyTorch Geometric JODIE, Wikipedia (\ref{src:S14}). & Dataset article published 2019. Timestamps reindexed to relative days. \\
-\addlinespace[5pt]
-\textbf{\textit{overflow}} & Technology \& Information & Online Forums &
-Stack Overflow users and calendar days. & Complete bipartite graph between users and days. &
-Comment, answer, and other timed interactions. & Maximum daily timed interactions $r_{\max} = 52{,}446$, $y^* = 10.868$. & 2008-08-01 to 2016-03-06 ($n = 2{,}775$). &
-SNAP sx-stackoverflow (\ref{src:S19}). & Dataset article published 2017. Interactions span 2008--2016. \\
-\addlinespace[5pt]
-\textbf{\textit{email}} & Technology \& Information & Email Exchanges &
-European research-\allowbreak institution email accounts and days. & Complete bipartite graph between accounts and days. &
-Email timestamps. & Maximum daily emails $r_{\max} = 2{,}270$, $y^* = 7.728$. & Days 0--803 ($n = 804$). &
-SNAP email-\allowbreak Eu-\allowbreak core-\allowbreak temporal (\ref{src:S19}). & Dataset article published 2017. Timestamps reindexed to relative days. \\
-\addlinespace[5pt]
-\textbf{\textit{college}} & Technology \& Information & Social Networks &
-UC Irvine college-message users and days. & Complete bipartite graph between users and days. &
-Private-message timestamps. & Maximum daily private messages $r_{\max} = 2{,}678$, $y^* = 7.893$. & 2004-04-15 to 2004-10-26 ($n = 195$). &
-SNAP CollegeMsg (\ref{src:S20}). & Dataset article published 2009. Messages were recorded in 2004. \\
 \addlinespace[5pt]
 \textbf{\textit{idling}} & Transportation \& Infrastructure & Mobility &
 Halifax drive-network nodes from the unsimplified OSM graph. & Street segments (OSM drive graph, undirected). &
@@ -1090,14 +1090,14 @@ Substitution & Arbitrary Ceiling & 1.90 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes
 \cmidrule(lr){1-8}
 Category & Formulation & \shortstack{Median\\$\Delta\mathrm{CI}$} & \shortstack{Rank-biserial\\$r$} & \shortstack{One-sided\\$p$} & \shortstack{Holm-adj.\\$p$} & Sig. & Sp. \\
 \midrule
-Component & EVT Statistic Exclusion & 0.00 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Utilization Features Exclusion & 0.00 & -0.18 & 0.738 & 0.738 &  & No \\
- & Frontier Anchor Only & 0.05 & 0.30 & 0.165 & 0.330 &  & No \\
- & Frontier Exclusion & 0.08 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+Component & EVT Statistic Exclusion & 0.005 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Utilization Features Exclusion & 0.001 & -0.18 & 0.738 & 0.738 &  & No \\
+ & Frontier Anchor Only & 0.054 & 0.30 & 0.165 & 0.330 &  & No \\
+ & Frontier Exclusion & 0.078 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
 \addlinespace
-Substitution & Arbitrary Ceiling & 0.08 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Feature Match Offset & 0.10 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
- & Frontier Remap & 0.22 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+Substitution & Arbitrary Ceiling & 0.075 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Feature Match Offset & 0.103 & 0.98 & $<0.001$ & $<0.001$ & *** & Yes \\
+ & Frontier Remap & 0.223 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes \\
 \midrule
 \multicolumn{8}{c}{\textbf{Geometric Mean Multiplicative Error}} \\
 \cmidrule(lr){1-8}
