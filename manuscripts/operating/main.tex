@@ -24,6 +24,7 @@
 \usepackage{algpseudocode}
 \usepackage{algcompatible}
 \usepackage[numbers,sort&compress]{natbib}
+\providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url} % unsrtnat doi format, shared by the SI references
 \usepackage{tikz}
 \usepackage{pgfplots}
 \usepackage{textcomp}
@@ -355,7 +356,6 @@ Each dynamical process was encoded using 7 process signatures across 5 categorie
     z \;=\; \psi(S) \;=\; (z_1, z_2, \ldots, z_7) \;\in\; \mathbb{R}^{7}
 \label{eq:signatures}
 \end{equation}
-The 6 process signatures were scale-free. The Fano factor retained count scale, equaling the series mean $\bar{r}$ multiplied by the squared coefficient of variation, reflecting process dispersion.
 
 The utilization vector contained 6 coordinates drawn from $x$ and $z$. The mapping $(x, z) \to u$ is formally defined as:
 \begin{equation}
@@ -1116,7 +1116,7 @@ Substitution & Arbitrary Ceiling & 6.17 & 1.00 & $<0.001$ & $<0.001$ & *** & Yes
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-One-Sided Wilcoxon Signed-Rank Tests of SCT-FAR superiority over 7 alternative formulations under domain-level LOGO-CV (\nameref{sec:ablation}). Each contrast uses 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains), with metrics scored within each domain from out-of-sample estimates. Frontier Remap cells average metrics across 30 reassignments after scoring. Shifts are medians of paired differences oriented such that positive values favor SCT-FAR: alternative $-$ SCT-FAR for MAE, RMSE, and GMME, and SCT-FAR $-$ alternative for CI. Rank-biserial $r$ uses nonzero differences with average ranks for ties. Tests assess $H_0:\theta\leq0$ versus $H_1:\theta>0$, assuming a symmetric paired-difference distribution with location $\theta$. Raw differences with magnitude $<10^{-10}$ were zeroed. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zero differences. $p$ is unadjusted; $p_{\mathrm H}$ is Holm-adjusted across the 7 alternative formulations separately for each metric. Sp. requires $p_{\mathrm H}<0.05$ and a positive median shift, supporting superiority of SCT-FAR. Adjustment across all 4 resampling regimes is summarized separately (Table~\ref{tab:si-support}). Shared GLM families, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:inference}).
+One-Sided Wilcoxon Signed-Rank Tests of SCT-FAR superiority over 7 alternative formulations under domain-level LOGO-CV (\nameref{sec:ablation}). Each contrast uses 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains), with metrics scored within each domain from out-of-sample estimates. Frontier Remap cells average metrics across 30 reassignments after scoring. Shifts are medians of paired differences oriented such that positive values favor SCT-FAR: alternative $-$ SCT-FAR for MAE, RMSE, and GMME, and SCT-FAR $-$ alternative for CI. CI shifts are reported to 3 decimals. Rank-biserial $r$ uses nonzero differences with average ranks for ties. Tests assess $H_0:\theta\leq0$ versus $H_1:\theta>0$, assuming a symmetric paired-difference distribution with location $\theta$. Raw differences with magnitude $<10^{-10}$ were zeroed. Tests used \texttt{SciPy 1.16.3}, \texttt{zero\_method='wilcox'}, \texttt{method='auto'}, and \texttt{correction=False}, discarding zero differences. $p$ is unadjusted; $p_{\mathrm H}$ is Holm-adjusted across the 7 alternative formulations separately for each metric. Sp. requires $p_{\mathrm H}<0.05$ and a positive median shift, supporting superiority of SCT-FAR. Adjustment across all 4 resampling regimes is summarized separately (Table~\ref{tab:si-support}). Shared GLM families, training systems, and domains make inference conditional on this dependent panel (\nameref{sec:inference}).
 \end{minipage}
 \end{table}
 
@@ -1230,7 +1230,7 @@ Random ($10$-Fold-CV) & SCT-FAR & 1.07 & 1.27 & 0.95 & 3.17 & 0.62 & 0.85 & 0.96
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Out-of-sample point estimates using SCT-FAR and unanchored estimation across 3 temporal divisions, 4 resampling regimes, and 3 GLM families (\nameref{sec:temporal}). For each division, the first $\lfloor \rho L \rfloor$ chronologically ordered intervals supply the process signatures, EVT statistic, and frontier training maxima, and the remaining intervals supply the expected operating rate, with at least 3 intervals in each window. Graph invariants are static and span both windows. $k$-Fold-CV uses a single random reshuffling with seed 42. SCT-FAR is more accurate than unanchored estimation in all 4 metrics in all 36 combinations of division, resampling regime, and GLM family. Removing the cap (Eq.~\eqref{eq:far}) and reselecting penalties changes 0 of 25 estimates in each of the 36 combinations. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). Descriptive summaries only.
+Out-of-sample point estimates using SCT-FAR and unanchored estimation across 3 temporal divisions, 4 resampling regimes, and 3 GLM families (\nameref{sec:temporal}). For each division, the first $\lfloor \kappa L \rfloor$ chronologically ordered intervals supply the process signatures, EVT statistic, and frontier training maxima, and the remaining intervals supply the expected operating rate, with at least 3 intervals in each window. Graph invariants are static and span both windows. $k$-Fold-CV uses a single random reshuffling with seed 42. SCT-FAR is more accurate than unanchored estimation in all 4 metrics in all 36 combinations of division, resampling regime, and GLM family. Removing the cap (Eq.~\eqref{eq:far}) and reselecting penalties changes 0 of 25 estimates in each of the 36 combinations. MAE, RMSE, GMME, and CI are defined in the methodology (\nameref{sec:performance-metrics},~Eqs.~\eqref{eq:mae}--\eqref{eq:ci}). Descriptive summaries only.
 \end{minipage}
 \end{table}
 
@@ -1290,49 +1290,49 @@ Analysis & Comparison & Metric & Settings & \shortstack{Min. Median\\$\Delta$} &
 \midrule
 Component & EVT Statistic Exclusion & MAE & 4 & 0.05 & 0.11 & 4 & 4 & 0.011 \\
  & & RMSE & 4 & 0.04 & 0.08 & 4 & 4 & 0.042 \\
- & & CI & 4 & 0.00 & 0.00 & 4 & 2 & 0.606 \\
+ & & CI & 4 & 0.001 & 0.005 & 4 & 2 & 0.606 \\
  & & GMME & 4 & 0.10 & 0.18 & 4 & 4 & 0.008 \\
 \addlinespace
  & Utilization Features Exclusion & MAE & 4 & 0.29 & 0.45 & 4 & 4 & $<0.001$ \\
  & & RMSE & 4 & 0.28 & 0.42 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.00 & 0.00 & 4 & 0 & 1.000 \\
+ & & CI & 4 & $<0.001$ & 0.001 & 4 & 0 & 1.000 \\
  & & GMME & 4 & 0.65 & 0.98 & 4 & 4 & $<0.001$ \\
 \addlinespace
  & Frontier Anchor Only & MAE & 4 & 0.75 & 0.99 & 4 & 4 & $<0.001$ \\
  & & RMSE & 4 & 0.80 & 0.96 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.05 & 0.05 & 4 & 0 & 0.826 \\
+ & & CI & 4 & 0.054 & 0.054 & 4 & 0 & 0.826 \\
  & & GMME & 4 & 2.12 & 2.97 & 4 & 4 & $<0.001$ \\
 \addlinespace
  & Frontier Exclusion & MAE & 4 & 1.56 & 2.02 & 4 & 4 & $<0.001$ \\
  & & RMSE & 4 & 2.03 & 2.11 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.05 & 0.09 & 4 & 4 & 0.011 \\
+ & & CI & 4 & 0.047 & 0.090 & 4 & 4 & 0.011 \\
  & & GMME & 4 & 6.60 & 10.00 & 4 & 4 & $<0.001$ \\
 \addlinespace
 Substitution & Arbitrary Ceiling & MAE & 4 & 1.50 & 1.84 & 4 & 4 & $<0.001$ \\
  & & RMSE & 4 & 1.83 & 1.97 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.05 & 0.08 & 4 & 4 & 0.007 \\
+ & & CI & 4 & 0.053 & 0.075 & 4 & 4 & 0.007 \\
  & & GMME & 4 & 6.17 & 8.33 & 4 & 4 & $<0.001$ \\
 \addlinespace
  & Feature Match Offset & MAE & 4 & 0.76 & 1.09 & 4 & 4 & 0.002 \\
  & & RMSE & 4 & 1.14 & 1.44 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.08 & 0.12 & 4 & 4 & 0.003 \\
+ & & CI & 4 & 0.082 & 0.120 & 4 & 4 & 0.003 \\
  & & GMME & 4 & 1.80 & 3.17 & 4 & 4 & 0.002 \\
 \addlinespace
  & Frontier Remap & MAE & 4 & 2.43 & 2.64 & 4 & 4 & $<0.001$ \\
  & & RMSE & 4 & 2.97 & 3.42 & 4 & 4 & $<0.001$ \\
- & & CI & 4 & 0.22 & 0.25 & 4 & 4 & $<0.001$ \\
+ & & CI & 4 & 0.223 & 0.250 & 4 & 4 & $<0.001$ \\
  & & GMME & 4 & 38.14 & 56.09 & 4 & 4 & $<0.001$ \\
 \addlinespace
 Temporal & Frontier Exclusion & MAE & 12 & 1.35 & 1.97 & 12 & 12 & 0.002 \\
  & & RMSE & 12 & 1.42 & 2.15 & 12 & 12 & 0.001 \\
- & & CI & 12 & 0.04 & 0.13 & 12 & 0 & 0.253 \\
+ & & CI & 12 & 0.045 & 0.129 & 12 & 0 & 0.253 \\
  & & GMME & 12 & 7.20 & 12.70 & 12 & 12 & 0.002 \\
 \bottomrule
 \end{tabularx}
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Superiority tests summarized by comparison and metric across all settings. Component and substitution rows span the 4 resampling regimes (4 settings per row), and temporal rows span 3 divisions $\times$ 4 resampling regimes (12 settings per row). Each setting tests SCT-FAR superiority across 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains) with One-Sided Wilcoxon Signed-Rank Tests, with paired differences oriented such that positive values favor SCT-FAR. Min. and Max. Median $\Delta$ bound the setting-level medians of paired differences. Favoring counts settings with a positive median shift, and Superior counts those that also satisfy $p_{\mathrm H}<0.05$. $p_{\mathrm H}$ is Holm-adjusted across all settings and comparisons within each analysis separately for each metric, covering 28 ablation and substitution comparisons or 12 temporal comparisons, and the maximum across a row's settings is reported. Frontier Exclusion is unanchored estimation. All settings reuse the same 25 systems and are not independent replications (\nameref{sec:inference}).
+Superiority tests summarized by comparison and metric across all settings. Component and substitution rows span the 4 resampling regimes (4 settings per row), and temporal rows span 3 divisions $\times$ 4 resampling regimes (12 settings per row). Each setting tests SCT-FAR superiority across 15 paired family-by-domain cells (3 GLM families $\times$ 5 broad domains) with One-Sided Wilcoxon Signed-Rank Tests, with paired differences oriented such that positive values favor SCT-FAR. Min. and Max. Median $\Delta$ bound the setting-level medians of paired differences. CI rows are reported to 3 decimals, where $<0.001$ denotes a positive median below 0.001. Favoring counts settings with a positive median shift, and Superior counts those that also satisfy $p_{\mathrm H}<0.05$. $p_{\mathrm H}$ is Holm-adjusted across all settings and comparisons within each analysis separately for each metric, covering 28 ablation and substitution comparisons or 12 temporal comparisons, and the maximum across a row's settings is reported. Frontier Exclusion is unanchored estimation. All settings reuse the same 25 systems and are not independent replications (\nameref{sec:inference}).
 \end{minipage}
 \end{table}
 
@@ -1350,12 +1350,12 @@ Superiority tests summarized by comparison and metric across all settings. Compo
 Simple & 1. Number of Nodes & Number of nodes\newline & $n = |V|$ & $O(1)$ \\
  & 2. Number of Edges \ddag & Number of edges\newline & $m = |E|$ & $O(1)$ \\
  & 3. Articulation Points & Vertices whose removal splits $G$ & $\lvert \{ v : \omega(G - v) > \omega(G) \} \rvert$ & $O(n+m)$ \\
- & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ e : \omega(G - e) > \omega(G) \} \rvert$ & $O(n+m)$ \\
+ & 4. Bridges & Edges whose removal splits $G$ & $\lvert \{ uv : \omega(G - uv) > \omega(G) \} \rvert$ & $O(n+m)$ \\
 \addlinespace
 Cohesion & 5. Diameter & Longest shortest-path length \dag & $\max_v \epsilon(v)$ & $O(nm)$ \\
  & 6. Radius & Smallest vertex eccentricity \dag & $\min_v \epsilon(v)$ & $O(nm)$ \\
- & 7. Degeneracy & Largest $k$ with\newline a $k$-core & $k^{*} = \max_v c(v)$ & $O(n+m)$ \\
- & 8. $k$-Core Size & Vertices in the\newline core at $k^{*}$ & $\lvert \{ v : c(v) = k^{*} \} \rvert$ & $O(n+m)$ \\
+ & 7. Degeneracy & Largest $k$ with\newline a $k$-core & $k^{*} = \max_v k_s(v)$ & $O(n+m)$ \\
+ & 8. $k$-Core Size & Vertices in the\newline core at $k^{*}$ & $\lvert \{ v : k_s(v) = k^{*} \} \rvert$ & $O(n+m)$ \\
 \addlinespace
 Extremal & 9. Maximum Degree & Highest vertex degree & $\max_v d_v$ & $O(n)$ \\
 \addlinespace
@@ -1367,8 +1367,8 @@ Statistical & 10. Degree Variance & Spread of vertex\newline degrees & $n^{-1} \
  & 15. Global Clustering Coefficient & Fraction of\newline closed triples & $3 N_{\triangle} / N_{\wedge}$ & $O(n d_{\max}^2)$ \\
  & 16. Assortativity & Correlation of endpoint degrees & $\mathrm{corr}_{\{u,v\} \in E}(d_u, d_v)$ & $O(m)$ \\
 \addlinespace
-Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{tr}(L^2)/n$ & $O(m)$ \\
- & 18. Normalized Laplacian 3rd Moment & Diffusion asymmetry & $\mathrm{tr}(L^3)/n$ & $O(m^2)$ \\
+Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{tr}(\mathcal{L}^2)/n$ & $O(m)$ \\
+ & 18. Normalized Laplacian 3rd Moment & Diffusion asymmetry & $\mathrm{tr}(\mathcal{L}^3)/n$ & $O(m^2)$ \\
  & 19. Random Walk 3rd Moment \ddag & Three-step recurrence & $\mathrm{tr}(P^3)/n$ & $O(m^2)$ \\
  & 20. Random Walk 4th Moment & Four-step recurrence & $\mathrm{tr}(P^4)/n$ & $O(m^2)$ \\
  & 21. Adjacency 4th Moment & Four-length walk density & $\mathrm{tr}(A^4)/n$ & $O(m^2)$ \\
@@ -1377,7 +1377,7 @@ Spectral & 17. Normalized Laplacian 2nd Moment & Diffusion intensity & $\mathrm{
 \par\vspace{12pt}
 \begin{minipage}{\linewidth}
 \footnotesize
-Admission required global graph descriptors defined solely by topology, independent of embeddings, weights, external parameters, and arbitrary thresholds, exactly and deterministically computable at corpus scale, and non-trivially variable across systems. All returned values were finite. \dag~Diameter and radius use the largest connected component; degeneracy and $k$-core size use the full graph. \ddag~Coordinates of the utilization vector $u$ (Eq.~\eqref{eq:utilization}). Spectral moments use exact trace identities without eigendecomposition; the 4 complete bipartite substrates use closed-form invariants. Here $n = |V|$, $m = |E|$, $d_v$ is vertex degree, $\bar{d}$ its mean, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, and $g_2 = \mu_4 / \mu_2^{2} - 3$. $\omega$ counts connected components, $\epsilon(v)$ is eccentricity in hops, $c(v)$ is core number, $p_k$ is the fraction of nodes of degree $k$, $q_{kl}$ is the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ count triangles and connected triples. $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ over non-isolated nodes, $L = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ but contribute 0 to $\mathrm{tr}(L^k)$. Logarithms are natural; assortativity counts both edge orientations. Undefined assortativity and clustering are 0. Degree skewness and kurtosis are 0 for equal degrees or $n < 3$ and $n < 4$, respectively. References: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
+Admission required global graph descriptors defined solely by topology, independent of embeddings, weights, external parameters, and arbitrary thresholds, exactly and deterministically computable at corpus scale, and non-trivially variable across systems. All returned values were finite. \dag~Diameter and radius use the largest connected component; degeneracy and $k$-core size use the full graph. \ddag~Coordinates of the utilization vector $u$ (Eq.~\eqref{eq:utilization}). Spectral moments use exact trace identities without eigendecomposition; the 4 complete bipartite substrates use closed-form invariants. Here $n = |V|$, $m = |E|$, $d_v$ is vertex degree, $\bar{d}$ its mean, $\mu_j = n^{-1} \sum_v (d_v - \bar{d})^j$, $g_1 = \mu_3 / \mu_2^{3/2}$, and $g_2 = \mu_4 / \mu_2^{2} - 3$. $\omega$ counts connected components, $\epsilon(v)$ is eccentricity in hops, $k_s(v)$ is core number, $p_k$ is the fraction of nodes of degree $k$, $q_{kl}$ is the fraction of edges with unordered endpoint degrees $\{k, l\}$, and $N_{\triangle}$ and $N_{\wedge}$ count triangles and connected triples. $A$ is the adjacency matrix, $\hat{A} = D^{-1/2} A D^{-1/2}$ over non-isolated nodes, $\mathcal{L} = I - \hat{A}$, and $P = D^{-1} A$. Isolated nodes count toward $n$ but contribute 0 to $\mathrm{tr}(\mathcal{L}^k)$. Logarithms are natural; assortativity counts both edge orientations. Undefined assortativity and clustering are 0. Degree skewness and kurtosis are 0 for equal degrees or $n < 3$ and $n < 4$, respectively. References: \citep{ref49,ref50,ref51,ref52,ref61,ref62,ref63,ref64,ref79,ref112,ref114}.
 \end{minipage}
 \end{table}
 
@@ -1390,7 +1390,7 @@ Admission required global graph descriptors defined solely by topology, independ
 \label{tab:si-signatures}
 \begin{tabularx}{\linewidth}{@{}ll>{\raggedright\arraybackslash}Xll@{}}
 \toprule
-\textbf{Property} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
+\textbf{Category} & \textbf{Signature} & \textbf{Definition} & \textbf{Expression} & \textbf{Complexity} \\
 \midrule
 Dependence & 1. Lag-1 Autocorrelation & Short-term sequential dependence & $\frac{\sum_{i=1}^{L-1} \tilde{r}_i \tilde{r}_{i+1}}{\sum_{i=1}^{L} \tilde{r}_i^{2}}$ & $O(L)$ \\
  & 2. Hurst Exponent & Long-range\newline dependence & $\ln(R/s) / \ln L$ & $O(L)$ \\
@@ -1434,7 +1434,7 @@ Component & EVT Statistic Exclusion & $\widehat{y}^{*}$ & Learned utilization on
  & Frontier Anchor Only & $\widehat{y}^{*}$ & Fitted intercept without $u'$ or the EVT statistic & $\widehat{y}^{*}$ \\
  & Frontier Exclusion & None & Unanchored estimation on $u'$ & None \\
 \addlinespace
-Substitution & Arbitrary Ceiling & $c - e$ & Constant $c = 3\max_j y_j^{*}$ across training systems replaces $\widehat{y}^{*}$ & $c$ \\
+Substitution & Arbitrary Ceiling & $\gamma - e$ & Constant $\gamma = 3\max_j y_j^{*}$ across training systems replaces $\widehat{y}^{*}$ & $\gamma$ \\
  & Feature Match Offset & $\widehat{y}_{D}$ & Direct estimate $\widehat{y}_{D}$ of $y$ from $x'$ and $z'$ at $\tau_C = \tau_R = 0.50$, with $e$ appended to $u$ & None \\
  & Frontier Remap & $\widehat{y}_{\pi(i)}^{*} - e$ & Frontier estimates reassigned across systems by $\pi$ over 30 reassignments & $\widehat{y}_{\pi(i)}^{*}$ \\
 \midrule
@@ -1466,9 +1466,9 @@ GPS timestamps in \textbf{gwosc} and \textbf{auger} were converted to UTC withou
 \subsection*{Note S2: Count-Family Estimation}
 \phantomsection
 \label{sec:si-note-estimation}
-Let $o$ denote the offset, $\eta = o + \beta_0 + \beta^{\top}u'$ the linear predictor, and $\mu = e^{\eta}$ the fitted mean across $n$ training systems (Eq.~\eqref{eq:far}). All 3 GLM families minimized a scaled loss with the penalty $(\lambda/2n)\lVert\beta\rVert_2^2$ and an unpenalized intercept. Linear predictors were clipped to $[-15, 25]$ during training, and estimated log-rates were clipped to $[-12, 20]$ before exponentiation. Expected rates were floored at $10^{-8}$. The intercept and coefficients were initialized by ridge regression of $\ln \bar{r} - o$ on $u'$ with penalty $\max(\lambda, 1)$. L-BFGS-B used analytical gradients and default tolerances \citep{ref145}.
+Let $o$ denote the offset, $\eta = o + \beta_0 + \beta^{\top}u'$ the linear predictor, and $\mu = \exp(\eta)$ the fitted mean across $n$ training systems (Eq.~\eqref{eq:far}). All 3 GLM families minimized a scaled loss with the penalty $(\lambda/2n)\lVert\beta\rVert_2^2$ and an unpenalized intercept. Linear predictors were clipped to $[-15, 25]$ during training, and estimated log-rates were clipped to $[-12, 20]$ before exponentiation. Expected rates were floored at $10^{-8}$. The intercept and coefficients were initialized by ridge regression of $\ln \bar{r} - o$ on $u'$ with penalty $\max(\lambda, 1)$. L-BFGS-B used analytical gradients and default tolerances \citep{ref145}.
 
-\textbf{Poisson} estimation used $\eta + \ln L$ as the linear predictor of the total count $M$. The loss was the mean of $e^{\eta + \ln L} - M(\eta + \ln L)$ across training systems, divided by the mean training count, which was floored at 1.
+\textbf{Poisson} estimation used $\eta + \ln L$ as the linear predictor of the total count $M$. The loss was the mean of $\exp(\eta + \ln L) - M(\eta + \ln L)$ across training systems, divided by the mean training count, which was floored at 1.
 
 \textbf{Negative Binomial} estimation used the log-likelihood of the expected rate $\bar{r}$ with mean $\mu$ and dispersion $\alpha$:
 \begin{equation*}
@@ -1478,7 +1478,7 @@ The loss was the mean negative log-likelihood multiplied by $\alpha$. The disper
 
 \textbf{Poisson--Tweedie} estimation used the variance function $V(\mu) = \mu + \phi\mu^{p}$ with $p = 1.75$ and the unit deviance:
 \begin{equation*}
-d(\bar{r}, \mu) \;=\; 2\int_{\ln \mu}^{\ln \bar{r}} \frac{\bar{r} - e^{v}}{1 + \phi\, e^{(p - 1)v}}\, dv
+d(\bar{r}, \mu) \;=\; 2\int_{\ln \mu}^{\ln \bar{r}} \frac{\bar{r} - \exp(v)}{1 + \phi\, \exp[(p - 1)v]}\, dv
 \end{equation*}
 evaluated by 16-node Gauss-Legendre quadrature \citep{ref174}. The loss was the mean of $d/2$ divided by the mean working weight $\bar{r}/(1 + \phi\bar{r}^{\,p-1})$. The dispersion maximized the mean saddlepoint log-density $-\tfrac{1}{2}\ln[2\pi V(\bar{r})] - \tfrac{1}{2}d(\bar{r}, \mu)$ at the current fitted means by bounded scalar minimization on $[10^{-3}, 10]$ \citep{ref173,ref144}.
 
@@ -1489,38 +1489,38 @@ For the 2 overdispersed families, dispersion and coefficient updates alternated 
 \phantomsection
 \label{sec:si-sources}
 \footnotesize
-\begin{enumerate}[label=S\arabic*.,ref=S\arabic*,leftmargin=2.8em,itemsep=0.6em]
-\item \label{src:S1} Vallisneri, M., Kanner, J., Williams, R., Weinstein, A. \& Stephens, B. The LIGO Open Science Center. \textit{J. Phys. Conf. Ser.} \textbf{610}, 012021 (2015). \url{https://doi.org/10.1088/1742-6596/610/1/012021}
-\item \label{src:S2} U.S. Geological Survey. USGS Water Data for the Nation (1994). \url{https://doi.org/10.5066/F7P55KJN}
-\item \label{src:S3} Pierre Auger Collaboration. Pierre Auger Observatory Open Data, version 3 [Dataset]. Zenodo (2024). \url{https://doi.org/10.5281/zenodo.10488964}
-\item \label{src:S4} Albuquerque Seismological Laboratory/USGS. Global Seismograph Network (GSN - IRIS/USGS) [Dataset]. International Federation of Digital Seismograph Networks (1988). \url{https://doi.org/10.7914/SN/IU}
-\item \label{src:S5} U.S. Geological Survey. Advanced National Seismic System (ANSS) Comprehensive Catalog (2017). \url{https://doi.org/10.5066/F7MS3QZH}
-\item \label{src:S6} Meteostat. Meteostat weather and climate database. \url{https://meteostat.net} (accessed 1 September 2026).
-\item \label{src:S7} Cassada, R. C. \& Russell, R. L. The dauerlarva, a post-embryonic developmental variant of the nematode \textit{Caenorhabditis elegans}. \textit{Dev. Biol.} \textbf{46}, 326--342 (1975). \url{https://doi.org/10.1016/0012-1606(75)90109-8}
-\item \label{src:S8} Golden, J. W. \& Riddle, D. L. The \textit{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \textit{Dev. Biol.} \textbf{102}, 368--378 (1984). \url{https://doi.org/10.1016/0012-1606(84)90201-X}
-\item \label{src:S9} Allen-Perkins, A. et al. CropPol: A dynamic, open and global database on crop pollination. \textit{Ecology} \textbf{103}, e3614 (2022). \url{https://doi.org/10.1002/ecy.3614}
-\item \label{src:S10} Hungarian Chickenpox Cases [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5103B}
-\item \label{src:S11} U.S. Food and Drug Administration. openFDA Drug Event API. \url{https://open.fda.gov/apis/drug/event/} (accessed 13 March 2026).
-\item \label{src:S12} Guttag, J. CHB-MIT Scalp EEG Database, version 1.0.0 [Dataset]. PhysioNet (2010). \url{https://doi.org/10.13026/C2K01R}
-\item \label{src:S13} U.S. Department of the Treasury. USAspending API. \url{https://api.usaspending.gov/} (accessed 25 August 2026).
-\item \label{src:S14} Kumar, S., Zhang, X. \& Leskovec, J. Predicting dynamic embedding trajectory in temporal interaction networks. In \textit{Proc. 25th ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining} 1269--1278 (ACM, 2019). \url{https://doi.org/10.1145/3292500.3330895}
-\item \label{src:S15} McAuley, J., Targett, C., Shi, Q. \& van den Hengel, A. Image-based recommendations on styles and substitutes. In \textit{Proc. 38th Int. ACM SIGIR Conf. Research and Development in Information Retrieval} 43--52 (ACM, 2015). \url{https://doi.org/10.1145/2766462.2767755}
-\item \label{src:S16} Kumar, S., Spezzano, F., Subrahmanian, V. S. \& Faloutsos, C. Edge weight prediction in weighted signed networks. In \textit{Proc. IEEE 16th Int. Conf. Data Mining} 221--230 (IEEE, 2016). \url{https://doi.org/10.1109/ICDM.2016.0033}
-\item \label{src:S17} World Bank. Projects \& Operations API and Country API. \url{https://search.worldbank.org/api/v2/projects} and \url{https://api.worldbank.org/v2/country} (accessed 29 September 2026).
-\item \label{src:S18} Wikipedia Math Essentials [Dataset]. UCI Machine Learning Repository (2021). \url{https://doi.org/10.24432/C5V32F}
-\item \label{src:S19} Paranjape, A., Benson, A. R. \& Leskovec, J. Motifs in temporal networks. In \textit{Proc. 10th ACM Int. Conf. Web Search and Data Mining} 601--610 (ACM, 2017). \url{https://doi.org/10.1145/3018661.3018731}
-\item \label{src:S20} Panzarasa, P., Opsahl, T. \& Carley, K. M. Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \textit{J. Am. Soc. Inf. Sci. Technol.} \textbf{60}, 911--932 (2009). \url{https://doi.org/10.1002/asi.21015}
-\item \label{src:S21} OpenStreetMap contributors. OpenStreetMap [Dataset]. \url{https://www.openstreetmap.org} (accessed 10 November 2025).
-\item \label{src:S22} Boeing, G. Modeling and analyzing urban networks and amenities with OSMnx. \textit{Geogr. Anal.} \textbf{57}, 567--577 (2025). \url{https://doi.org/10.1111/gean.70009}
-\item \label{src:S23} Li, Y., Yu, R., Shahabi, C. \& Liu, Y. Diffusion convolutional recurrent neural network: data-driven traffic forecasting. In \textit{Int. Conf. Learning Representations} (2018).
-\item \label{src:S24} Abbott, B. P. et al. GWTC-1: A Gravitational-Wave Transient Catalog of Compact Binary Mergers Observed by LIGO and Virgo during the First and Second Observing Runs. \textit{Phys. Rev. X} \textbf{9}, 031040 (2019). \url{https://doi.org/10.1103/PhysRevX.9.031040}
-\item \label{src:S25} Abbott, R. et al. GWTC-2: Compact Binary Coalescences Observed by LIGO and Virgo during the First Half of the Third Observing Run. \textit{Phys. Rev. X} \textbf{11}, 021053 (2021). \url{https://doi.org/10.1103/PhysRevX.11.021053}
-\item \label{src:S26} Abbott, R. et al. GWTC-2.1: Deep extended catalog of compact binary coalescences observed by LIGO and Virgo during the first half of the third observing run. \textit{Phys. Rev. D} \textbf{109}, 022001 (2024). \url{https://doi.org/10.1103/PhysRevD.109.022001}
-\item \label{src:S27} Abbott, R. et al. GWTC-3: Compact Binary Coalescences Observed by LIGO and Virgo during the Second Part of the Third Observing Run. \textit{Phys. Rev. X} \textbf{13}, 041039 (2023). \url{https://doi.org/10.1103/PhysRevX.13.041039}
-\item \label{src:S28} Government of Uruguay. National Open Data Catalog. \url{https://catalogodatos.gub.uy/} (accessed 1 September 2026).
-\item \label{src:S29} Kunz, N. \& Gao, H. O. Global geolocated realtime data of interfleet urban transit bus idling. Preprint at \url{https://doi.org/10.48550/arXiv.2403.03489} (2024).
-\item \label{src:S30} LIGO Scientific Collaboration, Virgo Collaboration \& KAGRA Collaboration. GWTC-4.0 Data Release Documentation [Dataset]. Gravitational Wave Open Science Center (2025). \url{https://doi.org/10.7935/aes8-px89}
-\item \label{src:S31} Rader, R. et al. Non-bee insects are important contributors to global crop pollination. \textit{Proc. Natl Acad. Sci. USA} \textbf{113}, 146--151 (2016). \url{https://doi.org/10.1073/pnas.1517092112}
+\begin{enumerate}[label={[S\arabic*]},ref=S\arabic*,leftmargin=2.8em,itemsep=0.6em]
+\item \label{src:S1} M.~Vallisneri, J.~Kanner, R.~Williams, A.~Weinstein, and B.~Stephens. \newblock The {LIGO Open Science Center}. \newblock \emph{Journal of Physics: Conference Series}, 610:\penalty0 012021, 2015. \newblock \doi{10.1088/1742-6596/610/1/012021}.
+\item \label{src:S2} {U.S. Geological Survey}. \newblock {USGS Water Data for the Nation}, 1994. \newblock URL \url{https://doi.org/10.5066/F7P55KJN}.
+\item \label{src:S3} {Pierre Auger Collaboration}. \newblock {Pierre Auger Observatory Open Data}, version 3. \newblock Zenodo, 2024. \newblock URL \url{https://doi.org/10.5281/zenodo.10488964}.
+\item \label{src:S4} {Albuquerque Seismological Laboratory/USGS}. \newblock {Global Seismograph Network (GSN - IRIS/USGS)}. \newblock International Federation of Digital Seismograph Networks, 1988. \newblock URL \url{https://doi.org/10.7914/SN/IU}.
+\item \label{src:S5} {U.S. Geological Survey}. \newblock {Advanced National Seismic System (ANSS) Comprehensive Catalog}, 2017. \newblock URL \url{https://doi.org/10.5066/F7MS3QZH}.
+\item \label{src:S6} {Meteostat}. \newblock {Meteostat} weather and climate database, 2026. \newblock URL \url{https://meteostat.net}. \newblock Accessed 1 September 2026.
+\item \label{src:S7} R.~C. Cassada and R.~L. Russell. \newblock The dauerlarva, a post-embryonic developmental variant of the nematode \emph{Caenorhabditis elegans}. \newblock \emph{Developmental Biology}, 46:\penalty0 326--342, 1975. \newblock \doi{10.1016/0012-1606(75)90109-8}.
+\item \label{src:S8} J.~W. Golden and D.~L. Riddle. \newblock The \emph{Caenorhabditis elegans} dauer larva: developmental effects of pheromone, food, and temperature. \newblock \emph{Developmental Biology}, 102:\penalty0 368--378, 1984. \newblock \doi{10.1016/0012-1606(84)90201-X}.
+\item \label{src:S9} A.~Allen-Perkins et~al. \newblock {CropPol}: a dynamic, open and global database on crop pollination. \newblock \emph{Ecology}, 103:\penalty0 e3614, 2022. \newblock \doi{10.1002/ecy.3614}.
+\item \label{src:S10} {UCI Machine Learning Repository}. \newblock {Hungarian Chickenpox Cases}, 2021{\natexlab{a}}. \newblock URL \url{https://doi.org/10.24432/C5103B}.
+\item \label{src:S11} {U.S. Food and Drug Administration}. \newblock {openFDA Drug Event API}, 2026. \newblock URL \url{https://open.fda.gov/apis/drug/event/}. \newblock Accessed 13 March 2026.
+\item \label{src:S12} John Guttag. \newblock {CHB-MIT Scalp EEG Database}, version 1.0.0. \newblock PhysioNet, 2010. \newblock URL \url{https://doi.org/10.13026/C2K01R}.
+\item \label{src:S13} {U.S. Department of the Treasury}. \newblock {USAspending API}, 2026. \newblock URL \url{https://api.usaspending.gov/}. \newblock Accessed 25 August 2026.
+\item \label{src:S14} Srijan Kumar, Xikun Zhang, and Jure Leskovec. \newblock Predicting dynamic embedding trajectory in temporal interaction networks. \newblock In \emph{Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining}, pages 1269--1278. ACM, 2019. \newblock \doi{10.1145/3292500.3330895}.
+\item \label{src:S15} Julian McAuley, Christopher Targett, Qinfeng Shi, and Anton van~den Hengel. \newblock Image-based recommendations on styles and substitutes. \newblock In \emph{Proceedings of the 38th International ACM SIGIR Conference on Research and Development in Information Retrieval}, pages 43--52. ACM, 2015. \newblock \doi{10.1145/2766462.2767755}.
+\item \label{src:S16} Srijan Kumar, Francesca Spezzano, V.~S. Subrahmanian, and Christos Faloutsos. \newblock Edge weight prediction in weighted signed networks. \newblock In \emph{Proceedings of the IEEE 16th International Conference on Data Mining}, pages 221--230. IEEE, 2016. \newblock \doi{10.1109/ICDM.2016.0033}.
+\item \label{src:S17} {World Bank}. \newblock {Projects \& Operations API} and {Country API}, 2026. \newblock URL \url{https://search.worldbank.org/api/v2/projects}. \newblock Country API at \url{https://api.worldbank.org/v2/country}. Accessed 29 September 2026.
+\item \label{src:S18} {UCI Machine Learning Repository}. \newblock {Wikipedia Math Essentials}, 2021{\natexlab{b}}. \newblock URL \url{https://doi.org/10.24432/C5V32F}.
+\item \label{src:S19} Ashwin Paranjape, Austin~R. Benson, and Jure Leskovec. \newblock Motifs in temporal networks. \newblock In \emph{Proceedings of the 10th ACM International Conference on Web Search and Data Mining}, pages 601--610. ACM, 2017. \newblock \doi{10.1145/3018661.3018731}.
+\item \label{src:S20} Pietro Panzarasa, Tore Opsahl, and Kathleen~M. Carley. \newblock Patterns and dynamics of users' behavior and interaction: network analysis of an online community. \newblock \emph{Journal of the American Society for Information Science and Technology}, 60:\penalty0 911--932, 2009. \newblock \doi{10.1002/asi.21015}.
+\item \label{src:S21} {OpenStreetMap contributors}. \newblock {OpenStreetMap}, 2025. \newblock URL \url{https://www.openstreetmap.org}. \newblock Accessed 10 November 2025.
+\item \label{src:S22} Geoff Boeing. \newblock Modeling and analyzing urban networks and amenities with {OSMnx}. \newblock \emph{Geographical Analysis}, 57:\penalty0 567--577, 2025. \newblock \doi{10.1111/gean.70009}.
+\item \label{src:S23} Yaguang Li, Rose Yu, Cyrus Shahabi, and Yan Liu. \newblock Diffusion convolutional recurrent neural network: data-driven traffic forecasting. \newblock In \emph{International Conference on Learning Representations}, 2018. \newblock \doi{10.48550/arXiv.1707.01926}.
+\item \label{src:S24} B.~P. Abbott et~al. \newblock {GWTC-1}: a gravitational-wave transient catalog of compact binary mergers observed by {LIGO} and {Virgo} during the first and second observing runs. \newblock \emph{Physical Review X}, 9:\penalty0 031040, 2019. \newblock \doi{10.1103/PhysRevX.9.031040}.
+\item \label{src:S25} R.~Abbott et~al. \newblock {GWTC-2}: compact binary coalescences observed by {LIGO} and {Virgo} during the first half of the third observing run. \newblock \emph{Physical Review X}, 11:\penalty0 021053, 2021. \newblock \doi{10.1103/PhysRevX.11.021053}.
+\item \label{src:S26} R.~Abbott et~al. \newblock {GWTC-2.1}: deep extended catalog of compact binary coalescences observed by {LIGO} and {Virgo} during the first half of the third observing run. \newblock \emph{Physical Review D}, 109:\penalty0 022001, 2024. \newblock \doi{10.1103/PhysRevD.109.022001}.
+\item \label{src:S27} R.~Abbott et~al. \newblock {GWTC-3}: compact binary coalescences observed by {LIGO} and {Virgo} during the second part of the third observing run. \newblock \emph{Physical Review X}, 13:\penalty0 041039, 2023. \newblock \doi{10.1103/PhysRevX.13.041039}.
+\item \label{src:S28} {Government of Uruguay}. \newblock {National Open Data Catalog}, 2026. \newblock URL \url{https://catalogodatos.gub.uy/}. \newblock Accessed 1 September 2026.
+\item \label{src:S29} Nicholas Kunz and H.~Oliver Gao. \newblock Global geolocated realtime data of interfleet urban transit bus idling. \newblock Preprint, 2024. \newblock URL \url{https://doi.org/10.48550/arXiv.2403.03489}.
+\item \label{src:S30} {LIGO Scientific Collaboration, Virgo Collaboration, and KAGRA Collaboration}. \newblock {GWTC-4.0 Data Release Documentation}. \newblock Gravitational Wave Open Science Center, 2025. \newblock URL \url{https://doi.org/10.7935/aes8-px89}.
+\item \label{src:S31} Romina Rader et~al. \newblock Non-bee insects are important contributors to global crop pollination. \newblock \emph{Proceedings of the National Academy of Sciences}, 113:\penalty0 146--151, 2016. \newblock \doi{10.1073/pnas.1517092112}.
 \end{enumerate}
 
 \endgroup
