@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib._mathtext as _mathtext
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -7197,8 +7198,8 @@ def _render_consensus_figure(
     ax_scatter.set_yticks(np.arange(0.0, 1.01, 0.25))
     ax_scatter.set_xticklabels(["0", "0.25", "0.50", "0.75", "1"])
     ax_scatter.set_yticklabels(["0", "0.25", "0.50", "0.75", "1"])
-    ax_scatter.set_xlabel(r"Median Estimation-Observation Consensus $(\hat{y}^*, \, y^*)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
-    ax_scatter.set_ylabel(r"Median Pairwise Model Consensus $(\hat{y}^*_i, \, \hat{y}^*_j)$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR)
+    ax_scatter.set_xlabel(r"Median Estimation-Observation Consensus $(\hat{y}^{*},\, y^{*})$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR, math_fontfamily = "cm")
+    ax_scatter.set_ylabel(r"Median Pairwise Model Consensus $(\hat{y}^{*}_{i},\, \hat{y}^{*}_{j})$", fontsize = SCATTER_LABEL_FONT_SIZE, color = TEXT_COLOR, math_fontfamily = "cm")
     ## reference gridlines only at 0 and 1 (omit intermediate gridlines)
     for _grid_pos in (0.0, 1.0):
         ax_scatter.axhline(_grid_pos, linestyle = (0, (3, 3)), linewidth = 0.6, color = "#BDBDBD", zorder = 0)
@@ -9006,20 +9007,27 @@ def generate_consensus_figure(
         predictions = consensus["frontiers"],
         y_true = _log_transformer(context.data[context.target]).to_numpy(dtype = float),
     )
-    return _render_consensus_figure(
-        results_data = consensus["results_data"],
-        results_perturbed_consensus = perturb["results_perturbed_consensus"],
-        results_decomposed_consensus = ablate["results_decomposed_consensus"],
-        results_falsified_consensus = falsify["results_falsified_consensus"],
-        results_original_agreement = original_agreement,
-        results_decomposed_full_agreement = ablate["results_decomposed_full_agreement"],
-        results_perturbed_full_agreement = perturb["results_perturbed_full_agreement"],
-        results_falsified_full_agreement = falsify["results_falsified_full_agreement"],
-        figure_dir = context.figure_dir,
-        export_pdf_scaled = _figure_exporter(context = context),
-        n_decimals = context.n_decimals,
-        show = show,
-    )
+
+    ## match the subscript scale of the operating-rate notation, then restore it
+    shrink_factor = _mathtext.SHRINK_FACTOR
+    _mathtext.SHRINK_FACTOR = 0.73
+    try:
+        return _render_consensus_figure(
+            results_data = consensus["results_data"],
+            results_perturbed_consensus = perturb["results_perturbed_consensus"],
+            results_decomposed_consensus = ablate["results_decomposed_consensus"],
+            results_falsified_consensus = falsify["results_falsified_consensus"],
+            results_original_agreement = original_agreement,
+            results_decomposed_full_agreement = ablate["results_decomposed_full_agreement"],
+            results_perturbed_full_agreement = perturb["results_perturbed_full_agreement"],
+            results_falsified_full_agreement = falsify["results_falsified_full_agreement"],
+            figure_dir = context.figure_dir,
+            export_pdf_scaled = _figure_exporter(context = context),
+            n_decimals = context.n_decimals,
+            show = show,
+        )
+    finally:
+        _mathtext.SHRINK_FACTOR = shrink_factor
 
 
 def generate_stress_test_figure(
